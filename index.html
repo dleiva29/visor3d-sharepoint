@@ -34,6 +34,9 @@
 <select id="savedViews" style="width:100%"><option value="">Selecciona una vista…</option></select>
 <label class="row">Nombre <input id="viewName" maxlength="100" placeholder="Ej.: Tumor y vasos" style="width:100%"></label>
 <div class="row"><button id="saveView" type="button">Guardar vista actual</button><button id="deleteView" type="button" disabled>Eliminar vista</button></div>
+<div class="row"><button id="exportViews" type="button">Exportar vistas JSON</button><button id="importViews" type="button">Importar vistas JSON</button></div>
+<input id="viewsFile" type="file" accept=".json,application/json" hidden>
+<p id="remoteViewsStatus" class="hint" role="status"></p>
 <p id="viewsStatus" class="hint" role="status" aria-live="polite">Vistas de este modelo, guardadas en este navegador. Para compartirlas, utiliza «Copiar enlace».</p>
 <div class="row"><button id="share">Copiar enlace de esta vista</button></div>
 <div id="shareFallback" hidden><label for="shareURL" class="hint">Copia este enlace:</label><textarea id="shareURL" readonly rows="4" style="width:100%;overflow-wrap:anywhere"></textarea></div>
@@ -326,14 +329,15 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
  };
 
  const viewsKey='anatomy-views:v1:'+url.href;
- let savedViews=[];
+ let savedViews=[],remoteViews=[];
  function readViews(){
   try{const raw=localStorage.getItem(viewsKey);if(!raw)return[];const data=JSON.parse(raw);if(!Array.isArray(data))throw new Error('Formato no válido');return data.filter(x=>x&&typeof x.id==='string'&&typeof x.name==='string'&&validState(x.state));}
   catch(e){$('viewsStatus').textContent='No se pudieron leer las vistas locales. El navegador puede estar bloqueando el almacenamiento.';return[];}
  }
  function renderViews(id=''){
   const select=$('savedViews');select.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent='Selecciona una vista…';select.append(empty);
-  for(const entry of savedViews){const option=document.createElement('option');option.value=entry.id;option.textContent=entry.name;select.append(option);}select.value=id;$('deleteView').disabled=!select.value;
+  const published=document.createElement('optgroup');published.label='Publicadas en GitHub';for(const entry of remoteViews){const option=document.createElement('option');option.value='remote:'+entry.id;option.textContent=entry.name;published.append(option);}if(remoteViews.length)select.append(published);
+  const local=document.createElement('optgroup');local.label='En este navegador';for(const entry of savedViews){const option=document.createElement('option');option.value=entry.id;option.textContent=entry.name;local.append(option);}if(savedViews.length)select.append(local);select.value=id;$('deleteView').disabled=!select.value||select.value.startsWith('remote:');
  }
  function persistViews(next){
   try{localStorage.setItem(viewsKey,JSON.stringify(next));savedViews=next;return true;}
@@ -348,7 +352,7 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
   if(persistViews(next)){renderViews(entry.id);$('viewsStatus').textContent=existing?'Vista actualizada en este navegador.':'Vista guardada en este navegador.';}
  };
  $('savedViews').onchange=()=>{
-  const id=$('savedViews').value,entry=savedViews.find(x=>x.id===id);$('deleteView').disabled=!entry;if(!entry)return;
+  const id=$('savedViews').value,isRemote=id.startsWith('remote:'),entry=isRemote?remoteViews.find(x=>'remote:'+x.id===id):savedViews.find(x=>x.id===id);$('deleteView').disabled=!entry||isRemote;if(!entry)return;
   $('viewName').value=entry.name;const fragment=new URLSearchParams();fragment.set('vista',JSON.stringify(entry.state));
   // Reutilizar el mismo restaurador que los enlaces compartidos.
   history.replaceState(null,'',location.pathname+location.search+'#'+fragment.toString());restore();$('viewsStatus').textContent='Vista abierta: '+entry.name;
@@ -356,6 +360,39 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
  $('deleteView').onclick=()=>{const entry=savedViews.find(x=>x.id===$('savedViews').value);if(!entry)return;const next=readViews().filter(x=>x.id!==entry.id);if(persistViews(next)){renderViews();$('viewName').value='';$('viewsStatus').textContent='Vista eliminada. La visualización actual se mantiene.';}};
  window.addEventListener('storage',e=>{if(e.key===viewsKey){savedViews=readViews();renderViews();}});
  savedViews=readViews();renderViews();
+
+ const modelPath=url.pathname.slice(base.pathname.length);
+ const viewsFilename=filename.replace(/\.glb$/i,'.json');
+ function validateViewsFile(data){
+  if(!data||data.version!==1||typeof data.model!=='string'||!Array.isArray(data.views)||data.views.length>500)throw new Error('Formato de vistas no válido.');
+  if(new URL(data.model,base).href!==url.href)throw new Error('El JSON corresponde a otro modelo: '+data.model);
+  const ids=new Set();
+  return data.views.map((entry,i)=>{if(!entry||typeof entry.name!=='string'||!entry.name.trim()||entry.name.length>100||!validState(entry.state))throw new Error('Vista no válida en la posición '+(i+1));let id=typeof entry.id==='string'&&entry.id?entry.id:'view-'+i;if(ids.has(id))throw new Error('Identificador de vista duplicado.');ids.add(id);return{id,name:entry.name,state:entry.state};});
+ }
+ $('exportViews').onclick=()=>{
+  const combined=new Map();for(const entry of [...remoteViews,...savedViews])combined.set(entry.name,entry);
+  if(!combined.size){$('viewsStatus').textContent='Guarda primero al menos una vista con nombre.';return;}
+  // Asignar IDs únicos incluso al combinar dos colecciones.
+  const views=Array.from(combined.values(),(entry,i)=>({...entry,id:'view-'+(i+1)}));
+  const data={version:1,model:modelPath,views};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),href=URL.createObjectURL(blob),a=document.createElement('a');a.href=href;a.download=viewsFilename;a.click();setTimeout(()=>URL.revokeObjectURL(href),10000);
+  $('viewsStatus').textContent='JSON exportado. Súbelo a vistas/'+viewsFilename+' en GitHub. Las vistas locales del mismo nombre tienen prioridad.';
+ };
+ $('importViews').onclick=()=>$('viewsFile').click();
+ $('viewsFile').onchange=async()=>{const file=$('viewsFile').files[0];if(!file)return;try{if(file.size>5*1024*1024)throw new Error('El JSON supera 5 MB.');const imported=validateViewsFile(JSON.parse(await file.text()));const merged=new Map(readViews().map(e=>[e.name,e]));for(const entry of imported)merged.set(entry.name,{...entry,id:globalThis.crypto?.randomUUID?.()||Date.now()+'-'+Math.random()});if(persistViews([...merged.values()])){renderViews();$('viewsStatus').textContent=imported.length+' vistas importadas en este navegador.';}}catch(e){$('viewsStatus').textContent='No se pudo importar: '+e.message;}finally{$('viewsFile').value='';}};
+ async function loadPublishedViews(){
+  let timeout;try{
+   const override=new URLSearchParams(location.search).get('vistas');const viewsURL=new URL(override||'vistas/'+encodeURIComponent(viewsFilename),base);
+   if(viewsURL.origin!==base.origin||!viewsURL.pathname.startsWith(base.pathname)||!viewsURL.pathname.toLowerCase().endsWith('.json'))throw new Error('La ruta de vistas debe ser un JSON dentro del proyecto.');
+   $('remoteViewsStatus').textContent='Buscando vistas publicadas…';const controller=new AbortController();timeout=setTimeout(()=>controller.abort(),10000);
+   const response=await fetch(viewsURL.href,{cache:'no-cache',signal:controller.signal});
+   if(response.status===404){$('remoteViewsStatus').textContent='Todavía no hay vistas publicadas para este modelo.';return;}
+   if(!response.ok)throw new Error('Respuesta HTTP '+response.status);
+   const text=await response.text();if(text.length>5*1024*1024)throw new Error('El JSON supera el tamaño permitido.');
+   remoteViews=validateViewsFile(JSON.parse(text));renderViews($('savedViews').value);$('remoteViewsStatus').textContent=remoteViews.length+' vistas disponibles desde GitHub.';
+  }catch(e){$('remoteViewsStatus').textContent='No se pudieron cargar las vistas publicadas: '+(e.name==='AbortError'?'tiempo de espera agotado.':e.message);}finally{clearTimeout(timeout);}
+ }
+ loadPublishedViews();
+
 
  window.addEventListener('hashchange',restore);
  $('tools').disabled=false;$('status').textContent=filename+' · '+structures.length+' estructuras';$('badge').textContent=filename;restore();
