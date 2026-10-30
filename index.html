@@ -14,7 +14,7 @@
 <aside>
 <h1>Visor anatómico 3D</h1><p id="status" class="hint" role="status" aria-live="polite">Iniciando…</p><p id="error" role="alert"></p>
 <details class="card" id="converter"><summary><strong>Convertir OBJ + MTL → GLB</strong></summary>
-<p class="hint">Conversión local en este navegador. Los archivos elegidos no se envían a GitHub. Esta versión admite geometría y colores; no admite texturas.</p>
+<p class="hint">Conversión local optimizada en este navegador, sin reducir triángulos. Los archivos elegidos no se envían a GitHub. Esta versión admite geometría y colores; no admite texturas.</p>
 <label class="row">Modelo OBJ <input id="objFile" type="file" accept=".obj" style="width:100%"></label>
 <label class="row">Materiales MTL (opcional) <input id="mtlFile" type="file" accept=".mtl" style="width:100%"></label>
 <label class="row">Unidades del OBJ <select id="objUnits"><option value="0.001">Milímetros (Slicer)</option><option value="0.01">Centímetros</option><option value="1">Metros</option></select></label>
@@ -91,19 +91,37 @@ function parseLocalMTL(text){
  }
  return entries;
 }
+// Indexación exacta: no se redondean coordenadas, normales ni colores.
+function indexGeometryExactly(geometry){
+ // Sin texturas, las coordenadas UV no intervienen en la representación.
+ geometry.deleteAttribute('uv');geometry.deleteAttribute('uv1');
+ const attributes=Object.entries(geometry.attributes),positions=geometry.attributes.position;
+ const sourceIndex=geometry.index,count=sourceIndex?sourceIndex.count:positions.count;
+ const unique=new Map(),sourceVertices=[],indices=new Uint32Array(count);
+ for(let i=0;i<count;i++){
+  const source=sourceIndex?sourceIndex.getX(i):i;let key='';
+  for(const [name,attribute] of attributes){key+=name+':';for(let j=0;j<attribute.itemSize;j++)key+=attribute.array[source*attribute.itemSize+j]+',';key+=';';}
+  let target=unique.get(key);if(target===undefined){target=sourceVertices.length;unique.set(key,target);sourceVertices.push(source);}indices[i]=target;
+ }
+ // Con geometría indexada ya compacta, no añadir trabajo ni buffers nuevos.
+ for(const [name,attribute] of attributes){const compact=new attribute.array.constructor(sourceVertices.length*attribute.itemSize);for(let i=0;i<sourceVertices.length;i++)for(let j=0;j<attribute.itemSize;j++)compact[i*attribute.itemSize+j]=attribute.array[sourceVertices[i]*attribute.itemSize+j];geometry.setAttribute(name,new THREE.BufferAttribute(compact,attribute.itemSize,attribute.normalized));}
+ geometry.setIndex(new THREE.BufferAttribute(sourceVertices.length<=65536?new Uint16Array(indices):indices,1));
+ return {before:positions.count,after:sourceVertices.length};
+}
 function prepareOBJConversion(objText,mtlText,metersPerUnit,opaque){
  if(!Number.isFinite(metersPerUnit)||metersPerUnit<=0)throw new Error('Escala no válida.');
  const materials=parseLocalMTL(mtlText||''),used=new Set();
  for(const line of objText.split(/\r?\n/)){const match=/^\s*usemtl\s+(.+?)\s*$/.exec(line);if(match)used.add(match[1]);}
  if(mtlText){const missing=[...used].filter(name=>!materials.has(name));if(missing.length)throw new Error('Faltan materiales del OBJ en el MTL: '+missing.join(', '));}
  // parse() no descarga mtllib ni otros archivos.
- const root=new OBJLoader().parse(objText);let meshCount=0,triangles=0;const names=new Set();
+ const root=new OBJLoader().parse(objText);let meshCount=0,triangles=0,verticesBefore=0,verticesAfter=0;const names=new Set();
  root.traverse(mesh=>{if(!mesh.isMesh)return;meshCount++;const geometry=mesh.geometry;
   const positions=geometry.attributes.position;if(!positions)throw new Error('Una superficie no contiene vértices.');
   for(let i=0;i<positions.array.length;i++)if(!Number.isFinite(positions.array[i]))throw new Error('Hay coordenadas no válidas en el OBJ.');
   geometry.scale(metersPerUnit,metersPerUnit,metersPerUnit);
   if(!geometry.attributes.normal)geometry.computeVertexNormals();
   triangles+=(geometry.index?.count||positions.count)/3;
+  const compact=indexGeometryExactly(geometry);verticesBefore+=compact.before;verticesAfter+=compact.after;
   let name=mesh.name||'Estructura '+meshCount,unique=name,n=2;while(names.has(unique))unique=name+' ('+(n++)+')';mesh.name=unique;names.add(unique);
   const old=Array.isArray(mesh.material)?mesh.material:[mesh.material];
   const converted=old.map(material=>{const info=materials.get(material.name);const color=info?new THREE.Color().setRGB(...info.color,THREE.SRGBColorSpace):materials.size?new THREE.Color('#b3b3b3'):geometry.attributes.color?new THREE.Color('white'):new THREE.Color('#b3b3b3');const opacity=opaque?1:(info?.opacity??1);return new THREE.MeshStandardMaterial({name:material.name||'Material',color,metalness:0,roughness:.85,side:THREE.DoubleSide,opacity,transparent:opacity<1,vertexColors:!!geometry.attributes.color});});
@@ -112,7 +130,7 @@ function prepareOBJConversion(objText,mtlText,metersPerUnit,opaque){
  if(meshCount===0)throw new Error('El OBJ no contiene superficies trianguladas.');
  root.name='Modelo convertido';root.userData.viewerMmPerUnit=1000;root.userData.sourceMetersPerUnit=metersPerUnit;
  root.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(root);if(bounds.isEmpty())throw new Error('Geometría vacía.');
- return{root,meshCount,triangles,bounds,missingColors:!mtlText&&used.size>0};
+ return{root,meshCount,triangles,verticesBefore,verticesAfter,bounds,missingColors:!mtlText&&used.size>0};
 }
 let convertedURL=null;
 $('convert').onclick=async()=>{
