@@ -1,522 +1,114 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Visor anatómico 3D</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      background: #ffffff;
-      color: #17212b;
-      font: 15px system-ui, sans-serif;
-    }
-
-    #app {
-      display: flex;
-      height: 100vh;
-      height: 100dvh;
-      overflow: hidden;
-    }
-
-    #viewer {
-      flex: 1;
-      min-width: 0;
-      position: relative;
-    }
-
-    #viewer canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      touch-action: none;
-    }
-
-    #panel {
-      width: 290px;
-      padding: 20px;
-      background: #f7f9fb;
-      border-left: 1px solid #dce2e8;
-      overflow-y: auto;
-    }
-
-    h1 {
-      margin: 0 0 12px;
-      font-size: 20px;
-    }
-
-    h2 {
-      margin-top: 24px;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 10px 14px;
-      border: 1px solid #c8d1db;
-      border-radius: 7px;
-      background: #ffffff;
-      color: #17212b;
-      cursor: pointer;
-      font: inherit;
-    }
-
-    button:hover {
-      background: #eaf0f6;
-    }
-
-    .layer {
-      margin: 12px 0;
-      padding: 12px;
-      border: 1px solid #dce2e8;
-      border-radius: 8px;
-      background: #ffffff;
-    }
-
-    .layer-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      overflow-wrap: anywhere;
-      font-weight: 600;
-    }
-
-    .setting {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 12px;
-      font-size: 13px;
-    }
-
-    .setting input[type="range"] {
-      flex: 1;
-      min-width: 0;
-    }
-
-    input[type="color"] {
-      width: 42px;
-      height: 28px;
-      padding: 0;
-      border: 0;
-      background: transparent;
-      cursor: pointer;
-    }
-
-    #status,
-    .help {
-      font-size: 13px;
-      line-height: 1.5;
-      color: #526171;
-    }
-
-    #status {
-      margin: 12px 0;
-      overflow-wrap: anywhere;
-    }
-
-    #status.error {
-      color: #b42318;
-    }
-
-    @media (max-width: 650px) {
-      #app {
-        flex-direction: column;
-      }
-
-      #viewer {
-        flex: none;
-        height: 60%;
-      }
-
-      #panel {
-        width: 100%;
-        flex: 1;
-        border-left: 0;
-        border-top: 1px solid #dce2e8;
-      }
-    }
-  </style>
-
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
-      }
-    }
-  </script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Visor anatómico 3D</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;color:#203044;background:white}#app{display:flex;height:100vh;height:100dvh}#viewport{flex:1;min-width:0;position:relative;background:white}canvas{display:block;touch-action:none}aside{width:320px;background:#f5f7fa;border-left:1px solid #dce2ea;overflow:auto;padding:20px}h1{font-size:21px;margin:0 0 6px}h2{font-size:15px;margin:22px 0 10px}.hint{font-size:12px;color:#596b7d;line-height:1.6}button,select{font:inherit;padding:8px 10px;border:1px solid #ccd5df;border-radius:7px;background:white;color:inherit}button{cursor:pointer}button:hover{background:#e8eff7}button:disabled{opacity:.45;cursor:default}.row{display:flex;align-items:center;gap:7px;margin:9px 0;flex-wrap:wrap}.row input[type=range]{flex:1;min-width:65px}input[type=color]{width:38px;height:28px;border:0;padding:0;background:none}.card{padding:12px;background:white;border:1px solid #dce2ea;border-radius:9px;margin:10px 0}.card.selected{border-color:#2563eb;box-shadow:0 0 0 1px #2563eb}.name{display:flex;gap:7px;align-items:center;overflow-wrap:anywhere}.name button{flex:1;text-align:left;border:0;padding:4px;font-weight:600}.card .row{font-size:12px}#status{overflow-wrap:anywhere}#badge{position:absolute;top:16px;left:16px;padding:8px 12px;background:#ffffffdf;border:1px solid #dce2ea;border-radius:8px;max-width:85%;pointer-events:none}#error{color:#ad271c}fieldset{border:0;padding:0;margin:0}output{min-width:35px}#app:fullscreen{width:100%;height:100%;background:white}@media(max-width:680px){#app{flex-direction:column}#viewport{flex:none;height:58%}aside{width:100%;flex:1;border-left:0;border-top:1px solid #dce2ea}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
 </head>
-
 <body>
-  <main id="app">
-    <div id="viewer" aria-label="Vista del modelo 3D"></div>
-
-    <aside id="panel">
-      <h1>Visor anatómico 3D</h1>
-
-      <button id="reset" type="button" disabled>
-        Restablecer vista
-      </button>
-
-      <p id="status" role="status" aria-live="polite">
-        Cargando visor…
-      </p>
-
-      <h2>Estructuras</h2>
-      <div id="layers"></div>
-
-      <p class="help">
-        Rotar: arrastrar con el botón izquierdo.<br>
-        Zoom: rueda del ratón.<br>
-        Desplazar: arrastrar con el botón derecho.
-      </p>
-    </aside>
-  </main>
-
-  <script type="module">
-    import * as THREE from 'three';
-    import { OrbitControls } from
-      'three/addons/controls/OrbitControls.js';
-    import { GLTFLoader } from
-      'three/addons/loaders/GLTFLoader.js';
-
-    const container = document.getElementById('viewer');
-    const layers = document.getElementById('layers');
-    const status = document.getElementById('status');
-    const resetButton = document.getElementById('reset');
-
-    function showError(message, error) {
-      status.textContent = message;
-      status.classList.add('error');
-
-      if (error) {
-        console.error(error);
-      }
-    }
-
-    async function start() {
-      const renderer = new THREE.WebGLRenderer({
-        antialias: true
-      });
-
-      renderer.setPixelRatio(
-        Math.min(window.devicePixelRatio || 1, 2)
-      );
-
-      renderer.outputColorSpace = THREE.SRGBColorSpace;
-      container.appendChild(renderer.domElement);
-
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color('#ffffff');
-
-      const camera = new THREE.PerspectiveCamera(
-        45,
-        1,
-        0.01,
-        100000
-      );
-
-      const controls = new OrbitControls(
-        camera,
-        renderer.domElement
-      );
-
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.08;
-      controls.screenSpacePanning = true;
-
-      scene.add(
-        new THREE.HemisphereLight(0xffffff, 0x8899aa, 2)
-      );
-
-      const mainLight = new THREE.DirectionalLight(
-        0xffffff,
-        2.5
-      );
-
-      mainLight.position.set(1, 2, 3);
-      camera.add(mainLight);
-      scene.add(camera);
-
-      const fillLight = new THREE.DirectionalLight(
-        0xffffff,
-        1
-      );
-
-      fillLight.position.set(-2, 1, -1);
-      scene.add(fillLight);
-
-      function resize() {
-        const width = Math.max(container.clientWidth, 1);
-        const height = Math.max(container.clientHeight, 1);
-
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(width, height);
-      }
-
-      const resizeObserver = new ResizeObserver(resize);
-      resizeObserver.observe(container);
-      resize();
-
-      renderer.setAnimationLoop(() => {
-        controls.update();
-        renderer.render(scene, camera);
-      });
-
-      resetButton.addEventListener('click', () => {
-        controls.reset();
-      });
-
-      // Ejemplo:
-      // ?modelo=modelos/modelo_001.glb
-      const parameters = new URLSearchParams(
-        window.location.search
-      );
-
-      const modelPath =
-        parameters.get('modelo') || './modelo-demo.glb';
-
-      const baseURL = new URL('./', window.location.href);
-      const modelURL = new URL(modelPath, baseURL);
-
-      // Limitar la carga a archivos GLB del mismo proyecto.
-      if (
-        modelURL.origin !== baseURL.origin ||
-        !modelURL.pathname.startsWith(baseURL.pathname) ||
-        !modelURL.pathname.toLowerCase().endsWith('.glb')
-      ) {
-        throw new Error(
-          'La ruta debe apuntar a un archivo GLB dentro de este proyecto.'
-        );
-      }
-
-      const filename = decodeURIComponent(
-        modelURL.pathname.split('/').pop()
-      );
-
-      document.title = `${filename} — Visor 3D`;
-      status.textContent = `Cargando ${filename}…`;
-
-      const loader = new GLTFLoader();
-
-      const gltf = await loader.loadAsync(
-        modelURL.href,
-        (progress) => {
-          if (progress.total > 0) {
-            const percent = Math.round(
-              progress.loaded / progress.total * 100
-            );
-
-            status.textContent =
-              `Cargando ${filename}: ${percent}%`;
-          }
-        }
-      );
-
-      const model = gltf.scene;
-
-      const bounds = new THREE.Box3().setFromObject(model);
-
-      if (bounds.isEmpty()) {
-        throw new Error('El modelo no contiene geometría visible.');
-      }
-
-      const center = bounds.getCenter(new THREE.Vector3());
-      const dimensions = bounds.getSize(new THREE.Vector3());
-      const radius = dimensions.length() / 2;
-
-      if (!Number.isFinite(radius) || radius <= 0) {
-        throw new Error('El tamaño del modelo no es válido.');
-      }
-
-      scene.add(model);
-
-      // Centrar el conjunto, conservando la posición relativa
-      // de todas sus estructuras.
-      const pivot = new THREE.Group();
-      scene.add(pivot);
-      pivot.add(model);
-      pivot.position.copy(center).multiplyScalar(-1);
-
-      const verticalFov = THREE.MathUtils.degToRad(camera.fov);
-      const horizontalFov = 2 * Math.atan(
-        Math.tan(verticalFov / 2) * camera.aspect
-      );
-
-      const distance = radius / Math.sin(
-        Math.min(verticalFov, horizontalFov) / 2
-      ) * 1.15;
-
-      camera.position.copy(
-        new THREE.Vector3(1, 0.6, 1)
-          .normalize()
-          .multiplyScalar(distance)
-      );
-
-      camera.near = Math.max(radius / 1000, 0.0001);
-      camera.far = Math.max(distance + radius * 100, 100);
-      camera.updateProjectionMatrix();
-
-      controls.target.set(0, 0, 0);
-      controls.minDistance = radius * 0.05;
-      controls.maxDistance = radius * 50;
-      controls.update();
-      controls.saveState();
-
-      resetButton.disabled = false;
-
-      // Agrupar mallas que compartan el mismo nombre.
-      const structures = new Map();
-
-      model.traverse((object) => {
-        if (!object.isMesh) return;
-
-        // Cada malla recibe materiales propios para que sus
-        // controles no modifiquen otras estructuras.
-        const originals = Array.isArray(object.material)
-          ? object.material
-          : [object.material];
-
-        const materials = originals.map((material) => {
-          const copy = material.clone();
-          copy.side = THREE.DoubleSide;
-          return copy;
-        });
-
-        object.material = Array.isArray(object.material)
-          ? materials
-          : materials[0];
-
-        const name =
-          object.name ||
-          object.parent?.name ||
-          `Estructura ${structures.size + 1}`;
-
-        if (!structures.has(name)) {
-          structures.set(name, []);
-        }
-
-        structures.get(name).push(object);
-      });
-
-      if (structures.size === 0) {
-        throw new Error('No se han encontrado superficies en el GLB.');
-      }
-
-      for (const [name, meshes] of structures) {
-        const materials = meshes.flatMap((mesh) =>
-          Array.isArray(mesh.material)
-            ? mesh.material
-            : [mesh.material]
-        );
-
-        const card = document.createElement('div');
-        card.className = 'layer';
-
-        const title = document.createElement('label');
-        title.className = 'layer-title';
-
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.checked = meshes.every((mesh) => mesh.visible);
-
-        const text = document.createElement('span');
-        text.textContent = name;
-
-        title.append(checkbox, text);
-
-        checkbox.addEventListener('change', () => {
-          meshes.forEach((mesh) => {
-            mesh.visible = checkbox.checked;
-          });
-        });
-
-        const colorRow = document.createElement('label');
-        colorRow.className = 'setting';
-
-        const colorText = document.createElement('span');
-        colorText.textContent = 'Color';
-
-        const color = document.createElement('input');
-        color.type = 'color';
-
-        const firstColor = materials.find(
-          (material) => material.color
-        )?.color;
-
-        color.value = firstColor
-          ? `#${firstColor.getHexString()}`
-          : '#cccccc';
-
-        color.addEventListener('input', () => {
-          materials.forEach((material) => {
-            if (material.color) {
-              material.color.set(color.value);
-            }
-          });
-        });
-
-        colorRow.append(colorText, color);
-
-        const opacityRow = document.createElement('label');
-        opacityRow.className = 'setting';
-
-        const opacityText = document.createElement('span');
-        opacityText.textContent = 'Opacidad';
-
-        const opacity = document.createElement('input');
-        opacity.type = 'range';
-        opacity.min = '0';
-        opacity.max = '100';
-        opacity.step = '1';
-        opacity.value = String(
-          Math.round((materials[0]?.opacity ?? 1) * 100)
-        );
-
-        const opacityValue = document.createElement('span');
-        opacityValue.textContent = `${opacity.value}%`;
-
-        opacity.addEventListener('input', () => {
-          const value = Number(opacity.value) / 100;
-
-          materials.forEach((material) => {
-            material.opacity = value;
-            material.transparent = value < 1;
-            material.depthWrite = value >= 1;
-            material.needsUpdate = true;
-          });
-
-          opacityValue.textContent = `${opacity.value}%`;
-        });
-
-        opacityRow.append(
-          opacityText,
-          opacity,
-          opacityValue
-        );
-
-        card.append(title, colorRow, opacityRow);
-        layers.appendChild(card);
-      }
-
-      status.textContent =
-        `${filename} · ${structures.size} estructuras`;
-    }
-
-    start().catch((error) => {
-      showError(
-        `No se pudo abrir el modelo. Comprueba la ruta del GLB ` +
-        `y que el archivo exista en GitHub. ${error.message}`,
-        error
-      );
-    });
-  </script>
-</body>
-</html>
+<main id="app">
+<section id="viewport" aria-label="Modelo 3D"><div id="badge">Visor anatómico 3D</div></section>
+<aside>
+<h1>Visor anatómico 3D</h1><p id="status" class="hint" role="status" aria-live="polite">Iniciando…</p><p id="error" role="alert"></p>
+<div class="row"><button id="full">Pantalla completa</button></div>
+<fieldset id="tools" disabled>
+<div class="row"><button id="reset">Restablecer vista</button><button id="capture">Captura PNG</button></div>
+<h2>Vistas por ejes</h2>
+<div class="row" id="views"><button data-view="x">+X</button><button data-view="-x">−X</button><button data-view="y">+Y</button><button data-view="-y">−Y</button><button data-view="z">+Z</button><button data-view="-z">−Z</button><button data-view="iso">3D</button></div>
+<p class="hint">Ejes del archivo exportado; no equivalen necesariamente a orientaciones anatómicas.</p>
+<h2>Apariencia</h2>
+<label class="row">Iluminación <input id="light" type="range" min="0.5" max="4" step="0.1" value="1.5"><output id="lightValue">1.5</output></label>
+<label class="row"><input id="flat" type="checkbox"> Colores planos, sin sombreado</label>
+<h2>Plano de corte</h2>
+<label class="row"><input id="cut" type="checkbox"> Activar corte</label>
+<label class="row">Eje <select id="axis"><option value="x">X</option><option value="y">Y</option><option value="z" selected>Z</option></select><input id="flip" type="checkbox"> Invertir</label>
+<label class="row">Posición <input id="position" type="range" min="0" max="100" value="50"><output id="positionValue">50%</output></label>
+<p class="hint">Recorte visual de superficies; el corte no rellena el interior ni muestra imágenes de TC/RM.</p>
+<h2>Estructuras</h2><p class="hint">Pulsa una superficie o su nombre para seleccionarla.</p>
+<div class="row"><button id="isolate" disabled>Aislar selección</button><button id="show">Mostrar todas</button><button id="clear">Quitar selección</button></div>
+<div id="layers"></div>
+</fieldset>
+<p class="hint">Rotar: botón izquierdo · Zoom: rueda · Desplazar: botón derecho. En pantalla táctil, usa uno o dos dedos.</p>
+</aside></main>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+const $=id=>document.getElementById(id);
+const report=e=>{$('error').textContent=e.message||String(e);console.error(e);};
+$('full').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('app').requestFullscreen();}catch(e){report(new Error('No se pudo activar la pantalla completa. Abre el visor en otra pestaña o revisa los permisos del iframe.'));}};
+document.addEventListener('fullscreenchange',()=>{$('full').textContent=document.fullscreenElement?'Salir de pantalla completa':'Pantalla completa';});
+async function start(){
+ const host=$('viewport'), renderer=new THREE.WebGLRenderer({antialias:true});
+ renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
+ host.appendChild(renderer.domElement);
+ const scene=new THREE.Scene();scene.background=new THREE.Color('white');
+ const camera=new THREE.PerspectiveCamera(45,1,.01,100000);scene.add(camera);
+ const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.screenSpacePanning=true;
+ const ambient=new THREE.HemisphereLight(0xffffff,0xb1bac4,2);scene.add(ambient);
+ const key=new THREE.DirectionalLight(0xffffff,2.5);key.position.set(1,2,3);camera.add(key);
+ const fill=new THREE.DirectionalLight(0xffffff,1);fill.position.set(-2,1,-1);scene.add(fill);
+ const resize=()=>{const w=Math.max(host.clientWidth,1),h=Math.max(host.clientHeight,1);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);};
+ new ResizeObserver(resize).observe(host);resize();
+ renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);});
+ const base=new URL('./',location.href),path=new URLSearchParams(location.search).get('modelo')||'modelo-demo.glb',url=new URL(path,base);
+ if(url.origin!==base.origin||!url.pathname.startsWith(base.pathname)||!url.pathname.toLowerCase().endsWith('.glb'))throw new Error('Utiliza la ruta de un GLB dentro de este proyecto.');
+ const filename=decodeURIComponent(url.pathname.split('/').pop());document.title=filename+' — Visor 3D';
+ $('status').textContent='Cargando '+filename+'…';
+ const gltf=await new GLTFLoader().loadAsync(url.href,p=>{if(p.total)$('status').textContent='Cargando '+Math.round(p.loaded/p.total*100)+'%';});
+ const model=gltf.scene,box=new THREE.Box3().setFromObject(model);
+ if(box.isEmpty())throw new Error('El archivo no contiene geometría visible.');
+ const center=box.getCenter(new THREE.Vector3()),radius=box.getSize(new THREE.Vector3()).length()/2;
+ if(!Number.isFinite(radius)||radius<=0)throw new Error('Dimensiones de modelo no válidas.');
+ const pivot=new THREE.Group();pivot.add(model);pivot.position.copy(center).negate();scene.add(pivot);scene.updateMatrixWorld(true);
+ const centeredBox=new THREE.Box3().setFromObject(pivot);
+ camera.near=Math.max(radius/10000,.00001);camera.far=radius*1000;camera.updateProjectionMatrix();controls.minDistance=radius*.03;controls.maxDistance=radius*100;
+ function view(code){const directions={x:[1,0,0],'-x':[-1,0,0],y:[0,1,0],'-y':[0,-1,0],z:[0,0,1],'-z':[0,0,-1],iso:[1,.6,1]};const vertical=THREE.MathUtils.degToRad(camera.fov),horizontal=2*Math.atan(Math.tan(vertical/2)*camera.aspect),distance=radius/Math.sin(Math.min(vertical,horizontal)/2)*1.15;controls.target.set(0,0,0);camera.up.set(0,Math.abs(directions[code][1])===1?0:1,Math.abs(directions[code][1])===1?1:0);camera.position.fromArray(directions[code]).normalize().multiplyScalar(distance);camera.lookAt(controls.target);controls.update();}
+ view('iso');$('reset').onclick=()=>view('iso');$('views').onclick=e=>{if(e.target.dataset.view)view(e.target.dataset.view);};
+ const structures=[],byName=new Map(),owner=new Map();let selected=null;
+ model.traverse(o=>{if(!o.isMesh)return;if(!o.geometry.attributes.normal)o.geometry.computeVertexNormals();
+  const originals=Array.isArray(o.material)?o.material:[o.material];
+  const pairs=originals.map(m=>{const lit=m.clone();lit.side=THREE.DoubleSide;
+   const flat=new THREE.MeshBasicMaterial({color:lit.color?.clone()||new THREE.Color('#cccccc'),map:lit.map||null,side:THREE.DoubleSide,opacity:lit.opacity,transparent:lit.transparent,alphaTest:lit.alphaTest,vertexColors:lit.vertexColors});return{lit,flat};});
+  const name=o.name||o.parent?.name||'Estructura '+(structures.length+1);let s=byName.get(name);
+  if(!s){s={name,meshes:[],pairs:[],opacity:originals[0].opacity??1,visible:true};byName.set(name,s);structures.push(s);}
+  o.userData.materialPairs=pairs;o.userData.multi=Array.isArray(o.material);o.material=o.userData.multi?pairs.map(p=>p.lit):pairs[0].lit;s.meshes.push(o);s.pairs.push(...pairs);owner.set(o,s);
+ });
+ if(!structures.length)throw new Error('No se encontraron superficies en el GLB.');
+ function refresh(s){s.meshes.forEach(m=>m.visible=s.visible);s.check.checked=s.visible;s.card.classList.toggle('selected',selected===s);
+  for(const p of s.pairs){for(const m of [p.lit,p.flat]){m.opacity=s.opacity;m.transparent=s.opacity<1;m.depthWrite=s.opacity>=1;m.needsUpdate=true;}
+   if(p.lit.emissive){p.lit.emissive.copy(p.lit.color);p.lit.emissiveIntensity=selected===s?.45:.12;}
+   p.flat.color.copy(p.lit.color);if(selected===s)p.flat.color.lerp(new THREE.Color('#fff1a8'),.2);
+  }
+ }
+ function select(s){selected=s;structures.forEach(refresh);$('badge').textContent=s?s.name:filename;$('isolate').disabled=!s;}
+ for(const s of structures){
+  const card=document.createElement('div');card.className='card';s.card=card;
+  const title=document.createElement('div');title.className='name';const check=document.createElement('input');check.type='checkbox';check.checked=true;check.setAttribute('aria-label','Mostrar '+s.name);s.check=check;check.onchange=()=>{s.visible=check.checked;refresh(s);};
+  const name=document.createElement('button');name.textContent=s.name;name.onclick=()=>select(s);title.append(check,name);
+  const colorRow=document.createElement('label');colorRow.className='row';colorRow.append('Color');const color=document.createElement('input');color.type='color';color.value='#'+(s.pairs[0].lit.color?.getHexString()||'cccccc');color.oninput=()=>{s.pairs.forEach(p=>{if(p.lit.color)p.lit.color.set(color.value);});refresh(s);};colorRow.append(color);
+  const opRow=document.createElement('label');opRow.className='row';opRow.append('Opacidad');const range=document.createElement('input');range.type='range';range.min=0;range.max=100;range.value=Math.round(s.opacity*100);const output=document.createElement('output');output.textContent=range.value+'%';range.oninput=()=>{s.opacity=Number(range.value)/100;output.textContent=range.value+'%';refresh(s);};opRow.append(range,output);
+  card.append(title,colorRow,opRow);$('layers').append(card);refresh(s);
+ }
+ $('isolate').onclick=()=>{if(selected)structures.forEach(s=>{s.visible=s===selected;refresh(s);});};
+ $('show').onclick=()=>structures.forEach(s=>{s.visible=true;refresh(s);});$('clear').onclick=()=>select(null);
+ $('light').oninput=()=>{const v=Number($('light').value);ambient.intensity=2*v;key.intensity=2.5*v;fill.intensity=v;$('lightValue').textContent=v.toFixed(1);};$('light').oninput();
+ $('flat').onchange=()=>{for(const s of structures)for(const m of s.meshes){const materials=m.userData.materialPairs.map(p=>$('flat').checked?p.flat:p.lit);m.material=m.userData.multi?materials:materials[0];}};
+ const plane=new THREE.Plane();
+ function updateCut(){const axis=$('axis').value,sign=$('flip').checked?-1:1,t=Number($('position').value)/100,coordinate=THREE.MathUtils.lerp(centeredBox.min[axis],centeredBox.max[axis],t);plane.normal.set(0,0,0);plane.normal[axis]=sign;plane.constant=-sign*coordinate;renderer.clippingPlanes=$('cut').checked?[plane]:[];$('positionValue').textContent=Math.round(t*100)+'%';}
+ for(const id of ['cut','axis','flip','position'])$(id).addEventListener('input',updateCut);updateCut();
+ const raycaster=new THREE.Raycaster();let down=null;
+ renderer.domElement.addEventListener('pointerdown',e=>{down=e.button===0?{x:e.clientX,y:e.clientY,id:e.pointerId}:null;});
+ renderer.domElement.addEventListener('pointercancel',()=>down=null);
+ renderer.domElement.addEventListener('pointerup',e=>{if(!down||down.id!==e.pointerId)return;const d=down;down=null;if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>5)return;
+  const rect=renderer.domElement.getBoundingClientRect();raycaster.setFromCamera(new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1),camera);scene.updateMatrixWorld(true);
+  const meshes=structures.filter(s=>s.visible&&s.opacity>0).flatMap(s=>s.meshes);const hit=raycaster.intersectObjects(meshes,false).find(h=>!$('cut').checked||plane.distanceToPoint(h.point)>=-radius*1e-7);select(hit?owner.get(hit.object):null);
+ });
+ $('capture').onclick=()=>{try{renderer.render(scene,camera);renderer.domElement.toBlob(blob=>{if(!blob){report(new Error('No se pudo generar la captura.'));return;}const link=document.createElement('a'),href=URL.createObjectURL(blob);link.href=href;link.download=filename.replace(/\.glb$/i,'')+'-vista.png';link.click();setTimeout(()=>URL.revokeObjectURL(href),10000);},'image/png');}catch(e){report(e);}};
+ $('tools').disabled=false;$('status').textContent=filename+' · '+structures.length+' estructuras';$('badge').textContent=filename;
+}
+start().catch(e=>{$('status').textContent='No se pudo cargar el modelo.';report(new Error(e.message+' Comprueba la ruta y el archivo GLB.'));});
+</script></body></html>
