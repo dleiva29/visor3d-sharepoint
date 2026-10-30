@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "model": "modelos/1.glb",
+  "views": [
+    {
+      "id": "view-2",
+      "name": "tumo6",
+      "state": {
+        "v": 1,
+        "camera": {
+          "position": [
+            0.0004140427166946843,
+            -438.7344699720861,
+            0.00014510880054241425
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ]
+        },
+        "light": 1.5,
+        "flat": false,
+        "cut": {
+          "enabled": false,
+          "axis": "z",
+          "flip": false,
+          "position": 50
+        },
+        "structures": [
+          {
+            "name": "grp1",
+            "label": "grp1",
+            "visible": true,
+            "opacity": 1,
+            "colors": [
+              "#4d4d1a"
+            ]
+          },
+          {
+            "name": "grp213095",
+            "label": "grp213095",
+            "visible": true,
+            "opacity": 1,
+            "colors": [
+              "#390000"
+            ]
+          },
+          {
+            "name": "grp284985",
+            "label": "grp284985",
+            "visible": true,
+            "opacity": 1,
+            "colors": [
+              "#000055"
+            ]
+          }
+        ],
+        "selected": null,
+        "geometry": {
+          "scale": 1,
+          "confirmed": false,
+          "labels": false
+        }
+      }
+    }
+  ]
+}
