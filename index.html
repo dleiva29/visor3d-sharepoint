@@ -1,7 +1,110 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Visor anatómico 3D</title><style>body{margin:0;background:#101923;color:#f1f5f9;font:15px system-ui}header{padding:14px 20px;background:#182738;font-weight:700}main{display:grid;grid-template-columns:minmax(0,1fr) 270px;height:calc(100vh - 52px);min-height:450px}#viewer{min-height:450px}aside{background:#1c2b3c;padding:18px;overflow:auto}button,input{cursor:pointer}button{padding:8px 12px;border:0;border-radius:6px;background:#dce8f5}.item{margin:15px 0;padding-bottom:12px;border-bottom:1px solid #42556a}.item label{display:block;margin:7px 0}.item input[type=range]{width:100%}small{color:#b6c8da}#status{font-size:13px;color:#bfd3e5}@media(max-width:700px){main{grid-template-columns:1fr;height:auto}#viewer{height:60vh;min-height:300px}}</style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body><header>Visor anatómico 3D · SharePoint</header><main><div id="viewer"></div><aside><button id="reset">Restablecer vista</button><p id="status">Cargando modelo…</p><h3>Estructuras</h3><div id="layers"></div><small>Arrastrar: rotar · Rueda: zoom · Botón derecho: desplazar</small></aside></main><script type="module">
-import * as THREE from 'three';import {OrbitControls} from 'three/addons/controls/OrbitControls.js';import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
-const el=document.getElementById('viewer'),scene=new THREE.Scene();scene.background=new THREE.Color('#101923');const camera=new THREE.PerspectiveCamera(45,1,.1,100000),renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));el.appendChild(renderer.domElement);scene.add(new THREE.HemisphereLight(0xffffff,0x526274,2.5));const sun=new THREE.DirectionalLight(0xffffff,2.4);sun.position.set(2,3,4);scene.add(sun);const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;let homePos,homeTarget;
-function resize(){const w=el.clientWidth,h=el.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)}new ResizeObserver(resize).observe(el);
-document.getElementById('reset').onclick=()=>{if(homePos){camera.position.copy(homePos);controls.target.copy(homeTarget);controls.update()}};
-new GLTFLoader().load('./modelo-demo.glb',g=>{const model=g.scene;scene.add(model);const bounds=new THREE.Box3().setFromObject(model),center=bounds.getCenter(new THREE.Vector3()),size=Math.max(bounds.getSize(new THREE.Vector3()).length(),1);camera.position.copy(center).add(new THREE.Vector3(size*.75,size*.55,size*.9));controls.target.copy(center);camera.near=Math.max(size/1000,.01);camera.far=size*100;camera.updateProjectionMatrix();controls.update();homePos=camera.position.clone();homeTarget=center.clone();const layers=document.getElementById('layers');let count=0;model.traverse(o=>{if(!o.isMesh)return;count++;o.material=o.material.clone();const box=document.createElement('div');box.className='item';const name=document.createElement('strong');name.textContent=o.name||'Estructura '+count;const label=document.createElement('label');const check=document.createElement('input');check.type='checkbox';check.checked=true;check.onchange=()=>o.visible=check.checked;label.append(check,' Mostrar');const opacityLabel=document.createElement('label');opacityLabel.textContent='Opacidad';const range=document.createElement('input');range.type='range';range.min='0';range.max='100';range.value='100';range.oninput=()=>{const v=Number(range.value)/100;o.material.transparent=v<1;o.material.opacity=v;o.material.depthWrite=v>=1};box.append(name,label,opacityLabel,range);layers.append(box)});document.getElementById('status').textContent=count+' estructuras cargadas';},undefined,e=>{document.getElementById('status').textContent='No se pudo cargar modelo-demo.glb';console.error(e)});function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();
-</script></body></html>
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Visor anatómico 3D</title>
+    <style>
+        body {
+            margin: 0;
+            background: #101923;
+            color: #f1f5f9;
+            font: 15px system-ui
+        }
+
+        header {
+            padding: 14px 20px;
+            background: #182738;
+            font-weight: 700
+        }
+
+        main {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 270px;
+            height: calc(100vh - 52px);
+            min-height: 450px
+        }
+
+        #viewer {
+            min-height: 450px
+        }
+
+        aside {
+            background: #1c2b3c;
+            padding: 18px;
+            overflow: auto
+        }
+
+        button,
+        input {
+            cursor: pointer
+        }
+
+        button {
+            padding: 8px 12px;
+            border: 0;
+            border-radius: 6px;
+            background: #dce8f5
+        }
+
+        .item {
+            margin: 15px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #42556a
+        }
+
+        .item label {
+            display: block;
+            margin: 7px 0
+        }
+
+        .item input[type=range] {
+            width: 100%
+        }
+
+        small {
+            color: #b6c8da
+        }
+
+        #status {
+            font-size: 13px;
+            color: #bfd3e5
+        }
+
+        @media(max-width:700px) {
+            main {
+                grid-template-columns: 1fr;
+                height: auto
+            }
+
+            #viewer {
+                height: 60vh;
+                min-height: 300px
+            }
+        }
+    </style>
+    <script
+        type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
+</head>
+
+<body>
+    <header>Visor anatómico 3D · SharePoint</header>
+    <main>
+        <div id="viewer"></div>
+        <aside><button id="reset">Restablecer vista</button>
+            <p id="status">Cargando modelo…</p>
+            <h3>Estructuras</h3>
+            <div id="layers"></div><small>Arrastrar: rotar · Rueda: zoom · Botón derecho: desplazar</small>
+        </aside>
+    </main>
+    <script type="module">
+        import * as THREE from 'three'; import {OrbitControls} from 'three/addons/controls/OrbitControls.js'; import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+        const el = document.getElementById('viewer'), scene = new THREE.Scene(); scene.background = new THREE.Color('#101923'); const camera = new THREE.PerspectiveCamera(45, 1, .1, 100000), renderer = new THREE.WebGLRenderer({antialias: true}); renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); el.appendChild(renderer.domElement); scene.add(new THREE.HemisphereLight(0xffffff, 0x526274, 2.5)); const sun = new THREE.DirectionalLight(0xffffff, 2.4); sun.position.set(2, 3, 4); scene.add(sun); const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true; let homePos, homeTarget;
+        function resize() {const w = el.clientWidth, h = el.clientHeight; camera.aspect = w / h; camera.updateProjectionMatrix(); renderer.setSize(w, h)} new ResizeObserver(resize).observe(el);
+        document.getElementById('reset').onclick = () => {if (homePos) {camera.position.copy(homePos); controls.target.copy(homeTarget); controls.update()} };
+        new GLTFLoader().load('./modelo-demo.glb', g => {const model = g.scene; scene.add(model); const bounds = new THREE.Box3().setFromObject(model), center = bounds.getCenter(new THREE.Vector3()), size = Math.max(bounds.getSize(new THREE.Vector3()).length(), 1); camera.position.copy(center).add(new THREE.Vector3(size * .75, size * .55, size * .9)); controls.target.copy(center); camera.near = Math.max(size / 1000, .01); camera.far = size * 100; camera.updateProjectionMatrix(); controls.update(); homePos = camera.position.clone(); homeTarget = center.clone(); const layers = document.getElementById('layers'); let count = 0; model.traverse(o => {if (!o.isMesh) return; count++; o.material = o.material.clone(); const box = document.createElement('div'); box.className = 'item'; const name = document.createElement('strong'); name.textContent = o.name || 'Estructura ' + count; const label = document.createElement('label'); const check = document.createElement('input'); check.type = 'checkbox'; check.checked = true; check.onchange = () => o.visible = check.checked; label.append(check, ' Mostrar'); const opacityLabel = document.createElement('label'); opacityLabel.textContent = 'Opacidad'; const range = document.createElement('input'); range.type = 'range'; range.min = '0'; range.max = '100'; range.value = '100'; range.oninput = () => {const v = Number(range.value) / 100; o.material.transparent = v < 1; o.material.opacity = v; o.material.depthWrite = v >= 1}; box.append(name, label, opacityLabel, range); layers.append(box)}); document.getElementById('status').textContent = count + ' estructuras cargadas';}, undefined, e => {document.getElementById('status').textContent = 'No se pudo cargar modelo-demo.glb'; console.error(e)}); function animate() {requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera)} animate();
+    </script>
+</body>
+
+</html>
