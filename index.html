@@ -29,6 +29,12 @@
 <div class="row"><button id="full">Pantalla completa</button></div>
 <fieldset id="tools" disabled>
 <div class="row"><button id="reset">Restablecer vista</button><button id="capture">Captura PNG</button></div>
+<h2>Vistas guardadas</h2>
+<label class="row" for="savedViews">Abrir vista</label>
+<select id="savedViews" style="width:100%"><option value="">Selecciona una vista…</option></select>
+<label class="row">Nombre <input id="viewName" maxlength="100" placeholder="Ej.: Tumor y vasos" style="width:100%"></label>
+<div class="row"><button id="saveView" type="button">Guardar vista actual</button><button id="deleteView" type="button" disabled>Eliminar vista</button></div>
+<p id="viewsStatus" class="hint" role="status" aria-live="polite">Vistas de este modelo, guardadas en este navegador. Para compartirlas, utiliza «Copiar enlace».</p>
 <div class="row"><button id="share">Copiar enlace de esta vista</button></div>
 <div id="shareFallback" hidden><label for="shareURL" class="hint">Copia este enlace:</label><textarea id="shareURL" readonly rows="4" style="width:100%;overflow-wrap:anywhere"></textarea></div>
 <p id="shareStatus" class="hint" role="status" aria-live="polite"></p>
@@ -318,6 +324,39 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
   try{if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(text);$('shareStatus').textContent='Enlace copiado. Ábrelo para recuperar esta configuración.';}
   catch{$('shareFallback').hidden=false;$('shareURL').focus();$('shareURL').select();$('shareStatus').textContent='El navegador no permite copiar automáticamente. Copia el enlace del recuadro.';}
  };
+
+ const viewsKey='anatomy-views:v1:'+url.href;
+ let savedViews=[];
+ function readViews(){
+  try{const raw=localStorage.getItem(viewsKey);if(!raw)return[];const data=JSON.parse(raw);if(!Array.isArray(data))throw new Error('Formato no válido');return data.filter(x=>x&&typeof x.id==='string'&&typeof x.name==='string'&&validState(x.state));}
+  catch(e){$('viewsStatus').textContent='No se pudieron leer las vistas locales. El navegador puede estar bloqueando el almacenamiento.';return[];}
+ }
+ function renderViews(id=''){
+  const select=$('savedViews');select.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent='Selecciona una vista…';select.append(empty);
+  for(const entry of savedViews){const option=document.createElement('option');option.value=entry.id;option.textContent=entry.name;select.append(option);}select.value=id;$('deleteView').disabled=!select.value;
+ }
+ function persistViews(next){
+  try{localStorage.setItem(viewsKey,JSON.stringify(next));savedViews=next;return true;}
+  catch(e){$('viewsStatus').textContent='No se pudo guardar. El navegador bloquea el almacenamiento o no tiene espacio; puedes usar «Copiar enlace». ';return false;}
+ }
+ $('saveView').onclick=()=>{
+  const name=$('viewName').value.trim();if(!name){$('viewsStatus').textContent='Escribe un nombre para la vista.';$('viewName').focus();return;}
+  // Volver a leer para conservar cambios realizados desde otras pestañas.
+  const current=readViews(),existing=current.find(x=>x.name===name);
+  const entry={id:existing?.id||(globalThis.crypto?.randomUUID?.()||Date.now()+'-'+Math.random()),name,state:snapshot()};
+  const next=existing?current.map(x=>x.id===existing.id?entry:x):[...current,entry];
+  if(persistViews(next)){renderViews(entry.id);$('viewsStatus').textContent=existing?'Vista actualizada en este navegador.':'Vista guardada en este navegador.';}
+ };
+ $('savedViews').onchange=()=>{
+  const id=$('savedViews').value,entry=savedViews.find(x=>x.id===id);$('deleteView').disabled=!entry;if(!entry)return;
+  $('viewName').value=entry.name;const fragment=new URLSearchParams();fragment.set('vista',JSON.stringify(entry.state));
+  // Reutilizar el mismo restaurador que los enlaces compartidos.
+  history.replaceState(null,'',location.pathname+location.search+'#'+fragment.toString());restore();$('viewsStatus').textContent='Vista abierta: '+entry.name;
+ };
+ $('deleteView').onclick=()=>{const entry=savedViews.find(x=>x.id===$('savedViews').value);if(!entry)return;const next=readViews().filter(x=>x.id!==entry.id);if(persistViews(next)){renderViews();$('viewName').value='';$('viewsStatus').textContent='Vista eliminada. La visualización actual se mantiene.';}};
+ window.addEventListener('storage',e=>{if(e.key===viewsKey){savedViews=readViews();renderViews();}});
+ savedViews=readViews();renderViews();
+
  window.addEventListener('hashchange',restore);
  $('tools').disabled=false;$('status').textContent=filename+' · '+structures.length+' estructuras';$('badge').textContent=filename;restore();
 }
