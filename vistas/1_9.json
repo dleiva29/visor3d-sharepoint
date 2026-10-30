@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "model": "modelos/1.glb",
+  "views": [
+    {
+      "id": "view-9",
+      "name": "v3",
+      "state": {
+        "v": 1,
+        "camera": {
+          "position": [
+            -0.06277980975004542,
+            -0.048554454015036067,
+            0.17430218710364506
+          ],
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "up": [
+            0,
+            1,
+            0
+          ]
+        },
+        "light": 1.5,
+        "flat": false,
+        "cut": {
+          "enabled": false,
+          "axis": "z",
+          "flip": false,
+          "position": 50
+        },
+        "structures": [
+          {
+            "name": "grp1",
+            "label": "grp1",
+            "visible": true,
+            "opacity": 1,
+            "colors": [
+              "#959559"
+            ]
+          },
+          {
+            "name": "grp213095",
+            "label": "grp213095",
+            "visible": true,
+            "opacity": 1,
+            "colors": [
+              "#820000"
+            ]
+          },
+          {
+            "name": "grp284985",
+            "label": "grp284985",
+            "visible": false,
+            "opacity": 1,
+            "colors": [
+              "#00009c"
+            ]
+          }
+        ],
+        "selected": null,
+        "geometry": {
+          "scale": 1000,
+          "confirmed": false,
+          "labels": false
+        }
+      }
+    }
+  ]
+}
