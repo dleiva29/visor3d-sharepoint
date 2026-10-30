@@ -18,6 +18,8 @@
 <label class="row">Modelo OBJ <input id="objFile" type="file" accept=".obj" style="width:100%"></label>
 <label class="row">Materiales MTL (opcional) <input id="mtlFile" type="file" accept=".mtl" style="width:100%"></label>
 <label class="row">Unidades del OBJ <select id="objUnits"><option value="0.001">Milímetros (Slicer)</option><option value="0.01">Centímetros</option><option value="1">Metros</option></select></label>
+<label class="row">Colores del MTL <select id="objColorSpace"><option value="linear" selected>Lineales · más luminosos</option><option value="srgb">sRGB · conversión anterior</option></select></label>
+<p class="hint">El MTL no identifica inequívocamente el espacio de color. Si la conversión anterior oscurecía el modelo, usa «Lineales». Compara con el modelo original: la iluminación de cada programa también influye.</p>
 <label class="row"><input id="objOpaque" type="checkbox" checked> Exportar superficies opacas</label>
 <p class="hint">La opción opaca evita superficies invisibles por valores Tr/d ambiguos. Podrás ajustar la opacidad en el visor. El GLB se exportará en metros, conservando los ejes y posiciones relativas.</p>
 <button id="convert" type="button">Convertir y descargar GLB</button>
@@ -108,7 +110,8 @@ function indexGeometryExactly(geometry){
  geometry.setIndex(new THREE.BufferAttribute(sourceVertices.length<=65536?new Uint16Array(indices):indices,1));
  return {before:positions.count,after:sourceVertices.length};
 }
-function prepareOBJConversion(objText,mtlText,metersPerUnit,opaque){
+function prepareOBJConversion(objText,mtlText,metersPerUnit,opaque,colorSpace='linear'){
+ if(!['linear','srgb'].includes(colorSpace))throw new Error('Interpretación de color no válida.');
  if(!Number.isFinite(metersPerUnit)||metersPerUnit<=0)throw new Error('Escala no válida.');
  const materials=parseLocalMTL(mtlText||''),used=new Set();
  for(const line of objText.split(/\r?\n/)){const match=/^\s*usemtl\s+(.+?)\s*$/.exec(line);if(match)used.add(match[1]);}
@@ -124,11 +127,11 @@ function prepareOBJConversion(objText,mtlText,metersPerUnit,opaque){
   const compact=indexGeometryExactly(geometry);verticesBefore+=compact.before;verticesAfter+=compact.after;
   let name=mesh.name||'Estructura '+meshCount,unique=name,n=2;while(names.has(unique))unique=name+' ('+(n++)+')';mesh.name=unique;names.add(unique);
   const old=Array.isArray(mesh.material)?mesh.material:[mesh.material];
-  const converted=old.map(material=>{const info=materials.get(material.name);const color=info?new THREE.Color().setRGB(...info.color,THREE.SRGBColorSpace):materials.size?new THREE.Color('#b3b3b3'):geometry.attributes.color?new THREE.Color('white'):new THREE.Color('#b3b3b3');const opacity=opaque?1:(info?.opacity??1);return new THREE.MeshStandardMaterial({name:material.name||'Material',color,metalness:0,roughness:.85,side:THREE.DoubleSide,opacity,transparent:opacity<1,vertexColors:!!geometry.attributes.color});});
+  const converted=old.map(material=>{const info=materials.get(material.name);const color=info?new THREE.Color().setRGB(...info.color,colorSpace==='linear'?THREE.LinearSRGBColorSpace:THREE.SRGBColorSpace):materials.size?new THREE.Color('#b3b3b3'):geometry.attributes.color?new THREE.Color('white'):new THREE.Color('#b3b3b3');const opacity=opaque?1:(info?.opacity??1);return new THREE.MeshStandardMaterial({name:material.name||'Material',color,metalness:0,roughness:.85,side:THREE.DoubleSide,opacity,transparent:opacity<1,vertexColors:!!geometry.attributes.color});});
   mesh.material=Array.isArray(mesh.material)?converted:converted[0];old.forEach(m=>m.dispose());
  });
  if(meshCount===0)throw new Error('El OBJ no contiene superficies trianguladas.');
- root.name='Modelo convertido';root.userData.viewerMmPerUnit=1000;root.userData.sourceMetersPerUnit=metersPerUnit;
+ root.name='Modelo convertido';root.userData.viewerMmPerUnit=1000;root.userData.sourceMetersPerUnit=metersPerUnit;root.userData.sourceColorInterpretation=colorSpace;
  root.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(root);if(bounds.isEmpty())throw new Error('Geometría vacía.');
  return{root,meshCount,triangles,verticesBefore,verticesAfter,bounds,missingColors:!mtlText&&used.size>0};
 }
@@ -141,13 +144,13 @@ $('convert').onclick=async()=>{
   const objText=await obj.text(),mtlText=mtl?await mtl.text():'';
   // Permitir que el navegador muestre el estado antes de procesar la malla.
   await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
-  prepared=prepareOBJConversion(objText,mtlText,Number($('objUnits').value),$('objOpaque').checked);
+  prepared=prepareOBJConversion(objText,mtlText,Number($('objUnits').value),$('objOpaque').checked,$('objColorSpace').value);
   status.textContent='Exportando '+prepared.meshCount+' estructuras…';
   const binary=await new GLTFExporter().parseAsync(prepared.root,{binary:true,onlyVisible:false});
   if(!(binary instanceof ArrayBuffer)||new DataView(binary).getUint32(0,true)!==0x46546c67)throw new Error('No se pudo generar un GLB válido.');
   const blob=new Blob([binary],{type:'model/gltf-binary'});if(convertedURL)URL.revokeObjectURL(convertedURL);convertedURL=URL.createObjectURL(blob);
   link.href=convertedURL;link.download=obj.name.replace(/\.obj$/i,'')+'.glb';link.textContent='Descargar '+link.download;link.hidden=false;link.click();
-  status.textContent='GLB listo: '+prepared.meshCount+' estructuras · '+prepared.triangles.toLocaleString('es-ES')+' triángulos · '+(blob.size/1e6).toFixed(2)+' MB.\nEscala exportada: 1 unidad = 1000 mm.\n'+(prepared.missingColors?'No se aportó MTL: se han usado colores provisionales.':'Colores sólidos conservados.')+'\nEl archivo no se ha publicado en GitHub.';
+  status.textContent='GLB listo: '+prepared.meshCount+' estructuras · '+prepared.triangles.toLocaleString('es-ES')+' triángulos · '+(blob.size/1e6).toFixed(2)+' MB.\nEscala exportada: 1 unidad = 1000 mm.\n'+(prepared.missingColors?'No se aportó MTL: se han usado colores provisionales.':'Colores interpretados como '+$('objColorSpace').value+'.')+'\nEl archivo no se ha publicado en GitHub.';
  }catch(e){status.textContent='No se pudo convertir: '+e.message;console.error(e);}
  finally{if(prepared)prepared.root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());});$('convert').disabled=false;}
 };
