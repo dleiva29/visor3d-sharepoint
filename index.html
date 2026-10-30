@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Visor anatómico 3D</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;color:#203044;background:white}#app{display:flex;height:100vh;height:100dvh}#viewport{flex:1;min-width:0;position:relative;background:white}canvas{display:block;touch-action:none}aside{width:320px;background:#f5f7fa;border-left:1px solid #dce2ea;overflow:auto;padding:20px}h1{font-size:21px;margin:0 0 6px}h2{font-size:15px;margin:22px 0 10px}.hint{font-size:12px;color:#596b7d;line-height:1.6}button,select{font:inherit;padding:8px 10px;border:1px solid #ccd5df;border-radius:7px;background:white;color:inherit}button{cursor:pointer}button:hover{background:#e8eff7}button:disabled{opacity:.45;cursor:default}.row{display:flex;align-items:center;gap:7px;margin:9px 0;flex-wrap:wrap}.row input[type=range]{flex:1;min-width:65px}input[type=color]{width:38px;height:28px;border:0;padding:0;background:none}.card{padding:12px;background:white;border:1px solid #dce2ea;border-radius:9px;margin:10px 0}.card.selected{border-color:#2563eb;box-shadow:0 0 0 1px #2563eb}.name{display:flex;gap:7px;align-items:center;overflow-wrap:anywhere}.name button{flex:1;text-align:left;border:0;padding:4px;font-weight:600}.card .row{font-size:12px}#status{overflow-wrap:anywhere}#badge{position:absolute;top:16px;left:16px;padding:8px 12px;background:#ffffffdf;border:1px solid #dce2ea;border-radius:8px;max-width:85%;pointer-events:none}#error{color:#ad271c}fieldset{border:0;padding:0;margin:0}output{min-width:35px}#app:fullscreen{width:100%;height:100%;background:white}@media(max-width:680px){#app{flex-direction:column}#viewport{flex:none;height:58%}aside{width:100%;flex:1;border-left:0;border-top:1px solid #dce2ea}}
+*{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;color:#203044;background:white}#app{display:flex;height:100vh;height:100dvh}#viewport{flex:1;min-width:0;position:relative;background:white}canvas{display:block;touch-action:none}aside{width:320px;background:#f5f7fa;border-left:1px solid #dce2ea;overflow:auto;padding:20px}h1{font-size:21px;margin:0 0 6px}h2{font-size:15px;margin:22px 0 10px}.hint{font-size:12px;color:#596b7d;line-height:1.6}button,select{font:inherit;padding:8px 10px;border:1px solid #ccd5df;border-radius:7px;background:white;color:inherit}button{cursor:pointer}button:hover{background:#e8eff7}button:disabled{opacity:.45;cursor:default}.row{display:flex;align-items:center;gap:7px;margin:9px 0;flex-wrap:wrap}.row input[type=range]{flex:1;min-width:65px}input[type=color]{width:38px;height:28px;border:0;padding:0;background:none}.card{padding:12px;background:white;border:1px solid #dce2ea;border-radius:9px;margin:10px 0}.card.selected{border-color:#2563eb;box-shadow:0 0 0 1px #2563eb}.name{display:flex;gap:7px;align-items:center;overflow-wrap:anywhere}.name button{flex:1;text-align:left;border:0;padding:4px;font-weight:600}.card .row{font-size:12px}#status{overflow-wrap:anywhere}#badge{position:absolute;top:16px;left:16px;padding:8px 12px;background:#ffffffdf;border:1px solid #dce2ea;border-radius:8px;max-width:85%;pointer-events:none}.anatomy-label{position:absolute;transform:translate(-50%,-50%);padding:3px 7px;background:#ffffffdb;border:1px solid #b8c6d6;border-radius:5px;font-size:12px;pointer-events:none;max-width:160px;overflow-wrap:anywhere}.result{white-space:pre-line;line-height:1.6}#error{color:#ad271c}fieldset{border:0;padding:0;margin:0}output{min-width:35px}#app:fullscreen{width:100%;height:100%;background:white}@media(max-width:680px){#app{flex-direction:column}#viewport{flex:none;height:58%}aside{width:100%;flex:1;border-left:0;border-top:1px solid #dce2ea}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
 </head>
@@ -16,12 +16,35 @@
 <div class="row"><button id="full">Pantalla completa</button></div>
 <fieldset id="tools" disabled>
 <div class="row"><button id="reset">Restablecer vista</button><button id="capture">Captura PNG</button></div>
+<div class="row"><button id="share">Copiar enlace de esta vista</button></div>
+<div id="shareFallback" hidden><label for="shareURL" class="hint">Copia este enlace:</label><textarea id="shareURL" readonly rows="4" style="width:100%;overflow-wrap:anywhere"></textarea></div>
+<p id="shareStatus" class="hint" role="status" aria-live="polite"></p>
 <h2>Vistas por ejes</h2>
 <div class="row" id="views"><button data-view="x">+X</button><button data-view="-x">−X</button><button data-view="y">+Y</button><button data-view="-y">−Y</button><button data-view="z">+Z</button><button data-view="-z">−Z</button><button data-view="iso">3D</button></div>
 <p class="hint">Ejes del archivo exportado; no equivalen necesariamente a orientaciones anatómicas.</p>
 <h2>Apariencia</h2>
 <label class="row">Iluminación <input id="light" type="range" min="0.5" max="4" step="0.1" value="1.5"><output id="lightValue">1.5</output></label>
 <label class="row"><input id="flat" type="checkbox"> Colores planos, sin sombreado</label>
+<h2>Etiquetas anatómicas</h2>
+<label class="row"><input id="labels" type="checkbox"> Mostrar nombres</label>
+<p class="hint">Puedes editar el nombre visible de cada estructura. Los rótulos indican el centro de su caja envolvente, no un punto anatómico validado.</p>
+<h2>Escala de las mediciones</h2>
+<label class="row">1 unidad del archivo = <input id="scale" type="number" min="0.000001" step="any" value="1" style="width:85px"> mm</label>
+<label class="row"><input id="scaleConfirmed" type="checkbox"> Escala comprobada con una distancia conocida</label>
+<p class="hint">Para los GLB convertidos aquí desde OBJ de Slicer, prueba 1 unidad = 1 mm. Para un GLB en metros, utiliza 1000. Comprueba siempre una distancia conocida.</p>
+<h2>Medición entre dos puntos</h2>
+<label class="row"><input id="measure" type="checkbox"> Marcar dos puntos sobre superficies</label>
+<div class="row"><button id="clearMeasure">Borrar medición</button></div>
+<p id="measureResult" class="result hint" role="status">Activa la herramienta y pulsa dos puntos.</p>
+<h2>Distancia mínima entre superficies</h2>
+<label class="row">A <select id="structureA" style="max-width:240px"></select></label>
+<label class="row">B <select id="structureB" style="max-width:240px"></select></label>
+<div class="row"><button id="minimum">Calcular distancia mínima</button><button id="cancelMinimum" hidden>Cancelar</button></div>
+<p id="minimumResult" class="result hint" role="status">Se calcula sobre todas las superficies originales, aunque estén recortadas u ocultas.</p>
+<h2>Volumen y superficie</h2>
+<button id="statistics">Calcular selección</button>
+<p id="statisticsResult" class="result hint" role="status">Selecciona una estructura.</p>
+<p class="hint">Resultados geométricos de la segmentación. El volumen se estima solo si las aristas cierran y tienen orientación coherente; no se comprueban autointersecciones ni la exactitud de la segmentación.</p>
 <h2>Plano de corte</h2>
 <label class="row"><input id="cut" type="checkbox"> Activar corte</label>
 <label class="row">Eje <select id="axis"><option value="x">X</option><option value="y">Y</option><option value="z" selected>Z</option></select><input id="flip" type="checkbox"> Invertir</label>
@@ -42,6 +65,7 @@ const report=e=>{$('error').textContent=e.message||String(e);console.error(e);};
 $('full').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await $('app').requestFullscreen();}catch(e){report(new Error('No se pudo activar la pantalla completa. Abre el visor en otra pestaña o revisa los permisos del iframe.'));}};
 document.addEventListener('fullscreenchange',()=>{$('full').textContent=document.fullscreenElement?'Salir de pantalla completa':'Pantalla completa';});
 async function start(){
+ let updateLabels=()=>{};let addMeasurementPoint=()=>{};
  const host=$('viewport'), renderer=new THREE.WebGLRenderer({antialias:true});
  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
  host.appendChild(renderer.domElement);
@@ -53,7 +77,7 @@ async function start(){
  const fill=new THREE.DirectionalLight(0xffffff,1);fill.position.set(-2,1,-1);scene.add(fill);
  const resize=()=>{const w=Math.max(host.clientWidth,1),h=Math.max(host.clientHeight,1);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);};
  new ResizeObserver(resize).observe(host);resize();
- renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);});
+ renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);updateLabels();});
  const base=new URL('./',location.href),path=new URLSearchParams(location.search).get('modelo')||'modelo-demo.glb',url=new URL(path,base);
  if(url.origin!==base.origin||!url.pathname.startsWith(base.pathname)||!url.pathname.toLowerCase().endsWith('.glb'))throw new Error('Utiliza la ruta de un GLB dentro de este proyecto.');
  const filename=decodeURIComponent(url.pathname.split('/').pop());document.title=filename+' — Visor 3D';
@@ -80,18 +104,19 @@ async function start(){
  if(!structures.length)throw new Error('No se encontraron superficies en el GLB.');
  function refresh(s){s.meshes.forEach(m=>m.visible=s.visible);s.check.checked=s.visible;s.card.classList.toggle('selected',selected===s);
   for(const p of s.pairs){for(const m of [p.lit,p.flat]){m.opacity=s.opacity;m.transparent=s.opacity<1;m.depthWrite=s.opacity>=1;m.needsUpdate=true;}
+   if(s.label){s.label.textContent=s.displayName||s.name;}
    if(p.lit.emissive){p.lit.emissive.copy(p.lit.color);p.lit.emissiveIntensity=selected===s?.45:.12;}
    p.flat.color.copy(p.lit.color);if(selected===s)p.flat.color.lerp(new THREE.Color('#fff1a8'),.2);
   }
  }
- function select(s){selected=s;structures.forEach(refresh);$('badge').textContent=s?s.name:filename;$('isolate').disabled=!s;}
+ function select(s){selected=s;structures.forEach(refresh);$('badge').textContent=s?(s.displayName||s.name):filename;$('isolate').disabled=!s;}
  for(const s of structures){
   const card=document.createElement('div');card.className='card';s.card=card;
   const title=document.createElement('div');title.className='name';const check=document.createElement('input');check.type='checkbox';check.checked=true;check.setAttribute('aria-label','Mostrar '+s.name);s.check=check;check.onchange=()=>{s.visible=check.checked;refresh(s);};
   const name=document.createElement('button');name.textContent=s.name;name.onclick=()=>select(s);title.append(check,name);
-  const colorRow=document.createElement('label');colorRow.className='row';colorRow.append('Color');const color=document.createElement('input');color.type='color';color.value='#'+(s.pairs[0].lit.color?.getHexString()||'cccccc');color.oninput=()=>{s.pairs.forEach(p=>{if(p.lit.color)p.lit.color.set(color.value);});refresh(s);};colorRow.append(color);
-  const opRow=document.createElement('label');opRow.className='row';opRow.append('Opacidad');const range=document.createElement('input');range.type='range';range.min=0;range.max=100;range.value=Math.round(s.opacity*100);const output=document.createElement('output');output.textContent=range.value+'%';range.oninput=()=>{s.opacity=Number(range.value)/100;output.textContent=range.value+'%';refresh(s);};opRow.append(range,output);
-  card.append(title,colorRow,opRow);$('layers').append(card);refresh(s);
+  const colorRow=document.createElement('label');colorRow.className='row';colorRow.append('Color');const color=document.createElement('input');color.type='color';color.value='#'+(s.pairs[0].lit.color?.getHexString()||'cccccc');color.oninput=()=>{s.pairs.forEach(p=>{if(p.lit.color)p.lit.color.set(color.value);});refresh(s);};s.colorInput=color;colorRow.append(color);
+  const opRow=document.createElement('label');opRow.className='row';opRow.append('Opacidad');const range=document.createElement('input');range.type='range';range.min=0;range.max=100;range.value=Math.round(s.opacity*100);const output=document.createElement('output');output.textContent=range.value+'%';range.oninput=()=>{s.opacity=Number(range.value)/100;output.textContent=range.value+'%';refresh(s);};s.opacityInput=range;s.opacityOutput=output;opRow.append(range,output);
+  const rename=document.createElement('input');rename.type='text';rename.value=s.name;rename.style.width='100%';rename.setAttribute('aria-label','Nombre anatómico');rename.oninput=()=>{s.displayName=rename.value.trim()||s.name;refresh(s);updateNames();if(selected===s)$('badge').textContent=s.displayName;};s.renameInput=rename;s.displayName=s.name;card.append(title,rename,colorRow,opRow);$('layers').append(card);refresh(s);
  }
  $('isolate').onclick=()=>{if(selected)structures.forEach(s=>{s.visible=s===selected;refresh(s);});};
  $('show').onclick=()=>structures.forEach(s=>{s.visible=true;refresh(s);});$('clear').onclick=()=>select(null);
@@ -105,10 +130,104 @@ async function start(){
  renderer.domElement.addEventListener('pointercancel',()=>down=null);
  renderer.domElement.addEventListener('pointerup',e=>{if(!down||down.id!==e.pointerId)return;const d=down;down=null;if(Math.hypot(e.clientX-d.x,e.clientY-d.y)>5)return;
   const rect=renderer.domElement.getBoundingClientRect();raycaster.setFromCamera(new THREE.Vector2((e.clientX-rect.left)/rect.width*2-1,-(e.clientY-rect.top)/rect.height*2+1),camera);scene.updateMatrixWorld(true);
-  const meshes=structures.filter(s=>s.visible&&s.opacity>0).flatMap(s=>s.meshes);const hit=raycaster.intersectObjects(meshes,false).find(h=>!$('cut').checked||plane.distanceToPoint(h.point)>=-radius*1e-7);select(hit?owner.get(hit.object):null);
+  const meshes=structures.filter(s=>s.visible&&s.opacity>0).flatMap(s=>s.meshes);const hit=raycaster.intersectObjects(meshes,false).find(h=>!$('cut').checked||plane.distanceToPoint(h.point)>=-radius*1e-7);if($('measure').checked){if(hit)addMeasurementPoint(hit.point);return;}select(hit?owner.get(hit.object):null);
  });
  $('capture').onclick=()=>{try{renderer.render(scene,camera);renderer.domElement.toBlob(blob=>{if(!blob){report(new Error('No se pudo generar la captura.'));return;}const link=document.createElement('a'),href=URL.createObjectURL(blob);link.href=href;link.download=filename.replace(/\.glb$/i,'')+'-vista.png';link.click();setTimeout(()=>URL.revokeObjectURL(href),10000);},'image/png');}catch(e){report(e);}};
- $('tools').disabled=false;$('status').textContent=filename+' · '+structures.length+' estructuras';$('badge').textContent=filename;
+
+function geometryWorker(){
+const sub=(a,b)=>a.map((v,i)=>v-b[i]),add=(a,b)=>a.map((v,i)=>v+b[i]),mul=(a,k)=>a.map(v=>v*k),dot=(a,b)=>a.reduce((v,x,i)=>v+x*b[i],0),cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],norm=a=>dot(a,a);
+function pointTri(p,t){if(norm(cross(sub(t[1],t[0]),sub(t[2],t[0])))===0){let best=t[0],dist=Infinity;for(let k=0;k<3;k++){const q=segments(p,p,t[k],t[(k+1)%3])[1],d=norm(sub(p,q));if(d<dist){dist=d;best=q;}}return best;}const [a,b,c]=t,ab=sub(b,a),ac=sub(c,a),ap=sub(p,a),d1=dot(ab,ap),d2=dot(ac,ap);if(d1<=0&&d2<=0)return a;const bp=sub(p,b),d3=dot(ab,bp),d4=dot(ac,bp);if(d3>=0&&d4<=d3)return b;const vc=d1*d4-d3*d2;if(vc<=0&&d1>=0&&d3<=0)return add(a,mul(ab,d1/(d1-d3)));const cp=sub(p,c),d5=dot(ab,cp),d6=dot(ac,cp);if(d6>=0&&d5<=d6)return c;const vb=d5*d2-d1*d6;if(vb<=0&&d2>=0&&d6<=0)return add(a,mul(ac,d2/(d2-d6)));const va=d3*d6-d5*d4;if(va<=0&&(d4-d3)>=0&&(d5-d6)>=0)return add(b,mul(sub(c,b),(d4-d3)/((d4-d3)+(d5-d6))));const den=va+vb+vc;if(!den)return a;return add(a,add(mul(ab,vb/den),mul(ac,vc/den)));}
+const clamp=x=>Math.max(0,Math.min(1,x));
+function segments(p,q,r,s){const d=sub(q,p),e=sub(s,r),f=sub(p,r),a=norm(d),b=dot(d,e),c=norm(e),v=dot(d,f),w=dot(e,f);let t=0,u=0;if(a<1e-24&&c<1e-24)return[p,r];if(a<1e-24)u=clamp(w/c);else if(c<1e-24)t=clamp(-v/a);else{const den=a*c-b*b;t=den>1e-24?clamp((b*w-c*v)/den):0;u=(b*t+w)/c;if(u<0){u=0;t=clamp(-v/a);}else if(u>1){u=1;t=clamp((b-v)/a);}}return[add(p,mul(d,t)),add(r,mul(e,u))];}
+function pierce(p,q,t){const d=sub(q,p),a=sub(t[1],t[0]),b=sub(t[2],t[0]),h=cross(d,b),det=dot(a,h);if(Math.abs(det)<1e-18)return null;const f=1/det,s=sub(p,t[0]),u=f*dot(s,h);if(u<0||u>1)return null;const z=cross(s,a),v=f*dot(d,z);if(v<0||u+v>1)return null;const k=f*dot(b,z);return k>=0&&k<=1?add(p,mul(d,k)):null;}
+function triDist(a,b){let best={d:Infinity};const test=(p,q)=>{const d=norm(sub(p,q));if(d<best.d)best={d,p,q};};for(let i=0;i<3;i++){let p=pierce(a[i],a[(i+1)%3],b);if(p)return{d:0,p,q:p};p=pierce(b[i],b[(i+1)%3],a);if(p)return{d:0,p,q:p};test(a[i],pointTri(a[i],b));test(pointTri(b[i],a),b[i]);for(let j=0;j<3;j++)test(...segments(a[i],a[(i+1)%3],b[j],b[(j+1)%3]));}return best;}
+function triangle(data,i){return[Array.from(data.slice(i*9,i*9+3)),Array.from(data.slice(i*9+3,i*9+6)),Array.from(data.slice(i*9+6,i*9+9))];}
+function tree(data,ids){let lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];for(const i of ids)for(let k=0;k<9;k++){const d=k%3,v=data[i*9+k];lo[d]=Math.min(lo[d],v);hi[d]=Math.max(hi[d],v);}if(ids.length<=8)return{lo,hi,ids};const spans=hi.map((v,i)=>v-lo[i]),axis=spans.indexOf(Math.max(...spans));ids.sort((a,b)=>(data[a*9+axis]+data[a*9+3+axis]+data[a*9+6+axis])-(data[b*9+axis]+data[b*9+3+axis]+data[b*9+6+axis]));const mid=ids.length>>1;return{lo,hi,left:tree(data,ids.slice(0,mid)),right:tree(data,ids.slice(mid))};}
+function boxDist(a,b){let d=0;for(let i=0;i<3;i++){const gap=Math.max(0,a.lo[i]-b.hi[i],b.lo[i]-a.hi[i]);d+=gap*gap;}return d;}
+function minimum(a,b){const A=tree(a,Array.from({length:a.length/9},(_,i)=>i)),B=tree(b,Array.from({length:b.length/9},(_,i)=>i));let best=triDist(triangle(a,0),triangle(b,0)),stack=[[A,B]];while(stack.length&&best.d>0){const[x,y]=stack.pop();if(boxDist(x,y)>=best.d)continue;if(x.ids&&y.ids){for(const i of x.ids)for(const j of y.ids){const r=triDist(triangle(a,i),triangle(b,j));if(r.d<best.d)best=r;}}else{let pairs;if(y.ids||(!x.ids&&norm(sub(x.hi,x.lo))>=norm(sub(y.hi,y.lo))))pairs=[[x.left,y],[x.right,y]];else pairs=[[x,y.left],[x,y.right]];pairs.sort((p,q)=>boxDist(...q)-boxDist(...p));stack.push(...pairs);}}return{distance:Math.sqrt(best.d),p:best.p,q:best.q};}
+function stats(data){let area=0,volume=0;const edges=new Map(),vertices=new Map();let degenerate=0;const origin=Array.from(data.slice(0,3));function id(p){const key=p.join(',');if(!vertices.has(key))vertices.set(key,vertices.size);return vertices.get(key);}for(let i=0;i<data.length/9;i++){const t=triangle(data,i),ab=sub(t[1],t[0]),ac=sub(t[2],t[0]);const ar=Math.sqrt(norm(cross(ab,ac)))/2;area+=ar;if(ar===0)degenerate++;volume+=dot(sub(t[0],origin),cross(sub(t[1],origin),sub(t[2],origin)))/6;const ids=t.map(id);for(let k=0;k<3;k++){const a=ids[k],b=ids[(k+1)%3],key=Math.min(a,b)+':'+Math.max(a,b),e=edges.get(key)||[0,0];e[0]++;e[1]+=a<b?1:-1;edges.set(key,e);}}let bad=0;for(const e of edges.values())if(e[0]!==2||e[1]!==0)bad++;return{area,volume:Math.abs(volume),closed:bad===0&&degenerate===0,bad,triangles:data.length/9,degenerate};}
+onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?stats(a):minimum(a,b)});}catch(err){postMessage({error:err.message});}};
+}
+
+ const overlay=document.createElement('div');overlay.style.cssText='position:absolute;inset:0;pointer-events:none;overflow:hidden';host.append(overlay);
+ const projected=new THREE.Vector3();
+ for(const item of structures){item.anchor=new THREE.Box3();for(const mesh of item.meshes)item.anchor.union(new THREE.Box3().setFromObject(mesh));item.anchor=item.anchor.getCenter(new THREE.Vector3());item.label=document.createElement('span');item.label.className='anatomy-label';item.label.textContent=item.displayName;overlay.append(item.label);}
+ updateLabels=()=>{for(const item of structures){const p=projected.copy(item.anchor).project(camera);const visible=$('labels').checked&&item.visible&&item.opacity>0&&p.z>=-1&&p.z<=1&&Math.abs(p.x)<=1&&Math.abs(p.y)<=1&&(!$('cut').checked||plane.distanceToPoint(item.anchor)>=0);item.label.hidden=!visible;if(visible){item.label.style.left=(p.x*.5+.5)*host.clientWidth+'px';item.label.style.top=(-p.y*.5+.5)*host.clientHeight+'px';item.label.textContent=item.displayName;}}};
+ function updateNames(){for(const id of ['structureA','structureB']){const previous=$(id).value;$(id).replaceChildren();structures.forEach((item,i)=>{const option=document.createElement('option');option.value=String(i);option.textContent=item.displayName;$(id).append(option);});if(previous!==''&&Number(previous)<structures.length)$(id).value=previous;}}
+ updateNames();if(structures.length>1)$('structureB').value='1';
+ const group=new THREE.Group();scene.add(group);let pointList=[],minimumPoints=null,statisticsValue=null;
+ const scale=()=>{const n=Number($('scale').value);if(!Number.isFinite(n)||n<=0)throw new Error('Introduce una escala positiva en mm por unidad.');return n;};
+ const qualified=()=>$('scaleConfirmed').checked?'':' · escala sin comprobar';
+ const format=n=>n.toLocaleString('es-ES',{maximumFractionDigits:3});
+ function line(p,q,color){const geo=new THREE.BufferGeometry().setFromPoints([p,q]);const obj=new THREE.Line(geo,new THREE.LineBasicMaterial({color,depthTest:false}));obj.renderOrder=100;group.add(obj);}
+ function dotAt(p,color){const mesh=new THREE.Mesh(new THREE.SphereGeometry(radius*.007,12,8),new THREE.MeshBasicMaterial({color,depthTest:false}));mesh.position.copy(p);mesh.renderOrder=101;group.add(mesh);}
+ function drawMeasurements(){for(const child of [...group.children]){group.remove(child);child.geometry.dispose();child.material.dispose();}pointList.forEach(p=>dotAt(p,0xd6336c));if(pointList.length===2)line(...pointList,0xd6336c);if(minimumPoints){const[p,q]=minimumPoints.map(a=>new THREE.Vector3().fromArray(a));dotAt(p,0x0891b2);dotAt(q,0x0891b2);line(p,q,0x0891b2);}}
+ function updateResults(){try{const k=scale();if(pointList.length===2)$('measureResult').textContent='Distancia recta: '+format(pointList[0].distanceTo(pointList[1])*k)+' mm'+qualified();else $('measureResult').textContent=pointList.length?'Primer punto marcado. Pulsa el segundo.':'Activa la herramienta y pulsa dos puntos.';
+ if(minimumPoints)$('minimumResult').textContent='Distancia mínima entre superficies: '+format(new THREE.Vector3().fromArray(minimumPoints[0]).distanceTo(new THREE.Vector3().fromArray(minimumPoints[1]))*k)+' mm'+qualified()+'\nMarcada en cian. Una superficie contenida dentro de otra puede tener separación positiva.';
+ if(statisticsValue){const {result:r,item}=statisticsValue;$('statisticsResult').textContent=item.displayName+'\nSuperficie: '+format(r.area*k*k)+' mm²\n'+(r.closed?'Volumen estimado: '+format(r.volume*k*k*k)+' mm³ ('+format(r.volume*k*k*k/1000)+' mL)':'Volumen no disponible: malla abierta, aristas incoherentes o triángulos degenerados.')+'\n'+format(r.triangles)+' triángulos'+qualified();}}
+ catch(e){report(e);}}
+ addMeasurementPoint=p=>{if(pointList.length===2)pointList=[];pointList.push(p.clone());drawMeasurements();updateResults();};
+ $('clearMeasure').onclick=()=>{pointList=[];drawMeasurements();updateResults();};$('scale').oninput=updateResults;$('scaleConfirmed').onchange=updateResults;
+ function triangles(item){let count=0;for(const m of item.meshes)count+=(m.geometry.index?.count||m.geometry.attributes.position.count)/3;const result=new Float64Array(count*9),v=new THREE.Vector3();let offset=0;scene.updateMatrixWorld(true);for(const m of item.meshes){const g=m.geometry,pos=g.attributes.position,index=g.index;for(let i=0;i<(index?.count||pos.count);i++){v.fromBufferAttribute(pos,index?index.getX(i):i).applyMatrix4(m.matrixWorld);result[offset++]=v.x;result[offset++]=v.y;result[offset++]=v.z;}}return result;}
+ const workerURL=URL.createObjectURL(new Blob(['('+geometryWorker.toString()+')()'],{type:'application/javascript'}));
+ function runJob(job,a,b,onFinish,onFail){const worker=new Worker(workerURL);worker.onmessage=e=>{worker.terminate();if(e.data.error)onFail(new Error(e.data.error));else onFinish(e.data.result);};worker.onerror=e=>{worker.terminate();onFail(new Error(e.message||'Error de cálculo.'));};const transfer=[a.buffer];if(b)transfer.push(b.buffer);worker.postMessage({job,a,b},transfer);return worker;}
+ let minimumWorker=null;
+ function finishMinimum(){minimumWorker=null;$('minimum').disabled=false;$('cancelMinimum').hidden=true;}
+ $('minimum').onclick=()=>{try{const a=structures[Number($('structureA').value)],b=structures[Number($('structureB').value)];if(!a||!b||a===b)throw new Error('Selecciona dos estructuras diferentes.');scale();minimumPoints=null;drawMeasurements();$('minimum').disabled=true;$('cancelMinimum').hidden=false;$('minimumResult').textContent='Calculando sobre las mallas completas…';minimumWorker=runJob('minimum',triangles(a),triangles(b),r=>{minimumPoints=[r.p,r.q];finishMinimum();drawMeasurements();updateResults();},e=>{finishMinimum();$('minimumResult').textContent='No se pudo calcular: '+e.message;});}catch(e){finishMinimum();report(e);}};
+ $('cancelMinimum').onclick=()=>{minimumWorker?.terminate();finishMinimum();$('minimumResult').textContent='Cálculo cancelado.';};
+ $('statistics').onclick=()=>{try{if(!selected)throw new Error('Selecciona primero una estructura.');scale();const item=selected;$('statistics').disabled=true;$('statisticsResult').textContent='Calculando superficie y comprobando cierre…';runJob('stats',triangles(item),null,result=>{statisticsValue={item,result};$('statistics').disabled=false;updateResults();},e=>{$('statistics').disabled=false;$('statisticsResult').textContent='No se pudo calcular: '+e.message;});}catch(e){report(e);}};
+
+ // Configuración versionada en el fragmento #vista= de la URL.
+ // No se guardan archivos ni configuraciones en un servidor.
+ const finiteVector=a=>Array.isArray(a)&&a.length===3&&a.every(Number.isFinite);
+ const bounded=(x,a,b)=>Number.isFinite(x)&&x>=a&&x<=b;
+ const validColor=c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c);
+ function snapshot(){
+  return {v:1,camera:{position:camera.position.toArray(),target:controls.target.toArray(),up:camera.up.toArray()},
+   light:Number($('light').value),flat:$('flat').checked,
+   cut:{enabled:$('cut').checked,axis:$('axis').value,flip:$('flip').checked,position:Number($('position').value)},
+   structures:structures.map(s=>({name:s.name,label:s.displayName,visible:s.visible,opacity:s.opacity,colors:s.pairs.map(p=>'#'+p.lit.color.getHexString())})),
+   selected:selected?.name??null,geometry:{scale:Number($('scale').value),confirmed:$('scaleConfirmed').checked,labels:$('labels').checked}};
+ }
+ function validState(t){
+  return t&&t.v===1&&t.camera&&finiteVector(t.camera.position)&&finiteVector(t.camera.target)&&finiteVector(t.camera.up)
+   &&new THREE.Vector3().fromArray(t.camera.up).length()>0
+   &&new THREE.Vector3().fromArray(t.camera.position).distanceTo(new THREE.Vector3().fromArray(t.camera.target))>0
+   &&bounded(t.light,.5,4)&&typeof t.flat==='boolean'
+   &&t.cut&&typeof t.cut.enabled==='boolean'&&['x','y','z'].includes(t.cut.axis)&&typeof t.cut.flip==='boolean'&&bounded(t.cut.position,0,100)
+   &&Array.isArray(t.structures)&&t.structures.length<=10000
+   &&t.structures.every(x=>x&&typeof x.name==='string'&&typeof x.visible==='boolean'&&bounded(x.opacity,0,1)&&Array.isArray(x.colors)&&x.colors.length>0&&x.colors.every(validColor))
+   &&(t.selected===null||typeof t.selected==='string');
+ }
+ function restore(){
+  const encoded=new URLSearchParams(location.hash.slice(1)).get('vista');if(!encoded)return;
+  try{
+   if(encoded.length>1000000)throw new Error('Configuración demasiado larga.');
+   const state=JSON.parse(encoded);if(!validState(state))throw new Error('Formato de configuración no válido.');
+   $('light').value=state.light;$('light').oninput();$('flat').checked=state.flat;
+   let missing=0;
+   for(const entry of state.structures){const item=byName.get(entry.name);if(!item){missing++;continue;}
+    if(typeof entry.label==='string'&&entry.label.length<=500){item.displayName=entry.label;item.renameInput.value=entry.label;}item.visible=entry.visible;item.opacity=entry.opacity;
+    item.pairs.forEach((p,i)=>p.lit.color.set(entry.colors[i]||entry.colors[0]));
+    item.colorInput.value=entry.colors[0];item.opacityInput.value=Math.round(entry.opacity*100);item.opacityOutput.textContent=item.opacityInput.value+'%';refresh(item);
+   }
+   updateNames();if(state.geometry&&bounded(state.geometry.scale,0.000001,1e9)){ $('scale').value=state.geometry.scale;$('scaleConfirmed').checked=state.geometry.confirmed===true;$('labels').checked=state.geometry.labels===true;updateResults();}
+   $('flat').onchange();$('cut').checked=state.cut.enabled;$('axis').value=state.cut.axis;$('flip').checked=state.cut.flip;$('position').value=state.cut.position;updateCut();
+   // Eliminar la inercia anterior antes de restaurar la cámara.
+   controls.enableDamping=false;controls.update();
+   camera.position.fromArray(state.camera.position);camera.up.fromArray(state.camera.up);controls.target.fromArray(state.camera.target);camera.lookAt(controls.target);controls.update();controls.enableDamping=true;
+   select(byName.get(state.selected)||null);
+   $('shareStatus').textContent=missing?'Vista restaurada; algunas estructuras ya no existen en este modelo.':'Configuración del enlace restaurada.';
+  }catch(e){$('shareStatus').textContent='No se pudo restaurar la configuración del enlace. Se muestra la vista disponible.';console.warn(e);}
+ }
+ $('share').onclick=async()=>{
+  const link=new URL(location.href);const fragment=new URLSearchParams();fragment.set('vista',JSON.stringify(snapshot()));link.hash=fragment.toString();
+  const text=link.href;$('shareURL').value=text;$('shareFallback').hidden=true;
+  try{if(!navigator.clipboard?.writeText)throw new Error('Clipboard unavailable');await navigator.clipboard.writeText(text);$('shareStatus').textContent='Enlace copiado. Ábrelo para recuperar esta configuración.';}
+  catch{$('shareFallback').hidden=false;$('shareURL').focus();$('shareURL').select();$('shareStatus').textContent='El navegador no permite copiar automáticamente. Copia el enlace del recuadro.';}
+ };
+ window.addEventListener('hashchange',restore);
+ $('tools').disabled=false;$('status').textContent=filename+' · '+structures.length+' estructuras';$('badge').textContent=filename;restore();
 }
 start().catch(e=>{$('status').textContent='No se pudo cargar el modelo.';report(new Error(e.message+' Comprueba la ruta y el archivo GLB.'));});
 </script></body></html>
