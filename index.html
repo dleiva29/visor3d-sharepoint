@@ -34,7 +34,8 @@
 <select id="savedViews" style="width:100%"><option value="">Selecciona una vista…</option></select>
 <label class="row">Nombre <input id="viewName" maxlength="100" placeholder="Ej.: Tumor y vasos" style="width:100%"></label>
 <div class="row"><button id="saveView" type="button">Guardar vista actual</button><button id="deleteView" type="button" disabled>Eliminar vista</button></div>
-<div class="row"><button id="exportViews" type="button">Exportar vistas JSON</button><button id="importViews" type="button">Importar vistas JSON</button></div>
+<label class="row">Código del caso <input id="caseCode" maxlength="60" style="width:100%" placeholder="Ej.: 1"></label>
+<div class="row"><button id="exportViews" type="button">Exportar vistas ZIP</button><button id="importViews" type="button">Importar vistas JSON</button></div>
 <input id="viewsFile" type="file" accept=".json,application/json" hidden>
 <p id="remoteViewsStatus" class="hint" role="status"></p>
 <p id="viewsStatus" class="hint" role="status" aria-live="polite">Vistas de este modelo, guardadas en este navegador. Para compartirlas, utiliza «Copiar enlace».</p>
@@ -163,6 +164,19 @@ $('convert').onclick=async()=>{
  }catch(e){status.textContent='No se pudo convertir: '+e.message;console.error(e);}
  finally{if(prepared)prepared.root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());});$('convert').disabled=false;}
 };
+
+
+// ZIP sin compresión ni dependencias externas (los JSON ocupan poco).
+function zipJSONFiles(files){
+ const encoder=new TextEncoder(),chunks=[],directory=[];let offset=0;
+ function crc32(bytes){let crc=0xffffffff;for(const byte of bytes){crc^=byte;for(let k=0;k<8;k++)crc=(crc>>>1)^((crc&1)?0xedb88320:0);}return(crc^0xffffffff)>>>0;}
+ for(const file of files){const name=encoder.encode(file.name),data=encoder.encode(JSON.stringify(file.data,null,2)),crc=crc32(data);
+  const local=new Uint8Array(30+name.length),v=new DataView(local.buffer);v.setUint32(0,0x04034b50,true);v.setUint16(4,20,true);v.setUint16(6,0x800,true);v.setUint16(12,33,true);v.setUint32(14,crc,true);v.setUint32(18,data.length,true);v.setUint32(22,data.length,true);v.setUint16(26,name.length,true);local.set(name,30);
+  const central=new Uint8Array(46+name.length),c=new DataView(central.buffer);c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint16(8,0x800,true);c.setUint16(14,33,true);c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);c.setUint16(28,name.length,true);c.setUint32(42,offset,true);central.set(name,46);directory.push(central);chunks.push(local,data);offset+=local.length+data.length;
+ }
+ const dirSize=directory.reduce((sum,a)=>sum+a.length,0),end=new Uint8Array(22),e=new DataView(end.buffer);e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,dirSize,true);e.setUint32(16,offset,true);
+ return new Blob([...chunks,...directory,end],{type:'application/zip'});
+}
 
 async function start(){
  let updateLabels=()=>{};let addMeasurementPoint=()=>{};
@@ -363,19 +377,26 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
 
  const modelPath=url.pathname.slice(base.pathname.length);
  const viewsFilename=filename.replace(/\.glb$/i,'.json');
+ const stem=filename.replace(/\.glb$/i,'');const digits=stem.match(/(\d+)$/);$('caseCode').value=digits?String(Number(digits[1])):stem;
  function validateViewsFile(data){
   if(!data||data.version!==1||typeof data.model!=='string'||!Array.isArray(data.views)||data.views.length>500)throw new Error('Formato de vistas no válido.');
   if(new URL(data.model,base).href!==url.href)throw new Error('El JSON corresponde a otro modelo: '+data.model);
   const ids=new Set();
   return data.views.map((entry,i)=>{if(!entry||typeof entry.name!=='string'||!entry.name.trim()||entry.name.length>100||!validState(entry.state))throw new Error('Vista no válida en la posición '+(i+1));let id=typeof entry.id==='string'&&entry.id?entry.id:'view-'+i;if(ids.has(id))throw new Error('Identificador de vista duplicado.');ids.add(id);return{id,name:entry.name,state:entry.state};});
  }
+
  $('exportViews').onclick=()=>{
-  const combined=new Map();for(const entry of [...remoteViews,...savedViews])combined.set(entry.name,entry);
-  if(!combined.size){$('viewsStatus').textContent='Guarda primero al menos una vista con nombre.';return;}
-  // Asignar IDs únicos incluso al combinar dos colecciones.
-  const views=Array.from(combined.values(),(entry,i)=>({...entry,id:'view-'+(i+1)}));
-  const data={version:1,model:modelPath,views};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),href=URL.createObjectURL(blob),a=document.createElement('a');a.href=href;a.download=viewsFilename;a.click();setTimeout(()=>URL.revokeObjectURL(href),10000);
-  $('viewsStatus').textContent='JSON exportado. Súbelo a vistas/'+viewsFilename+' en GitHub. Las vistas locales del mismo nombre tienen prioridad.';
+  try{
+   const code=$('caseCode').value.trim();if(!/^[a-zA-Z0-9_-]{1,60}$/.test(code))throw new Error('Utiliza un código de caso con letras, números, guion o guion bajo.');
+   const combined=new Map();for(const entry of [...remoteViews,...savedViews])combined.set(entry.name,entry);
+   if(!combined.size)throw new Error('Guarda primero al menos una vista con nombre.');
+   const views=Array.from(combined.values(),(entry,i)=>({...entry,id:'view-'+(i+1)}));
+   const files=views.map((view,i)=>({name:'vistas/'+code+'_'+(i+1)+'.json',data:{version:1,model:modelPath,views:[view]}}));
+   const manifest={version:1,model:modelPath,files:files.map(f=>f.name.slice('vistas/'.length))};
+   files.push({name:'vistas/'+viewsFilename,data:manifest});
+   const href=URL.createObjectURL(zipJSONFiles(files)),a=document.createElement('a');a.href=href;a.download='vistas_'+code+'.zip';a.click();setTimeout(()=>URL.revokeObjectURL(href),10000);
+   $('viewsStatus').textContent='ZIP exportado. Descomprímelo y sube su carpeta vistas a GitHub. Incluye '+views.length+' archivos de vista y el índice '+viewsFilename+'.';
+  }catch(e){$('viewsStatus').textContent='No se pudo exportar: '+e.message;}
  };
  $('importViews').onclick=()=>$('viewsFile').click();
  $('viewsFile').onchange=async()=>{const file=$('viewsFile').files[0];if(!file)return;try{if(file.size>5*1024*1024)throw new Error('El JSON supera 5 MB.');const imported=validateViewsFile(JSON.parse(await file.text()));const merged=new Map(readViews().map(e=>[e.name,e]));for(const entry of imported)merged.set(entry.name,{...entry,id:globalThis.crypto?.randomUUID?.()||Date.now()+'-'+Math.random()});if(persistViews([...merged.values()])){renderViews();$('viewsStatus').textContent=imported.length+' vistas importadas en este navegador.';}}catch(e){$('viewsStatus').textContent='No se pudo importar: '+e.message;}finally{$('viewsFile').value='';}};
@@ -388,7 +409,19 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
    if(response.status===404){$('remoteViewsStatus').textContent='Todavía no hay vistas publicadas para este modelo.';return;}
    if(!response.ok)throw new Error('Respuesta HTTP '+response.status);
    const text=await response.text();if(text.length>5*1024*1024)throw new Error('El JSON supera el tamaño permitido.');
-   remoteViews=validateViewsFile(JSON.parse(text));renderViews($('savedViews').value);$('remoteViewsStatus').textContent=remoteViews.length+' vistas disponibles desde GitHub.';
+   
+   const data=JSON.parse(text);let loaded;
+   if(Array.isArray(data.files)){
+    if(data.version!==1||typeof data.model!=='string'||new URL(data.model,base).href!==url.href||data.files.length>500)throw new Error('Índice de vistas no válido o de otro modelo.');
+    const all=[];
+    // Lotes pequeños para evitar cientos de peticiones simultáneas.
+    for(let i=0;i<data.files.length;i+=6){const batch=await Promise.all(data.files.slice(i,i+6).map(async name=>{
+     if(typeof name!=='string'||!/^[a-zA-Z0-9_-]+\.json$/.test(name))throw new Error('Nombre de archivo de vista no válido.');
+     const itemURL=new URL(name,viewsURL),r=await fetch(itemURL.href,{cache:'no-cache',signal:controller.signal});if(!r.ok)throw new Error(name+': HTTP '+r.status);const raw=await r.text();if(raw.length>5*1024*1024)throw new Error('Archivo de vista demasiado grande.');return validateViewsFile(JSON.parse(raw));
+    }));all.push(...batch.flat());}
+    const ids=new Set();for(const entry of all){if(ids.has(entry.id))throw new Error('Identificadores duplicados en los archivos de vistas.');ids.add(entry.id);}loaded=all;
+   }else loaded=validateViewsFile(data);
+   remoteViews=loaded;renderViews($('savedViews').value);$('remoteViewsStatus').textContent=remoteViews.length+' vistas disponibles desde GitHub.';
   }catch(e){$('remoteViewsStatus').textContent='No se pudieron cargar las vistas publicadas: '+(e.name==='AbortError'?'tiempo de espera agotado.':e.message);}finally{clearTimeout(timeout);}
  }
  loadPublishedViews();
