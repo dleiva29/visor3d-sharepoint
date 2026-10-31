@@ -5,7 +5,7 @@
 <title>Visor anatómico 3D</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font:14px system-ui,sans-serif;color:#203044;background:white}#app{display:flex;height:100vh;height:100dvh}#viewport{flex:1;min-width:0;position:relative;background:white}canvas{display:block;touch-action:none}aside{width:320px;background:#f5f7fa;border-left:1px solid #dce2ea;overflow:auto;padding:20px}h1{font-size:21px;margin:0 0 6px}h2{font-size:15px;margin:22px 0 10px}.hint{font-size:12px;color:#596b7d;line-height:1.6}button,select{font:inherit;padding:8px 10px;border:1px solid #ccd5df;border-radius:7px;background:white;color:inherit}button{cursor:pointer}button:hover{background:#e8eff7}button:disabled{opacity:.45;cursor:default}.row{display:flex;align-items:center;gap:7px;margin:9px 0;flex-wrap:wrap}.row input[type=range]{flex:1;min-width:65px}input[type=color]{width:38px;height:28px;border:0;padding:0;background:none}.card{padding:12px;background:white;border:1px solid #dce2ea;border-radius:9px;margin:10px 0}.card.selected{border-color:#2563eb;box-shadow:0 0 0 1px #2563eb}.name{display:flex;gap:7px;align-items:center;overflow-wrap:anywhere}.name button{flex:1;text-align:left;border:0;padding:4px;font-weight:600}.card .row{font-size:12px}#status{overflow-wrap:anywhere}#badge{position:absolute;top:16px;left:16px;padding:8px 12px;background:#ffffffdf;border:1px solid #dce2ea;border-radius:8px;max-width:85%;pointer-events:none}.anatomy-label{position:absolute;transform:translate(-50%,-50%);padding:3px 7px;background:#ffffffdb;border:1px solid #b8c6d6;border-radius:5px;font-size:12px;pointer-events:none;max-width:160px;overflow-wrap:anywhere}.result{white-space:pre-line;line-height:1.6}#error{color:#ad271c}fieldset{border:0;padding:0;margin:0}output{min-width:35px}#app:fullscreen{width:100%;height:100%;background:white}@media(max-width:680px){#app{flex-direction:column}#viewport{flex:none;height:58%}aside{width:100%;flex:1;border-left:0;border-top:1px solid #dce2ea}}
-</style>
+.mpr-annotation-label{position:absolute;padding:5px 8px;max-width:220px;white-space:pre-wrap;overflow-wrap:anywhere;background:#fffffff0;color:#162336;border:2px solid;border-radius:5px;font:12px system-ui;pointer-events:none;z-index:3}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script>
 </head>
 <body>
@@ -29,16 +29,16 @@
 <div class="row"><button id="full">Pantalla completa</button></div>
 <fieldset id="tools" disabled>
 <div class="row"><button id="reset">Restablecer vista</button><button id="capture">Captura PNG</button></div>
-<h2>Vistas guardadas</h2>
+<h2>Vistas guardadas</h2><p class="hint">Compatible con las vistas de MPR del mismo GLB. Busca primero <code>vistas/mpr/«modelo».json</code>. También admite el JSON exportado desde MPR y sus vistas locales en este navegador. Se recupera la configuración 3D; los cortes del TAC se consultan en MPR.</p>
 <label class="row" for="savedViews">Abrir vista</label>
 <select id="savedViews" style="width:100%"><option value="">Selecciona una vista…</option></select>
 <label class="row">Nombre <input id="viewName" maxlength="100" placeholder="Ej.: Tumor y vasos" style="width:100%"></label>
 <div class="row"><button id="saveView" type="button">Guardar vista actual</button><button id="deleteView" type="button" disabled>Eliminar vista</button></div>
 <label class="row">Código del caso <input id="caseCode" maxlength="60" style="width:100%" placeholder="Ej.: 1"></label>
-<div class="row"><button id="exportViews" type="button">Exportar vistas ZIP</button><button id="importViews" type="button">Importar vistas JSON</button></div>
+<div class="row"><button id="exportViews" type="button">Exportar vistas ZIP</button><button id="importViews" type="button">Importar vistas JSON / MPR</button></div>
 <input id="viewsFile" type="file" accept=".json,application/json" hidden>
 <p id="remoteViewsStatus" class="hint" role="status"></p>
-<p id="viewsStatus" class="hint" role="status" aria-live="polite">Vistas de este modelo, guardadas en este navegador. Para compartirlas, utiliza «Copiar enlace».</p>
+<p id="mprViewNote" class="hint" style="white-space:pre-wrap" hidden></p><p id="viewsStatus" class="hint" role="status" aria-live="polite">Vistas de este modelo, guardadas en este navegador. Para compartirlas, utiliza «Copiar enlace».</p>
 <div class="row"><button id="share">Copiar enlace de esta vista</button></div>
 <div id="shareFallback" hidden><label for="shareURL" class="hint">Copia este enlace:</label><textarea id="shareURL" readonly rows="4" style="width:100%;overflow-wrap:anywhere"></textarea></div>
 <p id="shareStatus" class="hint" role="status" aria-live="polite"></p>
@@ -179,7 +179,7 @@ function zipJSONFiles(files){
 }
 
 async function start(){
- let updateLabels=()=>{};let addMeasurementPoint=()=>{};
+ let updateLabels=()=>{};let updateMPRMarks=()=>{};let addMeasurementPoint=()=>{};
  const host=$('viewport'), renderer=new THREE.WebGLRenderer({antialias:true});
  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;
  host.appendChild(renderer.domElement);
@@ -191,12 +191,12 @@ async function start(){
  const fill=new THREE.DirectionalLight(0xffffff,1);fill.position.set(-2,1,-1);scene.add(fill);
  const resize=()=>{const w=Math.max(host.clientWidth,1),h=Math.max(host.clientHeight,1);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);};
  new ResizeObserver(resize).observe(host);resize();
- renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);updateLabels();});
+ renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);updateLabels();updateMPRMarks();});
  const base=new URL('./',location.href),path=new URLSearchParams(location.search).get('modelo')||'modelo-demo.glb',url=new URL(path,base);
  if(url.origin!==base.origin||!url.pathname.startsWith(base.pathname)||!url.pathname.toLowerCase().endsWith('.glb'))throw new Error('Utiliza la ruta de un GLB dentro de este proyecto.');
  const filename=decodeURIComponent(url.pathname.split('/').pop());document.title=filename+' — Visor 3D';
  $('status').textContent='Cargando '+filename+'…';
- const gltf=await new GLTFLoader().loadAsync(url.href,p=>{if(p.total)$('status').textContent='Cargando '+Math.round(p.loaded/p.total*100)+'%';});
+ const response=await fetch(url.href);if(!response.ok)throw new Error('GLB: HTTP '+response.status);const modelBytes=await response.arrayBuffer();const modelHash=[...new Uint8Array(await crypto.subtle.digest('SHA-256',modelBytes))].map(b=>b.toString(16).padStart(2,'0')).join('');const gltf=await new GLTFLoader().parseAsync(modelBytes,new URL('./',url).href);
  const metadataScale=gltf.scene.userData.viewerMmPerUnit;gltf.scene.traverse(o=>{if(o.userData.viewerMmPerUnit===1000)$('scale').value=1000;});if(metadataScale===1000)$('scale').value=1000;
  const model=gltf.scene,box=new THREE.Box3().setFromObject(model);
  if(box.isEmpty())throw new Error('El archivo no contiene geometría visible.');
@@ -302,7 +302,7 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
    light:Number($('light').value),flat:$('flat').checked,
    cut:{enabled:$('cut').checked,axis:$('axis').value,flip:$('flip').checked,position:Number($('position').value)},
    structures:structures.map(s=>({name:s.name,label:s.displayName,visible:s.visible,opacity:s.opacity,colors:s.pairs.map(p=>'#'+p.lit.color.getHexString())})),
-   selected:selected?.name??null,geometry:{scale:Number($('scale').value),confirmed:$('scaleConfirmed').checked,labels:$('labels').checked}};
+   selected:selected?.name??null,geometry:{scale:Number($('scale').value),confirmed:$('scaleConfirmed').checked,labels:$('labels').checked},mpr:currentMPROverlay?structuredClone(currentMPROverlay):null};
  }
  function validState(t){
   return t&&t.v===1&&t.camera&&finiteVector(t.camera.position)&&finiteVector(t.camera.target)&&finiteVector(t.camera.up)
@@ -312,7 +312,7 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
    &&t.cut&&typeof t.cut.enabled==='boolean'&&['x','y','z'].includes(t.cut.axis)&&typeof t.cut.flip==='boolean'&&bounded(t.cut.position,0,100)
    &&Array.isArray(t.structures)&&t.structures.length<=10000
    &&t.structures.every(x=>x&&typeof x.name==='string'&&typeof x.visible==='boolean'&&bounded(x.opacity,0,1)&&Array.isArray(x.colors)&&x.colors.length>0&&x.colors.every(validColor))
-   &&(t.selected===null||typeof t.selected==='string');
+   &&(t.mpr===undefined||validOverlay(t.mpr))&&(t.selected===null||typeof t.selected==='string');
  }
  function restore(){
   const encoded=new URLSearchParams(location.hash.slice(1)).get('vista');if(!encoded)return;
@@ -330,8 +330,8 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
    $('flat').onchange();$('cut').checked=state.cut.enabled;$('axis').value=state.cut.axis;$('flip').checked=state.cut.flip;$('position').value=state.cut.position;updateCut();
    // Eliminar la inercia anterior antes de restaurar la cámara.
    controls.enableDamping=false;controls.update();
-   camera.position.fromArray(state.camera.position);camera.up.fromArray(state.camera.up);controls.target.fromArray(state.camera.target);camera.lookAt(controls.target);controls.update();controls.enableDamping=true;
-   select(byName.get(state.selected)||null);
+   controls.minDistance=state.mpr?0:radius*.03;controls.maxDistance=state.mpr?Infinity:radius*100;camera.position.fromArray(state.camera.position);camera.up.fromArray(state.camera.up);controls.target.fromArray(state.camera.target);camera.lookAt(controls.target);controls.update();controls.enableDamping=true;
+   select(byName.get(state.selected)||null);setMPRMarks(state.mpr||null);
    $('shareStatus').textContent=missing?'Vista restaurada; algunas estructuras ya no existen en este modelo.':'Configuración del enlace restaurada.';
   }catch(e){$('shareStatus').textContent='No se pudo restaurar la configuración del enlace. Se muestra la vista disponible.';console.warn(e);}
  }
@@ -342,6 +342,44 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
   catch{$('shareFallback').hidden=false;$('shareURL').focus();$('shareURL').select();$('shareStatus').textContent='El navegador no permite copiar automáticamente. Copia el enlace del recuadro.';}
  };
 
+  // Adaptar vistas MPR (RAS/mm) al espacio GLB centrado de este visor.
+ let currentMPROverlay=null;const mprMarks=new THREE.Group();scene.add(mprMarks);const mprLabels=[];
+ const mprPoint=p=>new THREE.Vector3(...p).multiplyScalar(.001).sub(center).toArray();
+ function validOverlay(o){return o===null||o&&typeof o.visible==='boolean'&&typeof o.showModel==='boolean'&&typeof o.notes==='string'&&o.notes.length<=3000&&Array.isArray(o.items)&&o.items.length<=100&&o.items.every(a=>a&&['label','arrow'].includes(a.kind)&&typeof a.text==='string'&&a.text.length<=180&&validColor(a.color)&&finiteVector(a.a)&&(a.kind!=='arrow'||finiteVector(a.b)));}
+ function setMPRMarks(data){
+  currentMPROverlay=data?structuredClone(data):null;pivot.visible=data?.showModel??true;
+  while(mprMarks.children.length){const o=mprMarks.children[0];mprMarks.remove(o);o.traverse(n=>{n.geometry?.dispose();const mats=Array.isArray(n.material)?n.material:[n.material];mats.forEach(m=>m?.dispose())})}
+  mprLabels.forEach(l=>l.element.remove());mprLabels.length=0;mprMarks.visible=data?.visible??false;
+  $('mprViewNote').textContent=data?.notes||'';$('mprViewNote').hidden=!data?.notes;
+  if(!data)return;
+  for(const a of data.items){const point=new THREE.Vector3(...a.a);
+   if(a.kind==='arrow'){const end=new THREE.Vector3(...a.b),dir=end.clone().sub(point),length=dir.length();if(length>1e-10){const arrow=new THREE.ArrowHelper(dir.normalize(),point,length,a.color,Math.min(.005,length*.25),Math.min(.0015,length*.075));arrow.line.material.depthTest=false;arrow.cone.material.depthTest=false;mprMarks.add(arrow)}}
+   else{const dot=new THREE.Mesh(new THREE.SphereGeometry(Math.max(radius*.005,.0003),10,8),new THREE.MeshBasicMaterial({color:a.color,depthTest:false}));dot.position.copy(point);mprMarks.add(dot)}
+   if(a.text){const element=document.createElement('div');element.className='mpr-annotation-label';element.textContent=a.text;element.style.borderColor=a.color;host.append(element);mprLabels.push({element,point})}
+  }
+ }
+ updateMPRMarks=()=>{
+  const placed=[];for(const l of mprLabels){const p=l.point.clone().project(camera);l.element.hidden=!currentMPROverlay?.visible||p.z<-1||p.z>1||Math.abs(p.x)>1||Math.abs(p.y)>1;if(l.element.hidden)continue;const w=l.element.offsetWidth,h=l.element.offsetHeight,x=Math.max(4,Math.min(host.clientWidth-w-4,(p.x+1)*host.clientWidth/2+10));let y=Math.max(4,Math.min(host.clientHeight-h-4,(1-p.y)*host.clientHeight/2-h-8));for(let i=0;i<20;i++){const hit=placed.find(r=>x<r.x+r.w&&x+w>r.x&&y<r.y+r.h+5&&y+h+5>r.y);if(!hit)break;y=hit.y-h-6>=4?hit.y-h-6:Math.min(host.clientHeight-h-4,hit.y+hit.h+6)}placed.push({x,y,w,h});l.element.style.left=x+'px';l.element.style.top=y+'px';}
+ }
+ function convertMPRViews(data){
+  if(data?.format!=='mpr-named-views'||data.version!==1||!Array.isArray(data.views)||data.views.length>100)throw new Error('Formato de vistas MPR no válido.');
+  if(typeof data.caseKey!=='string'||!new RegExp('^mpr-named-views-v1:[a-f0-9]{64}:'+modelHash+'$').test(data.caseKey))throw new Error('Las vistas MPR pertenecen a otro archivo GLB. Utiliza exactamente el mismo modelo.');
+  return data.views.map((entry,i)=>{
+   const c=entry?.config,vec=finiteVector;
+   if(typeof entry?.name!=='string'||!entry.name.trim()||entry.name.length>100||!c||c.format!=='mpr-viewer'||c.version!==1||!c.camera||!vec(c.camera.position)||!vec(c.camera.target)||!vec(c.camera.up)||!Array.isArray(c.layers)||c.layers.length!==structures.length||new Set(c.layers.map(l=>l.key)).size!==structures.length)throw new Error('Vista MPR no válida: '+(i+1));
+   if(!c.layers.every(l=>byName.has(l.key)&&typeof l.visible==='boolean'&&validColor(l.color)&&bounded(l.opacity,0,100))||!['x','y','z'].includes(c.clipAxis)||!bounded(c.clipPosition,0,100)||typeof c.flags?.clipEnabled!=='boolean'||typeof c.flags.clipReverse!=='boolean'||typeof c.flags.showmodel!=='boolean')throw new Error('Estructuras o recorte MPR inválidos.');
+   if(c.annotations!==undefined&&(!Array.isArray(c.annotations)||c.annotations.length>100||c.annotations.some(a=>!a||!['label','arrow'].includes(a.kind)||!vec(a.a)||(a.kind==='arrow'&&!vec(a.b))||typeof a.text!=='string'||a.text.length>180||!validColor(a.color))))throw new Error('Anotaciones MPR inválidas.');
+   const overlay={visible:c.annotationsVisible??true,showModel:c.flags.showmodel,notes:entry.notes??'',items:(c.annotations||[]).map(a=>({...a,a:mprPoint(a.a),...(a.kind==='arrow'?{b:mprPoint(a.b)}:{})}))};if(!validOverlay(overlay))throw new Error('Anotaciones o comentario MPR inválidos.');
+   const state={v:1,camera:{position:mprPoint(c.camera.position),target:mprPoint(c.camera.target),up:c.camera.up.slice()},light:1,flat:false,cut:{enabled:c.flags.clipEnabled,axis:c.clipAxis,flip:c.flags.clipReverse,position:c.clipPosition},structures:c.layers.map(l=>({name:l.key,label:l.key,visible:l.visible,opacity:l.opacity/100,colors:[l.color]})),selected:null,geometry:{scale:1000,confirmed:false,labels:false},mpr:overlay};
+   if(!validState(state))throw new Error('Cámara MPR inválida.');
+   return{id:'mpr-'+i,name:entry.name,state};
+  });
+ }
+ let mprLocalViews=[];
+ function readMPRLocalViews(){
+  const all=[];try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key?.startsWith('mpr-named-views-v1:')||!key.endsWith(':'+modelHash))continue;try{const entries=convertMPRViews({format:'mpr-named-views',version:1,caseKey:key,views:JSON.parse(localStorage.getItem(key)||'[]')});all.push(...entries.map((e,j)=>({...e,id:'mprlocal:'+i+':'+j})))}catch(e){console.warn('Vistas MPR locales:',e.message)}}}catch(e){console.warn('No se pueden consultar las vistas MPR locales:',e.message)}return all;
+ }
+
  const viewsKey='anatomy-views:v1:'+url.href;
  let savedViews=[],remoteViews=[];
  function readViews(){
@@ -351,7 +389,8 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
  function renderViews(id=''){
   const select=$('savedViews');select.replaceChildren();const empty=document.createElement('option');empty.value='';empty.textContent='Selecciona una vista…';select.append(empty);
   const published=document.createElement('optgroup');published.label='Publicadas en GitHub';for(const entry of remoteViews){const option=document.createElement('option');option.value='remote:'+entry.id;option.textContent=entry.name;published.append(option);}if(remoteViews.length)select.append(published);
-  const local=document.createElement('optgroup');local.label='En este navegador';for(const entry of savedViews){const option=document.createElement('option');option.value=entry.id;option.textContent=entry.name;local.append(option);}if(savedViews.length)select.append(local);select.value=id;$('deleteView').disabled=!select.value||select.value.startsWith('remote:');
+  const mprGroup=document.createElement('optgroup');mprGroup.label='Vistas de MPR en este navegador';for(const e of mprLocalViews){const option=document.createElement('option');option.value=e.id;option.textContent=e.name;mprGroup.append(option)}if(mprLocalViews.length)select.append(mprGroup);
+  const local=document.createElement('optgroup');local.label='En este navegador';for(const entry of savedViews){const option=document.createElement('option');option.value=entry.id;option.textContent=entry.name;local.append(option);}if(savedViews.length)select.append(local);select.value=id;$('deleteView').disabled=!select.value||select.value.startsWith('remote:')||select.value.startsWith('mprlocal:');
  }
  function persistViews(next){
   try{localStorage.setItem(viewsKey,JSON.stringify(next));savedViews=next;return true;}
@@ -366,19 +405,20 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
   if(persistViews(next)){renderViews(entry.id);$('viewsStatus').textContent=existing?'Vista actualizada en este navegador.':'Vista guardada en este navegador.';}
  };
  $('savedViews').onchange=()=>{
-  const id=$('savedViews').value,isRemote=id.startsWith('remote:'),entry=isRemote?remoteViews.find(x=>'remote:'+x.id===id):savedViews.find(x=>x.id===id);$('deleteView').disabled=!entry||isRemote;if(!entry)return;
+  const id=$('savedViews').value,isRemote=id.startsWith('remote:'),entry=isRemote?remoteViews.find(x=>'remote:'+x.id===id):id.startsWith('mprlocal:')?mprLocalViews.find(x=>x.id===id):savedViews.find(x=>x.id===id);$('deleteView').disabled=!entry||isRemote||id.startsWith('mprlocal:');if(!entry)return;
   $('viewName').value=entry.name;const fragment=new URLSearchParams();fragment.set('vista',JSON.stringify(entry.state));
   // Reutilizar el mismo restaurador que los enlaces compartidos.
   history.replaceState(null,'',location.pathname+location.search+'#'+fragment.toString());restore();$('viewsStatus').textContent='Vista abierta: '+entry.name;
  };
  $('deleteView').onclick=()=>{const entry=savedViews.find(x=>x.id===$('savedViews').value);if(!entry)return;const next=readViews().filter(x=>x.id!==entry.id);if(persistViews(next)){renderViews();$('viewName').value='';$('viewsStatus').textContent='Vista eliminada. La visualización actual se mantiene.';}};
- window.addEventListener('storage',e=>{if(e.key===viewsKey){savedViews=readViews();renderViews();}});
- savedViews=readViews();renderViews();
+ window.addEventListener('storage',e=>{if(e.key===viewsKey||e.key?.startsWith('mpr-named-views-v1:')||e.key===null){savedViews=readViews();mprLocalViews=readMPRLocalViews();renderViews();}});
+ savedViews=readViews();mprLocalViews=readMPRLocalViews();renderViews();
 
  const modelPath=url.pathname.slice(base.pathname.length);
  const viewsFilename=filename.replace(/\.glb$/i,'.json');
  const stem=filename.replace(/\.glb$/i,'');const digits=stem.match(/(\d+)$/);$('caseCode').value=digits?String(Number(digits[1])):stem;
  function validateViewsFile(data){
+  if(data?.format==='mpr-named-views')return convertMPRViews(data);
   if(!data||data.version!==1||typeof data.model!=='string'||!Array.isArray(data.views)||data.views.length>500)throw new Error('Formato de vistas no válido.');
   if(new URL(data.model,base).href!==url.href)throw new Error('El JSON corresponde a otro modelo: '+data.model);
   const ids=new Set();
@@ -402,10 +442,10 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
  $('viewsFile').onchange=async()=>{const file=$('viewsFile').files[0];if(!file)return;try{if(file.size>5*1024*1024)throw new Error('El JSON supera 5 MB.');const imported=validateViewsFile(JSON.parse(await file.text()));const merged=new Map(readViews().map(e=>[e.name,e]));for(const entry of imported)merged.set(entry.name,{...entry,id:globalThis.crypto?.randomUUID?.()||Date.now()+'-'+Math.random()});if(persistViews([...merged.values()])){renderViews();$('viewsStatus').textContent=imported.length+' vistas importadas en este navegador.';}}catch(e){$('viewsStatus').textContent='No se pudo importar: '+e.message;}finally{$('viewsFile').value='';}};
  async function loadPublishedViews(){
   let timeout;try{
-   const override=new URLSearchParams(location.search).get('vistas');const viewsURL=new URL(override||'vistas/'+encodeURIComponent(viewsFilename),base);
+   const override=new URLSearchParams(location.search).get('vistas');let viewsURL=new URL(override||'vistas/mpr/'+encodeURIComponent(viewsFilename),base);
    if(viewsURL.origin!==base.origin||!viewsURL.pathname.startsWith(base.pathname)||!viewsURL.pathname.toLowerCase().endsWith('.json'))throw new Error('La ruta de vistas debe ser un JSON dentro del proyecto.');
    $('remoteViewsStatus').textContent='Buscando vistas publicadas…';const controller=new AbortController();timeout=setTimeout(()=>controller.abort(),10000);
-   const response=await fetch(viewsURL.href,{cache:'no-cache',signal:controller.signal});
+   let response=await fetch(viewsURL.href,{cache:'no-cache',signal:controller.signal});if(response.status===404&&!override){viewsURL=new URL('vistas/'+encodeURIComponent(viewsFilename),base);response=await fetch(viewsURL.href,{cache:'no-cache',signal:controller.signal})}
    if(response.status===404){$('remoteViewsStatus').textContent='Todavía no hay vistas publicadas para este modelo.';return;}
    if(!response.ok)throw new Error('Respuesta HTTP '+response.status);
    const text=await response.text();if(text.length>5*1024*1024)throw new Error('El JSON supera el tamaño permitido.');
