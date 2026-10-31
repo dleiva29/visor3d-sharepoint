@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "model": "modelos/3.glb",
+  "files": [
+    "3_1.json",
+    "3_2.json",
+    "3_3.json"
+  ]
+}
