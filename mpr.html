@@ -7,6 +7,16 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
  body:has(.pane.maximized) .pane.maximized{right:min(38vw,290px);}
  body:has(.pane.maximized) aside{width:min(38vw,290px);max-height:none;}
 }
+
+/* Progreso de descarga y procesamiento visible en el panel lateral */
+#loadingPanel{margin:10px 0 2px;padding:10px;border:1px solid #4b809b;border-radius:7px;background:#102638}
+#loadingPanel[hidden]{display:none!important}
+#loadingTitle{display:block;font-size:12px;font-weight:600;color:#eaf1f8;margin-bottom:7px}
+#loadingTrack{height:13px;overflow:hidden;border-radius:8px;background:#30485e;border:1px solid #5a7791}
+#loadingFill{height:100%;width:0%;background:linear-gradient(90deg,#2587b1,#39c8b3);transition:width .15s ease}
+#loadingPanel[aria-busy="true"] #loadingTrack.indeterminate #loadingFill{width:38%;animation:progressBusy 1.2s ease-in-out infinite}
+@keyframes progressBusy{from{transform:translateX(-110%)}to{transform:translateX(275%)}}
+#loadingDetail{display:block;margin-top:5px;font-size:11px;color:#c1d7e5;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body>
 <header><strong>TAC + modelo anatómico · visor MPR</strong><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
@@ -15,7 +25,7 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 <section class="pane"><h2>Coronal (eje Y)</h2><div class="stage"><canvas class="ct" id="cty"></canvas></div><div class="sliceTools"><input id="ry" type="range" disabled><output id="oy">—</output></div></section>
 <section class="pane"><h2>Sagital (eje X)</h2><div class="stage"><canvas class="ct" id="ctx"></canvas></div><div class="sliceTools"><input id="rx" type="range" disabled><output id="ox">—</output></div></section>
 <section class="pane"><h2>Vista 3D: modelo y planos del TAC</h2><div id="view3d" class="stage"></div></section>
-</div><aside><div class="sidebar-heading"><strong>Controles del visor</strong><div><button id="expandMenus" type="button">Abrir todos</button><button id="collapseMenus" type="button">Cerrar todos</button></div><p id="status">Selecciona un NRRD para comenzar.</p></div><details class="sidebar-group" id="menu-files" open><summary>Archivos del caso</summary><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><label for="nrrd">Volumen TAC en NRRD (archivo local)</label><input id="nrrd" type="file" accept=".nrrd"><label for="glb">Modelo GLB (archivo local)</label><input id="glb" type="file" accept=".glb">
+</div><aside><div class="sidebar-heading"><strong>Controles del visor</strong><div><button id="expandMenus" type="button">Abrir todos</button><button id="collapseMenus" type="button">Cerrar todos</button></div><p id="status">Selecciona un NRRD para comenzar.</p><div id="loadingPanel" role="status" aria-live="polite" aria-busy="false" hidden><span id="loadingTitle">Preparando…</span><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingDetail"></span></div></div><details class="sidebar-group" id="menu-files" open><summary>Archivos del caso</summary><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><label for="nrrd">Volumen TAC en NRRD (archivo local)</label><input id="nrrd" type="file" accept=".nrrd"><label for="glb">Modelo GLB (archivo local)</label><input id="glb" type="file" accept=".glb">
 </div></details><details class="sidebar-group" id="menu-navigation"><summary>Navegación y herramientas</summary><div class="sidebar-body"><div class="tool-grid" id="tools">
 <button type="button" data-tool="navigate" aria-pressed="true">Navegar</button><button type="button" data-tool="pan" aria-pressed="false">Desplazar</button>
 <button type="button" data-tool="zoom" aria-pressed="false">Zoom</button><button type="button" data-tool="window" aria-pressed="false">Ventana / nivel</button>
@@ -35,6 +45,31 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {NRRDLoader} from 'three/addons/loaders/NRRDLoader.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 const $=id=>document.getElementById(id), status=$('status');
+const progressPanel=$('loadingPanel'), progressTrack=$('loadingTrack'), progressFill=$('loadingFill');
+const formatMB=n=>(n/1000000).toFixed(1)+' MB';
+function showProgress(title,fraction=null,detail=''){
+ progressPanel.hidden=false;progressPanel.setAttribute('aria-busy',fraction===null?'true':'false');
+ $('loadingTitle').textContent=title;$('loadingDetail').textContent=detail;
+ progressTrack.classList.toggle('indeterminate',fraction===null);
+ progressFill.style.width=fraction===null?'38%':(Math.max(0,Math.min(1,fraction))*100).toFixed(1)+'%';
+}
+function finishProgress(ok=true,message=''){
+ showProgress(ok?'Carga completada':'Error de carga',ok?1:0,message);
+ progressPanel.setAttribute('aria-busy','false');progressTrack.classList.remove('indeterminate');
+}
+// Descarga progresiva que notifica bytes reales incluso dentro de cada fragmento.
+async function downloadWithProgress(url,onBytes,options={}){
+ const response=await fetch(url,{credentials:'omit',...options});
+ if(!response.ok)throw new Error('HTTP '+response.status+' al descargar '+new URL(url,location.href).pathname);
+ const declared=Number(response.headers.get('content-length'))||0;
+ if(!response.body){const bytes=new Uint8Array(await response.arrayBuffer());onBytes?.(bytes.length,bytes.length);return bytes;}
+ const reader=response.body.getReader(),chunks=[];let loaded=0;
+ while(true){const {done,value}=await reader.read();if(done)break;chunks.push(value);loaded+=value.byteLength;onBytes?.(loaded,declared);}
+ const output=new Uint8Array(loaded);let offset=0;
+ for(const chunk of chunks){output.set(chunk,offset);offset+=chunk.byteLength;}
+ return output;
+}
+
 const selectedStructures=new Set();const modelAnnotations=[];let annotationRoot=null,pendingArrow=null;
 let batchRestore=false;const contourCache=new WeakMap();
 let activeTool='navigate',selectedStructure=null;let volumeContentHash=null,modelContentHash=null;
@@ -250,7 +285,7 @@ function drawContours(axis, ctx, dest){
 
 function initSlices(){clearRoot(planesRoot);slices={};for(const [axis,n] of [['x',volume.RASDimensions[0]],['y',volume.RASDimensions[1]],['z',volume.RASDimensions[2]]]){const size=Math.max(2,n);const slider=$('r'+axis);slider.disabled=false;slider.min='0';slider.max=String(size-1);slider.value=String(Math.floor((size-1)/2));const slice=volume.extractSlice(axis,+slider.value);slices[axis]=slice;planesRoot.add(slice.mesh);slider.oninput=()=>paint(axis);paint(axis)}updatePlaneVisibility();fit()}
 async function loadNrrdData(data,label){const hash=await contentHash(data);if(volumeContentHash&&volumeContentHash!==hash)clearModelAnnotations();clearMeasurements();selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Pulsa un punto en un corte para sincronizar las vistas.';volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();volumeContentHash=hash;syncNamedViews();status.textContent=`TAC: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}
-$('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';try{await loadNrrdData(await file.arrayBuffer(),file.name)}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message}};
+$('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';showProgress('Leyendo TAC local',null,formatMB(file.size));try{await loadNrrdData(await file.arrayBuffer(),file.name);finishProgress(true,'TAC local preparado')}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message;finishProgress(false,err.message)}};
 $('apply').onclick=()=>{if(!volume)return;const w=Number($('ww').value),l=Number($('wl').value);if(!Number.isFinite(w)||w<=0||!Number.isFinite(l)){status.textContent='Ventana no válida';return}volume.windowLow=l-w/2;volume.windowHigh=l+w/2;['x','y','z'].forEach(paint)};
 function updatePlaneVisibility(){
  planesRoot.visible=$('planes').checked;
@@ -354,14 +389,14 @@ function buildModelLayers(root){
 }
 function itemsCount(root){let count=0;root.traverse(obj=>{if(obj.isMesh)count++});return count;}
 async function loadGlbFromUrl(url,label){
-  const response=await fetch(url);if(!response.ok)throw new Error('GLB no disponible (HTTP '+response.status+')');const bytes=await response.arrayBuffer();const hash=await contentHash(bytes);const result=await new GLTFLoader().parseAsync(bytes,url.startsWith('blob:')?new URL('./',location.href).href:new URL('./',url).href);
+  const response=await fetch(url);if(!response.ok)throw new Error('GLB no disponible (HTTP '+response.status+')');const bytes=await response.arrayBuffer();const hash=await contentHash(bytes);const result=await new GLTFLoader().parseAsync(bytes.buffer,url.startsWith('blob:')?new URL('./',location.href).href:new URL('./',url).href);
   clearRoot(modelRoot);model=result.scene;modelRoot.add(model);
   const counts=buildModelLayers(model);buildStructureSelection();clearModelAnnotations();
   updateModelTransform();updateClip();clearMeasurements();modelContentHash=hash;syncNamedViews();
   if(volume)['x','y','z'].forEach(paint);
   status.textContent=`GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
 }
-$('glb').onchange=async e=>{const file=e.target.files[0];if(!file)return;const url=URL.createObjectURL(file);status.textContent='Leyendo GLB local…';try{await loadGlbFromUrl(url,file.name)}catch(err){console.error(err);status.textContent='Error GLB: '+err.message}finally{URL.revokeObjectURL(url)}};
+$('glb').onchange=async e=>{const file=e.target.files[0];if(!file)return;const url=URL.createObjectURL(file);status.textContent='Leyendo GLB local…';try{await loadGlbFromUrl(url,file.name);finishProgress(true,'Modelo local preparado')}catch(err){console.error(err);status.textContent='Error GLB: '+err.message;finishProgress(false,err.message)}finally{URL.revokeObjectURL(url)}};
 
 
 // Navegación de las ventanas: transforma imagen, contornos y cruces juntos.
@@ -774,21 +809,24 @@ async function loadNrrdParts(manifestUrl, label) {
     !Number.isSafeInteger(manifest.totalBytes)||manifest.totalBytes<=0||
     manifest.totalBytes>2147483647)throw new Error('Manifiesto NRRD inválido o demasiado grande');
  const output=new Uint8Array(manifest.totalBytes);
- let offset=0;
+ let offset=0;showProgress('Descargando TAC '+label,0,'0 de '+manifest.parts.length+' fragmentos · 0 MB / '+formatMB(manifest.totalBytes));
  for(let i=0;i<manifest.parts.length;i++){
   const name=manifest.parts[i];
   if(typeof name!=='string'||!/^[-\w.]+\.part\d{3,}$/.test(name)||name==='.'||name==='..')
    throw new Error('Nombre de fragmento no válido: '+name);
   status.textContent=`Descargando TAC ${label}: fragmento ${i+1}/${manifest.parts.length}…`;
   const url=new URL(name,res.url);
-  const partResponse=await fetch(url,{credentials:'omit'});
-  if(!partResponse.ok)throw new Error('Falta fragmento '+name+' (HTTP '+partResponse.status+')');
-  const bytes=new Uint8Array(await partResponse.arrayBuffer());
+  const bytes=await downloadWithProgress(url,(received)=>{
+   const done=offset+received;
+   showProgress('Descargando TAC '+label,done/manifest.totalBytes,
+    'Fragmento '+(i+1)+'/'+manifest.parts.length+' · '+formatMB(done)+' / '+formatMB(manifest.totalBytes));
+  });
   if(offset+bytes.byteLength>output.byteLength)throw new Error('Los fragmentos exceden el tamaño declarado');
   output.set(bytes,offset);offset+=bytes.byteLength;
  }
  if(offset!==manifest.totalBytes)throw new Error('NRRD incompleto: '+offset+' de '+manifest.totalBytes+' bytes');
  status.textContent='Interpretando volumen NRRD reconstruido…';
+ showProgress('Procesando TAC '+label,null,'Descarga 100 % · preparando las vistas MPR…');
  await loadNrrdData(output.buffer,label);
 }
 
@@ -850,14 +888,17 @@ async function autoLoadCase(){
    status.textContent='Descargando NRRD '+basename+'…';
    const response=await fetch(nrrdURL,{credentials:'omit'});
    if(!response.ok)throw new Error('NRRD no disponible (HTTP '+response.status+'): '+nrrdURL.pathname);
-   await loadNrrdData(await response.arrayBuffer(),basename+'.nrrd');
+   const buffer=await downloadWithProgress(nrrdURL,(received,total)=>showProgress('Descargando TAC '+basename,total?received/total:null,formatMB(received)+(total?' / '+formatMB(total):' descargados')));
+   showProgress('Procesando TAC '+basename,null,'Descarga 100 % · preparando vistas MPR…');
+   await loadNrrdData(buffer.buffer,basename+'.nrrd');
   }else{
    throw new Error('No se puede comprobar el manifiesto (HTTP '+probe.status+')');
   }
   if(volume)['x','y','z'].forEach(paint);
   status.textContent='Caso '+basename+' cargado (GLB y NRRD). Verifica la alineación en los tres planos.';
+  finishProgress(true,'Modelo y TAC preparados');
   await loadPublishedViews(basename,root);
- }catch(err){console.error(err);status.textContent='Carga automática incompleta: '+err.message+'. Puedes seleccionar el NRRD manualmente.';}
+ }catch(err){console.error(err);status.textContent='Carga automática incompleta: '+err.message+'. Puedes seleccionar el NRRD manualmente.';finishProgress(false,err.message);}
 }
 autoLoadCase();
 </script></body></html>
