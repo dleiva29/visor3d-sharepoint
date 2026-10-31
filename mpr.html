@@ -32,6 +32,7 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {NRRDLoader} from 'three/addons/loaders/NRRDLoader.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 const $=id=>document.getElementById(id), status=$('status');
+let batchRestore=false;const contourCache=new WeakMap();
 let activeTool='navigate',selectedStructure=null;let volumeContentHash=null,modelContentHash=null;
 const viewStates={x:{zoom:1,x:0,y:0},y:{zoom:1,x:0,y:0},z:{zoom:1,x:0,y:0}},viewAppliers={};
 const contourPaths={x:[],y:[],z:[]},layerControls=new Map(),measurements=[];
@@ -54,6 +55,7 @@ function clearRoot(root){while(root.children.length){const o=root.children[0];ro
 // Estos cambios solo afectan al canvas 2D, NO al slice.mesh 3D.
 const orientation={z:{transpose:false,flipH:true,flipV:false},y:{transpose:false,flipH:true,flipV:true},x:{transpose:true,flipH:false,flipV:false}};
 function paint(axis){
+ if(batchRestore)return;
  const s=slices[axis];if(!s)return;
  const i=Number($('r'+axis).value);s.index=i;s.repaint();
  const source=s.canvas,dest=$('ct'+axis),o=orientation[axis];
@@ -212,12 +214,17 @@ function drawContours(axis, ctx, dest){
   const mats=Array.isArray(obj.material)?obj.material:[obj.material];
   const color=(obj.userData.structureKey===selectedStructure?'#ffff00':null)||(obj.userData.contourColor)||(mats[0]?.color?.getStyle()||'#ff5555');
   ctx.strokeStyle=color; ctx.lineWidth=obj.userData.structureKey===selectedStructure?3:1.5; ctx.beginPath(); let drew=false;const segments=[];
+  let cache=contourCache.get(obj);if(!cache){cache=new Map();contourCache.set(obj,cache)}
+  const cacheKey=JSON.stringify([axis,pixelBasis.origin.toArray(),pixelBasis.u.toArray(),pixelBasis.v.toArray(),pixelBasis.sx,pixelBasis.sy,dest.width,dest.height,orientation[axis],obj.matrixWorld.elements,pos.version,idx?.version]);
+  const cached=cache.get(cacheKey);
+  if(cached){for(const [p1,p2] of cached){ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);segments.push([p1,p2])}drew=segments.length>0;}
+  else{
   const triCount=idx?idx.count/3:pos.count/3;
   for(let t=0;t<triCount;t++){
     const ids=idx?[idx.getX(t*3),idx.getX(t*3+1),idx.getX(t*3+2)]:[t*3,t*3+1,t*3+2];
-    tmpV1.fromBufferAttribute(pos, ids[0]); obj.localToWorld(tmpV1);
-    tmpV2.fromBufferAttribute(pos, ids[1]); obj.localToWorld(tmpV2);
-    tmpV3.fromBufferAttribute(pos, ids[2]); obj.localToWorld(tmpV3);
+    tmpV1.fromBufferAttribute(pos, ids[0]); tmpV1.applyMatrix4(obj.matrixWorld);
+    tmpV2.fromBufferAttribute(pos, ids[1]); tmpV2.applyMatrix4(obj.matrixWorld);
+    tmpV3.fromBufferAttribute(pos, ids[2]); tmpV3.applyMatrix4(obj.matrixWorld);
     const verts=[tmpV1,tmpV2,tmpV3]; const pts=[];
     for(const [a,b] of edgePairs){
       const da=plane.distanceToPoint(verts[a]), db=plane.distanceToPoint(verts[b]);
@@ -232,6 +239,8 @@ function drawContours(axis, ctx, dest){
       const p1=worldToPixel(axis, pts[0], pixelBasis, dest), p2=worldToPixel(axis, pts[1], pixelBasis, dest);
       if(p1&&p2){ ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); segments.push([p1,p2]);drew=true; }
     }
+  }
+  if(cache.size>=12)cache.delete(cache.keys().next().value);cache.set(cacheKey,segments);
   }
   if(drew){ctx.stroke();contourPaths[axis].push({key:obj.userData.structureKey,segments});if($('fillSegments').checked)fillSegments(ctx,segments,color,Number($('fillOpacity').value)/100);}
  });
@@ -513,10 +522,10 @@ function validateConfig(data){
  if(data.referencePoint!==null&&!vec(data.referencePoint))throw new Error('Punto de referencia inválido.');
 }
 function restoreConfig(data){
- validateConfig(data);const flagIds=['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'];pendingMeasure=null;selectedWorldPoint=data.referencePoint?new THREE.Vector3(...data.referencePoint):null;if(selectedWorldPoint)navMarker.position.copy(selectedWorldPoint);selectStructure(null);setWindow(...data.window);for(const a of ['x','y','z']){Object.assign(viewStates[a],data.views[a]);viewAppliers[a]();$('r'+a).value=data.slices[a]}
+ validateConfig(data);batchRestore=true;try{const flagIds=['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'];pendingMeasure=null;selectedWorldPoint=data.referencePoint?new THREE.Vector3(...data.referencePoint):null;if(selectedWorldPoint)navMarker.position.copy(selectedWorldPoint);selectStructure(null);setWindow(...data.window);for(const a of ['x','y','z']){Object.assign(viewStates[a],data.views[a]);viewAppliers[a]();$('r'+a).value=data.slices[a]}
  for(const id of flagIds)$(id).checked=data.flags[id];$('fillOpacity').value=data.fillOpacity;$('clipPosition').value=data.clipPosition;$('clipAxis').value=data.clipAxis;
  for(const l of data.layers){const c=layerControls.get(l.key);for(const [input,value,event] of [[c.visible,l.visible,'change'],[c.picker,l.color,'input'],[c.contourCheck,l.contour,'change'],[c.slider,l.opacity,'input']]){if(input.type==='checkbox')input.checked=value;else input.value=value;input.dispatchEvent(new Event(event))}}
- updatePlaneVisibility();modelRoot.visible=$('showmodel').checked;updateClip();camera.position.fromArray(data.camera.position);camera.up.fromArray(data.camera.up);camera.near=data.camera.near;camera.far=data.camera.far;controls.target.fromArray(data.camera.target);camera.updateProjectionMatrix();controls.update();navMarker.visible=!!selectedWorldPoint&&$('show3DMarker').checked;repaintAll();status.textContent='Configuración recuperada.';
+ updatePlaneVisibility();modelRoot.visible=$('showmodel').checked;updateClip();camera.position.fromArray(data.camera.position);camera.up.fromArray(data.camera.up);camera.near=data.camera.near;camera.far=data.camera.far;controls.target.fromArray(data.camera.target);camera.updateProjectionMatrix();controls.update();navMarker.visible=!!selectedWorldPoint&&$('show3DMarker').checked;}finally{batchRestore=false;}repaintAll();status.textContent='Configuración recuperada.';
 }
 $('loadConfig').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{if(f.size>1000000)throw new Error('Archivo demasiado grande.');restoreConfig(JSON.parse(await f.text()))}catch(error){status.textContent='No se pudo recuperar: '+error.message}finally{e.target.value=''}};
 
