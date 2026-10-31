@@ -1,7 +1,7 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MPR TAC + GLB · contornos corregidos</title>
-<style>*{box-sizing:border-box}body{margin:0;background:#101923;color:#eaf1f8;font:14px system-ui,Arial}header{padding:12px 18px;background:#1b2d40;border-bottom:1px solid #364a5e}header strong{font-size:18px}header small{display:block;color:#b9c9d8;margin-top:4px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;min-height:calc(100vh - 70px)}.views{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;padding:6px;min-height:660px}.pane{background:#080e16;display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid #394d62;border-radius:6px}.pane h2{font-size:13px;font-weight:600;padding:7px 10px;margin:0;background:#253a50}.stage{position:relative;flex:1;min-height:180px;overflow:hidden;display:flex;align-items:center;justify-content:center}.stage canvas.ct{max-height:100%;max-width:100%;object-fit:contain;image-rendering:auto}.stage canvas.webgl{display:block;width:100%;height:100%}.sliceTools{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#182737}.sliceTools input{min-width:0;flex:1}.sliceTools output{font-variant-numeric:tabular-nums}aside{background:#1b2b3d;border-left:1px solid #3c5168;padding:16px;overflow-y:auto}aside h3{margin:18px 0 8px;font-size:14px}label{display:block;font-size:13px;margin:10px 0 5px}input[type=file],input[type=number],select{max-width:100%;width:100%;background:#0e1b29;border:1px solid #4e6680;color:white;padding:7px;border-radius:5px}input[type=range]{width:100%}button{background:#306996;border:0;border-radius:5px;color:white;padding:9px 12px;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.orientation-controls{display:grid;grid-template-columns:1fr 1fr;gap:6px}.orientation-controls label{font-size:12px}.orientation-controls select{padding:6px}.note{color:#b8cddd;font-size:12px;line-height:1.5}.warning{padding:9px;background:#3e3027;border-left:3px solid #e8ad68;font-size:12px;line-height:1.5}#status{font-size:12px;color:#cedae8;overflow-wrap:anywhere}#modelLayers .model-layer{padding:10px;margin:9px 0;border:1px solid #4e6680;border-radius:8px;background:#132337}#modelLayers .layer-head{display:flex;gap:8px;align-items:center;margin:0 0 9px;font-weight:600;overflow-wrap:anywhere}#modelLayers .layer-row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:7px 0;font-size:12px}#modelLayers .layer-row input[type=range]{width:125px;flex:1}#modelLayers .layer-row input[type=color]{width:43px;height:28px;padding:1px;background:#fff;border:0;border-radius:3px;cursor:pointer}#modelLayers .percent{min-width:38px;text-align:right;font-variant-numeric:tabular-nums}#modelLayers .reset-layer{padding:5px 8px;font-size:11px;background:#304c66}#modelLayers .layer-row input[type=checkbox]{transform:scale(1.05)}.stage canvas.ct{cursor:crosshair}#navPoint{font-size:12px;color:#d4edf7;line-height:1.6;overflow-wrap:anywhere} .hidden{display:none!important}@media(max-width:820px){.layout{display:block}.views{min-height:680px;grid-template-columns:1fr;grid-template-rows:repeat(4,320px)}.stage{min-height:235px}aside{border-left:0}}.pane.maximized{position:fixed;inset:6px;z-index:1000}.pane h2{cursor:zoom-in}.pane.maximized h2{cursor:zoom-out}.stage canvas.ct{transform-origin:center;touch-action:none}.view-reset{font-size:11px;padding:4px 8px;margin-left:auto}</style>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MPR TAC + GLB · herramientas de exploración</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#101923;color:#eaf1f8;font:14px system-ui,Arial}header{padding:12px 18px;background:#1b2d40;border-bottom:1px solid #364a5e}header strong{font-size:18px}header small{display:block;color:#b9c9d8;margin-top:4px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;min-height:calc(100vh - 70px)}.views{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;padding:6px;min-height:660px}.pane{background:#080e16;display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid #394d62;border-radius:6px}.pane h2{font-size:13px;font-weight:600;padding:7px 10px;margin:0;background:#253a50}.stage{position:relative;flex:1;min-height:180px;overflow:hidden;display:flex;align-items:center;justify-content:center}.stage canvas.ct{max-height:100%;max-width:100%;object-fit:contain;image-rendering:auto}.stage canvas.webgl{display:block;width:100%;height:100%}.sliceTools{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#182737}.sliceTools input{min-width:0;flex:1}.sliceTools output{font-variant-numeric:tabular-nums}aside{background:#1b2b3d;border-left:1px solid #3c5168;padding:16px;overflow-y:auto}aside h3{margin:18px 0 8px;font-size:14px}label{display:block;font-size:13px;margin:10px 0 5px}input[type=file],input[type=number],select{max-width:100%;width:100%;background:#0e1b29;border:1px solid #4e6680;color:white;padding:7px;border-radius:5px}input[type=range]{width:100%}button{background:#306996;border:0;border-radius:5px;color:white;padding:9px 12px;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.orientation-controls{display:grid;grid-template-columns:1fr 1fr;gap:6px}.orientation-controls label{font-size:12px}.orientation-controls select{padding:6px}.note{color:#b8cddd;font-size:12px;line-height:1.5}.warning{padding:9px;background:#3e3027;border-left:3px solid #e8ad68;font-size:12px;line-height:1.5}#status{font-size:12px;color:#cedae8;overflow-wrap:anywhere}#modelLayers .model-layer{padding:10px;margin:9px 0;border:1px solid #4e6680;border-radius:8px;background:#132337}#modelLayers .layer-head{display:flex;gap:8px;align-items:center;margin:0 0 9px;font-weight:600;overflow-wrap:anywhere}#modelLayers .layer-row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:7px 0;font-size:12px}#modelLayers .layer-row input[type=range]{width:125px;flex:1}#modelLayers .layer-row input[type=color]{width:43px;height:28px;padding:1px;background:#fff;border:0;border-radius:3px;cursor:pointer}#modelLayers .percent{min-width:38px;text-align:right;font-variant-numeric:tabular-nums}#modelLayers .reset-layer{padding:5px 8px;font-size:11px;background:#304c66}#modelLayers .layer-row input[type=checkbox]{transform:scale(1.05)}.stage canvas.ct{cursor:crosshair}#navPoint{font-size:12px;color:#d4edf7;line-height:1.6;overflow-wrap:anywhere} .hidden{display:none!important}@media(max-width:820px){.layout{display:block}.views{min-height:680px;grid-template-columns:1fr;grid-template-rows:repeat(4,320px)}.stage{min-height:235px}aside{border-left:0}}.pane.maximized{position:fixed;inset:6px;z-index:1000}.pane h2{cursor:zoom-in}.pane.maximized h2{cursor:zoom-out}.stage canvas.ct{transform-origin:center;touch-action:none}.view-reset{font-size:11px;padding:4px 8px;margin-left:auto}.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}.tool-grid button{font-size:12px;padding:7px}.tool-grid button[aria-pressed="true"]{background:#167d81;outline:2px solid #91efdc}.model-layer.selected{outline:2px solid #ffff00}#measurementList{padding-left:20px;font-size:12px}#measurementList button{padding:2px 6px;margin-left:6px}#toolHint,#selectionInfo{font-size:12px;line-height:1.5;color:#b8dce5}details{border-top:1px solid #40566c;margin-top:14px;padding-top:10px}summary{cursor:pointer;font-weight:600}button{margin:2px}canvas.ct{flex-shrink:0} .views{height:calc(100vh - 80px)}aside{max-height:calc(100vh - 70px)}@media(max-width:820px){.views{height:auto}aside{max-height:none}}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body>
-<header><strong>TAC + modelo anatómico · prueba MPR</strong><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
+<header><strong>TAC + modelo anatómico · visor MPR</strong><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
 <div class="layout"><div class="views">
 <section class="pane"><h2>Axial (eje Z)</h2><div class="stage"><canvas class="ct" id="ctz"></canvas></div><div class="sliceTools"><input id="rz" type="range" disabled><output id="oz">—</output></div></section>
 <section class="pane"><h2>Coronal (eje Y)</h2><div class="stage"><canvas class="ct" id="cty"></canvas></div><div class="sliceTools"><input id="ry" type="range" disabled><output id="oy">—</output></div></section>
@@ -9,7 +9,18 @@
 <section class="pane"><h2>Vista 3D: modelo y planos del TAC</h2><div id="view3d" class="stage"></div></section>
 </div><aside>
 <h3>1. Cargar archivos</h3><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><label for="nrrd">Volumen TAC en NRRD (archivo local)</label><input id="nrrd" type="file" accept=".nrrd"><label for="glb">Modelo GLB (archivo local)</label><input id="glb" type="file" accept=".glb"><p id="status">Selecciona un NRRD para comenzar.</p>
-<h3>Navegación sincronizada</h3><label><input type="checkbox" id="syncNav" checked> Pulsar en el TAC para sincronizar los cortes</label><label><input type="checkbox" id="showCross" checked> Mostrar cruces de referencia</label><label><input type="checkbox" id="show3DMarker" checked> Mostrar posición en 3D</label><p id="navPoint" aria-live="polite">Selecciona un punto del TAC en axial, coronal o sagital.</p><button id="resetNav" type="button">Borrar punto de referencia</button><p class="note">Rueda: recorrer cortes · Ctrl + rueda: zoom · Botón derecho y arrastrar: desplazar · Doble clic: ampliar ventana · Esc: volver.</p><h3>2. Ventana de TC</h3><label for="wl">Nivel (HU)</label><input id="wl" type="number" value="70" step="10"><label for="ww">Anchura (HU)</label><input id="ww" type="number" value="350" min="1" step="10"><button id="apply">Aplicar ventana</button>
+<h3>Herramientas</h3><div class="tool-grid" id="tools">
+<button type="button" data-tool="navigate" aria-pressed="true">Navegar</button><button type="button" data-tool="pan" aria-pressed="false">Desplazar</button>
+<button type="button" data-tool="zoom" aria-pressed="false">Zoom</button><button type="button" data-tool="window" aria-pressed="false">Ventana / nivel</button>
+<button type="button" data-tool="measure2d" aria-pressed="false">Medir en TAC</button><button type="button" data-tool="measure3d" aria-pressed="false">Medir en 3D</button>
+<button type="button" data-tool="select" aria-pressed="false">Seleccionar estructura</button></div>
+<p id="toolHint" aria-live="polite">Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.</p>
+<p id="selectionInfo" aria-live="polite">Ninguna estructura seleccionada.</p><button id="clearSelection" type="button">Quitar selección</button>
+<details><summary>Mediciones</summary><p class="note">Dos clics para medir. En TAC, ambos puntos deben pertenecer al mismo corte. En 3D, selecciona superficies visibles del GLB. Distancia recta en RAS, en mm.</p><p class="note">Mediciones orientativas: precisión y escala pendientes de validación.</p><ol id="measurementList"></ol><button id="clearMeasures" type="button">Borrar mediciones</button></details>
+<details><summary>Relleno de segmentaciones</summary><label><input id="fillSegments" type="checkbox"> Rellenar los contornos 2D cerrados</label><label for="fillOpacity">Opacidad del relleno</label><input id="fillOpacity" type="range" min="0" max="70" value="20"><p class="note">Se rellenan bucles cerrados de la superficie; los contornos abiertos se mantienen sin relleno.</p></details>
+<details><summary>Recorte y cámara 3D</summary><label><input id="clipEnabled" type="checkbox"> Activar recorte del GLB</label><label for="clipAxis">Eje de recorte</label><select id="clipAxis"><option value="x">Sagital (X)</option><option value="y">Coronal (Y)</option><option value="z">Axial (Z)</option></select><label for="clipPosition">Posición de recorte</label><input id="clipPosition" type="range" min="0" max="100" value="50"><label><input id="clipReverse" type="checkbox"> Invertir lado conservado</label><p class="note">Recorte visual sin tapa; las imágenes y contornos MPR no se recortan.</p><label for="cameraView">Vista anatómica</label><select id="cameraView"><option value="">Seleccionar…</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="right">Lateral derecha</option><option value="left">Lateral izquierda</option><option value="superior">Superior</option><option value="inferior">Inferior</option></select></details>
+<details><summary>Capturas y configuración</summary><label for="captureView">Captura PNG</label><select id="captureView"><option value="all">Las cuatro ventanas</option><option value="z">Axial</option><option value="y">Coronal</option><option value="x">Sagital</option><option value="3d">Vista 3D</option></select><button id="capture" type="button">Descargar captura</button><button id="saveConfig" type="button">Guardar configuración JSON</button><label for="loadConfig">Recuperar configuración</label><input id="loadConfig" type="file" accept=".json,application/json"><p class="note">Carga primero el mismo TAC y GLB. Se guardan cámara, cortes, colores, opacidades, zoom, planos y recorte. No se incluyen las imágenes ni los modelos.</p></details>
+<h3>Navegación sincronizada</h3><label><input type="checkbox" id="syncNav" checked> Pulsar en el TAC para sincronizar los cortes</label><label><input type="checkbox" id="showCross" checked> Mostrar cruces de referencia</label><label><input type="checkbox" id="show3DMarker" checked> Mostrar posición en 3D</label><p id="navPoint" aria-live="polite">Selecciona un punto del TAC en axial, coronal o sagital.</p><button id="resetNav" type="button">Borrar punto de referencia</button><p class="note">Rueda: recorrer cortes · Ctrl + rueda: zoom · Botón derecho y arrastrar: desplazar · Doble clic: ampliar ventana · Esc: volver.</p><h3>2. Ventana de TC</h3><label for="wl">Nivel (HU)</label><input id="wl" type="number" value="70" step="10"><label for="ww">Anchura (HU)</label><input id="ww" type="number" value="350" min="1" step="10"><button id="apply">Aplicar ventana</button><label for="windowPreset">Preajuste</label><select id="windowPreset"><option value="custom">Personalizado</option><option value="70,350">Abdomen · 70 / 350</option><option value="-600,1500">Pulmón · −600 / 1500</option><option value="400,1800">Hueso · 400 / 1800</option></select>
 <div id="view3dControls">
 <h3>3. Vista 3D</h3><label><input id="planes" type="checkbox" checked> Mostrar planos del TAC</label><div id="planeSelection" role="group" aria-label="Planos del TAC en 3D"><label><input id="planeZ" type="checkbox" checked> Axial</label><label><input id="planeY" type="checkbox" checked> Coronal</label><label><input id="planeX" type="checkbox" checked> Sagital</label></div><p class="note">Selecciona los planos que se muestran en 3D. Los cortes y contornos MPR siguen disponibles.</p><label><input id="showmodel" type="checkbox" checked> Mostrar GLB</label><button id="fit">Centrar vista 3D</button>
 </div>
@@ -21,15 +32,20 @@ import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 import {NRRDLoader} from 'three/addons/loaders/NRRDLoader.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 const $=id=>document.getElementById(id), status=$('status');
+let activeTool='navigate',selectedStructure=null;
+const viewStates={x:{zoom:1,x:0,y:0},y:{zoom:1,x:0,y:0},z:{zoom:1,x:0,y:0}},viewAppliers={};
+const contourPaths={x:[],y:[],z:[]},layerControls=new Map(),measurements=[];
+let pendingMeasure=null;
+
 const scene=new THREE.Scene();scene.background=new THREE.Color('#0b1320');
 const camera=new THREE.PerspectiveCamera(45,1,.1,100000);camera.position.set(400,350,400);
-const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.domElement.className='webgl';$('view3d').appendChild(renderer.domElement);
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.domElement.className='webgl';$('view3d').appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;
 scene.add(new THREE.HemisphereLight(0xffffff,0x405060,2.5));const light=new THREE.DirectionalLight(0xffffff,2);light.position.set(2,3,5);scene.add(light);
 const planesRoot=new THREE.Group();scene.add(planesRoot);const modelRoot=new THREE.Group();scene.add(modelRoot);let volume=null,slices={},model=null;let volumeInfo=null; let selectedWorldPoint=null; const navMarker=new THREE.Group();scene.add(navMarker);navMarker.visible=false; const markerMaterial=new THREE.MeshBasicMaterial({color:0xffff00,depthTest:false});const markerBall=new THREE.Mesh(new THREE.SphereGeometry(3,12,10),markerMaterial);navMarker.add(markerBall);const markerLineMat=new THREE.LineBasicMaterial({color:0xffff00,depthTest:false});for(const axis of [[12,0,0],[0,12,0],[0,0,12]]){const a=new THREE.Vector3(...axis);const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a.clone().negate(),a]),markerLineMat);navMarker.add(line)} const tmpV1=new THREE.Vector3(), tmpV2=new THREE.Vector3(), tmpV3=new THREE.Vector3(), tmpI1=new THREE.Vector3(), tmpI2=new THREE.Vector3();
 const ro=new ResizeObserver(()=>{const host=$('view3d'),w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)});ro.observe($('view3d'));
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();
-function fit(){const bbox=new THREE.Box3();let has=false;for(const node of [planesRoot,modelRoot]){if(node.visible&&node.children.length){bbox.union(new THREE.Box3().setFromObject(node));has=true}}if(!has)return;const center=bbox.getCenter(new THREE.Vector3()),extent=bbox.getSize(new THREE.Vector3()).length(),d=Math.max(extent,1);controls.target.copy(center);camera.position.copy(center).add(new THREE.Vector3(d*.9,d*.7,d*.9));camera.near=Math.max(d/1000,.01);camera.far=d*100;camera.updateProjectionMatrix();controls.update()}
+function fit(){camera.up.set(0,0,1);const bbox=new THREE.Box3();let has=false;for(const node of [planesRoot,modelRoot]){if(node.visible&&node.children.length){bbox.union(new THREE.Box3().setFromObject(node));has=true}}if(!has)return;const center=bbox.getCenter(new THREE.Vector3()),extent=bbox.getSize(new THREE.Vector3()).length(),d=Math.max(extent,1);controls.target.copy(center);camera.position.copy(center).add(new THREE.Vector3(d*.9,d*.7,d*.9));camera.near=Math.max(d/1000,.01);camera.far=d*100;camera.updateProjectionMatrix();controls.update()}
 function clearRoot(root){while(root.children.length){const o=root.children[0];root.remove(o);if(o.geometry)o.geometry.dispose();}}
 // Presentación radiológica aproximada para NRRD ortogonal en coordenadas RAS.
 // z: axial, x de paciente hacia la izquierda de pantalla.
@@ -51,6 +67,7 @@ function paint(axis){
  ctx.drawImage(source,0,0);ctx.restore();
  drawContours(axis, ctx, dest);
  drawCrosshair(axis, ctx, dest);
+ drawMeasurements(axis,ctx,dest);
  $('o'+axis).textContent=String(i);
 }
 // VolumeSlice de Three.js centra los planos 3D alrededor de (0,0,0).
@@ -152,7 +169,7 @@ function applyReferencePoint(point){
 for(const axis of ['x','y','z']){
  const canvas=$('ct'+axis);
  canvas.addEventListener('click',event=>{
-  if(event.button!==0||!$('syncNav').checked||!volumeInfo||!slices[axis])return;
+  if(event.button!==0||activeTool!=='navigate'||!$('syncNav').checked||!volumeInfo||!slices[axis])return;
   const rect=canvas.getBoundingClientRect();
   const x=(event.clientX-rect.left)*canvas.width/rect.width;
   const y=(event.clientY-rect.top)*canvas.height/rect.height;
@@ -171,6 +188,7 @@ $('show3DMarker').addEventListener('change',()=>navMarker.visible=!!selectedWorl
 $('resetNav').addEventListener('click',()=>{selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Punto de referencia borrado.';['x','y','z'].forEach(paint)});
 
 function drawContours(axis, ctx, dest){
+ contourPaths[axis]=[];
  if(!model||!volumeInfo) return;
  // El plano físico debe ser EXACTAMENTE el del corte renderizado.
  // sliceAccess/reverseAccess ya incorporan el orden de índices y sus inversiones.
@@ -192,8 +210,8 @@ function drawContours(axis, ctx, dest){
   if(level < worldBox.min.getComponent(component)-0.001 || level > worldBox.max.getComponent(component)+0.001)return;
   const idx=geom.index;
   const mats=Array.isArray(obj.material)?obj.material:[obj.material];
-  const color=(obj.userData.contourColor)||(mats[0]?.color?.getStyle()||'#ff5555');
-  ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.beginPath(); let drew=false;
+  const color=(obj.userData.structureKey===selectedStructure?'#ffff00':null)||(obj.userData.contourColor)||(mats[0]?.color?.getStyle()||'#ff5555');
+  ctx.strokeStyle=color; ctx.lineWidth=obj.userData.structureKey===selectedStructure?3:1.5; ctx.beginPath(); let drew=false;const segments=[];
   const triCount=idx?idx.count/3:pos.count/3;
   for(let t=0;t<triCount;t++){
     const ids=idx?[idx.getX(t*3),idx.getX(t*3+1),idx.getX(t*3+2)]:[t*3,t*3+1,t*3+2];
@@ -212,15 +230,15 @@ function drawContours(axis, ctx, dest){
     }
     if(pts.length>=2){
       const p1=worldToPixel(axis, pts[0], pixelBasis, dest), p2=worldToPixel(axis, pts[1], pixelBasis, dest);
-      if(p1&&p2){ ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); drew=true; }
+      if(p1&&p2){ ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); segments.push([p1,p2]);drew=true; }
     }
   }
-  if(drew) ctx.stroke();
+  if(drew){ctx.stroke();contourPaths[axis].push({key:obj.userData.structureKey,segments});if($('fillSegments').checked)fillSegments(ctx,segments,color,Number($('fillOpacity').value)/100);}
  });
 }
 
 function initSlices(){clearRoot(planesRoot);slices={};for(const [axis,n] of [['x',volume.RASDimensions[0]],['y',volume.RASDimensions[1]],['z',volume.RASDimensions[2]]]){const size=Math.max(2,n);const slider=$('r'+axis);slider.disabled=false;slider.min='0';slider.max=String(size-1);slider.value=String(Math.floor((size-1)/2));const slice=volume.extractSlice(axis,+slider.value);slices[axis]=slice;planesRoot.add(slice.mesh);slider.oninput=()=>paint(axis);paint(axis)}updatePlaneVisibility();fit()}
-async function loadNrrdData(data,label){selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Pulsa un punto en un corte para sincronizar las vistas.';volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();status.textContent=`TAC: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}
+async function loadNrrdData(data,label){clearMeasurements();selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Pulsa un punto en un corte para sincronizar las vistas.';volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();status.textContent=`TAC: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}
 $('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';try{await loadNrrdData(await file.arrayBuffer(),file.name)}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message}};
 $('apply').onclick=()=>{if(!volume)return;const w=Number($('ww').value),l=Number($('wl').value);if(!Number.isFinite(w)||w<=0||!Number.isFinite(l)){status.textContent='Ventana no válida';return}volume.windowLow=l-w/2;volume.windowHigh=l+w/2;['x','y','z'].forEach(paint)};
 function updatePlaneVisibility(){
@@ -241,11 +259,11 @@ let layerResets = [];
 const resetAllButton = $('resetLayers');
 resetAllButton.addEventListener('click', () => layerResets.forEach(reset => reset()));
 function buildModelLayers(root){
- const container=$('modelLayers');container.replaceChildren();layerResets=[];
+ const container=$('modelLayers');container.replaceChildren();layerResets=[];layerControls.clear();selectedStructure=null;
  const structures=new Map();let unnamed=0;
  root.traverse(object=>{
   if(!object.isMesh)return;
-  const name=object.name?.trim()||object.parent?.name?.trim()||`Estructura ${++unnamed}`;
+  const name=object.name?.trim()||object.parent?.name?.trim()||`Estructura ${++unnamed}`;object.userData.structureKey=name;
   if(!structures.has(name))structures.set(name,[]);
   const base=Array.isArray(object.material)?object.material:[object.material];
   const originals=base.map(material=>material.clone());
@@ -313,7 +331,7 @@ function buildModelLayers(root){
    picker.value=defaultColor;slider.value=initialOpacity;percent.textContent=initialOpacity+'%'; ['x','y','z'].forEach(a=>paint(a));
   };
   resetButton.addEventListener('click',reset);layerResets.push(reset);
-  card.append(title,colorRow,contourRow,opacityRow,resetButton);container.append(card);
+  card.dataset.structure=name;layerControls.set(name,{items,card,visible,picker,contourCheck,slider});card.append(title,colorRow,contourRow,opacityRow,resetButton);container.append(card);
  }
  resetAllButton.disabled=structures.size===0;
  return {meshes:itemsCount(root),structures:structures.size};
@@ -323,7 +341,7 @@ async function loadGlbFromUrl(url,label){
   const result=await new GLTFLoader().loadAsync(url);
   clearRoot(modelRoot);model=result.scene;modelRoot.add(model);
   const counts=buildModelLayers(model);
-  updateModelTransform();
+  updateModelTransform();updateClip();clearMeasurements();
   if(volume)['x','y','z'].forEach(paint);
   status.textContent=`GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
 }
@@ -333,14 +351,14 @@ $('glb').onchange=async e=>{const file=e.target.files[0];if(!file)return;const u
 // Navegación de las ventanas: transforma imagen, contornos y cruces juntos.
 for(const axis of ['x','y','z']){
  const canvas=$('ct'+axis),stage=canvas.parentElement;
- const state={zoom:1,x:0,y:0};let drag=null;
- const apply=()=>canvas.style.transform=`translate(${state.x}px,${state.y}px) scale(${state.zoom})`;
+ const state=viewStates[axis];let drag=null;
+ const apply=viewAppliers[axis]=()=>canvas.style.transform=`translate(${state.x}px,${state.y}px) scale(${state.zoom})`;
  const reset=document.createElement('button');reset.type='button';reset.className='view-reset';reset.textContent='Restablecer vista';
  reset.onclick=()=>{Object.assign(state,{zoom:1,x:0,y:0});apply()};
  canvas.closest('.pane').querySelector('.sliceTools').append(reset);
  stage.addEventListener('wheel',event=>{
   event.preventDefault();if(!slices[axis])return;
-  if(event.ctrlKey){
+  if(event.ctrlKey||activeTool==='zoom'){
    state.zoom=Math.min(8,Math.max(.25,state.zoom*Math.exp(-event.deltaY*.002)));apply();
   }else if(event.deltaY){
    const slider=$('r'+axis);
@@ -350,13 +368,13 @@ for(const axis of ['x','y','z']){
  },{passive:false});
  stage.addEventListener('contextmenu',event=>event.preventDefault());
  stage.addEventListener('pointerdown',event=>{
-  if(event.button!==2&&event.button!==1)return;
-  event.preventDefault();drag={id:event.pointerId,x:event.clientX,y:event.clientY};
+  if(event.button!==2&&event.button!==1&&!(event.button===0&&['pan','window'].includes(activeTool)))return;
+  event.preventDefault();drag={id:event.pointerId,x:event.clientX,y:event.clientY,mode:event.button===0?activeTool:'pan'};
   stage.setPointerCapture(event.pointerId);canvas.style.cursor='grabbing';
  });
  stage.addEventListener('pointermove',event=>{
   if(!drag||event.pointerId!==drag.id)return;
-  state.x+=event.clientX-drag.x;state.y+=event.clientY-drag.y;
+  if(drag.mode==='window'){setWindow(Number($('wl').value)-(event.clientY-drag.y)*2,Number($('ww').value)+(event.clientX-drag.x)*2)}else{state.x+=event.clientX-drag.x;state.y+=event.clientY-drag.y;}
   drag.x=event.clientX;drag.y=event.clientY;apply();
  });
  const stop=()=>{drag=null;canvas.style.cursor='crosshair'};
@@ -369,13 +387,135 @@ function togglePane(pane){
 }
 for(const pane of document.querySelectorAll('.pane')){
  pane.addEventListener('dblclick',event=>{
-  if(event.target.closest('button,input,select'))return;
+  if(event.target.closest('button,input,select')||(['measure2d','measure3d','select'].includes(activeTool)&&!event.target.closest('h2')))return;
   event.preventDefault();togglePane(pane);
  });
 }
 document.addEventListener('keydown',event=>{
  if(event.key==='Escape')document.querySelectorAll('.pane.maximized').forEach(item=>item.classList.remove('maximized'));
 });
+
+const repaintAll=()=>['x','y','z'].forEach(paint);
+const measurementRoot=new THREE.Group();scene.add(measurementRoot);
+renderer.localClippingEnabled=true;
+function setWindow(level,width){
+ level=Number(level);width=Math.max(1,Number(width));
+ if(!Number.isFinite(level)||!Number.isFinite(width))return;
+ $('wl').value=Math.round(level);$('ww').value=Math.round(width);$('windowPreset').value='custom';
+ if(volume){volume.windowLow=level-width/2;volume.windowHigh=level+width/2;repaintAll()}
+}
+$('windowPreset').onchange=()=>{if($('windowPreset').value!=='custom'){const [l,w]=$('windowPreset').value.split(',').map(Number);setWindow(l,w);$('windowPreset').value=l+','+w}};
+const toolHints={navigate:'Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.',pan:'Arrastra con el botón izquierdo para desplazar el TAC.',zoom:'Rueda sobre el TAC para aumentar o reducir. Ctrl + rueda funciona en cualquier modo.',window:'Arrastra en el TAC: horizontal = anchura, vertical = nivel.',measure2d:'Pulsa dos puntos en el mismo corte del TAC. Esc cancela el primer punto.',measure3d:'Pulsa dos puntos en superficies visibles del GLB. Arrastrar sigue girando la cámara.',select:'Pulsa un contorno o su interior en el TAC, o una superficie en 3D. Se resalta en amarillo.'};
+function setTool(tool){activeTool=tool;pendingMeasure=null;document.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===tool)));$('toolHint').textContent=toolHints[tool];if(tool.startsWith('measure'))$('measurementList').closest('details').open=true;repaintAll();renderMeasure3D()}
+document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
+function pointOnCanvas(event,axis){const c=$('ct'+axis),r=c.getBoundingClientRect();return{x:(event.clientX-r.left)*c.width/r.width,y:(event.clientY-r.top)*c.height/r.height}}
+function addMeasurement(point,axis=null){
+ const index=axis?Number($('r'+axis).value):null;
+ if(!pendingMeasure||pendingMeasure.axis!==axis||pendingMeasure.index!==index){pendingMeasure={a:point.clone(),axis,index};$('toolHint').textContent='Primer punto seleccionado. Pulsa el segundo punto.'}
+ else{measurements.push({...pendingMeasure,b:point.clone()});pendingMeasure=null;$('toolHint').textContent=toolHints[activeTool]}
+ updateMeasurementList();renderMeasure3D();repaintAll();
+}
+function drawMeasurements(axis,ctx,dest){
+ const b=slicePixelBasis(axis),idx=Number($('r'+axis).value);
+ ctx.save();ctx.strokeStyle='#40ffff';ctx.fillStyle='#40ffff';ctx.lineWidth=2;ctx.font='14px system-ui';
+ const dot=p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill()};
+ for(const m of measurements){if(m.axis!==axis||m.index!==idx)continue;const a=worldToPixel(axis,m.a,b,dest),p=worldToPixel(axis,m.b,b,dest);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(p.x,p.y);ctx.stroke();dot(a);dot(p);const text=m.a.distanceTo(m.b).toFixed(1)+' mm';ctx.strokeStyle='#000';ctx.lineWidth=4;const tx=Math.max(3,Math.min(dest.width-ctx.measureText(text).width-3,(a.x+p.x)/2+5)),ty=Math.max(16,Math.min(dest.height-4,(a.y+p.y)/2-5));ctx.strokeText(text,tx,ty);ctx.fillText(text,tx,ty);ctx.strokeStyle='#40ffff';ctx.lineWidth=2;}
+ if(pendingMeasure?.axis===axis&&pendingMeasure.index===idx)dot(worldToPixel(axis,pendingMeasure.a,b,dest));ctx.restore();
+}
+function renderMeasure3D(){
+ while(measurementRoot.children.length){const o=measurementRoot.children[0];measurementRoot.remove(o);o.geometry?.dispose();o.material?.dispose()}
+ for(const m of measurements.filter(m=>m.axis===null)){
+ const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([m.a,m.b]),new THREE.LineBasicMaterial({color:0x40ffff,depthTest:false}));line.renderOrder=100;measurementRoot.add(line);
+ for(const p of [m.a,m.b]){const ball=new THREE.Mesh(new THREE.SphereGeometry(1.5,12,8),new THREE.MeshBasicMaterial({color:0x40ffff,depthTest:false}));ball.position.copy(p);ball.renderOrder=101;measurementRoot.add(ball)}
+ }
+ if(pendingMeasure?.axis===null){const ball=new THREE.Mesh(new THREE.SphereGeometry(2,12,8),new THREE.MeshBasicMaterial({color:0xffff00,depthTest:false}));ball.position.copy(pendingMeasure.a);measurementRoot.add(ball)}
+}
+function updateMeasurementList(){
+ $('measurementList').replaceChildren();measurements.forEach((m,i)=>{const li=document.createElement('li');li.textContent=(m.axis?({z:'Axial',y:'Coronal',x:'Sagital'}[m.axis])+' · corte '+m.index:'3D')+': '+m.a.distanceTo(m.b).toFixed(1)+' mm';const del=document.createElement('button');del.textContent='×';del.title='Eliminar medición';del.onclick=()=>{measurements.splice(i,1);updateMeasurementList();renderMeasure3D();repaintAll()};li.append(del);$('measurementList').append(li)});
+}
+function clearMeasurements(){measurements.length=0;pendingMeasure=null;updateMeasurementList();renderMeasure3D();}
+$('clearMeasures').onclick=()=>{clearMeasurements();repaintAll()};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){pendingMeasure=null;renderMeasure3D();repaintAll()}});
+
+// Unir segmentos por extremos coincidentes; rellenar solo bucles cerrados.
+function closedLoops(segments){
+ const key=p=>Math.round(p.x*100)+','+Math.round(p.y*100),nodes=new Map();
+ const edges=segments.map(([a,b],i)=>{for(const p of [a,b]){const k=key(p);if(!nodes.has(k))nodes.set(k,[]);nodes.get(k).push(i)}return{a,b,used:false}}),loops=[];
+ for(let i=0;i<edges.length;i++){if(edges[i].used)continue;const e=edges[i];e.used=true;const path=[e.a,e.b];const start=key(e.a);let end=key(e.b),guard=0;
+ while(end!==start&&guard++<=edges.length){const next=(nodes.get(end)||[]).find(j=>!edges[j].used);if(next===undefined)break;const n=edges[next];n.used=true;const p=key(n.a)===end?n.b:n.a;path.push(p);end=key(p)}
+ if(end===start&&path.length>3)loops.push(path);
+ }return loops;
+}
+function loopsPath(loops){const path=new Path2D();for(const loop of loops){path.moveTo(loop[0].x,loop[0].y);for(const p of loop.slice(1))path.lineTo(p.x,p.y);path.closePath()}return path}
+function fillSegments(ctx,segments,color,opacity){const loops=closedLoops(segments);if(!loops.length)return;ctx.save();ctx.globalAlpha=opacity;ctx.fillStyle=color;ctx.fill(loopsPath(loops),'evenodd');ctx.restore()}
+for(const id of ['fillSegments','fillOpacity'])$(id).oninput=repaintAll;
+function selectStructure(key){
+ selectedStructure=key||null;
+ for(const [name,layer] of layerControls){layer.card.classList.toggle('selected',name===key);for(const item of layer.items)for(const mat of item.materials){if(!mat.emissive)continue;if(!mat.userData.selectionBase)mat.userData.selectionBase=mat.emissive.clone();mat.emissive.copy(name===key?new THREE.Color('#665500'):mat.userData.selectionBase)}}
+ $('selectionInfo').textContent=key?'Seleccionada: '+key:'Ninguna estructura seleccionada.';repaintAll();
+}
+$('clearSelection').onclick=()=>selectStructure(null);
+function segmentDistance(p,a,b){const dx=b.x-a.x,dy=b.y-a.y,t=Math.max(0,Math.min(1,((p.x-a.x)*dx+(p.y-a.y)*dy)/(dx*dx+dy*dy||1)));return Math.hypot(p.x-a.x-t*dx,p.y-a.y-t*dy)}
+for(const axis of ['x','y','z'])$('ct'+axis).addEventListener('click',event=>{
+ if(event.button!==0||!slices[axis])return;const p=pointOnCanvas(event,axis);
+ if(activeTool==='measure2d')addMeasurement(pixelToWorld(axis,p.x,p.y,$('ct'+axis)),axis);
+ if(activeTool==='select'){
+ let best=null,bestD=Infinity;const rect=$('ct'+axis).getBoundingClientRect(),tolerance=8*$('ct'+axis).width/rect.width;
+ for(const shape of contourPaths[axis])for(const [a,b] of shape.segments){const d=segmentDistance(p,a,b);if(d<bestD){bestD=d;best=shape.key}}
+ if(bestD>tolerance){best=null;for(const shape of [...contourPaths[axis]].reverse())if($('ct'+axis).getContext('2d').isPointInPath(loopsPath(closedLoops(shape.segments)),p.x,p.y,'evenodd')){best=shape.key;break}}
+ selectStructure(best);
+ }
+});
+const raycaster=new THREE.Raycaster();let down3D=null;
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.button===0)down3D={x:e.clientX,y:e.clientY}});
+renderer.domElement.addEventListener('pointerup',e=>{
+ if(!down3D||Math.hypot(e.clientX-down3D.x,e.clientY-down3D.y)>5){down3D=null;return}down3D=null;
+ if(!['measure3d','select'].includes(activeTool)||!model||!modelRoot.visible)return;
+ const r=renderer.domElement.getBoundingClientRect();raycaster.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);model.updateWorldMatrix(true,true);
+ const visible=o=>{for(let p=o;p;p=p.parent)if(!p.visible)return false;return true};
+ const hit=raycaster.intersectObject(model,true).find(h=>visible(h.object)&&!(Array.isArray(h.object.material)?h.object.material:[h.object.material]).every(m=>m.opacity===0)&&(!clipPlane||clipPlane.distanceToPoint(h.point)>=-1e-5));
+ if(!hit){$('toolHint').textContent='No se ha seleccionado ninguna superficie visible.';return}
+ if(activeTool==='measure3d')addMeasurement(hit.point);else{selectStructure(hit.object.userData.structureKey);if(volume)applyReferencePoint(hit.point)}
+});
+let clipPlane=null;
+function updateClip(){
+ clipPlane=null;if(model&&$('clipEnabled').checked){model.updateWorldMatrix(true,true);const box=new THREE.Box3().setFromObject(model),axis=$('clipAxis').value,level=THREE.MathUtils.lerp(box.min[axis],box.max[axis],Number($('clipPosition').value)/100),normal=new THREE.Vector3();normal[axis]=$('clipReverse').checked?-1:1;clipPlane=new THREE.Plane(normal,-normal[axis]*level)}
+ model?.traverse(o=>{if(o.isMesh)for(const mat of (Array.isArray(o.material)?o.material:[o.material])){mat.clippingPlanes=clipPlane?[clipPlane]:[];mat.clipShadows=true;mat.needsUpdate=true}});
+}
+for(const id of ['clipEnabled','clipAxis','clipPosition','clipReverse'])$(id).oninput=updateClip;
+$('cameraView').onchange=()=>{
+ const vectors={anterior:[0,1,0],posterior:[0,-1,0],right:[1,0,0],left:[-1,0,0],superior:[0,0,1],inferior:[0,0,-1]},key=$('cameraView').value;if(!vectors[key])return;
+ const box=new THREE.Box3().setFromObject(model||planesRoot);if(box.isEmpty())return;const center=box.getCenter(new THREE.Vector3()),radius=box.getSize(new THREE.Vector3()).length()/2;
+ const halfFov=Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov/2))*Math.min(1,camera.aspect)),d=Math.max(1,radius/Math.sin(halfFov)*1.1);
+ controls.target.copy(center);camera.up.set(0,key==='superior'||key==='inferior'?1:0,key==='superior'||key==='inferior'?0:1);camera.position.copy(center).addScaledVector(new THREE.Vector3(...vectors[key]),d);camera.near=Math.max(.01,d/1000);camera.far=d*100;camera.updateProjectionMatrix();controls.update();
+};
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function capturePane(pane,width=900,height=700){
+ const out=document.createElement('canvas');out.width=width;out.height=height;const ctx=out.getContext('2d');ctx.fillStyle='#080e16';ctx.fillRect(0,0,width,height);ctx.fillStyle='#eaf1f8';ctx.font='18px system-ui';ctx.fillText(pane.querySelector('h2').textContent,16,27);
+ const stage=pane.querySelector('.stage'),r=stage.getBoundingClientRect(),canvas=stage.querySelector('canvas'),c=canvas.getBoundingClientRect();
+ const scale=Math.min(width/r.width,(height-45)/r.height),ox=(width-r.width*scale)/2,oy=45+(height-45-r.height*scale)/2;
+ ctx.save();ctx.beginPath();ctx.rect(ox,oy,r.width*scale,r.height*scale);ctx.clip();ctx.drawImage(canvas,ox+(c.left-r.left)*scale,oy+(c.top-r.top)*scale,c.width*scale,c.height*scale);ctx.restore();return out;
+}
+$('capture').onclick=()=>{
+ try{renderer.render(scene,camera);const selection=$('captureView').value;let result;if(selection==='all'){result=document.createElement('canvas');result.width=1800;result.height=1400;const ctx=result.getContext('2d');[...document.querySelectorAll('.pane')].forEach((pane,i)=>ctx.drawImage(capturePane(pane),i%2*900,Math.floor(i/2)*700))}else{const pane=(selection==='3d'?$('view3d'):$('ct'+selection)).closest('.pane');result=capturePane(pane,1400,1000)}result.toBlob(blob=>{if(blob)downloadBlob(blob,'captura_mpr.png');else status.textContent='No se pudo exportar la captura.'},'image/png')}
+ catch(error){status.textContent='No se pudo exportar: '+error.message}
+};
+function configData(){return{format:'mpr-viewer',version:1,caseSignature:{sizes:volumeInfo?.sizes||null,origin:volumeInfo?.originRAS||null,structures:[...layerControls.keys()]},referencePoint:selectedWorldPoint?.toArray()||null,window:[Number($('wl').value),Number($('ww').value)],views:viewStates,camera:{position:camera.position.toArray(),up:camera.up.toArray(),target:controls.target.toArray(),near:camera.near,far:camera.far},slices:Object.fromEntries(['x','y','z'].map(a=>[a,Number($('r'+a).value)])),flags:Object.fromEntries(['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'].map(id=>[id,$(id).checked])),fillOpacity:Number($('fillOpacity').value),clipAxis:$('clipAxis').value,clipPosition:Number($('clipPosition').value),layers:[...layerControls].map(([key,l])=>({key,visible:l.visible.checked,color:l.picker.value,contour:l.contourCheck.checked,opacity:Number(l.slider.value)}))}}
+$('saveConfig').onclick=()=>downloadBlob(new Blob([JSON.stringify(configData(),null,2)],{type:'application/json'}),'configuracion_mpr.json');
+function restoreConfig(data){
+ const finite=(v,min,max)=>typeof v==='number'&&Number.isFinite(v)&&v>=min&&v<=max,vec=v=>Array.isArray(v)&&v.length===3&&v.every(n=>finite(n,-1e9,1e9));
+ if(data?.format!=='mpr-viewer'||data.version!==1||!volume||!model)throw new Error('Carga el TAC y GLB antes de recuperar una configuración válida.');
+ if(JSON.stringify(data.caseSignature)!==JSON.stringify(configData().caseSignature))throw new Error('La configuración pertenece a otro volumen o conjunto de estructuras.');
+ if(!Array.isArray(data.window)||data.window.length!==2||!finite(data.window[0],-1e7,1e7)||!finite(data.window[1],1,1e7)||!data.camera||!vec(data.camera.position)||!vec(data.camera.target)||!vec(data.camera.up)||!finite(data.camera.near,.00001,1e9)||!finite(data.camera.far,data.camera.near+1e-6,1e12))throw new Error('Parámetros de ventana o cámara inválidos.');
+ for(const a of ['x','y','z'])if(!data.views?.[a]||!finite(data.views[a].zoom,.25,8)||!finite(data.views[a].x,-1e6,1e6)||!finite(data.views[a].y,-1e6,1e6)||!finite(data.slices?.[a],0,Number($('r'+a).max)))throw new Error('Vista o corte inválido.');
+ const flagIds=['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'];if(flagIds.some(id=>typeof data.flags?.[id]!=='boolean')||!finite(data.fillOpacity,0,70)||!finite(data.clipPosition,0,100)||!['x','y','z'].includes(data.clipAxis)||!Array.isArray(data.layers))throw new Error('Opciones de visualización inválidas.');
+ for(const l of data.layers)if(!layerControls.has(l.key)||!/^#[0-9a-f]{6}$/i.test(l.color)||!finite(l.opacity,0,100)||typeof l.visible!=='boolean'||typeof l.contour!=='boolean')throw new Error('Estructuras inválidas.');
+ if(data.referencePoint!==null&&!vec(data.referencePoint))throw new Error('Punto de referencia inválido.');pendingMeasure=null;selectedWorldPoint=data.referencePoint?new THREE.Vector3(...data.referencePoint):null;if(selectedWorldPoint)navMarker.position.copy(selectedWorldPoint);selectStructure(null);setWindow(...data.window);for(const a of ['x','y','z']){Object.assign(viewStates[a],data.views[a]);viewAppliers[a]();$('r'+a).value=data.slices[a]}
+ for(const id of flagIds)$(id).checked=data.flags[id];$('fillOpacity').value=data.fillOpacity;$('clipPosition').value=data.clipPosition;$('clipAxis').value=data.clipAxis;
+ for(const l of data.layers){const c=layerControls.get(l.key);for(const [input,value,event] of [[c.visible,l.visible,'change'],[c.picker,l.color,'input'],[c.contourCheck,l.contour,'change'],[c.slider,l.opacity,'input']]){if(input.type==='checkbox')input.checked=value;else input.value=value;input.dispatchEvent(new Event(event))}}
+ updatePlaneVisibility();modelRoot.visible=$('showmodel').checked;updateClip();camera.position.fromArray(data.camera.position);camera.up.fromArray(data.camera.up);camera.near=data.camera.near;camera.far=data.camera.far;controls.target.fromArray(data.camera.target);camera.updateProjectionMatrix();controls.update();navMarker.visible=!!selectedWorldPoint&&$('show3DMarker').checked;repaintAll();status.textContent='Configuración recuperada.';
+}
+$('loadConfig').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{if(f.size>1000000)throw new Error('Archivo demasiado grande.');restoreConfig(JSON.parse(await f.text()))}catch(error){status.textContent='No se pudo recuperar: '+error.message}finally{e.target.value=''}};
 
 // Un enlace por caso: ?modelo=modelos/1.glb -> nrrd/1.nrrd
 async function autoLoadCase(){
