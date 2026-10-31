@@ -1,5 +1,5 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MPR TAC + GLB · prototipo</title>
-<style>*{box-sizing:border-box}body{margin:0;background:#101923;color:#eaf1f8;font:14px system-ui,Arial}header{padding:12px 18px;background:#1b2d40;border-bottom:1px solid #364a5e}header strong{font-size:18px}header small{display:block;color:#b9c9d8;margin-top:4px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;min-height:calc(100vh - 70px)}.views{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;padding:6px;min-height:660px}.pane{background:#080e16;display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid #394d62;border-radius:6px}.pane h2{font-size:13px;font-weight:600;padding:7px 10px;margin:0;background:#253a50}.stage{position:relative;flex:1;min-height:180px;overflow:hidden;display:flex;align-items:center;justify-content:center}.stage canvas.ct{max-height:100%;max-width:100%;object-fit:contain;image-rendering:auto}.stage canvas.webgl{display:block;width:100%;height:100%}.sliceTools{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#182737}.sliceTools input{min-width:0;flex:1}.sliceTools output{font-variant-numeric:tabular-nums}aside{background:#1b2b3d;border-left:1px solid #3c5168;padding:16px;overflow-y:auto}aside h3{margin:18px 0 8px;font-size:14px}label{display:block;font-size:13px;margin:10px 0 5px}input[type=file],input[type=number],select{max-width:100%;width:100%;background:#0e1b29;border:1px solid #4e6680;color:white;padding:7px;border-radius:5px}input[type=range]{width:100%}button{background:#306996;border:0;border-radius:5px;color:white;padding:9px 12px;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.orientation-controls{display:grid;grid-template-columns:1fr 1fr;gap:6px}.orientation-controls label{font-size:12px}.orientation-controls select{padding:6px}.note{color:#b8cddd;font-size:12px;line-height:1.5}.warning{padding:9px;background:#3e3027;border-left:3px solid #e8ad68;font-size:12px;line-height:1.5}#status{font-size:12px;color:#cedae8;overflow-wrap:anywhere}#modelLayers .model-layer{padding:10px;margin:9px 0;border:1px solid #4e6680;border-radius:8px;background:#132337}#modelLayers .layer-head{display:flex;gap:8px;align-items:center;margin:0 0 9px;font-weight:600;overflow-wrap:anywhere}#modelLayers .layer-row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:7px 0;font-size:12px}#modelLayers .layer-row input[type=range]{width:125px;flex:1}#modelLayers .layer-row input[type=color]{width:43px;height:28px;padding:1px;background:#fff;border:0;border-radius:3px;cursor:pointer}#modelLayers .percent{min-width:38px;text-align:right;font-variant-numeric:tabular-nums}#modelLayers .reset-layer{padding:5px 8px;font-size:11px;background:#304c66}.hidden{display:none!important}@media(max-width:820px){.layout{display:block}.views{min-height:680px;grid-template-columns:1fr;grid-template-rows:repeat(4,320px)}.stage{min-height:235px}aside{border-left:0}}</style>
+<style>*{box-sizing:border-box}body{margin:0;background:#101923;color:#eaf1f8;font:14px system-ui,Arial}header{padding:12px 18px;background:#1b2d40;border-bottom:1px solid #364a5e}header strong{font-size:18px}header small{display:block;color:#b9c9d8;margin-top:4px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;min-height:calc(100vh - 70px)}.views{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;padding:6px;min-height:660px}.pane{background:#080e16;display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid #394d62;border-radius:6px}.pane h2{font-size:13px;font-weight:600;padding:7px 10px;margin:0;background:#253a50}.stage{position:relative;flex:1;min-height:180px;overflow:hidden;display:flex;align-items:center;justify-content:center}.stage canvas.ct{max-height:100%;max-width:100%;object-fit:contain;image-rendering:auto}.stage canvas.webgl{display:block;width:100%;height:100%}.sliceTools{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#182737}.sliceTools input{min-width:0;flex:1}.sliceTools output{font-variant-numeric:tabular-nums}aside{background:#1b2b3d;border-left:1px solid #3c5168;padding:16px;overflow-y:auto}aside h3{margin:18px 0 8px;font-size:14px}label{display:block;font-size:13px;margin:10px 0 5px}input[type=file],input[type=number],select{max-width:100%;width:100%;background:#0e1b29;border:1px solid #4e6680;color:white;padding:7px;border-radius:5px}input[type=range]{width:100%}button{background:#306996;border:0;border-radius:5px;color:white;padding:9px 12px;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.orientation-controls{display:grid;grid-template-columns:1fr 1fr;gap:6px}.orientation-controls label{font-size:12px}.orientation-controls select{padding:6px}.note{color:#b8cddd;font-size:12px;line-height:1.5}.warning{padding:9px;background:#3e3027;border-left:3px solid #e8ad68;font-size:12px;line-height:1.5}#status{font-size:12px;color:#cedae8;overflow-wrap:anywhere}#modelLayers .model-layer{padding:10px;margin:9px 0;border:1px solid #4e6680;border-radius:8px;background:#132337}#modelLayers .layer-head{display:flex;gap:8px;align-items:center;margin:0 0 9px;font-weight:600;overflow-wrap:anywhere}#modelLayers .layer-row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:7px 0;font-size:12px}#modelLayers .layer-row input[type=range]{width:125px;flex:1}#modelLayers .layer-row input[type=color]{width:43px;height:28px;padding:1px;background:#fff;border:0;border-radius:3px;cursor:pointer}#modelLayers .percent{min-width:38px;text-align:right;font-variant-numeric:tabular-nums}#modelLayers .reset-layer{padding:5px 8px;font-size:11px;background:#304c66}#modelLayers .layer-row input[type=checkbox]{transform:scale(1.05)}.hidden{display:none!important}@media(max-width:820px){.layout{display:block}.views{min-height:680px;grid-template-columns:1fr;grid-template-rows:repeat(4,320px)}.stage{min-height:235px}aside{border-left:0}}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body>
 <header><strong>TAC + modelo anatómico · prueba MPR</strong><small>Lectura local de archivos · No subas TAC ni modelos clínicos a GitHub Pages</small></header>
 <div class="layout"><div class="views">
@@ -19,7 +19,7 @@
 <h3>5. Registro espacial</h3><div class="warning"><b>Superposición espacial pendiente de validación anatómica.</b> El visor coloca el NRRD en coordenadas RAS en milímetros. Para que el GLB coincida, debe exportarse sin recentrar, conservar la transformación espacial y tener orientación y escala correctas. No utilizar para mediciones ni decisiones clínicas hasta validarlo.</div>
 <label for="unit">Unidades de las coordenadas GLB</label><select id="unit"><option value="1000">Metros (GLB convencional) → mm</option><option value="1">Milímetros (exportación directa) → mm</option></select>
 <label for="space">Sistema del GLB</label><select id="space"><option value="RAS">RAS</option><option value="LPS">LPS</option></select>
-<p class="note">Si el archivo se centró durante la conversión, estas opciones no recuperan su origen. Debes reexportarlo conservando las coordenadas originales.</p><h3>Estructuras GLB</h3><p class="note">Cada estructura tiene controles independientes. Los ajustes afectan solo a la visualización, nunca a las coordenadas del GLB o del TAC.</p><div id="modelLayers"></div><button id="resetLayers" type="button" disabled>Restablecer todos los materiales</button>
+<p class="note">Si el archivo se centró durante la conversión, estas opciones no recuperan su origen. Debes reexportarlo conservando las coordenadas originales.</p><h3>Estructuras GLB</h3><p class="note">Cada estructura tiene controles independientes. Los ajustes afectan solo a la visualización, nunca a las coordenadas del GLB o del TAC. Los contornos 2D se dibujan con el mismo color y pueden ocultarse por estructura.</p><div id="modelLayers"></div><button id="resetLayers" type="button" disabled>Restablecer todos los materiales</button>
 </aside></div>
 <script type="module">
 import * as THREE from 'three';
@@ -32,7 +32,7 @@ const camera=new THREE.PerspectiveCamera(45,1,.1,100000);camera.position.set(400
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.domElement.className='webgl';$('view3d').appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;
 scene.add(new THREE.HemisphereLight(0xffffff,0x405060,2.5));const light=new THREE.DirectionalLight(0xffffff,2);light.position.set(2,3,5);scene.add(light);
-const planesRoot=new THREE.Group();scene.add(planesRoot);const modelRoot=new THREE.Group();scene.add(modelRoot);let volume=null,slices={},model=null;
+const planesRoot=new THREE.Group();scene.add(planesRoot);const modelRoot=new THREE.Group();scene.add(modelRoot);let volume=null,slices={},model=null;let volumeInfo=null; const tmpV1=new THREE.Vector3(), tmpV2=new THREE.Vector3(), tmpV3=new THREE.Vector3(), tmpI1=new THREE.Vector3(), tmpI2=new THREE.Vector3();
 const ro=new ResizeObserver(()=>{const host=$('view3d'),w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)});ro.observe($('view3d'));
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera)}animate();
 function fit(){const bbox=new THREE.Box3();let has=false;for(const node of [planesRoot,modelRoot]){if(node.visible&&node.children.length){bbox.union(new THREE.Box3().setFromObject(node));has=true}}if(!has)return;const center=bbox.getCenter(new THREE.Vector3()),extent=bbox.getSize(new THREE.Vector3()).length(),d=Math.max(extent,1);controls.target.copy(center);camera.position.copy(center).add(new THREE.Vector3(d*.9,d*.7,d*.9));camera.near=Math.max(d/1000,.01);camera.far=d*100;camera.updateProjectionMatrix();controls.update()}
@@ -71,41 +71,96 @@ function paint(axis){
  if(o.flipV){ctx.translate(0,dest.height);ctx.scale(1,-1)}
  if(o.transpose){ctx.transform(0,1,1,0,0,0)}
  ctx.drawImage(source,0,0);ctx.restore();
+ drawContours(axis, ctx, dest);
  $('o'+axis).textContent=String(i);
 }
 // VolumeSlice de Three.js centra los planos 3D alrededor de (0,0,0).
 // Este centro físico en RAS, calculado desde el encabezado NRRD, debe añadirse
 // solamente al grupo de planos; el GLB ya conserva sus coordenadas absolutas.
-function nrrdPhysicalCenterRAS(buffer) {
+function parseNrrdGeometry(buffer) {
  const prefix = new TextDecoder('ascii').decode(new Uint8Array(buffer,0,Math.min(buffer.byteLength,32768)));
  const header = prefix.split(/\r?\n\r?\n/)[0];
- const value = key => {
-   const m=header.match(new RegExp('^'+key+'\\s*:\\s*(.+)$','mi'));
-   return m?.[1].trim();
- };
+ const value = key => { const m=header.match(new RegExp('^'+key+'\\s*:\\s*(.+)$','mi')); return m?.[1].trim(); };
  const space=value('space')?.toLowerCase();
- if(!['left-posterior-superior','right-anterior-superior','lps','ras'].includes(space))
-  throw new Error('Espacio NRRD no admitido para alineación automática: '+space);
- const origin=value('space origin');
- const directions=value('space directions');
- const sizeString=value('sizes');
- if(!origin||!directions||!sizeString)throw new Error('Faltan coordenadas espaciales en el encabezado NRRD.');
+ if(!['left-posterior-superior','right-anterior-superior','lps','ras'].includes(space)) throw new Error('Espacio NRRD no admitido para alineación automática: '+space);
+ const origin=value('space origin'); const directions=value('space directions'); const sizeString=value('sizes');
+ if(!origin||!directions||!sizeString) throw new Error('Faltan coordenadas espaciales en el encabezado NRRD.');
  const vec = str => str.replace(/[()]/g,'').split(',').map(Number);
  const groups=[...directions.matchAll(/\([^)]*\)/g)].map(m=>vec(m[0]));
- const originV=vec(origin);
- const sizes=sizeString.split(/\s+/).map(Number);
- if(groups.length!==3||sizes.length!==3||groups.some(g=>g.length!==3)||originV.length!==3||!originV.every(Number.isFinite))
-  throw new Error('Formato de geometría NRRD no compatible.');
- // Solo geometría ortogonal alineada con los ejes; la interpolación oblicua
- // requiere remuestreo del volumen y no puede solucionarse desplazando planos.
+ const originV=vec(origin); const sizes=sizeString.split(/\s+/).map(Number);
  const aligned=groups.every((g,i)=>g.every((x,j)=>j===i?Number.isFinite(x)&&Math.abs(x)>0.000001:Math.abs(x)<0.000001));
- if(!aligned)throw new Error('NRRD oblicuo: se necesita remuestreo a ejes RAS antes de superponer el GLB.');
- const c=originV.map((x,k)=>x+groups.reduce((sum,g,i)=>sum+g[k]*(sizes[i]-1)/2,0));
+ if(!aligned) throw new Error('NRRD oblicuo: se necesita remuestreo a ejes RAS antes de superponer el GLB.');
  const lps=space==='left-posterior-superior'||space==='lps';
- return new THREE.Vector3(lps?-c[0]:c[0],lps?-c[1]:c[1],c[2]);
+ const signs=[1,1,1];
+ const spacing=groups.map((g,i)=>Math.abs(g[i]));
+ const originRAS=[lps?-originV[0]:originV[0], lps?-originV[1]:originV[1], originV[2]];
+ const center=originV.map((x,k)=>x+groups.reduce((sum,g,i)=>sum+g[k]*(sizes[i]-1)/2,0));
+ return {originRAS, spacing, sizes, centerRAS:new THREE.Vector3(lps?-center[0]:center[0], lps?-center[1]:center[1], center[2])};
 }
+
+function worldToPixel(axis, point, dest){
+ if(!volumeInfo) return null;
+ const [ox,oy,oz]=volumeInfo.originRAS, [sx,sy,sz]=volumeInfo.spacing;
+ const ix=(point.x-ox)/sx, iy=(point.y-oy)/sy, iz=(point.z-oz)/sz;
+ let x,y;
+ if(axis==='z'){ x=ix; y=iy; }
+ else if(axis==='y'){ x=ix; y=iz; }
+ else { x=iy; y=iz; }
+ const o=orientation[axis];
+ let wRaw=(axis==='z'||axis==='y')?dest.width:(o.transpose?dest.height:dest.width);
+ let hRaw=(axis==='z')?dest.height:(axis==='y'?dest.height:(o.transpose?dest.width:dest.height));
+ let px=x, py=y;
+ if(o.transpose){ const t=px; px=py; py=t; }
+ const width=dest.width, height=dest.height;
+ if(o.flipH) px=(o.transpose?height:width)-px;
+ if(o.flipV) py=(o.transpose?width:height)-py;
+ return {x:px,y:py};
+}
+
+function drawContours(axis, ctx, dest){
+ if(!model||!volumeInfo) return;
+ const slider=Number($('r'+axis).value); const [ox,oy,oz]=volumeInfo.originRAS, [sx,sy,sz]=volumeInfo.spacing;
+ let normal,constVal;
+ if(axis==='z'){ normal=new THREE.Vector3(0,0,1); constVal=-(oz+slider*sz); }
+ else if(axis==='y'){ normal=new THREE.Vector3(0,1,0); constVal=-(oy+slider*sy); }
+ else { normal=new THREE.Vector3(1,0,0); constVal=-(ox+slider*sx); }
+ const plane=new THREE.Plane(normal,constVal);
+ model.updateWorldMatrix(true,true);
+ const edgePairs=[[0,1],[1,2],[2,0]];
+ model.traverse(obj=>{
+  if(!obj.isMesh || !obj.visible || obj.userData.contourVisible===false) return;
+  const geom=obj.geometry; const pos=geom.getAttribute('position'); if(!pos) return;
+  const idx=geom.index;
+  const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+  const color=(obj.userData.contourColor)||(mats[0]?.color?.getStyle()||'#ff5555');
+  ctx.strokeStyle=color; ctx.lineWidth=1.5; ctx.beginPath(); let drew=false;
+  const triCount=idx?idx.count/3:pos.count/3;
+  for(let t=0;t<triCount;t++){
+    const ids=idx?[idx.getX(t*3),idx.getX(t*3+1),idx.getX(t*3+2)]:[t*3,t*3+1,t*3+2];
+    tmpV1.fromBufferAttribute(pos, ids[0]); obj.localToWorld(tmpV1);
+    tmpV2.fromBufferAttribute(pos, ids[1]); obj.localToWorld(tmpV2);
+    tmpV3.fromBufferAttribute(pos, ids[2]); obj.localToWorld(tmpV3);
+    const verts=[tmpV1,tmpV2,tmpV3]; const pts=[];
+    for(const [a,b] of edgePairs){
+      const da=plane.distanceToPoint(verts[a]), db=plane.distanceToPoint(verts[b]);
+      if(Math.abs(da)<1e-6 && Math.abs(db)<1e-6) continue;
+      if((da<=0&&db>=0)||(da>=0&&db<=0)){
+        const ip=plane.intersectLine(new THREE.Line3(verts[a], verts[b]), new THREE.Vector3());
+        if(ip){ let ok=true; for(const p of pts){ if(p.distanceToSquared(ip)<1e-8){ ok=false; break; } }
+          if(ok) pts.push(ip.clone()); }
+      }
+    }
+    if(pts.length>=2){
+      const p1=worldToPixel(axis, pts[0], dest), p2=worldToPixel(axis, pts[1], dest);
+      if(p1&&p2){ ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); drew=true; }
+    }
+  }
+  if(drew) ctx.stroke();
+ });
+}
+
 function initSlices(){clearRoot(planesRoot);slices={};for(const [axis,n] of [['x',volume.RASDimensions[0]],['y',volume.RASDimensions[1]],['z',volume.RASDimensions[2]]]){const size=Math.max(2,n);const slider=$('r'+axis);slider.disabled=false;slider.min='0';slider.max=String(size-1);slider.value=String(Math.floor((size-1)/2));const slice=volume.extractSlice(axis,+slider.value);slices[axis]=slice;planesRoot.add(slice.mesh);slider.oninput=()=>paint(axis);paint(axis)}planesRoot.visible=$('planes').checked;fit()}
-$('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';try{const data=await file.arrayBuffer();const physicalCenter=nrrdPhysicalCenterRAS(data);volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();status.textContent=`TAC: ${file.name} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos situados en coordenadas físicas RAS: centro (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message}};
+$('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';try{const data=await file.arrayBuffer();volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();status.textContent=`TAC: ${file.name} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos situados en coordenadas físicas RAS: centro (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message}};
 $('apply').onclick=()=>{if(!volume)return;const w=Number($('ww').value),l=Number($('wl').value);if(!Number.isFinite(w)||w<=0||!Number.isFinite(l)){status.textContent='Ventana no válida';return}volume.windowLow=l-w/2;volume.windowHigh=l+w/2;['x','y','z'].forEach(paint)};
 $('planes').onchange=()=>planesRoot.visible=$('planes').checked;$('showmodel').onchange=()=>modelRoot.visible=$('showmodel').checked;$('fit').onclick=fit;
 function updateModelTransform(){if(!model)return;const units=Number($('unit').value);const lps=$('space').value==='LPS';model.scale.set(lps?-units:units,lps?-units:units,units);fit()}
@@ -135,7 +190,7 @@ function buildModelLayers(root){
   const title=document.createElement('label');title.className='layer-head';
   const visible=document.createElement('input');visible.type='checkbox';visible.checked=items.every(item=>item.mesh.visible);
   title.append(visible,document.createTextNode(' '+name));
-  visible.addEventListener('change',()=>items.forEach(item=>item.mesh.visible=visible.checked));
+  visible.addEventListener('change',()=>{items.forEach(item=>item.mesh.visible=visible.checked); ['x','y','z'].forEach(a=>paint(a));});
 
   const colorRow=document.createElement('div');colorRow.className='layer-row';
   const colorLabel=document.createElement('span');colorLabel.textContent='Color';
@@ -143,10 +198,18 @@ function buildModelLayers(root){
   const initialMaterial=items.flatMap(item=>item.materials).find(material=>material.color);
   picker.value=initialMaterial?'#'+initialMaterial.color.getHexString():'#cccccc';
   const defaultColor=picker.value;
-  picker.addEventListener('input',()=>items.forEach(item=>item.materials.forEach(mat=>{
+  items.forEach(item=>item.mesh.userData.contourColor=picker.value);
+  picker.addEventListener('input',()=>{items.forEach(item=>{item.mesh.userData.contourColor=picker.value; item.materials.forEach(mat=>{
    if(mat.color){mat.color.set(picker.value);mat.needsUpdate=true;}
-  })));
+  })}); ['x','y','z'].forEach(a=>paint(a));});
   colorRow.append(colorLabel,picker);
+
+  const contourRow=document.createElement('div');contourRow.className='layer-row';
+  const contourLabel=document.createElement('span');contourLabel.textContent='Contorno 2D';
+  const contourCheck=document.createElement('input');contourCheck.type='checkbox'; contourCheck.checked=true;
+  items.forEach(item=>item.mesh.userData.contourVisible=true);
+  contourCheck.addEventListener('change',()=>{items.forEach(item=>item.mesh.userData.contourVisible=contourCheck.checked); ['x','y','z'].forEach(a=>paint(a));});
+  contourRow.append(contourLabel, contourCheck);
 
   const opacityRow=document.createElement('div');opacityRow.className='layer-row';
   const opacityLabel=document.createElement('span');opacityLabel.textContent='Opacidad';
@@ -157,18 +220,18 @@ function buildModelLayers(root){
   const percent=document.createElement('span');percent.className='percent';percent.textContent=slider.value+'%';
   slider.addEventListener('input',()=>{
    const value=Number(slider.value)/100;percent.textContent=slider.value+'%';
-   for(const item of items)for(const mat of item.materials){
+   for(const item of items) for(const mat of item.materials){
     mat.opacity=value;mat.transparent=value<1;mat.depthWrite=value>=1;
-    // Evita efectos de caras interiores en superficies transparentes.
     mat.needsUpdate=true;
    }
+   ['x','y','z'].forEach(a=>paint(a));
   });
   opacityRow.append(opacityLabel,slider,percent);
 
   const resetButton=document.createElement('button');resetButton.type='button';resetButton.className='reset-layer';resetButton.textContent='Restablecer';
   const reset=()=>{
    items.forEach(item=>{
-    item.mesh.visible=item.initialVisible;
+    item.mesh.visible=item.initialVisible; item.mesh.userData.contourVisible=true; item.mesh.userData.contourColor=defaultColor;
     item.materials.forEach((mat,i)=>{
      const original=item.originals[i];if(original.color&&mat.color)mat.color.copy(original.color);
      if(original.emissive&&mat.emissive)mat.emissive.copy(original.emissive);
@@ -176,11 +239,11 @@ function buildModelLayers(root){
      mat.depthWrite=original.depthWrite;mat.side=original.side;mat.needsUpdate=true;
     });
    });
-   visible.checked=items.every(item=>item.mesh.visible);
-   picker.value=defaultColor;slider.value=initialOpacity;percent.textContent=initialOpacity+'%';
+   visible.checked=items.every(item=>item.mesh.visible); contourCheck.checked=true;
+   picker.value=defaultColor;slider.value=initialOpacity;percent.textContent=initialOpacity+'%'; ['x','y','z'].forEach(a=>paint(a));
   };
   resetButton.addEventListener('click',reset);layerResets.push(reset);
-  card.append(title,colorRow,opacityRow,resetButton);container.append(card);
+  card.append(title,colorRow,contourRow,opacityRow,resetButton);container.append(card);
  }
  resetAllButton.disabled=structures.size===0;
  return {meshes:itemsCount(root),structures:structures.size};
