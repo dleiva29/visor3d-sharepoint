@@ -16,7 +16,7 @@
 <div class="orientation-controls" id="orientationControls"></div>
 <p class="warning">Comprueba las marcas de lateralidad y referencias anatómicas contra 3D Slicer antes de usar el visor clínicamente. Los cortes oblicuos requieren orientación mediante la matriz espacial del volumen.</p>
 <h3>4. Vista 3D</h3><label><input id="planes" type="checkbox" checked> Mostrar planos del TAC</label><label><input id="showmodel" type="checkbox" checked> Mostrar GLB</label><button id="fit">Centrar vista 3D</button>
-<h3>5. Registro espacial</h3><div class="warning"><b>Superposición no validada.</b> El visor coloca el NRRD en coordenadas RAS en milímetros. Para que el GLB coincida, debe exportarse sin recentrar, conservar la transformación espacial y tener orientación y escala correctas. No utilizar para mediciones ni decisiones clínicas hasta validarlo.</div>
+<h3>5. Registro espacial</h3><div class="warning"><b>Superposición espacial pendiente de validación anatómica.</b> El visor coloca el NRRD en coordenadas RAS en milímetros. Para que el GLB coincida, debe exportarse sin recentrar, conservar la transformación espacial y tener orientación y escala correctas. No utilizar para mediciones ni decisiones clínicas hasta validarlo.</div>
 <label for="unit">Unidades de las coordenadas GLB</label><select id="unit"><option value="1000">Metros (GLB convencional) → mm</option><option value="1">Milímetros (exportación directa) → mm</option></select>
 <label for="space">Sistema del GLB</label><select id="space"><option value="RAS">RAS</option><option value="LPS">LPS</option></select>
 <p class="note">Si el archivo se centró durante la conversión, estas opciones no recuperan su origen. Debes reexportarlo conservando las coordenadas originales.</p><h3>Estructuras GLB</h3><div id="modelLayers"></div>
@@ -73,8 +73,39 @@ function paint(axis){
  ctx.drawImage(source,0,0);ctx.restore();
  $('o'+axis).textContent=String(i);
 }
+// VolumeSlice de Three.js centra los planos 3D alrededor de (0,0,0).
+// Este centro físico en RAS, calculado desde el encabezado NRRD, debe añadirse
+// solamente al grupo de planos; el GLB ya conserva sus coordenadas absolutas.
+function nrrdPhysicalCenterRAS(buffer) {
+ const prefix = new TextDecoder('ascii').decode(new Uint8Array(buffer,0,Math.min(buffer.byteLength,32768)));
+ const header = prefix.split(/\r?\n\r?\n/)[0];
+ const value = key => {
+   const m=header.match(new RegExp('^'+key+'\\s*:\\s*(.+)$','mi'));
+   return m?.[1].trim();
+ };
+ const space=value('space')?.toLowerCase();
+ if(!['left-posterior-superior','right-anterior-superior','lps','ras'].includes(space))
+  throw new Error('Espacio NRRD no admitido para alineación automática: '+space);
+ const origin=value('space origin');
+ const directions=value('space directions');
+ const sizeString=value('sizes');
+ if(!origin||!directions||!sizeString)throw new Error('Faltan coordenadas espaciales en el encabezado NRRD.');
+ const vec = str => str.replace(/[()]/g,'').split(',').map(Number);
+ const groups=[...directions.matchAll(/\([^)]*\)/g)].map(m=>vec(m[0]));
+ const originV=vec(origin);
+ const sizes=sizeString.split(/\s+/).map(Number);
+ if(groups.length!==3||sizes.length!==3||groups.some(g=>g.length!==3)||originV.length!==3||!originV.every(Number.isFinite))
+  throw new Error('Formato de geometría NRRD no compatible.');
+ // Solo geometría ortogonal alineada con los ejes; la interpolación oblicua
+ // requiere remuestreo del volumen y no puede solucionarse desplazando planos.
+ const aligned=groups.every((g,i)=>g.every((x,j)=>j===i?Number.isFinite(x)&&Math.abs(x)>0.000001:Math.abs(x)<0.000001));
+ if(!aligned)throw new Error('NRRD oblicuo: se necesita remuestreo a ejes RAS antes de superponer el GLB.');
+ const c=originV.map((x,k)=>x+groups.reduce((sum,g,i)=>sum+g[k]*(sizes[i]-1)/2,0));
+ const lps=space==='left-posterior-superior'||space==='lps';
+ return new THREE.Vector3(lps?-c[0]:c[0],lps?-c[1]:c[1],c[2]);
+}
 function initSlices(){clearRoot(planesRoot);slices={};for(const [axis,n] of [['x',volume.RASDimensions[0]],['y',volume.RASDimensions[1]],['z',volume.RASDimensions[2]]]){const size=Math.max(2,n);const slider=$('r'+axis);slider.disabled=false;slider.min='0';slider.max=String(size-1);slider.value=String(Math.floor((size-1)/2));const slice=volume.extractSlice(axis,+slider.value);slices[axis]=slice;planesRoot.add(slice.mesh);slider.oninput=()=>paint(axis);paint(axis)}planesRoot.visible=$('planes').checked;fit()}
-$('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';try{const data=await file.arrayBuffer();volume=new NRRDLoader().parse(data);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();status.textContent=`TAC: ${file.name} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Cortes referidos a ejes RAS, no necesariamente planos clínicos ortogonales si hay oblicuidad.`;}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message}};
+$('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';try{const data=await file.arrayBuffer();const physicalCenter=nrrdPhysicalCenterRAS(data);volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();status.textContent=`TAC: ${file.name} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos situados en coordenadas físicas RAS: centro (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message}};
 $('apply').onclick=()=>{if(!volume)return;const w=Number($('ww').value),l=Number($('wl').value);if(!Number.isFinite(w)||w<=0||!Number.isFinite(l)){status.textContent='Ventana no válida';return}volume.windowLow=l-w/2;volume.windowHigh=l+w/2;['x','y','z'].forEach(paint)};
 $('planes').onchange=()=>planesRoot.visible=$('planes').checked;$('showmodel').onchange=()=>modelRoot.visible=$('showmodel').checked;$('fit').onclick=fit;
 function updateModelTransform(){if(!model)return;const units=Number($('unit').value);const lps=$('space').value==='LPS';model.scale.set(lps?-units:units,lps?-units:units,units);fit()}
