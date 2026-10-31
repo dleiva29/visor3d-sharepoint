@@ -7,7 +7,7 @@
 <section class="pane"><h2>Coronal (eje Y)</h2><div class="stage"><canvas class="ct" id="cty"></canvas></div><div class="sliceTools"><input id="ry" type="range" disabled><output id="oy">—</output></div></section>
 <section class="pane"><h2>Sagital (eje X)</h2><div class="stage"><canvas class="ct" id="ctx"></canvas></div><div class="sliceTools"><input id="rx" type="range" disabled><output id="ox">—</output></div></section>
 <section class="pane"><h2>Vista 3D: modelo y planos del TAC</h2><div id="view3d" class="stage"></div></section>
-</div><aside><div class="sidebar-heading"><strong>Controles del visor</strong><div><button id="expandMenus" type="button">Abrir todos</button><button id="collapseMenus" type="button">Cerrar todos</button></div><p id="status">Selecciona un NRRD para comenzar.</p></div><details class="sidebar-group" id="menu-files" open><summary>Archivos del caso</summary><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><label for="nrrd">Volumen TAC en NRRD (archivo local)</label><input id="nrrd" type="file" accept=".nrrd"><label for="glb">Modelo GLB (archivo local)</label><input id="glb" type="file" accept=".glb">
+</div><aside><div class="sidebar-heading"><strong>Controles del visor</strong><div><button id="expandMenus" type="button">Abrir todos</button><button id="collapseMenus" type="button">Cerrar todos</button></div><p id="status">Selecciona un NRRD para comenzar.</p></div><details class="sidebar-group" id="menu-files" open><summary>Archivos del caso</summary><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><label for="nrrd">Volumen TAC en NRRD (archivo local)</label><input id="nrrd" type="file" accept=".nrrd"><label for="glb">Modelo GLB (archivo local)</label><input id="glb" type="file" accept=".glb">
 </div></details><details class="sidebar-group" id="menu-navigation"><summary>Navegación y herramientas</summary><div class="sidebar-body"><div class="tool-grid" id="tools">
 <button type="button" data-tool="navigate" aria-pressed="true">Navegar</button><button type="button" data-tool="pan" aria-pressed="false">Desplazar</button>
 <button type="button" data-tool="zoom" aria-pressed="false">Zoom</button><button type="button" data-tool="window" aria-pressed="false">Ventana / nivel</button>
@@ -756,7 +756,35 @@ function updateSelectedVolume(){
  $('selectedVolumeDetail').textContent=selectedStructures.size?(valid+' de '+selectedStructures.size+' estructuras con volumen calculable.'+(missing?' '+missing+' sin volumen fiable.':'')):'Selecciona estructuras en la lista superior o con Mayús + clic.';
 }
 
-// Un enlace por caso: ?modelo=modelos/1.glb -> nrrd/1.nrrd
+// Carga de NRRD dividido. Compatible con el manifiesto generado por dividir_nrrd_github.html.
+// Se reconstruyen los bytes originales, sin modificar orientación, cabecera ni intensidades.
+async function loadNrrdParts(manifestUrl, label) {
+ const res=await fetch(manifestUrl,{credentials:'omit'});
+ if(!res.ok)throw new Error('Manifiesto NRRD no disponible (HTTP '+res.status+')');
+ const manifest=await res.json();
+ if(manifest.format!=='nrrd-parts-v1'||!Array.isArray(manifest.parts)||manifest.parts.length===0||
+    !Number.isSafeInteger(manifest.totalBytes)||manifest.totalBytes<=0||
+    manifest.totalBytes>2147483647)throw new Error('Manifiesto NRRD inválido o demasiado grande');
+ const output=new Uint8Array(manifest.totalBytes);
+ let offset=0;
+ for(let i=0;i<manifest.parts.length;i++){
+  const name=manifest.parts[i];
+  if(typeof name!=='string'||!/^[-\w.]+\.part\d{3,}$/.test(name)||name==='.'||name==='..')
+   throw new Error('Nombre de fragmento no válido: '+name);
+  status.textContent=`Descargando TAC ${label}: fragmento ${i+1}/${manifest.parts.length}…`;
+  const url=new URL(name,res.url);
+  const partResponse=await fetch(url,{credentials:'omit'});
+  if(!partResponse.ok)throw new Error('Falta fragmento '+name+' (HTTP '+partResponse.status+')');
+  const bytes=new Uint8Array(await partResponse.arrayBuffer());
+  if(offset+bytes.byteLength>output.byteLength)throw new Error('Los fragmentos exceden el tamaño declarado');
+  output.set(bytes,offset);offset+=bytes.byteLength;
+ }
+ if(offset!==manifest.totalBytes)throw new Error('NRRD incompleto: '+offset+' de '+manifest.totalBytes+' bytes');
+ status.textContent='Interpretando volumen NRRD reconstruido…';
+ await loadNrrdData(output.buffer,label);
+}
+
+// Un enlace por caso: ?modelo=modelos/1.glb -> nrrd/1.nrrd.parts.json o nrrd/1.nrrd
 async function autoLoadCase(){
  const params=new URLSearchParams(location.search);
  const requested=params.get('modelo'); if(!requested)return;
@@ -768,13 +796,22 @@ async function autoLoadCase(){
   const basename=decodeURIComponent(glbURL.pathname.split('/').pop()).replace(/\.glb$/i,'');
   if(!/^[a-zA-Z0-9_-]+$/.test(basename))throw new Error('Utiliza nombres de caso sencillos, por ejemplo 1 o caso_001');
   const nrrdURL=new URL('nrrd/'+encodeURIComponent(basename)+'.nrrd',root);
+  const manifestURL=new URL('nrrd/'+encodeURIComponent(basename)+'.nrrd.parts.json',root);
   status.textContent='Descargando modelo '+basename+'…';
   await loadGlbFromUrl(glbURL.href,basename+'.glb');
-  status.textContent='Descargando NRRD '+basename+'…';
-  const response=await fetch(nrrdURL,{credentials:'omit'});
-  if(!response.ok)throw new Error('NRRD no disponible (HTTP '+response.status+'): '+nrrdURL.pathname);
-  const content=await response.arrayBuffer();
-  await loadNrrdData(content,basename+'.nrrd');
+  status.textContent='Buscando NRRD de '+basename+'…';
+  // El manifiesto tiene prioridad. Si no existe (404), conservar compatibilidad con .nrrd normal.
+  const probe=await fetch(manifestURL,{method:'HEAD',credentials:'omit'});
+  if(probe.ok){
+   await loadNrrdParts(manifestURL,basename+'.nrrd');
+  }else if(probe.status===404){
+   status.textContent='Descargando NRRD '+basename+'…';
+   const response=await fetch(nrrdURL,{credentials:'omit'});
+   if(!response.ok)throw new Error('NRRD no disponible (HTTP '+response.status+'): '+nrrdURL.pathname);
+   await loadNrrdData(await response.arrayBuffer(),basename+'.nrrd');
+  }else{
+   throw new Error('No se puede comprobar el manifiesto (HTTP '+probe.status+')');
+  }
   if(volume)['x','y','z'].forEach(paint);
   status.textContent='Caso '+basename+' cargado (GLB y NRRD). Verifica la alineación en los tres planos.';
  }catch(err){console.error(err);status.textContent='Carga automática incompleta: '+err.message+'. Puedes seleccionar el NRRD manualmente.';}
