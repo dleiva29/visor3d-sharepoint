@@ -1,22 +1,24 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>MPR TAC + GLB · contornos corregidos</title>
 <style>*{box-sizing:border-box}body{margin:0;background:#101923;color:#eaf1f8;font:14px system-ui,Arial}header{padding:12px 18px;background:#1b2d40;border-bottom:1px solid #364a5e}header strong{font-size:18px}header small{display:block;color:#b9c9d8;margin-top:4px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;min-height:calc(100vh - 70px)}.views{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px;padding:6px;min-height:660px}.pane{background:#080e16;display:flex;flex-direction:column;min-width:0;overflow:hidden;border:1px solid #394d62;border-radius:6px}.pane h2{font-size:13px;font-weight:600;padding:7px 10px;margin:0;background:#253a50}.stage{position:relative;flex:1;min-height:180px;overflow:hidden;display:flex;align-items:center;justify-content:center}.stage canvas.ct{max-height:100%;max-width:100%;object-fit:contain;image-rendering:auto}.stage canvas.webgl{display:block;width:100%;height:100%}.sliceTools{display:flex;align-items:center;gap:10px;padding:6px 10px;background:#182737}.sliceTools input{min-width:0;flex:1}.sliceTools output{font-variant-numeric:tabular-nums}aside{background:#1b2b3d;border-left:1px solid #3c5168;padding:16px;overflow-y:auto}aside h3{margin:18px 0 8px;font-size:14px}label{display:block;font-size:13px;margin:10px 0 5px}input[type=file],input[type=number],select{max-width:100%;width:100%;background:#0e1b29;border:1px solid #4e6680;color:white;padding:7px;border-radius:5px}input[type=range]{width:100%}button{background:#306996;border:0;border-radius:5px;color:white;padding:9px 12px;cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}.orientation-controls{display:grid;grid-template-columns:1fr 1fr;gap:6px}.orientation-controls label{font-size:12px}.orientation-controls select{padding:6px}.note{color:#b8cddd;font-size:12px;line-height:1.5}.warning{padding:9px;background:#3e3027;border-left:3px solid #e8ad68;font-size:12px;line-height:1.5}#status{font-size:12px;color:#cedae8;overflow-wrap:anywhere}#modelLayers .model-layer{padding:10px;margin:9px 0;border:1px solid #4e6680;border-radius:8px;background:#132337}#modelLayers .layer-head{display:flex;gap:8px;align-items:center;margin:0 0 9px;font-weight:600;overflow-wrap:anywhere}#modelLayers .layer-row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin:7px 0;font-size:12px}#modelLayers .layer-row input[type=range]{width:125px;flex:1}#modelLayers .layer-row input[type=color]{width:43px;height:28px;padding:1px;background:#fff;border:0;border-radius:3px;cursor:pointer}#modelLayers .percent{min-width:38px;text-align:right;font-variant-numeric:tabular-nums}#modelLayers .reset-layer{padding:5px 8px;font-size:11px;background:#304c66}#modelLayers .layer-row input[type=checkbox]{transform:scale(1.05)}.stage canvas.ct{cursor:crosshair}#navPoint{font-size:12px;color:#d4edf7;line-height:1.6;overflow-wrap:anywhere} .hidden{display:none!important}@media(max-width:820px){.layout{display:block}.views{min-height:680px;grid-template-columns:1fr;grid-template-rows:repeat(4,320px)}.stage{min-height:235px}aside{border-left:0}}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body>
-<header><strong>TAC + modelo anatómico · prueba MPR</strong><small>Lectura local de archivos · No subas TAC ni modelos clínicos a GitHub Pages</small></header>
+<header><strong>TAC + modelo anatómico · prueba MPR</strong><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
 <div class="layout"><div class="views">
 <section class="pane"><h2>Axial (eje Z)</h2><div class="stage"><canvas class="ct" id="ctz"></canvas></div><div class="sliceTools"><input id="rz" type="range" disabled><output id="oz">—</output></div></section>
 <section class="pane"><h2>Coronal (eje Y)</h2><div class="stage"><canvas class="ct" id="cty"></canvas></div><div class="sliceTools"><input id="ry" type="range" disabled><output id="oy">—</output></div></section>
 <section class="pane"><h2>Sagital (eje X)</h2><div class="stage"><canvas class="ct" id="ctx"></canvas></div><div class="sliceTools"><input id="rx" type="range" disabled><output id="ox">—</output></div></section>
 <section class="pane"><h2>Vista 3D: modelo y planos del TAC</h2><div id="view3d" class="stage"></div></section>
 </div><aside>
-<h3>1. Cargar archivos</h3><label for="nrrd">Volumen TAC en NRRD (archivo local)</label><input id="nrrd" type="file" accept=".nrrd"><label for="glb">Modelo GLB (archivo local)</label><input id="glb" type="file" accept=".glb"><p id="status">Selecciona un NRRD para comenzar.</p>
+<h3>1. Cargar archivos</h3><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><label for="nrrd">Volumen TAC en NRRD (archivo local)</label><input id="nrrd" type="file" accept=".nrrd"><label for="glb">Modelo GLB (archivo local)</label><input id="glb" type="file" accept=".glb"><p id="status">Selecciona un NRRD para comenzar.</p>
 <h3>Navegación sincronizada</h3><label><input type="checkbox" id="syncNav" checked> Pulsar en el TAC para sincronizar los cortes</label><label><input type="checkbox" id="showCross" checked> Mostrar cruces de referencia</label><label><input type="checkbox" id="show3DMarker" checked> Mostrar posición en 3D</label><p id="navPoint" aria-live="polite">Selecciona un punto del TAC en axial, coronal o sagital.</p><button id="resetNav" type="button">Borrar punto de referencia</button><h3>2. Ventana de TC</h3><label for="wl">Nivel (HU)</label><input id="wl" type="number" value="70" step="10"><label for="ww">Anchura (HU)</label><input id="ww" type="number" value="350" min="1" step="10"><button id="apply">Aplicar ventana</button>
+<div hidden class="hidden" aria-hidden="true">
 <h3>3. Orientación de los cortes</h3>
 <p class="note">Convención radiológica habitual para volúmenes ortogonales en RAS. Las transformaciones siguientes afectan solo a la presentación 2D, no a las coordenadas del volumen o del GLB.</p>
 <label for="orientationPreset">Presentación</label><select id="orientationPreset"><option value="radiological">Radiológica (predeterminada)</option><option value="raw">Sin corregir (Three.js)</option></select>
 <div class="orientation-controls" id="orientationControls"></div>
 <p class="warning">Comprueba las marcas de lateralidad y referencias anatómicas contra 3D Slicer antes de usar el visor clínicamente. Los cortes oblicuos requieren orientación mediante la matriz espacial del volumen.</p>
-<h3>4. Vista 3D</h3><label><input id="planes" type="checkbox" checked> Mostrar planos del TAC</label><label><input id="showmodel" type="checkbox" checked> Mostrar GLB</label><button id="fit">Centrar vista 3D</button>
-<h3>5. Registro espacial</h3><div class="warning"><b>Superposición espacial pendiente de validación anatómica.</b> El visor coloca el NRRD en coordenadas RAS en milímetros. Para que el GLB coincida, debe exportarse sin recentrar, conservar la transformación espacial y tener orientación y escala correctas. No utilizar para mediciones ni decisiones clínicas hasta validarlo.</div>
+<h3>4. Vista 3D</h3><label><input id="planes" type="checkbox" checked> Mostrar planos del TAC</label><div id="planeSelection" role="group" aria-label="Planos del TAC en 3D"><label><input id="planeZ" type="checkbox" checked> Axial</label><label><input id="planeY" type="checkbox" checked> Coronal</label><label><input id="planeX" type="checkbox" checked> Sagital</label></div><p class="note">Selecciona los planos que se muestran en 3D. Los cortes y contornos MPR siguen disponibles.</p><label><input id="showmodel" type="checkbox" checked> Mostrar GLB</label><button id="fit">Centrar vista 3D</button>
+</div>
+<h3>3. Registro espacial</h3><div class="warning"><b>Superposición espacial pendiente de validación anatómica.</b> El visor coloca el NRRD en coordenadas RAS en milímetros. Para que el GLB coincida, debe exportarse sin recentrar, conservar la transformación espacial y tener orientación y escala correctas. No utilizar para mediciones ni decisiones clínicas hasta validarlo.</div>
 <label for="unit">Unidades de las coordenadas GLB</label><select id="unit"><option value="1000">Metros (GLB convencional) → mm</option><option value="1">Milímetros (exportación directa) → mm</option></select>
 <label for="space">Sistema del GLB</label><select id="space"><option value="RAS">RAS</option><option value="LPS">LPS</option></select>
 <p class="note">Si el archivo se centró durante la conversión, estas opciones no recuperan su origen. Debes reexportarlo conservando las coordenadas originales.</p><h3>Estructuras GLB — contornos MPR</h3><p class="note">Cada estructura tiene controles independientes. Los ajustes afectan solo a la visualización, nunca a las coordenadas del GLB o del TAC. Los contornos 2D se dibujan con el mismo color y pueden ocultarse por estructura.</p><div id="modelLayers"></div><button id="resetLayers" type="button" disabled>Restablecer todos los materiales</button>
@@ -241,10 +243,20 @@ function drawContours(axis, ctx, dest){
  });
 }
 
-function initSlices(){clearRoot(planesRoot);slices={};for(const [axis,n] of [['x',volume.RASDimensions[0]],['y',volume.RASDimensions[1]],['z',volume.RASDimensions[2]]]){const size=Math.max(2,n);const slider=$('r'+axis);slider.disabled=false;slider.min='0';slider.max=String(size-1);slider.value=String(Math.floor((size-1)/2));const slice=volume.extractSlice(axis,+slider.value);slices[axis]=slice;planesRoot.add(slice.mesh);slider.oninput=()=>paint(axis);paint(axis)}planesRoot.visible=$('planes').checked;fit()}
-$('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';try{const data=await file.arrayBuffer();selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Pulsa un punto en un corte para sincronizar las vistas.';volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();status.textContent=`TAC: ${file.name} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos situados en coordenadas físicas RAS: centro (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message}};
+function initSlices(){clearRoot(planesRoot);slices={};for(const [axis,n] of [['x',volume.RASDimensions[0]],['y',volume.RASDimensions[1]],['z',volume.RASDimensions[2]]]){const size=Math.max(2,n);const slider=$('r'+axis);slider.disabled=false;slider.min='0';slider.max=String(size-1);slider.value=String(Math.floor((size-1)/2));const slice=volume.extractSlice(axis,+slider.value);slices[axis]=slice;planesRoot.add(slice.mesh);slider.oninput=()=>paint(axis);paint(axis)}updatePlaneVisibility();fit()}
+async function loadNrrdData(data,label){selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Pulsa un punto en un corte para sincronizar las vistas.';volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();status.textContent=`TAC: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}
+$('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';try{await loadNrrdData(await file.arrayBuffer(),file.name)}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message}};
 $('apply').onclick=()=>{if(!volume)return;const w=Number($('ww').value),l=Number($('wl').value);if(!Number.isFinite(w)||w<=0||!Number.isFinite(l)){status.textContent='Ventana no válida';return}volume.windowLow=l-w/2;volume.windowHigh=l+w/2;['x','y','z'].forEach(paint)};
-$('planes').onchange=()=>planesRoot.visible=$('planes').checked;$('showmodel').onchange=()=>modelRoot.visible=$('showmodel').checked;$('fit').onclick=fit;
+function updatePlaneVisibility(){
+ planesRoot.visible=$('planes').checked;
+ for(const axis of ['x','y','z']){
+  const checkbox=$('plane'+axis.toUpperCase());
+  checkbox.disabled=!$('planes').checked;
+  if(slices[axis])slices[axis].mesh.visible=checkbox.checked;
+ }
+}
+$('planes').onchange=updatePlaneVisibility;
+for(const axis of ['X','Y','Z'])$('plane'+axis).onchange=updatePlaneVisibility;$('showmodel').onchange=()=>modelRoot.visible=$('showmodel').checked;$('fit').onclick=fit;
 function updateModelTransform(){if(!model)return;const units=Number($('unit').value);const lps=$('space').value==='LPS';model.scale.set(lps?-units:units,lps?-units:units,units);model.updateWorldMatrix(true,true);fit();if(volume)['x','y','z'].forEach(paint)}
 $('unit').onchange=updateModelTransform;$('space').onchange=updateModelTransform;
 // Las propiedades de visualización se modifican en copias de los materiales.
@@ -331,17 +343,38 @@ function buildModelLayers(root){
  return {meshes:itemsCount(root),structures:structures.size};
 }
 function itemsCount(root){let count=0;root.traverse(obj=>{if(obj.isMesh)count++});return count;}
-$('glb').onchange=async e=>{
- const file=e.target.files[0];if(!file)return;
- status.textContent='Leyendo GLB local…';const url=URL.createObjectURL(file);
- try{
+async function loadGlbFromUrl(url,label){
   const result=await new GLTFLoader().loadAsync(url);
   clearRoot(modelRoot);model=result.scene;modelRoot.add(model);
   const counts=buildModelLayers(model);
   updateModelTransform();
   if(volume)['x','y','z'].forEach(paint);
-  status.textContent=`GLB: ${file.name} · ${counts.structures} estructuras (${counts.meshes} mallas). Alineación anatómica pendiente de validación.`;
- }catch(err){console.error(err);status.textContent='Error GLB: '+err.message}
- finally{URL.revokeObjectURL(url)}
-};
+  status.textContent=`GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
+}
+$('glb').onchange=async e=>{const file=e.target.files[0];if(!file)return;const url=URL.createObjectURL(file);status.textContent='Leyendo GLB local…';try{await loadGlbFromUrl(url,file.name)}catch(err){console.error(err);status.textContent='Error GLB: '+err.message}finally{URL.revokeObjectURL(url)}};
+
+// Un enlace por caso: ?modelo=modelos/1.glb -> nrrd/1.nrrd
+async function autoLoadCase(){
+ const params=new URLSearchParams(location.search);
+ const requested=params.get('modelo'); if(!requested)return;
+ try{
+  const root=new URL('./',location.href);
+  const glbURL=new URL(requested,root);
+  const rootPath=root.pathname;
+  if(glbURL.origin!==root.origin || !glbURL.pathname.startsWith(rootPath) || !glbURL.pathname.toLowerCase().endsWith('.glb') || glbURL.search || glbURL.hash) throw new Error('Ruta GLB no válida');
+  const basename=decodeURIComponent(glbURL.pathname.split('/').pop()).replace(/\.glb$/i,'');
+  if(!/^[a-zA-Z0-9_-]+$/.test(basename))throw new Error('Utiliza nombres de caso sencillos, por ejemplo 1 o caso_001');
+  const nrrdURL=new URL('nrrd/'+encodeURIComponent(basename)+'.nrrd',root);
+  status.textContent='Descargando modelo '+basename+'…';
+  await loadGlbFromUrl(glbURL.href,basename+'.glb');
+  status.textContent='Descargando NRRD '+basename+'…';
+  const response=await fetch(nrrdURL,{credentials:'omit'});
+  if(!response.ok)throw new Error('NRRD no disponible (HTTP '+response.status+'): '+nrrdURL.pathname);
+  const content=await response.arrayBuffer();
+  await loadNrrdData(content,basename+'.nrrd');
+  if(volume)['x','y','z'].forEach(paint);
+  status.textContent='Caso '+basename+' cargado (GLB y NRRD). Verifica la alineación en los tres planos.';
+ }catch(err){console.error(err);status.textContent='Carga automática incompleta: '+err.message+'. Puedes seleccionar el NRRD manualmente.';}
+}
+autoLoadCase();
 </script></body></html>
