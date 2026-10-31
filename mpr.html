@@ -98,20 +98,26 @@ function parseNrrdGeometry(buffer) {
  return {originRAS, spacing, directionsRAS, sizes, centerRAS:new THREE.Vector3(lps?-center[0]:center[0], lps?-center[1]:center[1], center[2])};
 }
 
-function worldToPixel(axis, point, source, dest){
- if(!volumeInfo)return null;
- const {originRAS,directionsRAS}=volumeInfo;
- const xyz=[point.x,point.y,point.z];
- const ijk=directionsRAS.map((direction,i)=>{
-   const physicalComponent=direction.findIndex(v=>Math.abs(v)>1e-8);
-   return (xyz[physicalComponent]-originRAS[physicalComponent])/direction[physicalComponent];
- });
- // El canvas original de VolumeSlice representa los índices IJK de la imagen.
- // A continuación aplicamos EXACTAMENTE las transformaciones de paint().
- let px,py;
- if(axis==='z'){px=ijk[0];py=ijk[1];}
- else if(axis==='y'){px=ijk[0];py=ijk[2];}
- else {px=ijk[1];py=ijk[2];}
+// Proyectar coordenadas físicas sobre el MISMO mapa de píxeles usado por VolumeSlice.
+// VolumeSlice.sliceAccess() incorpora inversiones e intercambios de ejes que no
+// deben adivinarse desde el encabezado NRRD.
+function slicePixelBasis(axis) {
+ const slice=slices[axis];
+ const xyzOf=(i,j)=>{
+  const ijk=volume.reverseAccess(slice.sliceAccess(i,j));
+  const p=volumeInfo.originRAS.slice();
+  for(let a=0;a<3;a++)for(let k=0;k<3;k++)p[k]+=ijk[a]*volumeInfo.directionsRAS[a][k];
+  return new THREE.Vector3(...p);
+ };
+ const p00=xyzOf(0,0),p10=xyzOf(1,0),p01=xyzOf(0,1);
+ const u=p10.sub(p00),v=p01.sub(p00);
+ return {origin:p00,u,v,usq:u.lengthSq(),vsq:v.lengthSq(),
+         sx:slice.canvas.width/slice.iLength,sy:slice.canvas.height/slice.jLength};
+}
+function worldToPixel(axis,point,basis,dest){
+ const delta=point.clone().sub(basis.origin);
+ let px=(delta.dot(basis.u)/basis.usq+0.5)*basis.sx;
+ let py=(delta.dot(basis.v)/basis.vsq+0.5)*basis.sy;
  const o=orientation[axis];
  if(o.transpose){const t=px;px=py;py=t;}
  if(o.flipH)px=dest.width-px;
@@ -130,6 +136,7 @@ function drawContours(axis, ctx, dest){
  else if(axis==='y'){ normal=new THREE.Vector3(0,1,0); constVal=-(origin+slider*direction); }
  else { normal=new THREE.Vector3(1,0,0); constVal=-(origin+slider*direction); }
  const plane=new THREE.Plane(normal,constVal);
+ const pixelBasis=slicePixelBasis(axis);
  model.updateWorldMatrix(true,true);
  const edgePairs=[[0,1],[1,2],[2,0]];
  model.traverse(obj=>{
@@ -160,7 +167,7 @@ function drawContours(axis, ctx, dest){
       }
     }
     if(pts.length>=2){
-      const p1=worldToPixel(axis, pts[0], slices[axis].canvas, dest), p2=worldToPixel(axis, pts[1], slices[axis].canvas, dest);
+      const p1=worldToPixel(axis, pts[0], pixelBasis, dest), p2=worldToPixel(axis, pts[1], pixelBasis, dest);
       if(p1&&p2){ ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); drew=true; }
     }
   }
