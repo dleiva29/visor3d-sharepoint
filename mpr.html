@@ -389,7 +389,12 @@ function buildModelLayers(root){
 }
 function itemsCount(root){let count=0;root.traverse(obj=>{if(obj.isMesh)count++});return count;}
 async function loadGlbFromUrl(url,label){
-  const response=await fetch(url);if(!response.ok)throw new Error('GLB no disponible (HTTP '+response.status+')');const bytes=await response.arrayBuffer();const hash=await contentHash(bytes);const result=await new GLTFLoader().parseAsync(bytes.buffer,url.startsWith('blob:')?new URL('./',location.href).href:new URL('./',url).href);
+  showProgress('Descargando modelo '+label,0,'Preparando descarga…');
+  const bytes=await downloadWithProgress(url,(received,total)=>showProgress('Descargando modelo '+label,total?received/total:null,formatMB(received)+(total?' / '+formatMB(total):' descargados')));
+  // downloadWithProgress devuelve Uint8Array; el lector GLB necesita su ArrayBuffer.
+  const buffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
+  showProgress('Procesando modelo '+label,null,'Descarga 100 % · preparando estructuras…');
+  const hash=await contentHash(buffer);const result=await new GLTFLoader().parseAsync(buffer,url.startsWith('blob:')?new URL('./',location.href).href:new URL('./',url).href);
   clearRoot(modelRoot);model=result.scene;modelRoot.add(model);
   const counts=buildModelLayers(model);buildStructureSelection();clearModelAnnotations();
   updateModelTransform();updateClip();clearMeasurements();modelContentHash=hash;syncNamedViews();
