@@ -19,7 +19,7 @@
 <h3>5. Registro espacial</h3><div class="warning"><b>Superposición espacial pendiente de validación anatómica.</b> El visor coloca el NRRD en coordenadas RAS en milímetros. Para que el GLB coincida, debe exportarse sin recentrar, conservar la transformación espacial y tener orientación y escala correctas. No utilizar para mediciones ni decisiones clínicas hasta validarlo.</div>
 <label for="unit">Unidades de las coordenadas GLB</label><select id="unit"><option value="1000">Metros (GLB convencional) → mm</option><option value="1">Milímetros (exportación directa) → mm</option></select>
 <label for="space">Sistema del GLB</label><select id="space"><option value="RAS">RAS</option><option value="LPS">LPS</option></select>
-<p class="note">Si el archivo se centró durante la conversión, estas opciones no recuperan su origen. Debes reexportarlo conservando las coordenadas originales.</p><h3>Estructuras GLB</h3><p class="note">Cada estructura tiene controles independientes. Los ajustes afectan solo a la visualización, nunca a las coordenadas del GLB o del TAC. Los contornos 2D se dibujan con el mismo color y pueden ocultarse por estructura.</p><div id="modelLayers"></div><button id="resetLayers" type="button" disabled>Restablecer todos los materiales</button>
+<p class="note">Si el archivo se centró durante la conversión, estas opciones no recuperan su origen. Debes reexportarlo conservando las coordenadas originales.</p><h3>Estructuras GLB — contornos MPR</h3><p class="note">Cada estructura tiene controles independientes. Los ajustes afectan solo a la visualización, nunca a las coordenadas del GLB o del TAC. Los contornos 2D se dibujan con el mismo color y pueden ocultarse por estructura.</p><div id="modelLayers"></div><button id="resetLayers" type="button" disabled>Restablecer todos los materiales</button>
 </aside></div>
 <script type="module">
 import * as THREE from 'three';
@@ -91,45 +91,54 @@ function parseNrrdGeometry(buffer) {
  const aligned=groups.every((g,i)=>g.every((x,j)=>j===i?Number.isFinite(x)&&Math.abs(x)>0.000001:Math.abs(x)<0.000001));
  if(!aligned) throw new Error('NRRD oblicuo: se necesita remuestreo a ejes RAS antes de superponer el GLB.');
  const lps=space==='left-posterior-superior'||space==='lps';
- const signs=[1,1,1];
  const spacing=groups.map((g,i)=>Math.abs(g[i]));
+ const directionsRAS=groups.map(g=>[lps?-g[0]:g[0],lps?-g[1]:g[1],g[2]]);
  const originRAS=[lps?-originV[0]:originV[0], lps?-originV[1]:originV[1], originV[2]];
  const center=originV.map((x,k)=>x+groups.reduce((sum,g,i)=>sum+g[k]*(sizes[i]-1)/2,0));
- return {originRAS, spacing, sizes, centerRAS:new THREE.Vector3(lps?-center[0]:center[0], lps?-center[1]:center[1], center[2])};
+ return {originRAS, spacing, directionsRAS, sizes, centerRAS:new THREE.Vector3(lps?-center[0]:center[0], lps?-center[1]:center[1], center[2])};
 }
 
-function worldToPixel(axis, point, dest){
- if(!volumeInfo) return null;
- const [ox,oy,oz]=volumeInfo.originRAS, [sx,sy,sz]=volumeInfo.spacing;
- const ix=(point.x-ox)/sx, iy=(point.y-oy)/sy, iz=(point.z-oz)/sz;
- let x,y;
- if(axis==='z'){ x=ix; y=iy; }
- else if(axis==='y'){ x=ix; y=iz; }
- else { x=iy; y=iz; }
+function worldToPixel(axis, point, source, dest){
+ if(!volumeInfo)return null;
+ const {originRAS,directionsRAS}=volumeInfo;
+ const xyz=[point.x,point.y,point.z];
+ const ijk=directionsRAS.map((direction,i)=>{
+   const physicalComponent=direction.findIndex(v=>Math.abs(v)>1e-8);
+   return (xyz[physicalComponent]-originRAS[physicalComponent])/direction[physicalComponent];
+ });
+ // El canvas original de VolumeSlice representa los índices IJK de la imagen.
+ // A continuación aplicamos EXACTAMENTE las transformaciones de paint().
+ let px,py;
+ if(axis==='z'){px=ijk[0];py=ijk[1];}
+ else if(axis==='y'){px=ijk[0];py=ijk[2];}
+ else {px=ijk[1];py=ijk[2];}
  const o=orientation[axis];
- let wRaw=(axis==='z'||axis==='y')?dest.width:(o.transpose?dest.height:dest.width);
- let hRaw=(axis==='z')?dest.height:(axis==='y'?dest.height:(o.transpose?dest.width:dest.height));
- let px=x, py=y;
- if(o.transpose){ const t=px; px=py; py=t; }
- const width=dest.width, height=dest.height;
- if(o.flipH) px=(o.transpose?height:width)-px;
- if(o.flipV) py=(o.transpose?width:height)-py;
+ if(o.transpose){const t=px;px=py;py=t;}
+ if(o.flipH)px=dest.width-px;
+ if(o.flipV)py=dest.height-py;
  return {x:px,y:py};
 }
 
 function drawContours(axis, ctx, dest){
  if(!model||!volumeInfo) return;
- const slider=Number($('r'+axis).value); const [ox,oy,oz]=volumeInfo.originRAS, [sx,sy,sz]=volumeInfo.spacing;
+ const slider=Number($('r'+axis).value);
+ const component={x:0,y:1,z:2}[axis];
+ const origin=volumeInfo.originRAS[component];
+ const direction=volumeInfo.directionsRAS[component][component];
  let normal,constVal;
- if(axis==='z'){ normal=new THREE.Vector3(0,0,1); constVal=-(oz+slider*sz); }
- else if(axis==='y'){ normal=new THREE.Vector3(0,1,0); constVal=-(oy+slider*sy); }
- else { normal=new THREE.Vector3(1,0,0); constVal=-(ox+slider*sx); }
+ if(axis==='z'){ normal=new THREE.Vector3(0,0,1); constVal=-(origin+slider*direction); }
+ else if(axis==='y'){ normal=new THREE.Vector3(0,1,0); constVal=-(origin+slider*direction); }
+ else { normal=new THREE.Vector3(1,0,0); constVal=-(origin+slider*direction); }
  const plane=new THREE.Plane(normal,constVal);
  model.updateWorldMatrix(true,true);
  const edgePairs=[[0,1],[1,2],[2,0]];
  model.traverse(obj=>{
   if(!obj.isMesh || !obj.visible || obj.userData.contourVisible===false) return;
   const geom=obj.geometry; const pos=geom.getAttribute('position'); if(!pos) return;
+  if(!obj.geometry.boundingBox)obj.geometry.computeBoundingBox();
+  const worldBox=obj.geometry.boundingBox.clone().applyMatrix4(obj.matrixWorld);
+  const level=-constVal;
+  if(level < worldBox.min.getComponent(component)-0.001 || level > worldBox.max.getComponent(component)+0.001)return;
   const idx=geom.index;
   const mats=Array.isArray(obj.material)?obj.material:[obj.material];
   const color=(obj.userData.contourColor)||(mats[0]?.color?.getStyle()||'#ff5555');
@@ -151,7 +160,7 @@ function drawContours(axis, ctx, dest){
       }
     }
     if(pts.length>=2){
-      const p1=worldToPixel(axis, pts[0], dest), p2=worldToPixel(axis, pts[1], dest);
+      const p1=worldToPixel(axis, pts[0], slices[axis].canvas, dest), p2=worldToPixel(axis, pts[1], slices[axis].canvas, dest);
       if(p1&&p2){ ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); drew=true; }
     }
   }
@@ -163,7 +172,7 @@ function initSlices(){clearRoot(planesRoot);slices={};for(const [axis,n] of [['x
 $('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';try{const data=await file.arrayBuffer();volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();status.textContent=`TAC: ${file.name} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos situados en coordenadas físicas RAS: centro (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message}};
 $('apply').onclick=()=>{if(!volume)return;const w=Number($('ww').value),l=Number($('wl').value);if(!Number.isFinite(w)||w<=0||!Number.isFinite(l)){status.textContent='Ventana no válida';return}volume.windowLow=l-w/2;volume.windowHigh=l+w/2;['x','y','z'].forEach(paint)};
 $('planes').onchange=()=>planesRoot.visible=$('planes').checked;$('showmodel').onchange=()=>modelRoot.visible=$('showmodel').checked;$('fit').onclick=fit;
-function updateModelTransform(){if(!model)return;const units=Number($('unit').value);const lps=$('space').value==='LPS';model.scale.set(lps?-units:units,lps?-units:units,units);fit()}
+function updateModelTransform(){if(!model)return;const units=Number($('unit').value);const lps=$('space').value==='LPS';model.scale.set(lps?-units:units,lps?-units:units,units);model.updateWorldMatrix(true,true);fit();if(volume)['x','y','z'].forEach(paint)}
 $('unit').onchange=updateModelTransform;$('space').onchange=updateModelTransform;
 // Las propiedades de visualización se modifican en copias de los materiales.
 // Así evitamos que varias mallas que compartan material cambien juntas.
@@ -257,6 +266,7 @@ $('glb').onchange=async e=>{
   clearRoot(modelRoot);model=result.scene;modelRoot.add(model);
   const counts=buildModelLayers(model);
   updateModelTransform();
+  if(volume)['x','y','z'].forEach(paint);
   status.textContent=`GLB: ${file.name} · ${counts.structures} estructuras (${counts.meshes} mallas). Alineación anatómica pendiente de validación.`;
  }catch(err){console.error(err);status.textContent='Error GLB: '+err.message}
  finally{URL.revokeObjectURL(url)}
