@@ -1,0 +1,432 @@
+{
+  "format": "mpr-named-views",
+  "version": 1,
+  "caseKey": "mpr-named-views-v1:252eacfc8b2d68f75df604402c99037be7ddcc09761a6c3d96bf2db121e7fa99:772ca1e255da2802cc31584e0da93fc42735e3e28630d0600c54187c27b08283",
+  "views": [
+    {
+      "name": "posterior",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            456
+          ],
+          "origin": [
+            199.6093,
+            199.6093,
+            1457
+          ],
+          "structures": [
+            "Vena",
+            "Vasos_portales",
+            "Higado",
+            "Arteria",
+            "ADK"
+          ]
+        },
+        "referencePoint": null,
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            -84.60797878096967,
+            -956.3143476191103,
+            1372.0032117716275
+          ],
+          "up": [
+            0,
+            0,
+            1
+          ],
+          "target": [
+            0.06379999999998633,
+            0.06379999999998633,
+            1684.5
+          ],
+          "near": 0.7264511322910855,
+          "far": 72645.11322910855
+        },
+        "slices": {
+          "x": 199,
+          "y": 199,
+          "z": 227
+        },
+        "flags": {
+          "planes": true,
+          "planeX": true,
+          "planeY": true,
+          "planeZ": true,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": false
+        },
+        "fillOpacity": 20,
+        "clipAxis": "x",
+        "clipPosition": 50,
+        "layers": [
+          {
+            "key": "Vena",
+            "visible": true,
+            "color": "#007a8e",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Vasos_portales",
+            "visible": true,
+            "color": "#007a8e",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Higado",
+            "visible": true,
+            "color": "#728372",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Arteria",
+            "visible": true,
+            "color": "#91665a",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "ADK",
+            "visible": true,
+            "color": "#959255",
+            "contour": true,
+            "opacity": 100
+          }
+        ]
+      },
+      "notes": "vusta posterior"
+    },
+    {
+      "name": "anterior",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            456
+          ],
+          "origin": [
+            199.6093,
+            199.6093,
+            1457
+          ],
+          "structures": [
+            "Vena",
+            "Vasos_portales",
+            "Higado",
+            "Arteria",
+            "ADK"
+          ]
+        },
+        "referencePoint": null,
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            0.06343921413815092,
+            1009.7581666364208,
+            1684.4990569643294
+          ],
+          "up": [
+            0,
+            0,
+            1
+          ],
+          "target": [
+            0.06379999999998633,
+            0.06379999999998633,
+            1684.5
+          ],
+          "near": 0.7264511322910855,
+          "far": 72645.11322910855
+        },
+        "slices": {
+          "x": 199,
+          "y": 199,
+          "z": 227
+        },
+        "flags": {
+          "planes": true,
+          "planeX": true,
+          "planeY": true,
+          "planeZ": true,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": false
+        },
+        "fillOpacity": 20,
+        "clipAxis": "x",
+        "clipPosition": 50,
+        "layers": [
+          {
+            "key": "Vena",
+            "visible": true,
+            "color": "#007a8e",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Vasos_portales",
+            "visible": true,
+            "color": "#007a8e",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Higado",
+            "visible": true,
+            "color": "#728372",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Arteria",
+            "visible": true,
+            "color": "#91665a",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "ADK",
+            "visible": true,
+            "color": "#959255",
+            "contour": true,
+            "opacity": 100
+          }
+        ]
+      }
+    },
+    {
+      "name": "Flechas",
+      "notes": "",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            456
+          ],
+          "origin": [
+            199.6093,
+            199.6093,
+            1457
+          ],
+          "structures": [
+            "Vena",
+            "Vasos_portales",
+            "Higado",
+            "Arteria",
+            "ADK"
+          ]
+        },
+        "referencePoint": null,
+        "annotations": [
+          {
+            "kind": "arrow",
+            "text": "Adk",
+            "color": "#ffdf40",
+            "a": [
+              -52.119207113659556,
+              -34.1700288433229,
+              1660.0983221319766
+            ],
+            "b": [
+              -36.36536301719896,
+              1.9900478436645497,
+              1649.64605209619
+            ]
+          },
+          {
+            "kind": "arrow",
+            "text": "Art Coronaria",
+            "color": "#ffdf40",
+            "a": [
+              -8.925569707413269,
+              -37.285212079269726,
+              1656.213075122408
+            ],
+            "b": [
+              -6.016043483763535,
+              -5.253507653487921,
+              1661.0018010093386
+            ]
+          },
+          {
+            "kind": "arrow",
+            "text": "Art Hepática",
+            "color": "#ffdf40",
+            "a": [
+              -7.422859287646559,
+              -14.474622287113604,
+              1587.431596388503
+            ],
+            "b": [
+              17.83472828613549,
+              -0.2700523348122541,
+              1624.42925687939
+            ]
+          }
+        ],
+        "annotationsVisible": true,
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            -113.41845352735587,
+            322.16707149283627,
+            1980.075368730987
+          ],
+          "up": [
+            0,
+            0,
+            1
+          ],
+          "target": [
+            0.06379999999998633,
+            0.06379999999998633,
+            1684.5
+          ],
+          "near": 0.7264511322910855,
+          "far": 72645.11322910855
+        },
+        "slices": {
+          "x": 190,
+          "y": 150,
+          "z": 334
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": true,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": true,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipAxis": "y",
+        "clipPosition": 52,
+        "layers": [
+          {
+            "key": "Vena",
+            "visible": true,
+            "color": "#007a8e",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Vasos_portales",
+            "visible": true,
+            "color": "#007a8e",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Higado",
+            "visible": true,
+            "color": "#728372",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Arteria",
+            "visible": true,
+            "color": "#91665a",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "ADK",
+            "visible": true,
+            "color": "#959255",
+            "contour": true,
+            "opacity": 100
+          }
+        ]
+      }
+    }
+  ]
+}
