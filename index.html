@@ -35,7 +35,7 @@
 <label class="row">Nombre <input id="viewName" maxlength="100" placeholder="Ej.: Tumor y vasos" style="width:100%"></label>
 <div class="row"><button id="saveView" type="button">Guardar vista actual</button><button id="deleteView" type="button" disabled>Eliminar vista</button></div>
 <label class="row">Código del caso <input id="caseCode" maxlength="60" style="width:100%" placeholder="Ej.: 1"></label>
-<div class="row"><button id="exportViews" type="button">Exportar vistas ZIP</button><button id="importViews" type="button">Importar vistas JSON / MPR</button></div>
+<div class="row"><button id="exportViews" type="button">Exportar vistas JSON</button><button id="importViews" type="button">Importar vistas JSON / MPR</button></div>
 <input id="viewsFile" type="file" accept=".json,application/json" hidden>
 <p id="remoteViewsStatus" class="hint" role="status"></p>
 <p id="mprViewNote" class="hint" style="white-space:pre-wrap" hidden></p><p id="viewsStatus" class="hint" role="status" aria-live="polite">Vistas de este modelo, guardadas en este navegador. Para compartirlas, utiliza «Copiar enlace».</p>
@@ -302,7 +302,7 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
    light:Number($('light').value),flat:$('flat').checked,
    cut:{enabled:$('cut').checked,axis:$('axis').value,flip:$('flip').checked,position:Number($('position').value)},
    structures:structures.map(s=>({name:s.name,label:s.displayName,visible:s.visible,opacity:s.opacity,colors:s.pairs.map(p=>'#'+p.lit.color.getHexString())})),
-   selected:selected?.name??null,geometry:{scale:Number($('scale').value),confirmed:$('scaleConfirmed').checked,labels:$('labels').checked},mpr:currentMPROverlay?structuredClone(currentMPROverlay):null};
+   selected:selected?.name??null,geometry:{scale:Number($('scale').value),confirmed:$('scaleConfirmed').checked,labels:$('labels').checked},mpr:currentMPROverlay?structuredClone(currentMPROverlay):null,mprSource:currentMPRSource?structuredClone(currentMPRSource):null};
  }
  function validState(t){
   return t&&t.v===1&&t.camera&&finiteVector(t.camera.position)&&finiteVector(t.camera.target)&&finiteVector(t.camera.up)
@@ -331,7 +331,7 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
    // Eliminar la inercia anterior antes de restaurar la cámara.
    controls.enableDamping=false;controls.update();
    controls.minDistance=state.mpr?0:radius*.03;controls.maxDistance=state.mpr?Infinity:radius*100;camera.position.fromArray(state.camera.position);camera.up.fromArray(state.camera.up);controls.target.fromArray(state.camera.target);camera.lookAt(controls.target);controls.update();controls.enableDamping=true;
-   select(byName.get(state.selected)||null);setMPRMarks(state.mpr||null);
+   select(byName.get(state.selected)||null);setMPRMarks(state.mpr||null);currentMPRSource=state.mprSource?structuredClone(state.mprSource):null;
    $('shareStatus').textContent=missing?'Vista restaurada; algunas estructuras ya no existen en este modelo.':'Configuración del enlace restaurada.';
   }catch(e){$('shareStatus').textContent='No se pudo restaurar la configuración del enlace. Se muestra la vista disponible.';console.warn(e);}
  }
@@ -343,7 +343,7 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
  };
 
   // Adaptar vistas MPR (RAS/mm) al espacio GLB centrado de este visor.
- let currentMPROverlay=null;const mprMarks=new THREE.Group();scene.add(mprMarks);const mprLabels=[];
+ let currentMPROverlay=null,currentMPRSource=null;const mprMarks=new THREE.Group();scene.add(mprMarks);const mprLabels=[];
  const mprPoint=p=>new THREE.Vector3(...p).multiplyScalar(.001).sub(center).toArray();
  function validOverlay(o){return o===null||o&&typeof o.visible==='boolean'&&typeof o.showModel==='boolean'&&typeof o.notes==='string'&&o.notes.length<=3000&&Array.isArray(o.items)&&o.items.length<=100&&o.items.every(a=>a&&['label','arrow'].includes(a.kind)&&typeof a.text==='string'&&a.text.length<=180&&validColor(a.color)&&finiteVector(a.a)&&(a.kind!=='arrow'||finiteVector(a.b)));}
  function setMPRMarks(data){
@@ -372,7 +372,7 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
    const overlay={visible:c.annotationsVisible??true,showModel:c.flags.showmodel,notes:entry.notes??'',items:(c.annotations||[]).map(a=>({...a,a:mprPoint(a.a),...(a.kind==='arrow'?{b:mprPoint(a.b)}:{})}))};if(!validOverlay(overlay))throw new Error('Anotaciones o comentario MPR inválidos.');
    const state={v:1,camera:{position:mprPoint(c.camera.position),target:mprPoint(c.camera.target),up:c.camera.up.slice()},light:1,flat:false,cut:{enabled:c.flags.clipEnabled,axis:c.clipAxis,flip:c.flags.clipReverse,position:c.clipPosition},structures:c.layers.map(l=>({name:l.key,label:l.key,visible:l.visible,opacity:l.opacity/100,colors:[l.color]})),selected:null,geometry:{scale:1000,confirmed:false,labels:false},mpr:overlay};
    if(!validState(state))throw new Error('Cámara MPR inválida.');
-   return{id:'mpr-'+i,name:entry.name,state};
+   state.mprSource={caseKey:data.caseKey,config:structuredClone(c),notes:entry.notes||''};return{id:'mpr-'+i,name:entry.name,state};
   });
  }
  let mprLocalViews=[];
@@ -425,19 +425,36 @@ onmessage=e=>{try{const {job,a,b}=e.data;postMessage({job,result:job==='stats'?s
   return data.views.map((entry,i)=>{if(!entry||typeof entry.name!=='string'||!entry.name.trim()||entry.name.length>100||!validState(entry.state))throw new Error('Vista no válida en la posición '+(i+1));let id=typeof entry.id==='string'&&entry.id?entry.id:'view-'+i;if(ids.has(id))throw new Error('Identificador de vista duplicado.');ids.add(id);return{id,name:entry.name,state:entry.state};});
  }
 
+ function exportViewsBundle(entries){
+  const sources=entries.map(e=>e.state.mprSource).filter(Boolean);
+  const reference=currentMPRSource||sources[0]||[...remoteViews,...mprLocalViews].map(e=>e.state.mprSource).find(Boolean);
+  if(!reference)return{data:{version:1,model:modelPath,views:entries},mpr:false};
+  if(entries.length>100)throw new Error('MPR admite como máximo 100 vistas por archivo.');
+  if(sources.some(s=>s.caseKey!==reference.caseKey))throw new Error('Hay vistas de distintos TAC. Exporta por separado las vistas de cada caso.');
+  if(typeof reference.caseKey!=='string'||!reference.caseKey.endsWith(':'+modelHash)||reference.config?.format!=='mpr-viewer')throw new Error('Referencia MPR no válida. Importa de nuevo las vistas MPR del caso.');
+  const toMM=p=>new THREE.Vector3(...p).add(center).multiplyScalar(1000).toArray();
+  const views=entries.map(entry=>{
+   const state=entry.state,source=state.mprSource||reference,c=structuredClone(source.config);
+   c.camera={...c.camera,position:toMM(state.camera.position),target:toMM(state.camera.target),up:state.camera.up.slice()};
+   const map=new Map(state.structures.map(s=>[s.name,s]));
+   c.layers=c.layers.map(l=>{const item=map.get(l.key);return item?{...l,visible:item.visible,color:item.colors[0],opacity:item.opacity*100}:l});
+   c.clipAxis=state.cut.axis;c.clipPosition=state.cut.position;c.flags.clipEnabled=state.cut.enabled;c.flags.clipReverse=state.cut.flip;c.flags.showmodel=state.mpr?.showModel??true;
+   c.annotations=(state.mpr?.items||[]).map(a=>({...a,a:toMM(a.a),...(a.kind==='arrow'?{b:toMM(a.b)}:{})}));c.annotationsVisible=state.mpr?.visible??true;
+   return{name:entry.name,notes:state.mpr?.notes??state.mprSource?.notes??'',config:c};
+  });
+  return{data:{format:'mpr-named-views',version:1,caseKey:reference.caseKey,views},mpr:true};
+ }
  $('exportViews').onclick=()=>{
   try{
    const code=$('caseCode').value.trim();if(!/^[a-zA-Z0-9_-]{1,60}$/.test(code))throw new Error('Utiliza un código de caso con letras, números, guion o guion bajo.');
-   const combined=new Map();for(const entry of [...remoteViews,...savedViews])combined.set(entry.name,entry);
+   const combined=new Map();for(const entry of [...remoteViews,...mprLocalViews,...savedViews])combined.set(entry.name,entry);
    if(!combined.size)throw new Error('Guarda primero al menos una vista con nombre.');
-   const views=Array.from(combined.values(),(entry,i)=>({...entry,id:'view-'+(i+1)}));
-   const files=views.map((view,i)=>({name:'vistas/'+code+'_'+(i+1)+'.json',data:{version:1,model:modelPath,views:[view]}}));
-   const manifest={version:1,model:modelPath,files:files.map(f=>f.name.slice('vistas/'.length))};
-   files.push({name:'vistas/'+viewsFilename,data:manifest});
-   const href=URL.createObjectURL(zipJSONFiles(files)),a=document.createElement('a');a.href=href;a.download='vistas_'+code+'.zip';a.click();setTimeout(()=>URL.revokeObjectURL(href),10000);
-   $('viewsStatus').textContent='ZIP exportado. Descomprímelo y sube su carpeta vistas a GitHub. Incluye '+views.length+' archivos de vista y el índice '+viewsFilename+'.';
+   const views=Array.from(combined.values(),(entry,i)=>({...entry,id:'view-'+(i+1)})),result=exportViewsBundle(views);
+   const href=URL.createObjectURL(new Blob([JSON.stringify(result.data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=href;a.download=code+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(href),10000);
+   $('viewsStatus').textContent=views.length+' vistas exportadas en un único archivo '+code+'.json. '+(result.mpr?'Compatible con MPR; súbelo a vistas/mpr/'+code+'.json.':'Formato del visor 3D. Para exportar en formato MPR, importa primero las vistas MPR del mismo caso.');
   }catch(e){$('viewsStatus').textContent='No se pudo exportar: '+e.message;}
  };
+
  $('importViews').onclick=()=>$('viewsFile').click();
  $('viewsFile').onchange=async()=>{const file=$('viewsFile').files[0];if(!file)return;try{if(file.size>5*1024*1024)throw new Error('El JSON supera 5 MB.');const imported=validateViewsFile(JSON.parse(await file.text()));const merged=new Map(readViews().map(e=>[e.name,e]));for(const entry of imported)merged.set(entry.name,{...entry,id:globalThis.crypto?.randomUUID?.()||Date.now()+'-'+Math.random()});if(persistViews([...merged.values()])){renderViews();$('viewsStatus').textContent=imported.length+' vistas importadas en este navegador.';}}catch(e){$('viewsStatus').textContent='No se pudo importar: '+e.message;}finally{$('viewsFile').value='';}};
  async function loadPublishedViews(){
