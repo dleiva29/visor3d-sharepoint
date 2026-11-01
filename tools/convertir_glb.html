@@ -1,17 +1,22 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Conversor OBJ y MTL a GLB</title><style>*{box-sizing:border-box}body{margin:0;background:#eef3f8;color:#203044;font:15px system-ui,sans-serif}main{max-width:850px;margin:35px auto;padding:0 20px 35px}header{margin-bottom:22px}h1{font-size:27px;margin:15px 0 8px}p{line-height:1.6}.card{background:white;border:1px solid #d5e0eb;border-radius:12px;padding:24px;box-shadow:0 5px 20px #1c365510}.row{display:flex;align-items:center;gap:12px;margin:18px 0;flex-wrap:wrap}.row input[type=file],select{width:100%;font:inherit;padding:9px;background:#f8fafc;border:1px solid #c3d0df;border-radius:6px}button,a.button{display:inline-block;padding:12px 18px;font:inherit;font-weight:600;border:0;border-radius:7px;background:#246888;color:white;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.hint{font-size:13px;color:#51687a;line-height:1.6}.result{white-space:pre-line;background:#edf5fa;padding:12px;border-radius:6px;overflow-wrap:anywhere}.result:empty{display:none}a{color:#246888}summary{font-size:20px;margin-bottom:18px}#convertedDownload{display:block;margin-top:14px}#convertedDownload[hidden]{display:none}@media(max-width:600px){main{margin-top:18px}.card{padding:16px}h1{font-size:24px}}</style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body><main><header><a id="backToViewer" href="index.html">← Volver al visor 3D</a><h1>Conversor OBJ + MTL a GLB</h1><p>Selecciona los archivos, ajusta las unidades y descarga el modelo convertido.</p></header><section class="card" id="converter">
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Conversor STL y OBJ a GLB</title><style>*{box-sizing:border-box}body{margin:0;background:#eef3f8;color:#203044;font:15px system-ui,sans-serif}main{max-width:850px;margin:35px auto;padding:0 20px 35px}header{margin-bottom:22px}h1{font-size:27px;margin:15px 0 8px}p{line-height:1.6}.card{background:white;border:1px solid #d5e0eb;border-radius:12px;padding:24px;box-shadow:0 5px 20px #1c365510}.row{display:flex;align-items:center;gap:12px;margin:18px 0;flex-wrap:wrap}.row input[type=file],select{width:100%;font:inherit;padding:9px;background:#f8fafc;border:1px solid #c3d0df;border-radius:6px}button,a.button{display:inline-block;padding:12px 18px;font:inherit;font-weight:600;border:0;border-radius:7px;background:#246888;color:white;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.hint{font-size:13px;color:#51687a;line-height:1.6}.result{white-space:pre-line;background:#edf5fa;padding:12px;border-radius:6px;overflow-wrap:anywhere}.result:empty{display:none}a{color:#246888}summary{font-size:20px;margin-bottom:18px}#convertedDownload{display:block;margin-top:14px}#convertedDownload[hidden]{display:none}@media(max-width:600px){main{margin-top:18px}.card{padding:16px}h1{font-size:24px}}#materialBindingPanel{padding:16px;margin:18px 0;background:#f1f7fb;border:1px solid #c3d0df;border-radius:8px}#materialBindingPanel[hidden]{display:none}.binding-row{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:center;margin:9px 0}.binding-row span{font-family:monospace;overflow-wrap:anywhere}h2{font-size:18px;margin-top:0}@media(max-width:600px){.binding-row{grid-template-columns:1fr;gap:4px}}</style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body><main><header><a id="backToViewer" href="index.html">← Volver al visor 3D</a><h1>Conversor STL y OBJ a GLB</h1><p>Selecciona los archivos, ajusta las unidades y descarga el modelo convertido.</p></header><section class="card" id="converter">
 <p class="hint">Conversión local optimizada en este navegador, sin reducir triángulos. Los archivos elegidos no se envían a GitHub. Esta versión admite geometría y colores; no admite texturas.</p>
-<label class="row">Modelo OBJ <input id="objFile" type="file" accept=".obj" style="width:100%"></label>
+<label class="row">Formato de entrada <select id="inputMode"><option value="stl">Varios STL · una estructura por archivo</option><option value="multiobj" selected>Varios OBJ · nombres de archivo</option><option value="obj">OBJ único + MTL · nombres internos</option></select></label>
+<section id="stlPanel" hidden><label class="row">Segmentaciones STL <input id="stlFiles" type="file" accept=".stl" multiple></label><p class="hint">Selecciona todos los STL a la vez. Cada nombre de archivo, sin .stl, será el nombre de su estructura. Puedes ajustar su color antes de exportar.</p><div id="stlList"></div></section>
+<section id="multiObjPanel"><label class="row">Estructuras OBJ y sus materiales MTL (opcionales)<input id="multiObjFiles" type="file" accept=".obj,.mtl" multiple></label><p class="hint">Selecciona todos los OBJ y, si los tienes, sus MTL. Cada OBJ se exporta como una estructura con el nombre del archivo, sin .obj. Los MTL se asocian por la referencia mtllib del OBJ. Sin MTL, se asignan colores provisionales.</p><div id="multiObjList" class="hint"></div></section><section id="objPanel" hidden><label class="row">Modelo OBJ <input id="objFile" type="file" accept=".obj" style="width:100%"></label>
 <label class="row">Materiales MTL (opcional) <input id="mtlFile" type="file" accept=".mtl" style="width:100%"></label>
-<label class="row">Unidades del OBJ <select id="objUnits"><option value="0.001">Milímetros (Slicer)</option><option value="0.01">Centímetros</option><option value="1">Metros</option></select></label>
-<label class="row">Colores del MTL <select id="objColorSpace"><option value="linear" selected>Lineales · más luminosos</option><option value="srgb">sRGB · conversión anterior</option></select></label>
+<button id="reviewMaterialNames" type="button">Revisar nombres de estructuras</button><section id="materialBindingPanel" hidden><h2>Nombres de las estructuras</h2><p id="materialBindingMessage" class="hint" aria-live="polite"></p><div id="materialBindings"></div><button id="proposeMaterialOrder" type="button">Proponer por orden del MTL</button></section></section><label class="row">Unidades de los archivos <select id="objUnits"><option value="0.001">Milímetros (Slicer)</option><option value="0.01">Centímetros</option><option value="1">Metros</option></select></label>
+<label class="row">Colores del MTL (solo OBJ) <select id="objColorSpace"><option value="linear" selected>Lineales · más luminosos</option><option value="srgb">sRGB · conversión anterior</option></select></label>
 <p class="hint">El MTL no identifica inequívocamente el espacio de color. Si la conversión anterior oscurecía el modelo, usa «Lineales». Compara con el modelo original: la iluminación de cada programa también influye.</p>
 <label class="row"><input id="objOpaque" type="checkbox" checked> Exportar superficies opacas</label>
-<p class="hint">La opción opaca evita superficies invisibles por valores Tr/d ambiguos. Podrás ajustar la opacidad en el visor. El GLB se exportará en metros, conservando los ejes y posiciones relativas.</p>
+<p class="hint">La opción opaca evita superficies invisibles por valores Tr/d ambiguos. Podrás ajustar la opacidad en el visor. El GLB se exportará en metros, conservando los ejes y posiciones originales, sin centrar las estructuras. Para MPR, elige RAS si tus STL están en LPS; selecciona RAS en origen si ya se exportaron así desde Slicer.</p>
+<label class="row">Coordenadas de origen <select id="sourceSpace"><option value="LPS">LPS (exportación predeterminada de Slicer)</option><option value="RAS">RAS</option></select></label><label class="row">Coordenadas del GLB <select id="targetSpace"><option value="RAS">RAS · para el visor MPR</option><option value="LPS">LPS</option></select></label><p class="hint">Al cambiar entre LPS y RAS se invierten X e Y. Todos los archivos deben compartir sistema de coordenadas y unidades. Los STL no conservan los colores de Slicer.</p>
+<label class="row">Nombre del fichero de salida <input id="outputName" type="text" placeholder="segmentaciones.glb" aria-describedby="outputNameHint" style="width:100%;font:inherit;padding:9px;border:1px solid #c3d0df;border-radius:6px"></label><p id="outputNameHint" class="hint">La extensión .glb se añade automáticamente. Si lo dejas vacío, se utiliza el nombre predeterminado.</p>
 <button id="convert" type="button">Convertir y descargar GLB</button>
 <p id="convertStatus" class="hint result" role="status" aria-live="polite"></p>
 <a id="convertedDownload" hidden>Descargar GLB convertido</a>
 </section></main><script type="module">
 import * as THREE from 'three';
+import {STLLoader} from 'three/addons/loaders/STLLoader.js';
 import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
 import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';
 const $=id=>document.getElementById(id);
@@ -46,12 +51,12 @@ function indexGeometryExactly(geometry){
  geometry.setIndex(new THREE.BufferAttribute(sourceVertices.length<=65536?new Uint16Array(indices):indices,1));
  return {before:positions.count,after:sourceVertices.length};
 }
-function prepareOBJConversion(objText,mtlText,metersPerUnit,opaque,colorSpace='linear'){
+function prepareOBJConversion(objText,mtlText,metersPerUnit,opaque,colorSpace='linear',materialAliases=new Map()){
  if(!['linear','srgb'].includes(colorSpace))throw new Error('Interpretación de color no válida.');
  if(!Number.isFinite(metersPerUnit)||metersPerUnit<=0)throw new Error('Escala no válida.');
  const materials=parseLocalMTL(mtlText||''),used=new Set();
  for(const line of objText.split(/\r?\n/)){const match=/^\s*usemtl\s+(.+?)\s*$/.exec(line);if(match)used.add(match[1]);}
- if(mtlText){const missing=[...used].filter(name=>!materials.has(name));if(missing.length)throw new Error('Faltan materiales del OBJ en el MTL: '+missing.join(', '));}
+ if(mtlText)validateMaterialBindings([...used],materials,materialAliases);
  // parse() no descarga mtllib ni otros archivos.
  const root=new OBJLoader().parse(objText);let meshCount=0,triangles=0,verticesBefore=0,verticesAfter=0;const names=new Set();
  root.traverse(mesh=>{if(!mesh.isMesh)return;meshCount++;const geometry=mesh.geometry;
@@ -61,9 +66,11 @@ function prepareOBJConversion(objText,mtlText,metersPerUnit,opaque,colorSpace='l
   if(!geometry.attributes.normal)geometry.computeVertexNormals();
   triangles+=(geometry.index?.count||positions.count)/3;
   const compact=indexGeometryExactly(geometry);verticesBefore+=compact.before;verticesAfter+=compact.after;
-  let name=mesh.name||'Estructura '+meshCount,unique=name,n=2;while(names.has(unique))unique=name+' ('+(n++)+')';mesh.name=unique;names.add(unique);
   const old=Array.isArray(mesh.material)?mesh.material:[mesh.material];
-  const converted=old.map(material=>{const info=materials.get(material.name);const color=info?new THREE.Color().setRGB(...info.color,colorSpace==='linear'?THREE.LinearSRGBColorSpace:THREE.SRGBColorSpace):materials.size?new THREE.Color('#b3b3b3'):geometry.attributes.color?new THREE.Color('white'):new THREE.Color('#b3b3b3');const opacity=opaque?1:(info?.opacity??1);return new THREE.MeshStandardMaterial({name:material.name||'Material',color,metalness:0,roughness:.85,side:THREE.DoubleSide,opacity,transparent:opacity<1,vertexColors:!!geometry.attributes.color});});
+  const namedMaterials=[...new Set(old.map(m=>materialAliases.get(m.name)||m.name).filter(n=>materials.has(n)))];
+  const generic=!mesh.name||/^(?:grp|group|object|mesh|estructura)[ _-]*\d*$/i.test(mesh.name);
+  let name=generic&&namedMaterials.length===1?namedMaterials[0]:mesh.name||'Estructura '+meshCount,unique=name,n=2;while(names.has(unique))unique=name+' ('+(n++)+')';mesh.name=unique;names.add(unique);
+  const converted=old.map(material=>{const resolvedName=materialAliases.get(material.name)||material.name;const info=materials.get(resolvedName);const color=info?new THREE.Color().setRGB(...info.color,colorSpace==='linear'?THREE.LinearSRGBColorSpace:THREE.SRGBColorSpace):materials.size?new THREE.Color('#b3b3b3'):geometry.attributes.color?new THREE.Color('white'):new THREE.Color('#b3b3b3');const opacity=opaque?1:(info?.opacity??1);return new THREE.MeshStandardMaterial({name:resolvedName||'Material',color,metalness:0,roughness:.85,side:THREE.DoubleSide,opacity,transparent:opacity<1,vertexColors:!!geometry.attributes.color});});
   mesh.material=Array.isArray(mesh.material)?converted:converted[0];old.forEach(m=>m.dispose());
  });
  if(meshCount===0)throw new Error('El OBJ no contiene superficies trianguladas.');
@@ -71,22 +78,120 @@ function prepareOBJConversion(objText,mtlText,metersPerUnit,opaque,colorSpace='l
  root.updateMatrixWorld(true);const bounds=new THREE.Box3().setFromObject(root);if(bounds.isEmpty())throw new Error('Geometría vacía.');
  return{root,meshCount,triangles,verticesBefore,verticesAfter,bounds,missingColors:!mtlText&&used.size>0};
 }
+let bindingFiles=null,bindingSelects=new Map();
+function materialReferences(text){return [...new Set(text.split(/\r?\n/).map(line=>/^\s*usemtl\s+(.+?)\s*$/.exec(line)?.[1]).filter(Boolean))]}
+function validateMaterialBindings(used,materials,aliases=new Map()){
+ const missing=used.filter(name=>!materials.has(aliases.get(name)||name));
+ if(missing.length)throw new Error('Asigna el nombre del MTL a estos materiales del OBJ: '+missing.join(', '));
+}
+async function reviewMaterialNames(){
+ const obj=$('objFile').files[0],mtl=$('mtlFile').files[0];bindingFiles=null;bindingSelects.clear();$('materialBindings').replaceChildren();$('materialBindingPanel').hidden=true;
+ if(!obj||!mtl)return;
+ if(obj.size>200*1024*1024)throw new Error('El OBJ supera 200 MB.');
+ const [objText,mtlText]=await Promise.all([obj.text(),mtl.text()]);if($('objFile').files[0]!==obj||$('mtlFile').files[0]!==mtl)return;
+ const materials=parseLocalMTL(mtlText),used=materialReferences(objText);bindingFiles={obj,mtl,objText,mtlText,used,materials};
+ if(!used.length)return;
+ $('materialBindingPanel').hidden=false;
+ const mismatched=used.some(name=>!materials.has(name));$('materialBindingMessage').textContent=mismatched?'Las referencias del OBJ no coinciden con los nombres del MTL. Asigna cada una. «Proponer por orden» solo es una sugerencia: comprueba que el orden corresponde a tu exportación.':'Las referencias coinciden. Se utilizarán los nombres de los materiales para los grupos genéricos.';
+ for(const name of used){const row=document.createElement('label');row.className='binding-row';const label=document.createElement('span');label.textContent=name+' →';const select=document.createElement('select');select.setAttribute('aria-label','Nombre correspondiente a '+name);const empty=document.createElement('option');empty.value='';empty.textContent='Seleccionar nombre del MTL…';select.append(empty);for(const key of materials.keys()){const option=document.createElement('option');option.value=key;option.textContent=key;select.append(option)}select.value=materials.has(name)?name:'';bindingSelects.set(name,select);row.append(label,select);$('materialBindings').append(row)}
+ $('proposeMaterialOrder').disabled=used.length!==materials.size;
+}
+for(const id of ['objFile','mtlFile'])$(id).addEventListener('change',()=>reviewMaterialNames().catch(e=>$('convertStatus').textContent=e.message));
+$('reviewMaterialNames').onclick=()=>reviewMaterialNames().catch(e=>$('convertStatus').textContent=e.message);
+$('proposeMaterialOrder').onclick=()=>{if(!bindingFiles)return;const names=[...bindingFiles.materials.keys()];bindingFiles.used.forEach((key,i)=>bindingSelects.get(key).value=names[i]||'');$('materialBindingMessage').textContent='Propuesta por orden aplicada. Revisa cada correspondencia antes de convertir: el OBJ y el MTL no permiten confirmar los nombres anatómicos por sí solos.'};
+async function conversionSources(){
+ const obj=$('objFile').files[0],mtl=$('mtlFile').files[0];
+ if(mtl&&(!bindingFiles||bindingFiles.obj!==obj||bindingFiles.mtl!==mtl))await reviewMaterialNames();
+ const current=bindingFiles?.obj===obj&&bindingFiles?.mtl===mtl?bindingFiles:null;
+ const objText=current?current.objText:await obj.text(),mtlText=mtl?(current?current.mtlText:await mtl.text()):'',aliases=new Map();
+ if(mtl){for(const key of materialReferences(objText)){const value=bindingSelects.get(key)?.value;if(value)aliases.set(key,value)}validateMaterialBindings(materialReferences(objText),parseLocalMTL(mtlText),aliases)}
+ return{objText,mtlText,aliases};
+}
+
+const stlColors=new Map();
+const palette=['#d7a177','#589cda','#d65b69','#67b389','#b38bd2','#e4bd57','#70bdc6'];
+$('inputMode').onchange=()=>{$('stlPanel').hidden=$('inputMode').value!=='stl';$('objPanel').hidden=$('inputMode').value!=='obj';$('multiObjPanel').hidden=$('inputMode').value!=='multiobj';$('convertedDownload').hidden=true;};
+$('stlFiles').onchange=()=>{
+ stlColors.clear();$('stlList').replaceChildren();
+ [...$('stlFiles').files].forEach((file,i)=>{const row=document.createElement('label');row.className='row';const name=document.createElement('span');name.textContent=file.name.replace(/\.stl$/i,'');const color=document.createElement('input');color.type='color';color.value=palette[i%palette.length];color.setAttribute('aria-label','Color de '+name.textContent);stlColors.set(file,color);row.append(color,name);$('stlList').append(row)});
+};
+function applyCoordinateSpace(root,source,target){
+ if(source!==target)root.traverse(o=>{if(o.isMesh)o.geometry.rotateZ(Math.PI)});
+ root.userData.coordinateSystem=target;root.userData.sourceCoordinateSystem=source;root.updateMatrixWorld(true);
+}
+async function prepareSTLConversion(files,metersPerUnit){
+ if(!files.length)throw new Error('Selecciona uno o varios archivos STL.');
+ if(!Number.isFinite(metersPerUnit)||metersPerUnit<=0)throw new Error('Escala no válida.');
+ if(files.reduce((sum,f)=>sum+f.size,0)>200*1024*1024)throw new Error('Los STL superan 200 MB en total.');
+ const root=new THREE.Group(),names=new Set();let triangles=0;
+ root.name='Segmentaciones';root.userData.viewerMmPerUnit=1000;root.userData.sourceMetersPerUnit=metersPerUnit;
+ try{
+ for(const file of files){
+  const geometry=new STLLoader().parse(await file.arrayBuffer());
+  const positions=geometry.attributes.position;
+  if(!positions||!positions.count||positions.count%3){geometry.dispose();throw new Error('STL sin triángulos válidos: '+file.name)}
+  for(const value of positions.array)if(!Number.isFinite(value)){geometry.dispose();throw new Error('Coordenadas no válidas: '+file.name)}
+  geometry.scale(metersPerUnit,metersPerUnit,metersPerUnit);geometry.deleteAttribute('color');geometry.computeVertexNormals();
+  triangles+=(geometry.index?.count||positions.count)/3;indexGeometryExactly(geometry);
+  const base=file.name.replace(/\.stl$/i,'')||'Estructura';let name=base,n=2;while(names.has(name))name=base+' ('+(n++)+')';names.add(name);
+  const material=new THREE.MeshStandardMaterial({name,color:stlColors.get(file)?.value||'#b3b3b3',metalness:0,roughness:.85,side:THREE.DoubleSide});
+  const mesh=new THREE.Mesh(geometry,material);mesh.name=name;mesh.userData.sourceFile=file.name;root.add(mesh);
+ }
+ return{root,meshCount:files.length,triangles,missingColors:false};
+ }catch(error){root.traverse(o=>{o.geometry?.dispose();o.material?.dispose()});throw error}
+}
+$('multiObjFiles').onchange=()=>{$('multiObjList').textContent=[...$('multiObjFiles').files].filter(f=>/\.obj$/i.test(f.name)).map(f=>f.name.replace(/\.obj$/i,'')).join(' · ');$('convertedDownload').hidden=true;};
+async function prepareMultipleOBJ(files,metersPerUnit,opaque,colorSpace){
+ const objects=files.filter(f=>/\.obj$/i.test(f.name)),mtls=files.filter(f=>/\.mtl$/i.test(f.name));
+ if(!objects.length)throw new Error('Selecciona uno o varios archivos OBJ.');
+ if(files.reduce((n,f)=>n+f.size,0)>200*1024*1024)throw new Error('Los archivos superan 200 MB en total.');
+ const root=new THREE.Group(),names=new Set();let triangles=0,missingColors=false;
+ root.name='Segmentaciones';root.userData.viewerMmPerUnit=1000;root.userData.sourceMetersPerUnit=metersPerUnit;
+ try{
+ for(let i=0;i<objects.length;i++){
+  const file=objects[i],text=await file.text();
+  const refs=[...text.matchAll(/^\s*mtllib\s+(.+?)\s*$/gm)].map(m=>m[1]);let mtlText='';
+  for(const ref of refs){
+   const base=ref.replace(/\\/g,'/').split('/').pop();const matches=mtls.filter(f=>f.name===base);
+   if(matches.length>1)throw new Error('Hay varios MTL con el nombre '+base+'.');
+   if(!matches.length&&mtls.length)throw new Error('Falta el material '+base+' para '+file.name+'. Selecciona sus MTL o convierte sin materiales.');
+   if(matches.length)mtlText+='\n'+await matches[0].text();
+  }
+  // Sin inferencias por orden: cada usemtl debe existir en los MTL referenciados.
+  const prepared=prepareOBJConversion(text,mtlText,metersPerUnit,opaque,colorSpace);
+  const base=file.name.replace(/\.obj$/i,'')||'Estructura';let name=base,n=2;while(names.has(name))name=base+' ('+(n++)+')';names.add(name);
+  const structure=prepared.root;structure.name=name;structure.userData.sourceFile=file.name;
+  let part=0;structure.traverse(mesh=>{if(!mesh.isMesh)return;mesh.name=++part===1?name:name+' · parte '+part;if(!mtlText&&!mesh.geometry.attributes.color){for(const material of Array.isArray(mesh.material)?mesh.material:[mesh.material])material.color.set(palette[i%palette.length]);} });
+  root.add(structure);triangles+=prepared.triangles;missingColors ||= !mtlText;
+ }
+ return{root,meshCount:objects.length,triangles,missingColors};
+ }catch(error){root.traverse(o=>{o.geometry?.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose())});throw error}
+}
+function outputFilename(value,fallback){
+ const name=(value.trim()||fallback).replace(/[<>:"/\\|?*\x00-\x1f]/g,'_').replace(/[. ]+$/g,'').replace(/(?:\.glb)+$/i,'');
+ return (name||'segmentaciones')+'.glb';
+}
 let convertedURL=null;
 $('convert').onclick=async()=>{
  const status=$('convertStatus'),link=$('convertedDownload');$('convert').disabled=true;link.hidden=true;status.textContent='Preparando conversión…';let prepared=null;
  try{
-  const obj=$('objFile').files[0],mtl=$('mtlFile').files[0];if(!obj)throw new Error('Selecciona un archivo OBJ.');
-  if(obj.size>200*1024*1024)throw new Error('El OBJ supera 200 MB. Utiliza una malla más ligera para este conversor.');
-  const objText=await obj.text(),mtlText=mtl?await mtl.text():'';
-  // Permitir que el navegador muestre el estado antes de procesar la malla.
+  const mode=$('inputMode').value,obj=$('objFile').files[0];
   await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
-  prepared=prepareOBJConversion(objText,mtlText,Number($('objUnits').value),$('objOpaque').checked,$('objColorSpace').value);
+  if(mode==='stl')prepared=await prepareSTLConversion([...$('stlFiles').files],Number($('objUnits').value));
+  else if(mode==='multiobj')prepared=await prepareMultipleOBJ([...$('multiObjFiles').files],Number($('objUnits').value),$('objOpaque').checked,$('objColorSpace').value);
+  else{
+   if(!obj)throw new Error('Selecciona un archivo OBJ.');
+   if(obj.size>200*1024*1024)throw new Error('El OBJ supera 200 MB.');
+   const {objText,mtlText,aliases}=await conversionSources();
+   prepared=prepareOBJConversion(objText,mtlText,Number($('objUnits').value),$('objOpaque').checked,$('objColorSpace').value,aliases);
+  }
+  applyCoordinateSpace(prepared.root,$('sourceSpace').value,$('targetSpace').value);
   status.textContent='Exportando '+prepared.meshCount+' estructuras…';
   const binary=await new GLTFExporter().parseAsync(prepared.root,{binary:true,onlyVisible:false});
   if(!(binary instanceof ArrayBuffer)||new DataView(binary).getUint32(0,true)!==0x46546c67)throw new Error('No se pudo generar un GLB válido.');
   const blob=new Blob([binary],{type:'model/gltf-binary'});if(convertedURL)URL.revokeObjectURL(convertedURL);convertedURL=URL.createObjectURL(blob);
-  link.href=convertedURL;link.download=obj.name.replace(/\.obj$/i,'')+'.glb';link.textContent='Descargar '+link.download;link.hidden=false;link.click();
-  status.textContent='GLB listo: '+prepared.meshCount+' estructuras · '+prepared.triangles.toLocaleString('es-ES')+' triángulos · '+(blob.size/1e6).toFixed(2)+' MB.\nEscala exportada: 1 unidad = 1000 mm.\n'+(prepared.missingColors?'No se aportó MTL: se han usado colores provisionales.':'Colores interpretados como '+$('objColorSpace').value+'.')+'\nEl archivo no se ha publicado en GitHub.';
+  link.href=convertedURL;link.download=outputFilename($('outputName').value,mode==='obj'?obj.name.replace(/\.obj$/i,''):'segmentaciones');link.textContent='Descargar '+link.download;link.hidden=false;link.click();
+  status.textContent='GLB listo: '+prepared.meshCount+' estructuras · '+prepared.triangles.toLocaleString('es-ES')+' triángulos · '+(blob.size/1e6).toFixed(2)+' MB.\nEscala exportada: 1 unidad = 1000 mm.\n'+(mode==='stl'?'Nombres de archivo y colores seleccionados conservados.':prepared.missingColors?'No se aportó MTL: se han usado colores provisionales.':'Colores interpretados como '+$('objColorSpace').value+'.')+'\nCoordenadas: '+$('sourceSpace').value+' → '+$('targetSpace').value+'. Sin centrar.\nEl archivo no se ha publicado en GitHub.';
  }catch(e){status.textContent='No se pudo convertir: '+e.message;console.error(e);}
  finally{if(prepared)prepared.root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());});$('convert').disabled=false;}
 };
