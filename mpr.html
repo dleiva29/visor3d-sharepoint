@@ -17,7 +17,7 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 #loadingPanel[aria-busy="true"] #loadingTrack.indeterminate #loadingFill{width:38%;animation:progressBusy 1.2s ease-in-out infinite}
 @keyframes progressBusy{from{transform:translateX(-110%)}to{transform:translateX(275%)}}
 #loadingDetail{display:block;margin-top:5px;font-size:11px;color:#c1d7e5;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-</style>
+#namedViewList .named-view-row{padding:0;margin:7px 0;border-left:1px solid #405c73}#namedViewList .named-view-header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px;padding:9px 8px}#namedViewList .saved-view-title{font-size:13px;margin:0;min-width:0;line-height:1.4}#namedViewList .named-view-open{width:auto;margin:0;padding:5px 7px;font-size:10px;white-space:nowrap}#namedViewList .named-view-toggle{margin:0;padding:5px 6px;background:transparent;border:1px solid #536d83;color:#c8dce9;font-size:10px;white-space:nowrap}#namedViewList .named-view-toggle:hover{background:#29465d}#namedViewList .named-view-settings{padding:3px 10px 10px;border-top:1px solid #40566c}#namedViewList .named-view-settings[hidden]{display:none!important}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body>
 <header><strong>TAC + modelo anatómico · visor MPR</strong><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
 <div class="layout"><div class="views">
@@ -577,7 +577,7 @@ function restoreConfig(data){
  updatePlaneVisibility();modelRoot.visible=$('showmodel').checked;updateClip();camera.position.fromArray(data.camera.position);camera.up.fromArray(data.camera.up);camera.near=data.camera.near;camera.far=data.camera.far;controls.target.fromArray(data.camera.target);camera.updateProjectionMatrix();controls.update();navMarker.visible=!!selectedWorldPoint&&$('show3DMarker').checked;}finally{batchRestore=false;}modelAnnotations.splice(0,modelAnnotations.length,...structuredClone(data.annotations||[]));pendingArrow=null;$('showAnnotations').checked=data.annotationsVisible??true;renderAnnotations();repaintAll();status.textContent='Configuración recuperada.';
 }
 
-let namedViews=[],namedCaseKey=null,deletedView=null;
+let namedViews=[],namedCaseKey=null,deletedView=null;const expandedNamedViews=new WeakSet();
 function currentViewCase(){return volume&&model&&volumeContentHash&&modelContentHash?'mpr-named-views-v1:'+volumeContentHash+':'+modelContentHash:null}
 async function contentHash(bytes){const digest=await crypto.subtle.digest('SHA-256',bytes);return [...new Uint8Array(digest)].map(b=>b.toString(16).padStart(2,'0')).join('')}
 function syncNamedViews(){
@@ -610,7 +610,12 @@ function renderNamedViews(){
  note.oninput=()=>feedback.textContent='Cambios sin guardar';
  const saveNote=document.createElement('button');saveNote.type='button';saveNote.className='save-view-note';saveNote.textContent='Guardar anotación';
  saveNote.onclick=()=>{view.notes=note.value.slice(0,3000);if($('namedViewName').value===view.name)$('namedViewNotes').value=view.notes;persistNamedViews();$('namedViewMessage').textContent+=' Anotación actualizada: '+view.name;};
- row.append(heading,open,noteLabel,feedback,saveNote,actions);$('namedViewList').append(row);
+ const header=document.createElement('div');header.className='named-view-header';
+ const settings=document.createElement('div');settings.className='named-view-settings';settings.id='named-view-settings-'+$('namedViewList').children.length;settings.hidden=!expandedNamedViews.has(view);
+ const toggle=document.createElement('button');toggle.type='button';toggle.className='named-view-toggle';
+ const syncToggle=()=>{toggle.textContent=settings.hidden?'Ajustes ▸':'Ajustes ▾';toggle.setAttribute('aria-expanded',String(!settings.hidden));toggle.setAttribute('aria-label',(settings.hidden?'Mostrar':'Ocultar')+' ajustes de '+view.name)};
+ toggle.setAttribute('aria-controls',settings.id);toggle.onclick=()=>{settings.hidden=!settings.hidden;if(settings.hidden)expandedNamedViews.delete(view);else expandedNamedViews.add(view);syncToggle()};syncToggle();
+ open.textContent='Recuperar';header.append(heading,open,toggle);settings.append(noteLabel,feedback,saveNote,actions);row.append(header,settings);$('namedViewList').append(row);
  }
 }
 $('addNamedView').onclick=()=>{try{if(!namedCaseKey)throw new Error('Carga el TAC y el GLB.');if(namedViews.length>=100)throw new Error('Máximo de 100 vistas por caso.');const name=viewName();if(namedViews.some(v=>v.name===name))throw new Error('Ya existe ese nombre. Usa «Actualizar» o elige otro.');namedViews.push({name,notes:$('namedViewNotes').value.slice(0,3000),config:structuredClone(configData())});persistNamedViews()}catch(e){$('namedViewMessage').textContent=e.message}};
