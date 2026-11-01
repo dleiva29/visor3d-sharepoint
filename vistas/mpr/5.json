@@ -1,0 +1,297 @@
+{
+  "format": "mpr-named-views",
+  "version": 1,
+  "caseKey": "mpr-named-views-v1:50158efcf0e909dc21091c63252a6c803c732490afe0a5f284ad5ba69d6cdcf0:f6882e4176e6ae2a610bb4d1402e4544efabedab8efbed76adacb039f0a70412",
+  "views": [
+    {
+      "name": "Plano Corte Coronal",
+      "notes": "",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            421
+          ],
+          "origin": [
+            199.6093,
+            199.6093,
+            1262.5
+          ],
+          "structures": [
+            "Vasos_desconocidos_1",
+            "LH_Dch_1",
+            "Resecado_1",
+            "Porta_1",
+            "Hgado_1",
+            "LH_Izq_1",
+            "Venas_supraheptivas_1"
+          ]
+        },
+        "referencePoint": null,
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            324.7332392958256,
+            320.1536528703584,
+            1686.2289854616738
+          ],
+          "up": [
+            0,
+            0,
+            1
+          ],
+          "target": [
+            0.06379999999998633,
+            0.06379999999998633,
+            1472.5
+          ],
+          "near": 0.7050079769811121,
+          "far": 70500.7976981112
+        },
+        "slices": {
+          "x": 199,
+          "y": 227,
+          "z": 210
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": true,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": false
+        },
+        "fillOpacity": 20,
+        "clipAxis": "x",
+        "clipPosition": 50,
+        "layers": [
+          {
+            "key": "Vasos_desconocidos_1",
+            "visible": true,
+            "color": "#9c9c9c",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "LH_Dch_1",
+            "visible": false,
+            "color": "#9c9c00",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Resecado_1",
+            "visible": true,
+            "color": "#000000",
+            "contour": true,
+            "opacity": 38
+          },
+          {
+            "key": "Porta_1",
+            "visible": true,
+            "color": "#82009c",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Hgado_1",
+            "visible": false,
+            "color": "#728372",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "LH_Izq_1",
+            "visible": true,
+            "color": "#009c00",
+            "contour": true,
+            "opacity": 57
+          },
+          {
+            "key": "Venas_supraheptivas_1",
+            "visible": true,
+            "color": "#000071",
+            "contour": true,
+            "opacity": 100
+          }
+        ]
+      }
+    },
+    {
+      "name": "Plano Corte Coronal Posterior",
+      "notes": "",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            421
+          ],
+          "origin": [
+            199.6093,
+            199.6093,
+            1262.5
+          ],
+          "structures": [
+            "Vasos_desconocidos_1",
+            "LH_Dch_1",
+            "Resecado_1",
+            "Porta_1",
+            "Hgado_1",
+            "LH_Izq_1",
+            "Venas_supraheptivas_1"
+          ]
+        },
+        "referencePoint": null,
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            90.39679006316052,
+            -271.46849844396684,
+            1585.2660186055066
+          ],
+          "up": [
+            0,
+            0,
+            1
+          ],
+          "target": [
+            -6.475121786387587,
+            -36.741893352371136,
+            1625.9142140941585
+          ],
+          "near": 0.7050079769811121,
+          "far": 70500.7976981112
+        },
+        "slices": {
+          "x": 199,
+          "y": 227,
+          "z": 210
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": true,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": false
+        },
+        "fillOpacity": 20,
+        "clipAxis": "x",
+        "clipPosition": 50,
+        "layers": [
+          {
+            "key": "Vasos_desconocidos_1",
+            "visible": true,
+            "color": "#9c9c9c",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "LH_Dch_1",
+            "visible": false,
+            "color": "#9c9c00",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Resecado_1",
+            "visible": true,
+            "color": "#000000",
+            "contour": true,
+            "opacity": 38
+          },
+          {
+            "key": "Porta_1",
+            "visible": true,
+            "color": "#82009c",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "Hgado_1",
+            "visible": false,
+            "color": "#728372",
+            "contour": true,
+            "opacity": 100
+          },
+          {
+            "key": "LH_Izq_1",
+            "visible": true,
+            "color": "#009c00",
+            "contour": true,
+            "opacity": 57
+          },
+          {
+            "key": "Venas_supraheptivas_1",
+            "visible": true,
+            "color": "#000071",
+            "contour": true,
+            "opacity": 100
+          }
+        ]
+      }
+    }
+  ]
+}
