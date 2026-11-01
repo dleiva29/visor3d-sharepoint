@@ -732,7 +732,7 @@ function updateStructureNames(){
 annotationRoot=new THREE.Group();scene.add(annotationRoot);
 function updateAnnotationScale(){
  if(!annotationRoot)return;const width=Math.max(1,$('view3d').clientWidth),height=Math.max(1,$('view3d').clientHeight),forward=camera.getWorldDirection(new THREE.Vector3()),right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion),up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion),placed=[];
- for(const root of [annotationRoot,structureNameRoot]){if(!root?.visible)continue;root.traverse(o=>{if(!o.isSprite||!o.userData.labelPixels||o.userData.structureVisible===false)return;
+ for(const root of [annotationRoot]){if(!root?.visible)continue;root.traverse(o=>{if(!o.isSprite||!o.userData.labelPixels||o.userData.structureVisible===false)return;
   const anchor=o.userData.anchor,depth=anchor.clone().sub(camera.position).dot(forward);o.visible=depth>camera.near;if(o.userData.leader)o.userData.leader.visible=o.visible;if(!o.visible)return;
   const perPixel=2*depth*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/height,p=anchor.clone().project(camera),ax=(p.x+1)*width/2,ay=(1-p.y)*height/2,factor=Math.min(1,(width-12)/o.userData.labelPixels[0]),w=o.userData.labelPixels[0]*factor,h=o.userData.labelPixels[1]*factor;
   let left=Math.max(6,Math.min(width-w-6,ax+12)),top=Math.max(6,Math.min(height-h-6,ay-h-12));
@@ -740,6 +740,37 @@ function updateAnnotationScale(){
   placed.push({x:left,y:top,w,h});o.position.copy(anchor).addScaledVector(right,(left-ax)*perPixel).addScaledVector(up,(ay-top-h)*perPixel);o.scale.set(w*perPixel,h*perPixel,1);
   if(o.userData.leader){const attr=o.userData.leader.geometry.getAttribute('position');attr.setXYZ(0,anchor.x,anchor.y,anchor.z);attr.setXYZ(1,o.position.x,o.position.y,o.position.z);attr.needsUpdate=true;o.userData.leader.geometry.computeBoundingSphere();}
  });}
+ layoutStructureNames();
+}
+// Empaqueta cada columna en orden anatómico proyectado, sin ciclos de colisión.
+function packNameColumn(entries,height){
+ const margin=10,gap=10,available=Math.max(1,height-2*margin);
+ const total=entries.reduce((sum,e)=>sum+e.h,0)+Math.max(0,entries.length-1)*gap;
+ const factor=Math.min(1,available/Math.max(1,total));
+ const spacing=gap*factor;let cursor=margin;
+ entries.sort((a,b)=>a.ay-b.ay||a.order-b.order);
+ for(const e of entries){e.w*=factor;e.h*=factor;e.top=Math.max(cursor,Math.min(height-margin-e.h,e.ay-e.h/2));cursor=e.top+e.h+spacing;}
+ if(entries.length){let bottom=height-margin;for(let i=entries.length-1;i>=0;i--){const e=entries[i];e.top=Math.min(e.top,bottom-e.h);bottom=e.top-spacing;}}
+ return entries;
+}
+function layoutStructureNames(){
+ if(!structureNameRoot?.visible)return;
+ const width=Math.max(1,$('view3d').clientWidth),height=Math.max(1,$('view3d').clientHeight),forward=camera.getWorldDirection(new THREE.Vector3()),right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion),up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion),entries=[];
+ for(const o of structureNameRoot.children){if(!o.isSprite)continue;
+ const anchor=o.userData.anchor,depth=anchor.clone().sub(camera.position).dot(forward);o.visible=o.userData.structureVisible&&depth>camera.near&&depth<camera.far;o.userData.leader.visible=o.visible;if(!o.visible)continue;
+ const p=anchor.clone().project(camera),factor=Math.min(1,Math.max(1,width*.42-20)/o.userData.labelPixels[0]);
+ entries.push({o,anchor,depth,ax:(p.x+1)*width/2,ay:(1-p.y)*height/2,w:o.userData.labelPixels[0]*factor,h:o.userData.labelPixels[1]*factor,order:entries.length});
+ }
+ entries.sort((a,b)=>a.ax-b.ax||a.order-b.order);const middle=Math.ceil(entries.length/2);
+ for(const [side,column] of [[0,entries.slice(0,middle)],[1,entries.slice(middle)]]){
+ for(const e of packNameColumn(column,height)){
+ const {o,anchor,depth,ax,ay,w,h,top}=e,left=side?width-10-w:10,perPixel=2*depth*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/height;
+ o.position.copy(anchor).addScaledVector(right,(left-ax)*perPixel).addScaledVector(up,(ay-top-h)*perPixel);o.scale.set(w*perPixel,h*perPixel,1);
+ // La línea termina en el extremo del texto más próximo al modelo.
+ const endpoint=anchor.clone().addScaledVector(right,((side?left:left+w)-ax)*perPixel).addScaledVector(up,(ay-top-h/2)*perPixel),attr=o.userData.leader.geometry.getAttribute('position');
+ attr.setXYZ(0,anchor.x,anchor.y,anchor.z);attr.setXYZ(1,endpoint.x,endpoint.y,endpoint.z);attr.needsUpdate=true;o.userData.leader.geometry.computeBoundingSphere();
+ }
+ }
 }
 function annotationSprite(text,color,point,targetRoot=annotationRoot){
  const c=document.createElement('canvas'),ctx=c.getContext('2d');ctx.font='20px system-ui';const lines=[];
