@@ -744,7 +744,7 @@ function updateAnnotationScale(){
 function annotationSprite(text,color,point,targetRoot=annotationRoot){
  const c=document.createElement('canvas'),ctx=c.getContext('2d');ctx.font='20px system-ui';const lines=[];
  for(const paragraph of text.split('\n')){let line='';for(const char of paragraph){if(ctx.measureText(line+char).width>300){lines.push(line);line=''}line+=char}lines.push(line)}
- c.width=328;c.height=Math.max(40,lines.length*26+16);ctx.font='20px system-ui';ctx.fillStyle='rgba(8,14,22,.88)';ctx.fillRect(0,0,c.width,c.height);ctx.strokeStyle=color;ctx.lineWidth=2;ctx.strokeRect(1,1,c.width-2,c.height-2);ctx.fillStyle=color;lines.forEach((l,i)=>ctx.fillText(l,12,28+i*26));
+ c.width=328;c.height=Math.max(40,lines.length*26+16);ctx.font='20px system-ui';ctx.shadowColor='rgba(0,0,0,.9)';ctx.shadowBlur=3;ctx.fillStyle=color;lines.forEach((l,i)=>ctx.fillText(l,12,28+i*26));
  const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false,depthWrite:false}));sprite.position.copy(point);sprite.center.set(0,0);sprite.renderOrder=220;sprite.userData.labelPixels=[c.width*.65,c.height*.65];sprite.userData.anchor=point.clone();const leader=new THREE.Line(new THREE.BufferGeometry().setFromPoints([point,point]),new THREE.LineBasicMaterial({color,depthTest:false,depthWrite:false}));leader.renderOrder=212;targetRoot.add(leader);sprite.userData.leader=leader;return sprite;
 }
 function renderAnnotations(){
