@@ -160,7 +160,7 @@ async function prepareMultipleOBJ(files,metersPerUnit,opaque,colorSpace){
   // Sin inferencias por orden: cada usemtl debe existir en los MTL referenciados.
   const prepared=prepareOBJConversion(text,mtlText,metersPerUnit,opaque,colorSpace);
   const base=file.name.replace(/\.obj$/i,'')||'Estructura';let name=base,n=2;while(names.has(name))name=base+' ('+(n++)+')';names.add(name);
-  const structure=prepared.root;structure.name=name;structure.userData.sourceFile=file.name;
+  const structure=prepared.root;structure.name='';structure.userData.structureName=name;structure.userData.sourceFile=file.name;
   let part=0;structure.traverse(mesh=>{if(!mesh.isMesh)return;mesh.name=++part===1?name:name+' · parte '+part;if(!mtlText&&!mesh.geometry.attributes.color){for(const material of Array.isArray(mesh.material)?mesh.material:[mesh.material])material.color.set(palette[i%palette.length]);} });
   root.add(structure);triangles+=prepared.triangles;missingColors ||= !mtlText;
  }
