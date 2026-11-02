@@ -1,0 +1,83 @@
+{
+  "format": "mpr-structure-tree",
+  "version": 2,
+  "modelHash": "0443607b92298288e5d90772a5726fe5462842b5d4ce1904f62db0dec67ae6b7",
+  "nodes": [
+    {
+      "id": "d553a576-1924-4ed4-9ded-59dbf8d22e9e",
+      "type": "group",
+      "name": "LHD",
+      "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+    },
+    {
+      "id": "33262730-32b6-4a3e-9124-9c2d88ee44bb",
+      "type": "group",
+      "name": "Anatomía",
+      "parent": null
+    },
+    {
+      "id": "bdab6fc7-2de3-4212-8b52-16deaa9baacb",
+      "type": "group",
+      "name": "LHI",
+      "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+    },
+    {
+      "id": "63276eea-45e6-4eb2-bca1-79e6016f3b02",
+      "type": "segment",
+      "key": "s5",
+      "name": "",
+      "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+    },
+    {
+      "id": "dbbde511-b0e7-45c4-97b6-307756bc85da",
+      "type": "segment",
+      "key": "s6",
+      "name": "",
+      "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+    },
+    {
+      "id": "533575fa-cf7d-453c-a047-be721546e13b",
+      "type": "segment",
+      "key": "s7",
+      "name": "",
+      "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+    },
+    {
+      "id": "7e26e600-e5c6-4dbc-b098-485c425f8a1c",
+      "type": "segment",
+      "key": "s8",
+      "name": "",
+      "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+    },
+    {
+      "id": "3bbf314b-dad0-4924-b9d0-c0fe2538d664",
+      "type": "segment",
+      "key": "s1",
+      "name": "",
+      "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+    },
+    {
+      "id": "b271ea28-359c-4266-b1b0-0a1c4420fe57",
+      "type": "segment",
+      "key": "s2",
+      "name": "",
+      "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+    },
+    {
+      "id": "f0d3d898-0f30-4a72-8eaa-ec50e70ae6b6",
+      "type": "segment",
+      "key": "s3",
+      "name": "",
+      "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+    },
+    {
+      "id": "50be8090-745d-4032-817e-4e610b1633f9",
+      "type": "segment",
+      "key": "s4",
+      "name": "",
+      "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+    }
+  ],
+  "groups": [],
+  "relations": []
+}
