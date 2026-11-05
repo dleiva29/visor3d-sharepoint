@@ -84,14 +84,39 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 #namedViewList .named-view-header:has(.named-view-open[aria-current=true]){background:#263d4a;box-shadow:inset 0 0 0 1px #f2bd67}
 .pane-quick-tools{position:absolute;right:43px;top:2px;z-index:12;display:flex;gap:2px;max-width:calc(100% - 48px);flex-wrap:wrap;justify-content:flex-end;background:#102534e8;border-radius:5px}.pane-quick-tools button{display:flex;align-items:center;justify-content:center;width:26px;height:25px;padding:4px;margin:0;background:#19394d;border:1px solid #31566e;color:#d9edf5}.pane-quick-tools button:hover{background:#28566d}.pane-quick-tools button[aria-pressed=true]{background:#147f8c;border-color:#78e6ef}.pane-quick-tools svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}.pane:has(.pane-quick-tools) h2{height:55px;min-height:55px;padding:33px 220px 5px 10px;line-height:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pane:has(#view3d) h2{padding-right:240px}
 .pane-plane-tools{padding-left:28px;flex-basis:100%;display:flex;justify-content:flex-end;gap:3px}.pane-plane-tools button{width:auto;padding:3px 7px;font-size:11px;gap:4px}.pane:not(:has(#view3d)) .pane-quick-tools{display:grid;grid-template-columns:repeat(7,26px);gap:2px;max-width:none;justify-content:end}.pane:has(#view3d) .pane-quick-tools{width:390px}#view3d{position:relative}#modelInfoPanel{position:absolute!important;inset:auto 10px 10px auto!important;align-self:flex-end;text-align:left;max-width:calc(100% - 20px)!important}#modelInfoPanel[hidden]{display:none!important}header{position:relative;padding-right:130px}.manual-link{position:absolute;right:18px;top:14px;padding:6px 10px;background:#19394d;border:1px solid #42778b;border-radius:5px;color:#e5faff;font-size:12px;text-decoration:none}.manual-link:hover{background:#28566d}#section-saved .sidebar-body>button,#newNamedView>button,#namedViewList .named-view-actions button{min-height:28px;padding:4px 8px;font-size:11px;line-height:18px}#section-saved input[type=text]{height:30px;min-height:30px;padding:4px 7px;font:12px system-ui}#section-saved input[type=file]{height:30px;min-height:30px;padding:3px 5px;font:11px system-ui}#section-saved input[type=file]::file-selector-button{font:11px system-ui;padding:2px 6px}#section-saved textarea{padding:5px 7px;font:12px/1.4 system-ui}#newNamedView>summary{font-size:12px;line-height:18px;padding:3px 0}</style>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script><style>.case-session{border:1px solid #31546a;border-radius:6px;padding:10px;margin:8px 0 12px}.case-session-actions{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.case-session button{min-height:28px;padding:4px 8px;font-size:12px}.case-session p{margin:6px 0 0;font-size:12px}</style><style>.history-actions{display:flex;gap:6px;align-items:center}.history-actions button{height:28px;min-height:28px;padding:4px 10px;font-size:12px;margin:0}.sidebar-heading:has(.history-actions){padding-bottom:10px}.sidebar-heading #loadingPanel{margin-top:10px}</style></head><body>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script><style>.case-session{border:1px solid #31546a;border-radius:6px;padding:10px;margin:8px 0 12px}.case-session-actions{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.case-session button{min-height:28px;padding:4px 8px;font-size:12px}.case-session p{margin:6px 0 0;font-size:12px}</style><style>.history-actions{display:flex;gap:6px;align-items:center}.history-actions button{height:28px;min-height:28px;padding:4px 10px;font-size:12px;margin:0}.sidebar-heading:has(.history-actions){padding-bottom:10px}.sidebar-heading #loadingPanel{margin-top:10px}</style><style>
+#casePresentation{margin:0 0 10px;padding:10px;border:1px solid #456a80;border-radius:8px;background:#102233;color:#eaf1f8}
+#casePresentation[hidden]{display:none}
+.named-view-row.is-presentation-view .named-view-header{outline:1px solid #52dcd5;outline-offset:-1px}
+#namedViewList .named-view-header{grid-template-columns:auto minmax(0,1fr) auto}
+#namedViewList .named-view-grip{cursor:grab;min-width:24px}
+#namedViewList .named-view-grip:active{cursor:grabbing}
+.named-view-row.is-dragging-view{opacity:.55}
+.named-view-row.drop-view-before .named-view-header{box-shadow:inset 0 3px #52dcd5}
+.named-view-row.drop-view-after .named-view-header{box-shadow:inset 0 -3px #52dcd5}
+.presentation-start{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:8px 0}.presentation-start label{margin:0}.presentation-start select{width:auto;flex:1;min-width:0}
+.presentation-bar{display:flex;align-items:center;flex-wrap:wrap;gap:4px}
+#casePresentation h2{font-size:14px;margin:10px 0 6px;overflow-wrap:anywhere}
+#presentationNotes{white-space:pre-wrap;overflow-wrap:anywhere}
+</style></head><body>
 <header><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><strong>Visor MPR · v2</strong><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
 <div class="layout"><div class="views">
 <section class="pane" data-view-pane="axial"><h2>Axial (eje Z)</h2><div class="stage"><canvas class="ct" id="ctz"></canvas></div><div class="sliceTools"><input disabled="" id="rz" type="range"/><output id="oz">—</output></div></section>
 <section class="pane" data-view-pane="coronal"><h2>Coronal (eje Y)</h2><div class="stage"><canvas class="ct" id="cty"></canvas></div><div class="sliceTools"><input disabled="" id="ry" type="range"/><output id="oy">—</output></div></section>
 <section class="pane" data-view-pane="sagittal"><h2>Sagital (eje X)</h2><div class="stage"><canvas class="ct" id="ctx"></canvas></div><div class="sliceTools"><input disabled="" id="rx" type="range"/><output id="ox">—</output></div></section>
 <section class="pane" data-view-pane="3d"><h2>Vista 3D: modelo y planos de imagen</h2><div class="stage" id="view3d"></div></section>
-</div><aside><div class="sidebar-heading"><div id="historyActions" class="history-actions" role="toolbar" aria-label="Acciones del visor"></div><div aria-busy="false" aria-live="polite" hidden="" id="loadingPanel" role="status"><span id="loadingTitle">Preparando…</span><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingDetail"></span></div></div><input id="unit" type="hidden" value="1000"/><input id="space" type="hidden" value="RAS"/><details class="sidebar-group" id="section-case" open=""><summary>▣  Caso</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p><label for="nrrd">Volumen de imagen en NRRD (archivo local)</label><input accept=".nrrd" id="nrrd" type="file"/><label for="glb">Modelo GLB (archivo local)</label><input accept=".glb" id="glb" type="file"/>
+</div><aside><div class="sidebar-heading"><div id="historyActions" class="history-actions" role="toolbar" aria-label="Acciones del visor"></div><div aria-busy="false" aria-live="polite" hidden="" id="loadingPanel" role="status"><span id="loadingTitle">Preparando…</span><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingDetail"></span></div></div><section id="casePresentation" aria-labelledby="presentationTitle" hidden>
+ <div class="presentation-bar">
+  <button type="button" id="presentationPrev">‹ Anterior</button>
+  <span id="presentationCount" aria-live="polite"></span>
+  <button type="button" id="presentationNext">Siguiente ›</button>
+  <button type="button" id="presentationExport">Descargar informe</button>
+  <button type="button" id="presentationExit">Salir de la presentación</button>
+ </div>
+ <h2 id="presentationTitle"></h2>
+ <p id="presentationNotes" hidden></p>
+ <p id="presentationStatus" class="note" role="status"></p>
+</section><input id="unit" type="hidden" value="1000"/><input id="space" type="hidden" value="RAS"/><details class="sidebar-group" id="section-case" open=""><summary>▣  Caso</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p><label for="nrrd">Volumen de imagen en NRRD (archivo local)</label><input accept=".nrrd" id="nrrd" type="file"/><label for="glb">Modelo GLB (archivo local)</label><input accept=".glb" id="glb" type="file"/>
 </div></div></details><details class="sidebar-group" id="section-session"><summary>▣ Sesión del caso</summary><div class="sidebar-body" id="caseSessionControls"></div></details><details hidden id="section-visual"><summary>▤  Visualización</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-navigation"><summary>Navegación y herramientas</summary><div class="sidebar-body"><div class="tool-grid" id="tools">
 <button aria-pressed="true" data-tool="navigate" type="button">Navegar</button><button aria-pressed="false" data-tool="pan" type="button">Desplazar</button>
 <button aria-pressed="false" data-tool="zoom" type="button">Zoom</button><button aria-pressed="false" data-tool="window" type="button">Ventana / nivel</button>
@@ -103,7 +128,8 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 <label><input checked="" id="planes" type="checkbox"/> Mostrar planos de imagen</label><div aria-label="Planos de imagen en 3D" id="planeSelection" role="group"><label><input checked="" id="planeZ" type="checkbox"/> Axial</label><label><input checked="" id="planeY" type="checkbox"/> Coronal</label><label><input checked="" id="planeX" type="checkbox"/> Sagital</label></div><p class="note">Selecciona los planos que se muestran en 3D. Los cortes y contornos MPR siguen disponibles.</p><label><input checked="" id="showmodel" type="checkbox"/> Mostrar GLB</label><label><input id="showStructureNames" type="checkbox"/> Mostrar los nombres seleccionados en 3D</label><button id="fit">Centrar vista 3D</button>
 </div>
 <h4 id="cameraOrientationHeading">Orientación de la cámara</h4><label for="cameraView">Vista anatómica</label><select id="cameraView"><option value="">Seleccionar…</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="right">Lateral derecha</option><option value="left">Lateral izquierda</option><option value="superior">Superior</option><option value="inferior">Inferior</option></select><p class="note">Selecciona la orientación de la cámara. Los planos axial, coronal y sagital se activan en «Vista 3D».</p><h4 id="modelClipHeading">Recorte del modelo</h4><label><input id="clipEnabled" type="checkbox"/> Activar recorte del GLB</label><label for="clipAxis">Eje de recorte</label><select id="clipAxis"><option value="x">Sagital (X)</option><option value="y">Coronal (Y)</option><option value="z">Axial (Z)</option></select><button id="rotateClip" type="button">Girar plano en 3D</button><label for="clipRotationConstraint">Control del giro</label><select id="clipRotationConstraint"><option value="free">Libre</option><option value="horizontal">Solo horizontal</option><option value="vertical">Solo vertical</option></select><div class="tool-grid"><button id="clipLeft" type="button">← 1°</button><button id="clipRight" type="button">1° →</button><button id="clipUp" type="button">↑ 1°</button><button id="clipDown" type="button">1° ↓</button></div><button id="alignClip" type="button">Alinear con el corte de imagen</button><button id="resetClipRotation" type="button">Restablecer orientación</button><p class="note">Arrastra para inclinar el plano. Mayús permite ajuste fino. Puedes limitar el giro a un eje o usar los botones de 1°. Esc cancela el arrastre.</p><label for="clipPosition">Posición de recorte</label><input id="clipPosition" step="0.01" max="100" min="0" type="range" value="100"/><label><input id="clipReverse" type="checkbox" checked/> Invertir lado conservado</label><p class="note">Recorte visual sin tapa; las imágenes y contornos MPR no se recortan.</p></div></details></div></details><details class="sidebar-group" id="section-structures" open=""><summary>◈  Estructuras</summary><div class="sidebar-body"><div class="sidebar-body"><label for="structureSearch">Buscar estructura</label><input id="structureSearch" placeholder="Nombre de lesión, vaso u órgano…" type="search"/><p class="note" hidden="" id="structureSearchEmpty">No hay coincidencias.</p><p id="treeMessage" class="note" aria-live="polite"></p><div id="childrenEditor" hidden><strong id="childrenTitle"></strong><input id="childrenParent" type="hidden"><p class="note">Marca las hijas directas. Una segmentación puede tener varios padres. No se permiten ciclos.</p><div id="childrenOptions"></div><button id="saveChildren" type="button">Guardar relaciones</button><button id="cancelChildren" type="button">Cancelar</button></div><div class="hierarchy-display"><label><input id="simpleHierarchy" type="checkbox" checked> Árbol simplificado</label><div><button id="expandHierarchy" type="button">Expandir árbol</button><button id="collapseHierarchy" type="button">Contraer árbol</button></div><p class="note">Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida. Desactiva esta opción para ver los controles.</p></div><section id="independentStructures"><h4>Todas las estructuras</h4><div id="modelLayers"></div><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p></section><h4>Grupos</h4><div id="structureTree"></div><div class="tree-toolbar"><button id="createGroup" type="button">+ Grupo / subgrupo</button><button id="exportTree" type="button">Exportar árbol</button><label class="tree-import">Importar árbol<input id="importTree" type="file" accept=".json"/></label></div><div id="groupEditor" hidden><input id="groupEditId" type="hidden"><label for="groupName">Nombre del grupo</label><input id="groupName" type="text" maxlength="100"><label for="groupParent">Grupo superior</label><select id="groupParent"></select><p class="note">Estructuras que pertenecen directamente a este grupo:</p><div id="groupMembers"></div><button id="saveGroup" type="button">Guardar grupo</button><button id="cancelGroup" type="button">Cancelar</button><button id="deleteGroup" type="button">Eliminar grupo</button></div><p class="note">Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad. Abre «Ajustes» para cambiar la apariencia o centrar la estructura.</p><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p><div class="structure-actions"><button id="clearSelection" type="button">Quitar selección</button><button disabled="" id="isolateStructures" type="button">Aislar seleccionadas</button><button disabled="" id="restoreVisibility" type="button">Restaurar visibilidad anterior</button><button id="showAllStructures" type="button">Mostrar todas las estructuras</button></div><div class="volume-summary"><strong id="selectedVolume">Volumen total seleccionado: 0,00 mL</strong><p class="note" id="selectedVolumeDetail">Selecciona estructuras para sumar sus volúmenes.</p><p class="note">Suma de volúmenes individuales; no descuenta solapamientos. 1 mL = 1 cm³.</p></div><button disabled="" id="resetLayers" type="button">Restablecer</button>
-<div hidden="True" id="legacyStructureControls"><select id="focusStructure"></select><button disabled="" id="centerStructure" type="button">Centrar en las cuatro ventanas</button><div id="structureSelection"></div></div></div></div></details><details hidden id="section-tools"><summary>⚒  Herramientas</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-measurements"><summary>Mediciones</summary><div class="sidebar-body"><div class="tool-grid"><button aria-pressed="false" data-tool="measure2d" id="startMeasure2d" type="button">Medir en 2D</button><button aria-pressed="false" data-tool="measure3d" id="startMeasure3d" type="button">Medir en 3D</button><button aria-pressed="false" data-tool="editMeasure" id="editMeasurements" type="button">Editar extremos</button><button aria-pressed="true" data-tool="navigate" type="button">Volver a navegar</button></div><p aria-live="polite" class="note" id="measurementHint">Elige «Medir en 2D» o «Medir en 3D» para comenzar.</p><p class="note" id="measurementEmpty">Todavía no hay mediciones.</p><p class="note">Dos clics para medir. En 2D, ambos puntos deben pertenecer al mismo corte. En 3D, selecciona superficies visibles del GLB. Distancia recta en RAS, en mm.</p><p class="note">Mediciones orientativas: precisión y escala pendientes de validación.</p><p class="note">Para conservar estas mediciones, guarda una vista nueva o pulsa «Actualizar» en una vista existente. Se incluyen al exportar la lista de vistas.</p><ol id="measurementList"></ol><button id="clearMeasures" type="button">Borrar mediciones</button></div></details><details class="sidebar-subgroup" id="menu-annotations"><summary>Textos y flechas 3D</summary><div class="sidebar-body"><label for="annotationText">Texto (opcional para flechas)</label><textarea id="annotationText" maxlength="180" placeholder="Ej.: Bifurcación portal" rows="2"></textarea><label for="annotationColor">Color</label><input id="annotationColor" type="color" value="#ffdf40"/><button id="addModelLabel" type="button">Añadir etiqueta de texto</button><button id="addModelArrow" type="button">Añadir flecha</button><label><input checked="" id="showAnnotations" type="checkbox"/> Mostrar textos y flechas</label><p aria-live="polite" class="note" id="annotationHint">Las marcas se anclan a puntos de las superficies del GLB. Guarda una vista o pulsa «Actualizar» en una vista existente para conservarlas.</p><p class="note" id="modelAnnotationEmpty"></p><div id="modelAnnotationList"></div><button id="clearModelAnnotations" type="button">Borrar todas las anotaciones del modelo</button></div></details><details class="sidebar-subgroup" id="menu-captures"><summary>Capturas</summary><div class="sidebar-body"><label for="captureView">Captura PNG</label><select id="captureView"><option value="all">Las cuatro ventanas</option><option value="z">Axial</option><option value="y">Coronal</option><option value="x">Sagital</option><option value="3d">Vista 3D</option></select><button id="capture" type="button">Descargar captura</button></div></details></div></details><details class="sidebar-group" id="section-saved"><summary>▧  Mis vistas</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div><div id="activeViewNote" hidden><label for="activeViewNoteText">Anotación de la vista seleccionada</label><textarea id="activeViewNoteText" rows="3" readonly placeholder="Sin anotación"></textarea></div><details id="newNamedView" class="sidebar-subgroup"><summary>Añadir vista</summary><label for="namedViewName">Nombre de la vista</label><input id="namedViewName" maxlength="100" placeholder="Ej.: Vista portal" type="text"/><label for="namedViewNotes">Anotación de la vista</label><textarea id="namedViewNotes" maxlength="3000" placeholder="Ej.: Lesión próxima a la bifurcación portal" rows="3"></textarea><button disabled="" id="addNamedView" type="button">Guardar</button></details><button disabled="" id="undoDeleteView" type="button">Deshacer eliminación</button><button disabled="" id="exportNamedViews" type="button">Exportar lista de vistas</button><label for="importNamedViews">Importar lista de vistas</label><input accept=".json,application/json" id="importNamedViews" type="file"/><p aria-live="polite" class="note" id="namedViewMessage">Cada nombre recupera la cámara, cortes, zoom, colores, transparencias y planos. Las vistas se conservan en este navegador para este volumen y modelo GLB; si existe un JSON publicado del caso, también se carga su lista.</p><p class="note">En «Ajustes», pulsa «Actualizar» para guardar el nombre, la anotación y la configuración actual del visor.</p></div></div></details></aside></div>
+<div hidden="True" id="legacyStructureControls"><select id="focusStructure"></select><button disabled="" id="centerStructure" type="button">Centrar en las cuatro ventanas</button><div id="structureSelection"></div></div></div></div></details><details hidden id="section-tools"><summary>⚒  Herramientas</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-measurements"><summary>Mediciones</summary><div class="sidebar-body"><div class="tool-grid"><button aria-pressed="false" data-tool="measure2d" id="startMeasure2d" type="button">Medir en 2D</button><button aria-pressed="false" data-tool="measure3d" id="startMeasure3d" type="button">Medir en 3D</button><button aria-pressed="false" data-tool="editMeasure" id="editMeasurements" type="button">Editar extremos</button><button aria-pressed="true" data-tool="navigate" type="button">Volver a navegar</button></div><p aria-live="polite" class="note" id="measurementHint">Elige «Medir en 2D» o «Medir en 3D» para comenzar.</p><p class="note" id="measurementEmpty">Todavía no hay mediciones.</p><p class="note">Dos clics para medir. En 2D, ambos puntos deben pertenecer al mismo corte. En 3D, selecciona superficies visibles del GLB. Distancia recta en RAS, en mm.</p><p class="note">Mediciones orientativas: precisión y escala pendientes de validación.</p><p class="note">Para conservar estas mediciones, guarda una vista nueva o pulsa «Actualizar» en una vista existente. Se incluyen al exportar la lista de vistas.</p><ol id="measurementList"></ol><button id="clearMeasures" type="button">Borrar mediciones</button></div></details><details class="sidebar-subgroup" id="menu-annotations"><summary>Textos y flechas 3D</summary><div class="sidebar-body"><label for="annotationText">Texto (opcional para flechas)</label><textarea id="annotationText" maxlength="180" placeholder="Ej.: Bifurcación portal" rows="2"></textarea><label for="annotationColor">Color</label><input id="annotationColor" type="color" value="#ffdf40"/><button id="addModelLabel" type="button">Añadir etiqueta de texto</button><button id="addModelArrow" type="button">Añadir flecha</button><label><input checked="" id="showAnnotations" type="checkbox"/> Mostrar textos y flechas</label><p aria-live="polite" class="note" id="annotationHint">Las marcas se anclan a puntos de las superficies del GLB. Guarda una vista o pulsa «Actualizar» en una vista existente para conservarlas.</p><p class="note" id="modelAnnotationEmpty"></p><div id="modelAnnotationList"></div><button id="clearModelAnnotations" type="button">Borrar todas las anotaciones del modelo</button></div></details><details class="sidebar-subgroup" id="menu-captures"><summary>Capturas</summary><div class="sidebar-body"><label for="captureView">Captura PNG</label><select id="captureView"><option value="all">Las cuatro ventanas</option><option value="z">Axial</option><option value="y">Coronal</option><option value="x">Sagital</option><option value="3d">Vista 3D</option></select><button id="capture" type="button">Descargar captura</button></div></details></div></details><details class="sidebar-group" id="section-saved"><summary>▧  Mis vistas</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div><div class="presentation-start"><label for="presentationStartView">Empezar en</label><select id="presentationStartView" disabled></select><button type="button" id="presentCase" disabled>Presentar caso</button></div><div id="activeViewNote" hidden><label for="activeViewNoteText">Anotación de la vista seleccionada</label><textarea id="activeViewNoteText" rows="3" readonly placeholder="Sin anotación"></textarea></div><details id="newNamedView" class="sidebar-subgroup"><summary>Añadir vista</summary><label for="namedViewName">Nombre de la vista</label><input id="namedViewName" maxlength="100" placeholder="Ej.: Vista portal" type="text"/><label for="namedViewNotes">Anotación de la vista</label><textarea id="namedViewNotes" maxlength="3000" placeholder="Ej.: Lesión próxima a la bifurcación portal" rows="3"></textarea><button disabled="" id="addNamedView" type="button">Guardar</button></details><button disabled="" id="undoDeleteView" type="button">Deshacer eliminación</button><button disabled="" id="exportNamedViews" type="button">Exportar lista de vistas</button><label for="importNamedViews">Importar lista de vistas</label><input accept=".json,application/json" id="importNamedViews" type="file"/><p aria-live="polite" class="note" id="namedViewMessage">Cada nombre recupera la cámara, cortes, zoom, colores, transparencias y planos. Las vistas se conservan en este navegador para este volumen y modelo GLB; si existe un JSON publicado del caso, también se carga su lista.</p><p class="note">En «Ajustes», pulsa «Actualizar» para guardar el nombre, la anotación y la configuración actual del visor.</p></div></div></details></aside></div>
+
 <script type="module">
 import * as THREE from 'three';
 import {TrackballControls} from 'three/addons/controls/TrackballControls.js';
@@ -153,8 +179,16 @@ renderer.domElement.title='Arrastrar: giro libre · Botón derecho: desplazar ·
 const controls=new TrackballControls(camera,renderer.domElement);controls.staticMoving=true;controls.rotateSpeed=2;controls.zoomSpeed=1.1;controls.panSpeed=.5;controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};
 scene.add(new THREE.HemisphereLight(0xffffff,0x405060,2.5));const light=new THREE.DirectionalLight(0xffffff,2);light.position.set(2,3,5);scene.add(light);
 const planesRoot=new THREE.Group();scene.add(planesRoot);const modelRoot=new THREE.Group();scene.add(modelRoot);let volume=null,slices={},model=null;let volumeInfo=null; let selectedWorldPoint=null; const navMarker=new THREE.Group();scene.add(navMarker);navMarker.visible=false; const markerMaterial=new THREE.MeshBasicMaterial({color:0xffff00,depthTest:false});const markerBall=new THREE.Mesh(new THREE.SphereGeometry(3,12,10),markerMaterial);navMarker.add(markerBall);const markerLineMat=new THREE.LineBasicMaterial({color:0xffff00,depthTest:false});for(const axis of [[12,0,0],[0,12,0],[0,0,12]]){const a=new THREE.Vector3(...axis);const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a.clone().negate(),a]),markerLineMat);line.renderOrder=300;navMarker.add(line)} markerBall.renderOrder=301;markerMaterial.depthWrite=false;markerLineMat.depthWrite=false;const tmpV1=new THREE.Vector3(), tmpV2=new THREE.Vector3(), tmpV3=new THREE.Vector3(), tmpI1=new THREE.Vector3(), tmpI2=new THREE.Vector3();
-const ro=new ResizeObserver(()=>{const host=$('view3d'),w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);controls.handleResize()});ro.observe($('view3d'));
-function animate(){requestAnimationFrame(animate);controls.update();updateStructureNames();updateAnnotationScale();renderer.render(scene,camera)}animate();
+function resize3D(){
+ const host=$('view3d'), width=Math.max(1,host.clientWidth), height=Math.max(1,host.clientHeight);
+ camera.aspect=width/height;
+ camera.updateProjectionMatrix();
+ renderer.setSize(width,height);
+ controls.handleResize();
+}
+const ro=new ResizeObserver(resize3D);ro.observe($('view3d'));
+let presentationCameraFlight=null;
+function animate(){requestAnimationFrame(animate);if(!presentationCameraFlight)controls.update();updateStructureNames();updateAnnotationScale();renderer.render(scene,camera)}animate();
 function fit(){camera.up.set(0,0,1);const bbox=new THREE.Box3();let has=false;for(const node of [planesRoot,modelRoot]){if(node.visible&&node.children.length){bbox.union(new THREE.Box3().setFromObject(node));has=true}}if(!has)return;const center=bbox.getCenter(new THREE.Vector3()),extent=bbox.getSize(new THREE.Vector3()).length(),d=Math.max(extent,1);controls.target.copy(center);camera.position.copy(center).add(new THREE.Vector3(d*.9,d*.7,d*.9));camera.near=Math.max(d/1000,.01);camera.far=d*100;camera.updateProjectionMatrix();controls.update()}
 function clearRoot(root){while(root.children.length){const o=root.children[0];root.remove(o);if(o.geometry)o.geometry.dispose();}}
 // Presentación radiológica aproximada para NRRD ortogonal en coordenadas RAS.
@@ -858,8 +892,8 @@ function validateConfig(data){
  if(data.annotationsVisible!==undefined&&typeof data.annotationsVisible!=='boolean')throw new Error('Visibilidad de anotaciones inválida.');
  if(data.referencePoint!==null&&!vec(data.referencePoint))throw new Error('Punto de referencia inválido.');
 }
-function restoreConfig(data){
- validateConfig(data);clipRotation=data.clipRotation?new THREE.Quaternion(...data.clipRotation):new THREE.Quaternion();obliqueShift=data.oblique?.shift?new THREE.Vector3(...data.oblique.shift):new THREE.Vector3();obliquePivot=data.oblique?new THREE.Vector3(...data.oblique.pivot):null;obliqueRotation=data.oblique?new THREE.Quaternion(...data.oblique.rotation):new THREE.Quaternion();if(data.structureNodes!==undefined)applyNodes(data.structureNodes);else if(data.structureGroups!==undefined)applyHierarchy(data.structureGroups,data.structureRelations||[]);isolationSnapshot=null;batchRestore=true;try{const flagIds=['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'];pendingMeasure=null;selectedWorldPoint=data.referencePoint?new THREE.Vector3(...data.referencePoint):null;if(selectedWorldPoint)navMarker.position.copy(selectedWorldPoint);selectStructure(null);setWindow(...data.window);for(const a of ['x','y','z']){Object.assign(viewStates[a],data.views[a]);viewAppliers[a]();$('r'+a).value=data.slices[a]}
+function restoreConfig(data,{applyTree=true}={}){
+ validateConfig(data);finishPresentationCamera();clipRotation=data.clipRotation?new THREE.Quaternion(...data.clipRotation):new THREE.Quaternion();obliqueShift=data.oblique?.shift?new THREE.Vector3(...data.oblique.shift):new THREE.Vector3();obliquePivot=data.oblique?new THREE.Vector3(...data.oblique.pivot):null;obliqueRotation=data.oblique?new THREE.Quaternion(...data.oblique.rotation):new THREE.Quaternion();if(applyTree){if(data.structureNodes!==undefined)applyNodes(data.structureNodes);else if(data.structureGroups!==undefined)applyHierarchy(data.structureGroups,data.structureRelations||[]);}isolationSnapshot=null;batchRestore=true;try{const flagIds=['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'];pendingMeasure=null;selectedWorldPoint=data.referencePoint?new THREE.Vector3(...data.referencePoint):null;if(selectedWorldPoint)navMarker.position.copy(selectedWorldPoint);selectStructure(null);setWindow(...data.window);for(const a of ['x','y','z']){Object.assign(viewStates[a],data.views[a]);viewAppliers[a]();$('r'+a).value=data.slices[a]}
  for(const id of flagIds)$(id).checked=data.flags[id];$('fillOpacity').value=data.fillOpacity;$('clipPosition').value=data.clipPosition;$('clipAxis').value=data.clipAxis;
  for(const l of data.layers){const c=layerControls.get(l.key);c.nameCheck.checked=l.nameVisible??true;for(const [input,value,event] of [[c.visible,l.visible,'change'],[c.picker,l.color,'input'],[c.contourCheck,l.contour,'change'],[c.slider,l.opacity,'input']]){if(input.type==='checkbox')input.checked=value;else input.value=value;input.dispatchEvent(new Event(event))}}
  updatePlaneVisibility();modelRoot.visible=$('showmodel').checked;updateClip();camera.position.fromArray(data.camera.position);camera.up.fromArray(data.camera.up);camera.near=data.camera.near;camera.far=data.camera.far;controls.target.fromArray(data.camera.target);camera.updateProjectionMatrix();controls.update();navMarker.visible=!!selectedWorldPoint&&$('show3DMarker').checked;}finally{batchRestore=false;}modelAnnotations.splice(0,modelAnnotations.length,...structuredClone(data.annotations||[]));pendingArrow=null;$('showStructureNames').checked=data.structureNamesVisible??false;$('showAnnotations').checked=data.annotationsVisible??true;renderAnnotations();restoreMeasurements(data.measurements);updateStructureSelection();
@@ -877,11 +911,12 @@ function syncNamedViews(){
  if(key)try{const data=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(data))namedViews=data.filter(v=>typeof v.name==='string'&&v.config?.format==='mpr-viewer').slice(0,100)}catch{ $('namedViewMessage').textContent='No se pudo leer el guardado del navegador. Puedes importar un archivo de vistas.';}
  loadTree();renderNamedViews();document.dispatchEvent(new Event('case-state-change'));
 }
-function persistNamedViews(){
+function persistNamedViews({refreshRows=true}={}){
  document.dispatchEvent(new Event('case-state-change'));
  try{localStorage.setItem(namedCaseKey,JSON.stringify(namedViews));$('namedViewMessage').textContent='Lista guardada en este navegador. Exporta una copia para usarla en otro equipo.'}
  catch{$('namedViewMessage').textContent='El navegador no permite guardar la lista. Se mantiene durante esta sesión; exporta una copia antes de cerrar.'}
- renderNamedViews();
+ if(refreshRows)renderNamedViews();
+ else refreshPresentationStart();
 }
 function viewName(){const name=$('namedViewName').value.trim();if(!name||name.length>100)throw new Error('Escribe un nombre de entre 1 y 100 caracteres.');return name}
 function uniqueViewName(name,views=namedViews){let candidate=name,n=2;while(views.some(v=>v.name===candidate))candidate=name.slice(0,90)+' ('+n+++')';return candidate}
@@ -889,7 +924,42 @@ function updateActiveViewNote(){
  $('activeViewNote').hidden=!activeNamedView;
  $('activeViewNoteText').value=activeNamedView?.notes||'';
 }
+function presentationViews(){
+ return namedViews.filter(view => view.includeInPresentation !== false);
+}
+function refreshPresentationStart(){
+ const included=presentationViews();
+ const startView=$('presentationStartView');
+ const previousStart=startView.dataset.caseKey===namedCaseKey ? startView.value : '';
+ startView.dataset.caseKey=namedCaseKey||'';
+ startView.replaceChildren(...included.map((view,index) =>
+  new Option((index+1)+'. '+view.name,view.name)
+ ));
+ if(!included.length)startView.add(new Option('Sin vistas para presentar',''));
+ if(included.some(view=>view.name===previousStart))startView.value=previousStart;
+ startView.disabled=$('presentCase').disabled=!namedCaseKey||!included.length;
+}
+function reorderNamedView(view, target, after){
+ if(view===target)return false;
+ const from=namedViews.indexOf(view);
+ const to=namedViews.indexOf(target);
+ if(from<0||to<0)return false;
+ const destination=to+Number(after)-Number(from<to);
+ if(destination===from)return false;
+ namedViews.splice(from,1);
+ namedViews.splice(destination,0,view);
+ const list=$('namedViewList');
+ const movedRow=list.children[from];
+ const targetRow=list.children[to];
+ if(after)targetRow.after(movedRow);
+ else targetRow.before(movedRow);
+ persistNamedViews({refreshRows:false});
+ return true;
+}
 function renderNamedViews(){
+ let draggedView=null;
+
+ refreshPresentationStart();
  updateActiveViewNote();
  $('namedViewList').replaceChildren();$('addNamedView').disabled=!namedCaseKey;$('exportNamedViews').disabled=!namedViews.length;$('undoDeleteView').disabled=!deletedView;
  $('namedViewEmpty').textContent=!namedCaseKey?'Carga el volumen y el modelo GLB para guardar las vistas de este caso.':namedViews.length?'':'Todavía no hay vistas guardadas para este caso.';
@@ -913,7 +983,76 @@ function renderNamedViews(){
  const toggle=document.createElement('button');toggle.type='button';toggle.className='named-view-toggle';
  const syncToggle=()=>{toggle.textContent=settings.hidden?'Ajustes ▸':'Ajustes ▾';toggle.setAttribute('aria-expanded',String(!settings.hidden));toggle.setAttribute('aria-label',(settings.hidden?'Mostrar':'Ocultar')+' ajustes de '+view.name)};
  toggle.setAttribute('aria-controls',settings.id);toggle.onclick=()=>{settings.hidden=!settings.hidden;if(settings.hidden)expandedNamedViews.delete(view);else expandedNamedViews.add(view);syncToggle()};syncToggle();
- header.append(open,toggle);settings.append(nameLabel,noteLabel,feedback,actions);row.append(header,settings);$('namedViewList').append(row);
+ const presentationLabel=document.createElement('label');
+ const includeInPresentation=document.createElement('input');
+ includeInPresentation.type='checkbox';
+ includeInPresentation.checked=view.includeInPresentation!==false;
+ function updatePresentationOutline(){
+  row.classList.toggle('is-presentation-view',includeInPresentation.checked);
+  const context=includeInPresentation.checked ? '. Incluida en presentación' : '';
+  open.setAttribute('aria-label','Recuperar vista '+view.name+context);
+ }
+ updatePresentationOutline();
+ includeInPresentation.onchange=()=>{
+  view.includeInPresentation=includeInPresentation.checked;
+  updatePresentationOutline();
+  persistNamedViews({refreshRows:false});
+ };
+ presentationLabel.append(includeInPresentation,document.createTextNode(' Incluir en presentación'));
+ const grip=document.createElement('button');
+ grip.type='button';
+ grip.className='named-view-grip';
+ grip.textContent='⠿';
+ grip.disabled=namedViews.length<2;
+ grip.draggable=!grip.disabled;
+ grip.title='Arrastra para reordenar o usa ↑ y ↓';
+ grip.setAttribute('aria-label','Reordenar '+view.name+' con flecha arriba o abajo');
+ grip.ondragstart=event=>{
+  draggedView=view;
+  event.dataTransfer.effectAllowed='move';
+  event.dataTransfer.setData('text/plain',view.name);
+  row.classList.add('is-dragging-view');
+ };
+ function clearDropMarker(){
+  row.classList.remove('drop-view-before','drop-view-after');
+ }
+ grip.ondragend=()=>{
+  draggedView=null;
+  row.classList.remove('is-dragging-view');
+  for(const targetRow of $('namedViewList').children){
+   targetRow.classList.remove('drop-view-before','drop-view-after');
+  }
+ };
+ function dropAfter(event){
+  const bounds=row.getBoundingClientRect();
+  return event.clientY>bounds.top+bounds.height/2;
+ }
+ row.ondragover=event=>{
+  if(!draggedView||draggedView===view)return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect='move';
+  const after=dropAfter(event);
+  row.classList.toggle('drop-view-before',!after);
+  row.classList.toggle('drop-view-after',after);
+ };
+ row.ondragleave=event=>{
+  if(!row.contains(event.relatedTarget))clearDropMarker();
+ };
+ row.ondrop=event=>{
+  if(!draggedView||draggedView===view)return;
+  event.preventDefault();
+  const after=dropAfter(event);
+  clearDropMarker();
+  reorderNamedView(draggedView,view,after);
+ };
+ grip.onkeydown=event=>{
+  if(!['ArrowUp','ArrowDown'].includes(event.key))return;
+  event.preventDefault();
+  const after=event.key==='ArrowDown';
+  const target=namedViews[namedViews.indexOf(view)+(after?1:-1)];
+  if(target&&reorderNamedView(view,target,after))grip.focus();
+ };
+ header.append(grip,open,toggle);settings.append(nameLabel,noteLabel,presentationLabel,feedback,actions);row.append(header,settings);$('namedViewList').append(row);
  }
 }
 $('newNamedView').addEventListener('toggle',()=>{
@@ -945,7 +1084,7 @@ $('importNamedViews').onchange=async e=>{
   const key=signature(v);
   if(seen.has(key))continue;
   seen.add(key);
-  merged.push({name:uniqueViewName(v.name.trim(),merged),notes:v.notes||'',config:v.config});
+  merged.push({name:uniqueViewName(v.name.trim(),merged),notes:v.notes||'',includeInPresentation:v.includeInPresentation!==false,config:v.config});
  }
  if(merged.length>100)throw new Error('La lista resultante supera las 100 vistas.');
  const imported=merged.length-namedViews.length;
@@ -1305,7 +1444,7 @@ async function loadPublishedViews(basename, root) {
   for(const v of data.views){
    if(namedViews.some(x=>x.name===v.name.trim())){omitted++;continue;}
    if(namedViews.length>=100)break;
-   namedViews.push({name:v.name.trim(),notes:v.notes||'',config:structuredClone(v.config)});added++;
+   namedViews.push({name:v.name.trim(),notes:v.notes||'',includeInPresentation:v.includeInPresentation!==false,config:structuredClone(v.config)});added++;
   }
   renderNamedViews();
   $('namedViewMessage').textContent=added+' vistas cargadas desde '+url.pathname+'.'+(omitted?' '+omitted+' nombres ya existían y se han conservado las versiones locales.':'')+' Para guardarlas también en este navegador, utiliza «Actualizar» en una vista.';
@@ -1804,7 +1943,7 @@ function installCaseHistory(adapter,host){
  function sync(){button('undo').disabled=cursor<1;button('redo').disabled=cursor<0||cursor>=entries.length-1;button('save').disabled=!adapter.key();}
  function reset(){entries=[];cursor=-1;total=0;key=adapter.key();sync();}
  function checkpoint(){
-  clearTimeout(timer);if(busy)return;
+  clearTimeout(timer);if(busy||presentationCameraFlight)return;
   const nextKey=adapter.key();if(nextKey!==key)reset();if(!nextKey)return;
   const state=JSON.stringify(adapter.capture());if(entries[cursor]===state)return;
   entries.splice(cursor+1);entries.push(state);cursor=entries.length-1;
@@ -1832,4 +1971,228 @@ function validateCaseSession(state){
 }
 function restoreCaseSession(state){validateCaseSession(state);restoreConfig(structuredClone(state.config));namedViews=structuredClone(state.views);activeNamedView=namedViews.find(v=>v.name===state.active)||null;deletedView=null;selectedStructures.clear();for(const k of state.selected)selectedStructures.add(k);updateStructureSelection();persistNamedViews();}
 const caseHistory=installCaseHistory({format:'mpr-complete-case',key:currentViewCase,name:()=>loadedModelName,capture:caseSessionState,validate:validateCaseSession,restore:restoreCaseSession,onChange:fn=>controls.addEventListener('end',fn)},$('caseSessionControls'));
+function captureSavedView(view) {
+ const original = structuredClone(configData());
+ const selection = [...selectedStructures];
+ const primary = selectedStructure;
+ const isolation = isolationSnapshot;
+ const measure = pendingMeasure;
+ const arrow = pendingArrow;
+ const message = status.textContent;
+ try {
+  restoreConfig(view.config, {applyTree:false});
+  resize3D();
+  repaintAll();
+  updateStructureNames();
+  updateAnnotationScale();
+  renderer.render(scene,camera);
+  const maximized = document.querySelector('.pane.maximized');
+  if (maximized) return capturePane(maximized, 1400, 1000).toDataURL('image/jpeg', .91);
+  const grid = document.createElement('canvas');
+  grid.width = 1600;
+  grid.height = 1200;
+  const context = grid.getContext('2d');
+  document.querySelectorAll('.pane').forEach((pane,index) => {
+   context.drawImage(capturePane(pane,800,600), index % 2 * 800, Math.floor(index / 2) * 600);
+  });
+  return grid.toDataURL('image/jpeg', .91);
+ } finally {
+  restoreConfig(original, {applyTree:false});
+  for (const key of selection) selectedStructures.add(key);
+  selectedStructure = primary;
+  isolationSnapshot = isolation;
+  pendingMeasure = measure;
+  pendingArrow = arrow;
+  if (measure) {updateMeasurementHint();renderMeasure3D();}
+  if (arrow) renderAnnotations();
+  resize3D();
+  updateStructureSelection();
+  status.textContent = message;
+ }
+}
+
+function presentationCameraState(){
+ return {
+  position:camera.position.clone(), target:controls.target.clone(),
+  orientation:camera.quaternion.clone(), up:camera.up.clone(),
+  near:camera.near, far:camera.far
+ };
+}
+
+function finishPresentationCamera(restoreEnd=true){
+ if(!presentationCameraFlight)return;
+ const {frame,end}=presentationCameraFlight;
+ presentationCameraFlight=null;
+ cancelAnimationFrame(frame);
+ if(!restoreEnd)return;
+ camera.position.copy(end.position);
+ controls.target.copy(end.target);
+ camera.quaternion.copy(end.orientation);
+ camera.up.copy(end.up);
+ camera.near=end.near;
+ camera.far=end.far;
+ camera.updateProjectionMatrix();
+ controls.update();
+ document.dispatchEvent(new Event('case-state-change'));
+}
+
+function animatePresentationCamera(start){
+ const end=presentationCameraState();
+ const startDistance=start.position.distanceTo(start.target);
+ const endDistance=end.position.distanceTo(end.target);
+ if(startDistance<=0||endDistance<=0)return;
+ const orientation=new THREE.Quaternion();
+ const offset=new THREE.Vector3();
+ const flight={end,frame:0};
+ const started=performance.now();
+ presentationCameraFlight=flight;
+ function step(now){
+  const elapsed=Math.max(0,Math.min(1,(now-started)/650));
+  if(elapsed===1){finishPresentationCamera();return;}
+  const blend=elapsed*elapsed*(3-2*elapsed);
+  controls.target.lerpVectors(start.target,end.target,blend);
+  orientation.slerpQuaternions(start.orientation,end.orientation,blend);
+  const distance=startDistance*Math.pow(endDistance/startDistance,blend);
+  offset.set(0,0,distance).applyQuaternion(orientation);
+  camera.position.copy(controls.target).add(offset);
+  camera.quaternion.copy(orientation);
+  camera.up.set(0,1,0).applyQuaternion(orientation);
+  camera.near=THREE.MathUtils.lerp(start.near,end.near,blend);
+  camera.far=THREE.MathUtils.lerp(start.far,end.far,blend);
+  camera.updateProjectionMatrix();
+  flight.frame=requestAnimationFrame(step);
+ }
+ step(started);
+}
+
+function installCasePresentation() {
+ const panel = $('casePresentation');
+ const exit = $('presentationExit');
+ const info = $('presentationStatus');
+ const previous = $('presentationPrev');
+ const next = $('presentationNext');
+ const exportButton = $('presentationExport');
+ const launch = $('presentCase');
+ let slides = [];
+ let index = 0;
+ let exporting = false;
+ let presentationCase = null;
+
+ function syncButtons() {
+  previous.disabled = exporting || index === 0;
+  next.disabled = exporting || index === slides.length - 1;
+  exportButton.disabled = exporting;
+ }
+ function showSlide(animateCamera=false) {
+  const slide = slides[index];
+  $('presentationTitle').textContent = slide.name;
+  $('presentationNotes').textContent = slide.notes || '';
+  $('presentationNotes').hidden = !slide.notes;
+  $('presentationCount').textContent = (index + 1) + ' de ' + slides.length;
+  info.textContent = '';
+  try {
+   const pane=slide.config.maximizedPane;
+   const start=animateCamera && (!pane || pane==='3d') &&
+    !matchMedia('(prefers-reduced-motion: reduce)').matches ? presentationCameraState() : null;
+   restoreConfig(slide.config, {applyTree:false});
+   if(start)animatePresentationCamera(start);
+  } catch (error) {
+   info.textContent = 'No se pudo mostrar esta vista. ' + error.message;
+  }
+  syncButtons();
+ }
+ function move(step) {
+  const target = index + step;
+  if (exporting || target < 0 || target >= slides.length) return;
+  index = target;
+  showSlide(true);
+ }
+ function endPresentation() {
+  const sameCase = namedCaseKey === presentationCase;
+  panel.hidden = true;
+  presentationCase = null;
+  finishPresentationCamera(sameCase);
+  launch.focus();
+ }
+ launch.onclick = () => {
+  const included = presentationViews();
+  if (exporting || !namedCaseKey || !included.length) return;
+  presentationCase = namedCaseKey;
+  slides = structuredClone(included);
+  index = Math.max(0,$('presentationStartView').selectedIndex);
+  panel.hidden = false;
+  showSlide();
+  exit.focus();
+ };
+ previous.onclick = () => move(-1);
+ next.onclick = () => move(1);
+ exit.onclick = endPresentation;
+ document.addEventListener('case-state-change', () => {
+  if (!panel.hidden && namedCaseKey !== presentationCase) endPresentation();
+ });
+ document.addEventListener('keydown', event => {
+  if (panel.hidden || event.ctrlKey || event.metaKey || event.altKey ||
+      event.target.closest('input,textarea,select,[contenteditable="true"]')) return;
+  if (!['Escape','ArrowLeft','ArrowRight'].includes(event.key)) return;
+  event.preventDefault();
+  event.stopPropagation();
+  if (event.key === 'Escape') endPresentation();
+  else move(event.key === 'ArrowLeft' ? -1 : 1);
+ }, true);
+ for (const type of ['pointerdown','wheel']) {
+  $('view3d').addEventListener(type, () => finishPresentationCamera(), {capture:true});
+ }
+ exportButton.onclick = async () => {
+  finishPresentationCamera();
+  exporting = true;
+  syncButtons();
+  const reportCase = namedCaseKey;
+  try {
+   const report = document.implementation.createHTMLDocument('Presentación del caso');
+   report.documentElement.lang = 'es';
+   const charset = report.createElement('meta');
+   charset.setAttribute('charset','utf-8');
+   report.head.prepend(charset);
+   const style = report.createElement('style');
+   style.textContent = 'body{font:16px system-ui;max-width:1050px;margin:2rem auto;padding:0 1rem;color:#182431}section{margin:2rem 0;break-inside:avoid}img{display:block;width:100%;max-height:70vh;object-fit:contain}p{white-space:pre-wrap;overflow-wrap:anywhere}@media print{body{margin:0;padding:0}section{break-before:page;margin:0}section:first-of-type{break-before:auto}img{max-height:190mm}}';
+   report.head.append(style);
+   const heading = report.createElement('h1');
+   heading.textContent = 'Presentación · ' + loadedModelName;
+   report.body.append(heading);
+   for (const [position, slide] of slides.entries()) {
+    info.textContent = 'Preparando vista ' + (position + 1) + ' de ' + slides.length + '…';
+    await new Promise(resolve => setTimeout(resolve, 0));
+    if (panel.hidden || namedCaseKey !== reportCase) return;
+    const page = report.createElement('section');
+    const title = report.createElement('h2');
+    title.textContent = (position + 1) + '. ' + slide.name;
+    page.append(title);
+    try {
+     const capture = report.createElement('img');
+     capture.src = captureSavedView(slide);
+     capture.alt = 'Captura de ' + slide.name;
+     page.append(capture);
+    } catch (error) {
+     const warning = report.createElement('p');
+     warning.textContent = 'Captura no disponible. ' + error.message;
+     page.append(warning);
+    }
+    if (slide.notes) {
+     const notes = report.createElement('p');
+     notes.textContent = slide.notes;
+     page.append(notes);
+    }
+    report.body.append(page);
+   }
+   downloadBlob(new Blob(['<!doctype html>', report.documentElement.outerHTML], {type:'text/html;charset=utf-8'}), loadedModelName + '_presentacion.html');
+   info.textContent = 'Informe descargado. Ábrelo en el navegador para imprimirlo o guardarlo como PDF.';
+  } catch (error) {
+   info.textContent = 'No se pudo exportar el informe. ' + error.message;
+  } finally {
+   exporting = false;
+   syncButtons();
+  }
+ };
+}
+installCasePresentation();
 </script></body></html>
