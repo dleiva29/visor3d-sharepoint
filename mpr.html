@@ -127,14 +127,72 @@ body.mobile-presentation #presentationTitle{margin:5px 0 0}
 body.mobile-presentation #presentationNotes{margin:4px 0}
 body.mobile-presentation #presentationStatus:empty{display:none}
 
+#toggleGeneralPanel{
+ display:inline-grid;place-items:center;vertical-align:middle;width:34px;height:30px;
+ margin:0 0 0 6px;padding:0;background:#19394d;border:1px solid #42778b;color:#e5faff;
+}
+#toggleGeneralPanel svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6}
+#toggleGeneralPanel:focus-visible{outline:2px solid #91efdc;outline-offset:2px}
+#toggleGeneralPanel[aria-expanded="false"]{background:#102233}
+body:not(.mobile-presentation):has(.pane.maximized) #toggleGeneralPanel{
+ position:fixed;left:8px;bottom:max(8px,env(safe-area-inset-bottom));z-index:1010;margin:0;
+}
+body.panel-folded:not(.mobile-presentation) .layout{grid-template-columns:minmax(0,1fr)}
+body.panel-folded .layout>#generalPanel{display:none}
+body.panel-folded:not(.mobile-presentation) .layout>.views{grid-column:1}
+body.panel-folded:not(.mobile-presentation) .pane.maximized{inset:6px}
+@media(pointer:coarse){#toggleGeneralPanel{width:44px;height:44px}}
+/* La disposición sigue el espacio disponible y el tipo de puntero. */
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]):not(.mobile-presentation) .layout{
+ display:flex;flex-direction:column;height:auto;min-width:0;
+}
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]):not(.mobile-presentation) .layout>aside{
+ order:0;width:100%;min-width:0;max-height:34vh;max-height:34dvh;border-bottom:1px solid var(--edge);
+}
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]):not(.mobile-presentation) .layout>.views{
+ order:1;height:auto;min-height:0;padding:5px;gap:5px;
+}
+body[data-viewer-layout="phone"]:not(.mobile-presentation) .views{
+ grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-auto-rows:clamp(250px,56dvh,520px);
+}
+body[data-viewer-layout="tablet"]:not(.mobile-presentation) .views{
+ grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;grid-auto-rows:clamp(245px,40dvh,460px);
+}
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]):not(.mobile-presentation):has(.pane.maximized) .layout>aside{
+ top:0;left:0;right:0;bottom:auto;height:33vh;height:33dvh;
+}
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]):not(.mobile-presentation):not(.panel-folded) .pane.maximized{
+ inset:34vh 4px 4px;inset:34dvh 4px 4px;
+}
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane .stage{min-height:0}
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane:has(.pane-quick-tools)>h2{
+ order:-2;height:auto;min-height:36px;padding:8px 50px 8px 10px;line-height:20px;
+}
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane .pane-quick-tools{
+ position:static;order:-1;display:flex;flex-wrap:wrap;justify-content:flex-start;
+ width:auto;max-width:none;gap:3px;padding:3px;border-radius:0;
+}
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane-quick-tools button{
+ width:32px;height:32px;
+}
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane-quick-tools .pane-plane-tools{
+ flex-wrap:wrap;justify-content:flex-start;padding-left:0;
+}
+body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane-plane-tools button{width:auto}
+@media(pointer:coarse){
+ body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane-quick-tools button{min-width:36px;height:36px}
+ body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane-menu-trigger{min-width:40px;min-height:32px}
+ body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane-menu button{min-height:36px}
+}
+
 </style></head><body>
-<header><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><strong>Visor MPR · v2</strong><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
+<header><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><strong>Visor MPR · v2</strong><button type="button" id="toggleGeneralPanel" aria-controls="generalPanel" aria-expanded="true" aria-label="Plegar panel general" title="Plegar panel general"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M8 3v14"/></svg></button><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
 <div class="layout"><div class="views">
 <section class="pane" data-view-pane="axial"><h2>Axial (eje Z)</h2><div class="stage"><canvas class="ct" id="ctz"></canvas></div><div class="sliceTools"><input disabled="" id="rz" type="range"/><output id="oz">—</output></div></section>
 <section class="pane" data-view-pane="coronal"><h2>Coronal (eje Y)</h2><div class="stage"><canvas class="ct" id="cty"></canvas></div><div class="sliceTools"><input disabled="" id="ry" type="range"/><output id="oy">—</output></div></section>
 <section class="pane" data-view-pane="sagittal"><h2>Sagital (eje X)</h2><div class="stage"><canvas class="ct" id="ctx"></canvas></div><div class="sliceTools"><input disabled="" id="rx" type="range"/><output id="ox">—</output></div></section>
 <section class="pane" data-view-pane="3d"><h2>Vista 3D: modelo y planos de imagen</h2><div class="stage" id="view3d"></div></section>
-</div><aside><div class="sidebar-heading"><div id="historyActions" class="history-actions" role="toolbar" aria-label="Acciones del visor"></div><div aria-busy="false" aria-live="polite" hidden="" id="loadingPanel" role="status"><span id="loadingTitle">Preparando…</span><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingDetail"></span></div></div><input id="unit" type="hidden" value="1000"/><input id="space" type="hidden" value="RAS"/><details class="sidebar-group" id="section-case" open=""><summary>▣  Caso</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p><label for="nrrd">Volumen de imagen en NRRD (archivo local)</label><input accept=".nrrd" id="nrrd" type="file"/><label for="glb">Modelo GLB (archivo local)</label><input accept=".glb" id="glb" type="file"/>
+</div><aside id="generalPanel"><div class="sidebar-heading"><div id="historyActions" class="history-actions" role="toolbar" aria-label="Acciones del visor"></div><div aria-busy="false" aria-live="polite" hidden="" id="loadingPanel" role="status"><span id="loadingTitle">Preparando…</span><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingDetail"></span></div></div><input id="unit" type="hidden" value="1000"/><input id="space" type="hidden" value="RAS"/><details class="sidebar-group" id="section-case" open=""><summary>▣  Caso</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p><label for="nrrd">Volumen de imagen en NRRD (archivo local)</label><input accept=".nrrd" id="nrrd" type="file"/><label for="glb">Modelo GLB (archivo local)</label><input accept=".glb" id="glb" type="file"/>
 </div></div></details><details class="sidebar-group" id="section-session"><summary>▣ Sesión del caso</summary><div class="sidebar-body" id="caseSessionControls"></div></details><details hidden id="section-visual"><summary>▤  Visualización</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-navigation"><summary>Navegación y herramientas</summary><div class="sidebar-body"><div class="tool-grid" id="tools">
 <button aria-pressed="true" data-tool="navigate" type="button">Navegar</button><button aria-pressed="false" data-tool="pan" type="button">Desplazar</button>
 <button aria-pressed="false" data-tool="zoom" type="button">Zoom</button><button aria-pressed="false" data-tool="window" type="button">Ventana / nivel</button>
@@ -2112,6 +2170,16 @@ function animatePresentationCamera(start){
  step(started);
 }
 
+const compactViewer=matchMedia('(max-width:700px), (pointer:coarse) and (max-height:500px) and (max-width:950px)');
+const mediumViewer=matchMedia('(max-width:1100px), (pointer:coarse) and (max-width:1366px)');
+function syncViewerLayout(){
+ document.body.dataset.viewerLayout=compactViewer.matches?'phone':mediumViewer.matches?'tablet':'desktop';
+ resize3D();
+ repaintAll();
+}
+for(const query of [compactViewer,mediumViewer])query.addEventListener('change',syncViewerLayout);
+syncViewerLayout();
+
 function installCasePresentation() {
  const panel = $('casePresentation');
  const exit = $('presentationExit');
@@ -2274,4 +2342,14 @@ function installCasePresentation() {
  };
 }
 installCasePresentation();
+const generalPanelToggle=$('toggleGeneralPanel');
+generalPanelToggle.onclick=()=>{
+ const folded=document.body.classList.toggle('panel-folded');
+ const label=folded?'Abrir panel general':'Plegar panel general';
+ generalPanelToggle.setAttribute('aria-expanded',String(!folded));
+ generalPanelToggle.setAttribute('aria-label',label);
+ generalPanelToggle.title=label;
+ resize3D();
+ repaintAll();
+};
 </script></body></html>
