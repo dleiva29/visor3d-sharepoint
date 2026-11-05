@@ -83,7 +83,7 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 #namedViewList .saved-view-icon{margin-right:6px;color:#f2bd67;font-size:14px;line-height:0;vertical-align:middle}
 #namedViewList .named-view-header:has(.named-view-open[aria-current=true]){background:#263d4a;box-shadow:inset 0 0 0 1px #f2bd67}
 .pane-quick-tools{position:absolute;right:43px;top:2px;z-index:12;display:flex;gap:2px;max-width:calc(100% - 48px);flex-wrap:wrap;justify-content:flex-end;background:#102534e8;border-radius:5px}.pane-quick-tools button{display:flex;align-items:center;justify-content:center;width:26px;height:25px;padding:4px;margin:0;background:#19394d;border:1px solid #31566e;color:#d9edf5}.pane-quick-tools button:hover{background:#28566d}.pane-quick-tools button[aria-pressed=true]{background:#147f8c;border-color:#78e6ef}.pane-quick-tools svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}.pane:has(.pane-quick-tools) h2{height:55px;min-height:55px;padding:33px 220px 5px 10px;line-height:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pane:has(#view3d) h2{padding-right:240px}
-.pane-plane-tools{padding-left:28px;flex-basis:100%;display:flex;justify-content:flex-end;gap:3px}.pane-plane-tools button{width:auto;padding:3px 7px;font-size:11px;gap:4px}.pane:not(:has(#view3d)) .pane-quick-tools{display:grid;grid-template-columns:repeat(7,26px);gap:2px;max-width:none;justify-content:end}.pane:has(#view3d) .pane-quick-tools{width:390px}#view3d{position:relative}#modelInfoPanel{position:absolute!important;inset:auto 10px 10px auto!important;align-self:flex-end;text-align:left;max-width:calc(100% - 20px)!important}#modelInfoPanel[hidden]{display:none!important}header{position:relative;padding-right:130px}.manual-link{position:absolute;right:18px;top:14px;padding:6px 10px;background:#19394d;border:1px solid #42778b;border-radius:5px;color:#e5faff;font-size:12px;text-decoration:none}.manual-link:hover{background:#28566d}</style>
+.pane-plane-tools{padding-left:28px;flex-basis:100%;display:flex;justify-content:flex-end;gap:3px}.pane-plane-tools button{width:auto;padding:3px 7px;font-size:11px;gap:4px}.pane:not(:has(#view3d)) .pane-quick-tools{display:grid;grid-template-columns:repeat(7,26px);gap:2px;max-width:none;justify-content:end}.pane:has(#view3d) .pane-quick-tools{width:390px}#view3d{position:relative}#modelInfoPanel{position:absolute!important;inset:auto 10px 10px auto!important;align-self:flex-end;text-align:left;max-width:calc(100% - 20px)!important}#modelInfoPanel[hidden]{display:none!important}header{position:relative;padding-right:130px}.manual-link{position:absolute;right:18px;top:14px;padding:6px 10px;background:#19394d;border:1px solid #42778b;border-radius:5px;color:#e5faff;font-size:12px;text-decoration:none}.manual-link:hover{background:#28566d}#section-saved .sidebar-body>button,#newNamedView>button,#namedViewList .named-view-actions button{min-height:28px;padding:4px 8px;font-size:11px;line-height:18px}#section-saved input[type=text]{height:30px;min-height:30px;padding:4px 7px;font:12px system-ui}#section-saved input[type=file]{height:30px;min-height:30px;padding:3px 5px;font:11px system-ui}#section-saved input[type=file]::file-selector-button{font:11px system-ui;padding:2px 6px}#section-saved textarea{padding:5px 7px;font:12px/1.4 system-ui}#newNamedView>summary{font-size:12px;line-height:18px;padding:3px 0}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body>
 <header><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><strong>Visor MPR · v2</strong><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
 <div class="layout"><div class="views">
@@ -141,7 +141,7 @@ let structureGroups=[],structureRelations=[],treeCaseKey=null;const treeRows=[];
 let structureNameRoot=null;
 const selectedStructures=new Set();const modelAnnotations=[];let annotationRoot=null,pendingArrow=null;
 let batchRestore=false;const contourCache=new WeakMap();
-let activeTool='navigate',selectedStructure=null;let volumeContentHash=null,modelContentHash=null;
+let activeTool='navigate',selectedStructure=null;let volumeContentHash=null,modelContentHash=null,loadedModelName="modelo";
 const viewStates={x:{zoom:1,x:0,y:0},y:{zoom:1,x:0,y:0},z:{zoom:1,x:0,y:0}},viewAppliers={};
 const contourPaths={x:[],y:[],z:[]},layerControls=new Map(),measurements=[];
 let pendingMeasure=null;
@@ -562,7 +562,7 @@ async function loadGlbFromUrl(url,label){
   const hash=await contentHash(buffer);const result=await new GLTFLoader().parseAsync(buffer,url.startsWith('blob:')?new URL('./',location.href).href:new URL('./',url).href);
   clearRoot(modelRoot);model=result.scene;modelRoot.add(model);
   const counts=buildModelLayers(model);$('modelLayers').hidden=false;$('independentEmpty').hidden=layerControls.size>0;buildStructureSelection();clearModelAnnotations();
-  updateModelTransform();updateClip();clearMeasurements();modelContentHash=hash;loadTree();syncNamedViews();
+  updateModelTransform();updateClip();clearMeasurements();modelContentHash=hash;loadedModelName=label.split(/[\\/]/).pop().replace(/\.glb$/i,'');loadTree();syncNamedViews();
   if(volume)['x','y','z'].forEach(paint);
   status.textContent=`GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
 }
@@ -926,7 +926,7 @@ $('newNamedView').addEventListener('toggle',()=>{
 $('addNamedView').onclick=()=>{try{if(!namedCaseKey)throw new Error('Carga el volumen y el modelo GLB.');if(namedViews.length>=100)throw new Error('Máximo de 100 vistas por caso.');const name=viewName();if(namedViews.some(v=>v.name===name))throw new Error('Ya existe ese nombre. Usa «Actualizar» o elige otro.');namedViews.push({name,notes:$('namedViewNotes').value.slice(0,3000),config:structuredClone(configData())});persistNamedViews();$('newNamedView').open=false}catch(e){$('namedViewMessage').textContent=e.message}};
 $('namedViewName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addNamedView').click()});
 $('undoDeleteView').onclick=()=>{if(!deletedView)return;const {view,index}=deletedView;view.name=uniqueViewName(view.name);namedViews.splice(index,0,view);deletedView=null;persistNamedViews()};
-$('exportNamedViews').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'mpr-named-views',version:1,caseKey:namedCaseKey,views:namedViews},null,2)],{type:'application/json'}),'vistas_mpr.json');
+$('exportNamedViews').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'mpr-named-views',version:1,caseKey:namedCaseKey,views:namedViews},null,2)],{type:'application/json'}),loadedModelName+'_vista.json');
 $('importNamedViews').onchange=async e=>{
  const file=e.target.files[0];if(!file)return;
  try{
@@ -1263,7 +1263,7 @@ async function loadNrrdParts(manifestUrl, label) {
 
 // Organización publicada del mismo modelo; su ausencia no interrumpe el caso.
 async function loadPublishedStructureTree(basename,root){
- const hash=modelContentHash,url=new URL(encodeURIComponent('organización_estructuras')+'/'+encodeURIComponent(basename)+'.json',root);
+ const hash=modelContentHash,url=new URL(encodeURIComponent('organización_estructuras')+'/'+encodeURIComponent(basename+'_estructura.json'),root);
  try{
   const response=await fetch(url,{credentials:'omit',cache:'no-cache'});
   if(response.status===404){$('treeMessage').textContent='No hay árbol publicado para '+basename+'. Se conserva la organización local.';return;}
@@ -1273,14 +1273,14 @@ async function loadPublishedStructureTree(basename,root){
   if(data?.format!=='mpr-structure-tree'||![1,2].includes(data.version)||data.modelHash!==hash)throw new Error('La organización no corresponde al mismo GLB.');
   const groups=validateTree(data.groups),relations=validateStructureRelations(data.relations||[]);
   if(modelContentHash!==hash)return;
-  if(data.nodes)applyNodes(data.nodes);else applyHierarchy(groups,relations);$('treeMessage').textContent='Árbol cargado de organización_estructuras/'+basename+'.json.';
+  if(data.nodes)applyNodes(data.nodes);else applyHierarchy(groups,relations);$('treeMessage').textContent='Árbol cargado de organización_estructuras/'+basename+'_estructura.json.';
  }catch(error){$('treeMessage').textContent='No se pudo cargar el árbol publicado: '+error.message+' Se conserva la organización actual.';}
 }
 
 // Carga de las vistas publicadas para el caso, sin borrar las vistas locales.
 // Formato: el JSON exportado desde «Mis vistas guardadas».
 async function loadPublishedViews(basename, root) {
- const url=new URL('vistas/mpr/'+encodeURIComponent(basename)+'.json',root);
+ const url=new URL('vistas/mpr/'+encodeURIComponent(basename+'_vista.json'),root);
  let response;
  try { response=await fetch(url,{credentials:'omit',cache:'no-cache'}); }
  catch(err){$('namedViewMessage').textContent='No se pudieron consultar las vistas publicadas: '+err.message;return;}
@@ -1516,7 +1516,7 @@ function renderStructureCatalog(){
 function filterTree(){const q=$('structureSearch').value.trim().toLocaleLowerCase('es');let count=0;for(const [key,l] of layerControls){l.card.hidden=!!q&&!key.toLocaleLowerCase('es').includes(q);if(!l.card.hidden)count++;}for(const d of [...$('structureTree').querySelectorAll('.unified-node')].reverse()){const own=d.querySelector(':scope > summary .tree-name').textContent.toLocaleLowerCase('es').includes(q),child=[...d.querySelectorAll('.unified-node')].some(c=>!c.hidden);d.hidden=!!q&&!own&&!child;if(!d.hidden)count++;if(q&&!d.hidden)d.open=true;}$('structureSearchEmpty').hidden=!q||count>0;}
 const catalog=document.createElement('section');catalog.id='structureCatalog';catalog.hidden=true;$('structureTree').before(catalog);const toolbar=$('createGroup').parentElement;const mode=button('Editar árbol',()=>{treeEditing=!treeEditing;renderTree();});mode.id='treeMode';toolbar.prepend(mode);
 $('createGroup').textContent='+ Crear grupo';$('createGroup').onclick=()=>editNode();$('childrenEditor').hidden=true;document.querySelector('.hierarchy-display').remove();
-$('createGroup').hidden=true;$('importTree').parentElement.hidden=false;$('exportTree').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'mpr-structure-tree',version:2,modelHash:modelContentHash,nodes:structureNodes,groups:[],relations:[]},null,2)],{type:'application/json'}),'organizacion_estructuras.json');
+$('createGroup').hidden=true;$('importTree').parentElement.hidden=false;$('exportTree').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'mpr-structure-tree',version:2,modelHash:modelContentHash,nodes:structureNodes,groups:[],relations:[]},null,2)],{type:'application/json'}),loadedModelName+'_estructura.json');
 $('importTree').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>5000000)throw new Error('Archivo demasiado grande.');const d=JSON.parse(await f.text());if(d.format!=='mpr-structure-tree'||![1,2].includes(d.version)||!modelContentHash||d.modelHash!==modelContentHash)throw new Error('El árbol no corresponde a este GLB.');if(d.nodes)applyNodes(d.nodes);else applyHierarchy(d.groups,d.relations||[]);$('treeMessage').textContent='Árbol importado.';}catch(err){$('treeMessage').textContent=err.message;}finally{e.target.value='';}};
 
 
