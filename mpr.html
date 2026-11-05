@@ -96,11 +96,37 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 .named-view-row.drop-view-after .named-view-header{box-shadow:inset 0 -3px #52dcd5}
 .presentation-start{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:8px 0}.presentation-start label{margin:0}.presentation-start select{width:auto;flex:1;min-width:0}
 .presentation-bar{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
-#section-presentation :is(button,select){box-sizing:border-box;height:28px;min-height:28px;padding:4px 8px;margin:0;font-size:11px;line-height:18px}
-#section-presentation .presentation-nav{display:inline-grid;place-items:center;width:28px;padding:0}
-#section-presentation .presentation-nav svg{width:16px;height:16px}
+:is(#section-presentation,#casePresentation) :is(button,select){box-sizing:border-box;height:28px;min-height:28px;padding:4px 8px;margin:0;font-size:11px;line-height:18px}
+:is(#section-presentation,#casePresentation) .presentation-nav{display:inline-grid;place-items:center;width:28px;padding:0}
+:is(#section-presentation,#casePresentation) .presentation-nav svg{width:16px;height:16px}
 #casePresentation h2{font-size:14px;margin:10px 0 6px;overflow-wrap:anywhere}
 #presentationNotes{white-space:pre-wrap;overflow-wrap:anywhere}
+#presentationPaneLabel{display:none}
+body.mobile-presentation{overflow:hidden}
+body.mobile-presentation .layout{
+ position:fixed;inset:0;z-index:2000;display:grid;grid-template-columns:minmax(0,1fr);
+ grid-template-rows:minmax(0,1fr) auto;height:auto;min-height:0;background:#0b1320;
+}
+body.mobile-presentation .layout>aside{display:none}
+body.mobile-presentation .layout>.views{
+ grid-column:1;grid-row:1;grid-template-columns:minmax(0,1fr);
+ grid-template-rows:minmax(0,1fr);height:100%;min-height:0;padding:4px;
+}
+body.mobile-presentation .views>.pane:not(.presentation-featured){display:none}
+body.mobile-presentation .views>.presentation-featured{position:relative;inset:auto;z-index:auto;min-height:0}
+body.mobile-presentation .presentation-featured .stage{min-height:0}
+body.mobile-presentation #casePresentation{
+ grid-row:2;margin:0;padding:6px 8px max(6px,env(safe-area-inset-bottom));
+ max-height:40dvh;overflow:auto;border-radius:0;
+}
+body.mobile-presentation #casePresentation :is(button,select){height:44px;min-height:44px;font-size:13px}
+body.mobile-presentation #casePresentation .presentation-nav{width:44px}
+body.mobile-presentation #presentationPaneLabel{display:inline-flex;align-items:center;gap:4px;margin:0}
+body.mobile-presentation #presentationPane{width:auto}
+body.mobile-presentation #presentationTitle{margin:5px 0 0}
+body.mobile-presentation #presentationNotes{margin:4px 0}
+body.mobile-presentation #presentationStatus:empty{display:none}
+
 </style></head><body>
 <header><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><strong>Visor MPR · v2</strong><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
 <div class="layout"><div class="views">
@@ -130,6 +156,14 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
   <button type="button" id="presentationPrev" class="presentation-nav" aria-label="Anterior" title="Anterior"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4 6 8l4 4"/></svg></button>
   <span id="presentationCount" aria-live="polite"></span>
   <button type="button" id="presentationNext" class="presentation-nav" aria-label="Siguiente" title="Siguiente"><svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m6 4 4 4-4 4"/></svg></button>
+  <label id="presentationPaneLabel">Panel
+   <select id="presentationPane">
+    <option value="3d">3D</option>
+    <option value="axial">Axial</option>
+    <option value="coronal">Coronal</option>
+    <option value="sagittal">Sagital</option>
+   </select>
+  </label>
   <button type="button" id="presentationExport">Descargar informe</button>
   <button type="button" id="presentationExit">Salir de la presentación</button>
  </div>
@@ -1989,6 +2023,8 @@ function captureSavedView(view) {
  const measure = pendingMeasure;
  const arrow = pendingArrow;
  const message = status.textContent;
+ const mobileMode = document.body.classList.contains('mobile-presentation');
+ document.body.classList.remove('mobile-presentation');
  try {
   restoreConfig(view.config, {applyTree:false});
   resize3D();
@@ -2007,6 +2043,7 @@ function captureSavedView(view) {
   });
   return grid.toDataURL('image/jpeg', .91);
  } finally {
+  document.body.classList.toggle('mobile-presentation',mobileMode);
   restoreConfig(original, {applyTree:false});
   for (const key of selection) selectedStructures.add(key);
   selectedStructure = primary;
@@ -2083,10 +2120,38 @@ function installCasePresentation() {
  const next = $('presentationNext');
  const exportButton = $('presentationExport');
  const launch = $('presentCase');
+ const panelHome = panel.parentElement;
+ const layout = document.querySelector('.layout');
+ const panePicker = $('presentationPane');
+ const panes = [...layout.querySelectorAll('.views > .pane')];
+ const mobile = matchMedia('(pointer:coarse) and (max-width:700px), (pointer:coarse) and (max-height:500px)');
  let slides = [];
  let index = 0;
  let exporting = false;
  let presentationCase = null;
+
+ function showFeaturedPane(){
+  for(const pane of panes){
+   pane.classList.toggle('presentation-featured',pane.dataset.viewPane===panePicker.value);
+  }
+ }
+
+ function syncMobileLayout(){
+  const fullscreen = !panel.hidden && mobile.matches;
+  document.body.classList.toggle('mobile-presentation',fullscreen);
+  const container = fullscreen ? layout : panelHome;
+  if(panel.parentElement!==container)container.append(panel);
+  resize3D();
+  repaintAll();
+ }
+ panePicker.onchange=()=>{
+  showFeaturedPane();
+  resize3D();
+  repaintAll();
+ };
+ mobile.addEventListener('change',()=>{
+  if(!panel.hidden)syncMobileLayout();
+ });
 
  function syncButtons() {
   previous.disabled = exporting || index === 0;
@@ -2095,6 +2160,8 @@ function installCasePresentation() {
  }
  function showSlide(animateCamera=false) {
   const slide = slides[index];
+  panePicker.value=slide.config.maximizedPane || '3d';
+  showFeaturedPane();
   $('presentationTitle').textContent = slide.name;
   $('presentationNotes').textContent = slide.notes || '';
   $('presentationNotes').hidden = !slide.notes;
@@ -2120,6 +2187,7 @@ function installCasePresentation() {
  function endPresentation() {
   const sameCase = namedCaseKey === presentationCase;
   panel.hidden = true;
+  syncMobileLayout();
   presentationCase = null;
   finishPresentationCamera(sameCase);
   launch.focus();
@@ -2131,6 +2199,7 @@ function installCasePresentation() {
   slides = structuredClone(included);
   index = Math.max(0,$('presentationStartView').selectedIndex);
   panel.hidden = false;
+  syncMobileLayout();
   showSlide();
   exit.focus();
  };
