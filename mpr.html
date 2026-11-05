@@ -84,15 +84,15 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 #namedViewList .named-view-header:has(.named-view-open[aria-current=true]){background:#263d4a;box-shadow:inset 0 0 0 1px #f2bd67}
 .pane-quick-tools{position:absolute;right:43px;top:2px;z-index:12;display:flex;gap:2px;max-width:calc(100% - 48px);flex-wrap:wrap;justify-content:flex-end;background:#102534e8;border-radius:5px}.pane-quick-tools button{display:flex;align-items:center;justify-content:center;width:26px;height:25px;padding:4px;margin:0;background:#19394d;border:1px solid #31566e;color:#d9edf5}.pane-quick-tools button:hover{background:#28566d}.pane-quick-tools button[aria-pressed=true]{background:#147f8c;border-color:#78e6ef}.pane-quick-tools svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}.pane:has(.pane-quick-tools) h2{height:55px;min-height:55px;padding:33px 220px 5px 10px;line-height:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pane:has(#view3d) h2{padding-right:240px}
 .pane-plane-tools{padding-left:28px;flex-basis:100%;display:flex;justify-content:flex-end;gap:3px}.pane-plane-tools button{width:auto;padding:3px 7px;font-size:11px;gap:4px}.pane:not(:has(#view3d)) .pane-quick-tools{display:grid;grid-template-columns:repeat(7,26px);gap:2px;max-width:none;justify-content:end}.pane:has(#view3d) .pane-quick-tools{width:390px}#view3d{position:relative}#modelInfoPanel{position:absolute!important;inset:auto 10px 10px auto!important;align-self:flex-end;text-align:left;max-width:calc(100% - 20px)!important}#modelInfoPanel[hidden]{display:none!important}header{position:relative;padding-right:130px}.manual-link{position:absolute;right:18px;top:14px;padding:6px 10px;background:#19394d;border:1px solid #42778b;border-radius:5px;color:#e5faff;font-size:12px;text-decoration:none}.manual-link:hover{background:#28566d}#section-saved .sidebar-body>button,#newNamedView>button,#namedViewList .named-view-actions button{min-height:28px;padding:4px 8px;font-size:11px;line-height:18px}#section-saved input[type=text]{height:30px;min-height:30px;padding:4px 7px;font:12px system-ui}#section-saved input[type=file]{height:30px;min-height:30px;padding:3px 5px;font:11px system-ui}#section-saved input[type=file]::file-selector-button{font:11px system-ui;padding:2px 6px}#section-saved textarea{padding:5px 7px;font:12px/1.4 system-ui}#newNamedView>summary{font-size:12px;line-height:18px;padding:3px 0}</style>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script><style>.case-session{border:1px solid #31546a;border-radius:6px;padding:10px;margin:8px 0 12px}.case-session-actions{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.case-session button{min-height:28px;padding:4px 8px;font-size:12px}.case-session p{margin:6px 0 0;font-size:12px}</style><style>.history-actions{display:flex;gap:6px;align-items:center}.history-actions button{height:28px;min-height:28px;padding:4px 10px;font-size:12px;margin:0}.sidebar-heading:has(.history-actions){padding-bottom:10px}.sidebar-heading #loadingPanel{margin-top:10px}</style></head><body>
 <header><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><strong>Visor MPR · v2</strong><small>Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub Pages</small></header>
 <div class="layout"><div class="views">
 <section class="pane" data-view-pane="axial"><h2>Axial (eje Z)</h2><div class="stage"><canvas class="ct" id="ctz"></canvas></div><div class="sliceTools"><input disabled="" id="rz" type="range"/><output id="oz">—</output></div></section>
 <section class="pane" data-view-pane="coronal"><h2>Coronal (eje Y)</h2><div class="stage"><canvas class="ct" id="cty"></canvas></div><div class="sliceTools"><input disabled="" id="ry" type="range"/><output id="oy">—</output></div></section>
 <section class="pane" data-view-pane="sagittal"><h2>Sagital (eje X)</h2><div class="stage"><canvas class="ct" id="ctx"></canvas></div><div class="sliceTools"><input disabled="" id="rx" type="range"/><output id="ox">—</output></div></section>
 <section class="pane" data-view-pane="3d"><h2>Vista 3D: modelo y planos de imagen</h2><div class="stage" id="view3d"></div></section>
-</div><aside><div class="sidebar-heading"><strong>Controles del visor</strong><div><button id="expandMenus" type="button">Abrir todos</button><button id="collapseMenus" type="button">Cerrar todos</button></div><p id="status">Selecciona un NRRD para comenzar.</p><div aria-busy="false" aria-live="polite" hidden="" id="loadingPanel" role="status"><span id="loadingTitle">Preparando…</span><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingDetail"></span></div></div><input id="unit" type="hidden" value="1000"/><input id="space" type="hidden" value="RAS"/><details class="sidebar-group" id="section-case" open=""><summary>▣  Caso</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><label for="nrrd">Volumen de imagen en NRRD (archivo local)</label><input accept=".nrrd" id="nrrd" type="file"/><label for="glb">Modelo GLB (archivo local)</label><input accept=".glb" id="glb" type="file"/>
-</div></div></details><details hidden id="section-visual"><summary>▤  Visualización</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-navigation"><summary>Navegación y herramientas</summary><div class="sidebar-body"><div class="tool-grid" id="tools">
+</div><aside><div class="sidebar-heading"><div id="historyActions" class="history-actions" role="toolbar" aria-label="Acciones del visor"></div><div aria-busy="false" aria-live="polite" hidden="" id="loadingPanel" role="status"><span id="loadingTitle">Preparando…</span><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingDetail"></span></div></div><input id="unit" type="hidden" value="1000"/><input id="space" type="hidden" value="RAS"/><details class="sidebar-group" id="section-case" open=""><summary>▣  Caso</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p><label for="nrrd">Volumen de imagen en NRRD (archivo local)</label><input accept=".nrrd" id="nrrd" type="file"/><label for="glb">Modelo GLB (archivo local)</label><input accept=".glb" id="glb" type="file"/>
+</div></div></details><details class="sidebar-group" id="section-session"><summary>▣ Sesión del caso</summary><div class="sidebar-body" id="caseSessionControls"></div></details><details hidden id="section-visual"><summary>▤  Visualización</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-navigation"><summary>Navegación y herramientas</summary><div class="sidebar-body"><div class="tool-grid" id="tools">
 <button aria-pressed="true" data-tool="navigate" type="button">Navegar</button><button aria-pressed="false" data-tool="pan" type="button">Desplazar</button>
 <button aria-pressed="false" data-tool="zoom" type="button">Zoom</button><button aria-pressed="false" data-tool="window" type="button">Ventana / nivel</button>
 <button aria-pressed="false" data-tool="measure2d" type="button">Medir en 2D</button><button aria-pressed="false" data-tool="measure3d" type="button">Medir en 3D</button>
@@ -875,9 +875,10 @@ async function contentHash(bytes){const digest=await crypto.subtle.digest('SHA-2
 function syncNamedViews(){
  const key=currentViewCase();if(key===namedCaseKey)return;namedCaseKey=key;activeNamedView=null;namedViews=[];deletedView=null;$('namedViewNotes').value='';
  if(key)try{const data=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(data))namedViews=data.filter(v=>typeof v.name==='string'&&v.config?.format==='mpr-viewer').slice(0,100)}catch{ $('namedViewMessage').textContent='No se pudo leer el guardado del navegador. Puedes importar un archivo de vistas.';}
- loadTree();renderNamedViews();
+ loadTree();renderNamedViews();document.dispatchEvent(new Event('case-state-change'));
 }
 function persistNamedViews(){
+ document.dispatchEvent(new Event('case-state-change'));
  try{localStorage.setItem(namedCaseKey,JSON.stringify(namedViews));$('namedViewMessage').textContent='Lista guardada en este navegador. Exporta una copia para usarla en otro equipo.'}
  catch{$('namedViewMessage').textContent='El navegador no permite guardar la lista. Se mantiene durante esta sesión; exporta una copia antes de cerrar.'}
  renderNamedViews();
@@ -1160,8 +1161,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&['annotation','arro
 renderAnnotations();
 
 
-$('expandMenus').onclick=()=>document.querySelectorAll('.sidebar-group').forEach(menu=>menu.open=true);
-$('collapseMenus').onclick=()=>document.querySelectorAll('.sidebar-group').forEach(menu=>menu.open=false);
+
+
 
 // Volumen de la superficie cerrada: tetraedros respecto al centro de la malla.
 const geometryVolumes=new WeakMap();
@@ -1422,7 +1423,7 @@ async function autoLoadCase(){
   status.textContent='Caso '+basename+' cargado (GLB y NRRD). Verifica la alineación en los tres planos.';
   finishProgress(true,'Modelo y volumen preparados');
   await loadPublishedViews(basename,root);
- }catch(err){console.error(err);status.textContent='Carga automática incompleta: '+err.message+'. Puedes seleccionar el NRRD manualmente.';finishProgress(false,err.message);}
+ }catch(err){console.error(err);$('section-case').hidden=false;$('section-case').open=true;status.textContent='Carga automática incompleta: '+err.message+'. Puedes seleccionar el NRRD manualmente.';finishProgress(false,err.message);}
 }
 autoLoadCase();
 
@@ -1450,7 +1451,7 @@ function validateNodes(nodes){
  return nodes.map(n=>n.type==='group'?{id:n.id,type:n.type,name:n.name.trim(),parent:n.parent}:{id:n.id,type:n.type,key:n.key,name:n.name?.trim()||'',parent:n.parent});
 }
 function nodeKeys(id){const keys=new Set(),stack=[id];while(stack.length){const id=stack.pop(),n=structureNodes.find(n=>n.id===id);if(!n)continue;if(n.type==='segment')keys.add(n.key);for(const c of structureNodes)if(c.parent===n.id)stack.push(c.id);}return [...keys];}
-function saveTree(){if(treeCaseKey)try{localStorage.setItem(treeCaseKey,JSON.stringify({nodes:structureNodes,groups:structureGroups,relations:structureRelations}));}catch{$('treeMessage').textContent='No se pudo guardar. Exporta el árbol.';}}
+function saveTree(){document.dispatchEvent(new Event('case-state-change'));if(treeCaseKey)try{localStorage.setItem(treeCaseKey,JSON.stringify({nodes:structureNodes,groups:structureGroups,relations:structureRelations}));}catch{$('treeMessage').textContent='No se pudo guardar. Exporta el árbol.';}}
 function applyNodes(nodes){const valid=validateNodes(nodes);structureNodes=valid;saveTree();renderTree();}
 function applyHierarchy(groups,relations=[]){structureGroups=validateTree(groups);structureRelations=validateStructureRelations(relations);const nodes=structureGroups.map(g=>({id:g.id,type:'group',name:g.name,parent:g.parent}));
  function add(key,parent){const id=uid();nodes.push({id,type:'segment',key,parent});for(const e of structureRelations)if(e.parent===key)add(e.child,id);}
@@ -1794,4 +1795,41 @@ $('modelLayers').addEventListener('input',updateVisibleModelInfo);
 $('modelLayers').addEventListener('change',updateVisibleModelInfo);
 $('showmodel').addEventListener('change',updateVisibleModelInfo);
 for(const id of ['fillSegments','showCross','show3DMarker','planes','planeX','planeY','planeZ','clipEnabled','showStructureNames'])for(const event of ['input','change'])$(id).addEventListener(event,syncPaneToggles);
+
+function installCaseHistory(adapter,host){
+ const box=document.createElement('section');box.className='case-session';box.innerHTML='<strong>Sesión del caso</strong><div class="case-session-actions"><button type="button" data-case="save">Guardar caso</button><button type="button" data-case="load">Abrir caso</button><button type="button" data-case="undo" disabled title="Ctrl+Z">↶ Deshacer</button><button type="button" data-case="redo" disabled title="Ctrl+Mayús+Z">↷ Rehacer</button></div><input type="file" accept=".json,application/json" hidden><p class="note hint" aria-live="polite">El archivo guarda la configuración; carga los mismos archivos de imagen y modelo para recuperarla.</p>';
+ host.prepend(box);const buttons=Object.fromEntries([...box.querySelectorAll('[data-case]')].map(b=>[b.dataset.case,b])),button=k=>buttons[k],message=box.querySelector('p'),input=box.querySelector('input');
+ const historyActions=$('historyActions');historyActions.append(button('undo'),button('redo'));box.querySelector('strong').remove();
+ let entries=[],cursor=-1,key=null,busy=false,timer=null,total=0;
+ function sync(){button('undo').disabled=cursor<1;button('redo').disabled=cursor<0||cursor>=entries.length-1;button('save').disabled=!adapter.key();}
+ function reset(){entries=[];cursor=-1;total=0;key=adapter.key();sync();}
+ function checkpoint(){
+  clearTimeout(timer);if(busy)return;
+  const nextKey=adapter.key();if(nextKey!==key)reset();if(!nextKey)return;
+  const state=JSON.stringify(adapter.capture());if(entries[cursor]===state)return;
+  entries.splice(cursor+1);entries.push(state);cursor=entries.length-1;
+  total=entries.reduce((n,s)=>n+s.length*2,0);
+  while(entries.length>1&&(entries.length>60||total>20000000)){total-=entries.shift().length*2;cursor--;}
+  sync();
+ }
+ function schedule(){if(!busy){clearTimeout(timer);timer=setTimeout(checkpoint,350);}}
+ function move(delta){checkpoint();const next=cursor+delta;if(next<0||next>=entries.length)return;busy=true;try{adapter.restore(JSON.parse(entries[next]));cursor=next;message.textContent=delta<0?'Acción deshecha.':'Acción rehecha.';}catch(e){message.textContent=e.message;}finally{busy=false;sync();}}
+ button('undo').onclick=()=>move(-1);button('redo').onclick=()=>move(1);
+ button('save').onclick=()=>{try{checkpoint();const data={format:adapter.format,version:1,caseKey:adapter.key(),model:adapter.name(),savedAt:new Date().toISOString(),state:adapter.capture()};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=adapter.name()+'_caso.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message.textContent='Caso guardado: '+a.download;}catch(e){message.textContent=e.message;}};
+ button('load').onclick=()=>input.click();
+ input.onchange=async()=>{const file=input.files[0];if(!file)return;try{if(!adapter.key())throw new Error('Carga primero el modelo y las imágenes del caso.');if(file.size>25000000)throw new Error('El archivo supera 25 MB.');const data=JSON.parse(await file.text());if(data?.format!==adapter.format||data.version!==1||data.caseKey!==adapter.key())throw new Error('Este archivo no corresponde al mismo caso o visualizador.');adapter.validate(data.state);checkpoint();const previous=adapter.capture();busy=true;try{adapter.restore(data.state);}catch(e){adapter.restore(previous);throw e;}finally{busy=false;}checkpoint();message.textContent='Caso recuperado. Puedes deshacer la importación.';}catch(e){message.textContent='No se pudo abrir: '+e.message;}finally{input.value='';}};
+ for(const type of ['pointerdown','keydown','wheel','dragstart'])document.addEventListener(type,e=>{if(!box.contains(e.target))checkpoint();},true);
+ for(const type of ['click','input','change','pointerup','pointercancel','wheel','drop','dblclick'])document.addEventListener(type,e=>{if(!box.contains(e.target))schedule();});
+ document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey||e.target.closest('input,textarea,[contenteditable="true"]'))return;const k=e.key.toLowerCase();if(k==='z'||k==='y'){e.preventDefault();move(k==='y'||e.shiftKey?1:-1);}});
+ document.addEventListener('case-state-change',schedule);adapter.onChange(schedule);checkpoint();return{checkpoint,schedule,reset};
+}
+
+function caseSessionState(){return structuredClone({config:configData(),views:namedViews.map(v=>({...v,notes:v.notes||''})),active:activeNamedView?.name??null,selected:[...selectedStructures]});}
+function validateCaseSession(state){
+ if(!state||!Array.isArray(state.views)||state.views.length>100)throw new Error('Lista de vistas inválida.');
+ validateConfig(state.config);const names=new Set();for(const v of state.views){if(!v||typeof v.name!=='string'||!v.name.trim()||v.name.length>100||names.has(v.name)||typeof v.notes!=='string'||v.notes.length>3000)throw new Error('Vista inválida.');names.add(v.name);validateConfig(v.config);}
+ if(!Array.isArray(state.selected)||state.selected.some(k=>!layerControls.has(k)))throw new Error('Selección inválida.');
+}
+function restoreCaseSession(state){validateCaseSession(state);restoreConfig(structuredClone(state.config));namedViews=structuredClone(state.views);activeNamedView=namedViews.find(v=>v.name===state.active)||null;deletedView=null;selectedStructures.clear();for(const k of state.selected)selectedStructures.add(k);updateStructureSelection();persistNamedViews();}
+const caseHistory=installCaseHistory({format:'mpr-complete-case',key:currentViewCase,name:()=>loadedModelName,capture:caseSessionState,validate:validateCaseSession,restore:restoreCaseSession,onChange:fn=>controls.addEventListener('end',fn)},$('caseSessionControls'));
 </script></body></html>
