@@ -87,13 +87,19 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script><style>.case-session{border:1px solid #31546a;border-radius:6px;padding:10px;margin:8px 0 12px}.case-session-actions{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.case-session button,.case-file-actions button{min-height:28px;padding:4px 8px;font-size:12px}.case-session p{margin:6px 0 0;font-size:12px}</style><style>.history-actions{display:flex;gap:6px;align-items:center}.history-actions button{height:28px;min-height:28px;padding:4px 10px;font-size:12px;margin:0}.sidebar-heading:has(.history-actions){padding-bottom:10px}.sidebar-heading #loadingPanel{margin-top:10px}</style><style>
 #casePresentation{margin:8px 0 0;padding:10px;border:1px solid #456a80;border-radius:8px;background:#102233;color:#eaf1f8}
 #casePresentation[hidden]{display:none}
-.named-view-row.is-presentation-view .named-view-header{outline:1px solid #52dcd5;outline-offset:-1px}
+#namedViewList .named-view-row.is-presentation-view .named-view-header{background:#52dcd5}
+#namedViewList .is-presentation-view .named-view-open,
+#namedViewList .is-presentation-view .saved-view-icon,
+#namedViewList .is-presentation-view .named-view-toggle{color:#0b2630}
+#namedViewList .is-presentation-view .named-view-toggle{border-color:#23525c}
+#namedViewList .is-presentation-view .named-view-toggle:hover{background:#b0f1ed}
+#namedViewList .named-view-row.is-presentation-view .named-view-header:has(.named-view-open[aria-current=true]){box-shadow:inset 0 0 0 2px #0b2630}
 #namedViewList .named-view-header{grid-template-columns:auto minmax(0,1fr) auto}
 #namedViewList .named-view-grip{cursor:grab;min-width:24px}
 #namedViewList .named-view-grip:active{cursor:grabbing}
 .named-view-row.is-dragging-view{opacity:.55}
-.named-view-row.drop-view-before .named-view-header{box-shadow:inset 0 3px #52dcd5}
-.named-view-row.drop-view-after .named-view-header{box-shadow:inset 0 -3px #52dcd5}
+.named-view-row.drop-view-before .named-view-header{box-shadow:inset 0 3px #fff}
+.named-view-row.drop-view-after .named-view-header{box-shadow:inset 0 -3px #fff}
 .presentation-start{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:8px 0}.presentation-start label{margin:0}.presentation-start select{width:auto;flex:1;min-width:0}
 .presentation-bar{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
 :is(#section-presentation,#casePresentation) :is(button,select){box-sizing:border-box;height:28px;min-height:28px;padding:4px 8px;margin:0;font-size:11px;line-height:18px}
@@ -380,6 +386,16 @@ $('caseLocalFiles').hidden=linkedCase;
 $('section-case').open=!linkedCase;
 for(const button of document.querySelectorAll('[data-case-file]')){
  button.addEventListener('click',()=>$(button.dataset.caseFile).click());
+}
+function bindLocalFile(input,load,report){
+ let busy=false;
+ input.onchange=async()=>{
+  const file=input.files[0];
+  input.value='';
+  if(!file||busy)return;
+  busy=true;
+  try{await load(file)}catch(error){report(error.message)}finally{busy=false;}
+ };
 }
 const progressPanel=$('loadingPanel'), progressTrack=$('loadingTrack'), progressFill=$('loadingFill');
 const formatMB=n=>(n/1000000).toFixed(1)+' MB';
@@ -781,7 +797,11 @@ function drawContours(axis, ctx, dest){
 
 function initSlices(){obliquePivot=null;obliqueRotation.identity();obliqueShift.set(0,0,0);clearRoot(planesRoot);slices={};for(const [axis,n] of [['x',volume.RASDimensions[0]],['y',volume.RASDimensions[1]],['z',volume.RASDimensions[2]]]){const size=Math.max(2,n);const slider=$('r'+axis);slider.disabled=false;slider.min='0';slider.max=String(size-1);slider.value=String(Math.floor((size-1)/2));const slice=volume.extractSlice(axis,+slider.value);slices[axis]=slice;planesRoot.add(slice.mesh);slider.oninput=()=>paint(axis);paint(axis)}updatePlaneVisibility();fit()}
 async function loadNrrdData(data,label){const hash=await contentHash(data);if(volumeContentHash!==hash)lastUsEntryPoint=null;if(volumeContentHash&&volumeContentHash!==hash)clearModelAnnotations();clearMeasurements();selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Pulsa un punto en un corte para sincronizar las vistas.';volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();volumeContentHash=hash;syncNamedViews();status.textContent=`Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}
-$('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';showProgress('Leyendo volumen local',null,formatMB(file.size));try{await loadNrrdData(await file.arrayBuffer(),file.name);finishProgress(true,'Volumen local preparado')}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message;finishProgress(false,err.message)}};
+bindLocalFile($('nrrd'),async file=>{
+ status.textContent='Leyendo NRRD…';showProgress('Leyendo volumen',null,formatMB(file.size));
+ await loadNrrdData(await file.arrayBuffer(),file.name);
+ finishProgress(true,'Volumen preparado');
+},message=>{status.textContent='Error leyendo NRRD: '+message;finishProgress(false,message);});
 $('apply').onclick=()=>{if(!volume)return;const w=Number($('ww').value),l=Number($('wl').value);if(!Number.isFinite(w)||w<=0||!Number.isFinite(l)){status.textContent='Ventana no válida';return}volume.windowLow=l-w/2;volume.windowHigh=l+w/2;['x','y','z'].forEach(paint)};
 function updatePlaneVisibility(){
  planesRoot.visible=$('planes').checked;
@@ -903,7 +923,11 @@ async function loadGlbFromUrl(url,label){
   if(volume)['x','y','z'].forEach(paint);
   status.textContent=`GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
 }
-$('glb').onchange=async e=>{const file=e.target.files[0];if(!file)return;const url=URL.createObjectURL(file);status.textContent='Leyendo GLB local…';try{await loadGlbFromUrl(url,file.name);finishProgress(true,'Modelo local preparado')}catch(err){console.error(err);status.textContent='Error GLB: '+err.message;finishProgress(false,err.message)}finally{URL.revokeObjectURL(url)}};
+bindLocalFile($('glb'),async file=>{
+ const url=URL.createObjectURL(file);status.textContent='Leyendo GLB…';
+ try{await loadGlbFromUrl(url,file.name);finishProgress(true,'Modelo preparado')}
+ finally{URL.revokeObjectURL(url)}
+},message=>{status.textContent='Error GLB: '+message;finishProgress(false,message);});
 
 
 // Navegación de las ventanas: transforma imagen, contornos y cruces juntos.
@@ -1371,9 +1395,7 @@ $('namedViewName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addNamed
 $('undoDeleteView').onclick=()=>{if(!deletedView)return;const {view,index}=deletedView;view.name=uniqueViewName(view.name);namedViews.splice(index,0,view);deletedView=null;persistNamedViews()};
 $('exportNamedViews').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'mpr-named-views',version:1,caseKey:namedCaseKey,views:namedViews},null,2)],{type:'application/json'}),loadedModelName+'_vista.json');
 $('importNamedViewsButton').onclick=()=>$('importNamedViews').click();
-$('importNamedViews').onchange=async e=>{
- const file=e.target.files[0];if(!file)return;
- try{
+bindLocalFile($('importNamedViews'),async file=>{
  if(!namedCaseKey)throw new Error('Carga primero el mismo volumen y modelo GLB.');if(file.size>5000000)throw new Error('El archivo supera 5 MB.');const data=JSON.parse(await file.text());
  if(data?.format!=='mpr-named-views'||data.version!==1||data.caseKey!==namedCaseKey||!Array.isArray(data.views))throw new Error('Selecciona una lista de vistas del mismo volumen y modelo GLB.');
  // Validar el lote completo antes de incorporarlo, sin modificar el visor.
@@ -1394,8 +1416,7 @@ $('importNamedViews').onchange=async e=>{
  const imported=merged.length-namedViews.length;
  if(imported){namedViews=merged;persistNamedViews()}
  $('namedViewMessage').textContent='Vistas importadas: '+imported+'. Duplicadas omitidas: '+(data.views.length-imported)+'.';
- }catch(error){$('namedViewMessage').textContent=error.message}finally{e.target.value=''}
-};
+},message=>{$('namedViewMessage').textContent=message;});
 renderNamedViews();
 
 let isolationSnapshot=null;
@@ -1971,7 +1992,7 @@ const catalog=document.createElement('section');catalog.id='structureCatalog';ca
 $('createGroup').textContent='+ Crear grupo';$('createGroup').onclick=()=>editNode();$('childrenEditor').hidden=true;document.querySelector('.hierarchy-display').remove();
 $('createGroup').hidden=true;$('exportTree').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'mpr-structure-tree',version:2,modelHash:modelContentHash,nodes:structureNodes,groups:[],relations:[]},null,2)],{type:'application/json'}),loadedModelName+'_estructura.json');
 $('importTreeButton').onclick=()=>$('importTree').click();
-$('importTree').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>5000000)throw new Error('Archivo demasiado grande.');const d=JSON.parse(await f.text());if(d.format!=='mpr-structure-tree'||![1,2].includes(d.version)||!modelContentHash||d.modelHash!==modelContentHash)throw new Error('El árbol no corresponde a este GLB.');if(d.nodes)applyNodes(d.nodes);else applyHierarchy(d.groups,d.relations||[]);$('treeMessage').textContent='Árbol importado.';}catch(err){$('treeMessage').textContent=err.message;}finally{e.target.value='';}};
+bindLocalFile($('importTree'),async f=>{if(f.size>5000000)throw new Error('Archivo demasiado grande.');const d=JSON.parse(await f.text());if(d.format!=='mpr-structure-tree'||![1,2].includes(d.version)||!modelContentHash||d.modelHash!==modelContentHash)throw new Error('El árbol no corresponde a este GLB.');if(d.nodes)applyNodes(d.nodes);else applyHierarchy(d.groups,d.relations||[]);$('treeMessage').textContent='Árbol importado.';},message=>{$('treeMessage').textContent=message;});
 
 
 function syncPaneToggles(){
@@ -2274,7 +2295,7 @@ function installCaseHistory(adapter,host){
  button('undo').onclick=()=>move(-1);button('redo').onclick=()=>move(1);
  button('save').onclick=()=>{try{checkpoint();const data={format:adapter.format,version:1,caseKey:adapter.key(),model:adapter.name(),savedAt:new Date().toISOString(),state:adapter.capture()};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=adapter.name()+'_caso.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message.textContent='Caso guardado: '+a.download;}catch(e){message.textContent=e.message;}};
  button('load').onclick=()=>input.click();
- input.onchange=async()=>{const file=input.files[0];if(!file)return;try{if(!adapter.key())throw new Error('Carga primero el modelo y las imágenes del caso.');if(file.size>25000000)throw new Error('El archivo supera 25 MB.');const data=JSON.parse(await file.text());if(data?.format!==adapter.format||data.version!==1||data.caseKey!==adapter.key())throw new Error('Este archivo no corresponde al mismo caso o visualizador.');adapter.validate(data.state);checkpoint();const previous=adapter.capture();busy=true;try{adapter.restore(data.state);}catch(e){adapter.restore(previous);throw e;}finally{busy=false;}checkpoint();message.textContent='Caso recuperado. Puedes deshacer la importación.';}catch(e){message.textContent='No se pudo abrir: '+e.message;}finally{input.value='';}};
+ bindLocalFile(input,async file=>{if(!adapter.key())throw new Error('Carga primero el modelo y las imágenes del caso.');if(file.size>25000000)throw new Error('El archivo supera 25 MB.');const data=JSON.parse(await file.text());if(data?.format!==adapter.format||data.version!==1||data.caseKey!==adapter.key())throw new Error('Este archivo no corresponde al mismo caso o visualizador.');adapter.validate(data.state);checkpoint();const previous=adapter.capture();busy=true;try{adapter.restore(data.state);}catch(e){adapter.restore(previous);throw e;}finally{busy=false;}checkpoint();message.textContent='Caso recuperado. Puedes deshacer la importación.';},error=>{message.textContent='No se pudo abrir: '+error;});
  for(const type of ['pointerdown','keydown','wheel','dragstart'])document.addEventListener(type,e=>{if(!box.contains(e.target))checkpoint();},true);
  for(const type of ['click','input','change','pointerup','pointercancel','wheel','drop','dblclick'])document.addEventListener(type,e=>{if(!box.contains(e.target))schedule();});
  document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey||e.target.closest('input,textarea,[contenteditable="true"]'))return;const k=e.key.toLowerCase();if(k==='z'||k==='y'){e.preventDefault();move(k==='y'||e.shiftKey?1:-1);}});
