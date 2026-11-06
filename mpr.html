@@ -133,7 +133,7 @@ body.mobile-presentation #presentationTitle{margin:5px 0 0}
 body.mobile-presentation #presentationNotes{margin:4px 0}
 body.mobile-presentation #presentationStatus:empty{display:none}
 
-#toggleGeneralPanel{
+#toggleGeneralPanel,#togglePaneHeaders{
  display:inline-grid;place-items:center;vertical-align:middle;width:34px;height:30px;
  margin:0 0 0 6px;padding:0;background:#19394d;border:1px solid #42778b;color:#e5faff;
 }
@@ -144,15 +144,15 @@ body.mobile-presentation #presentationStatus:empty{display:none}
 #headerUsMode[aria-pressed="true"]{background:#147f8c;border-color:#91efdc}
 #headerUsMode:focus-visible{outline:2px solid #91efdc;outline-offset:2px}
 #headerUsMode svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
-#toggleGeneralPanel svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6}
-#toggleGeneralPanel:focus-visible{outline:2px solid #91efdc;outline-offset:2px}
-#toggleGeneralPanel[aria-expanded="false"]{background:#102233}
+#toggleGeneralPanel svg,#togglePaneHeaders svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6}
+#toggleGeneralPanel:focus-visible,#togglePaneHeaders:focus-visible{outline:2px solid #91efdc;outline-offset:2px}
+#toggleGeneralPanel[aria-expanded="false"],#togglePaneHeaders[aria-expanded="false"]{background:#102233}
 
 body.panel-folded:not(.mobile-presentation) .layout{grid-template-columns:minmax(0,1fr)}
 body.panel-folded .layout>#generalPanel{display:none}
 body.panel-folded:not(.mobile-presentation) .layout>.views{grid-column:1}
 body.panel-folded:not(.mobile-presentation) .pane.maximized{left:6px;right:6px;bottom:6px}
-@media(pointer:coarse){#toggleGeneralPanel,#headerUsMode{width:44px;height:44px}}
+@media(pointer:coarse){#toggleGeneralPanel,#togglePaneHeaders,#headerUsMode{width:44px;height:44px}}
 /* La disposición sigue el espacio disponible y el tipo de puntero. */
 body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]):not(.mobile-presentation) .layout{
  display:flex;flex-direction:column;height:auto;min-width:0;
@@ -196,6 +196,10 @@ body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane-plane-
  body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]) .pane-menu button{min-height:36px}
 }
 
+body.pane-headers-collapsed .pane :is(.pane-quick-tools,.pane-menu-trigger){display:none!important}
+body.pane-headers-collapsed .pane:has(.pane-quick-tools)>h2{
+ height:auto;min-height:0;padding:4px 10px;line-height:17px;
+}
 body{padding-top:var(--viewer-header-height, 70px)}
 #viewerHeader{position:fixed;inset:0 0 auto;z-index:2010}
 #headerPresentationControls{display:inline-flex;vertical-align:middle;gap:4px;margin-inline-start:6px}
@@ -235,9 +239,10 @@ body.panel-folded:not(.mobile-presentation) .pane.maximized{
 }
 
 #usDialog{
- width:min(980px,calc(100% - 20px));max-height:calc(100dvh - 20px);overflow:auto;
+ width:calc(100% - 12px);max-width:none;height:calc(100dvh - 12px);max-height:none;overflow:auto;
  padding:12px;border:1px solid #42778b;border-radius:8px;background:#102233;color:#e5faff;
 }
+#usDialog[open]{display:flex;flex-direction:column}
 #usDialog::backdrop{background:#06101bdc}
 .us-heading,.us-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .us-heading h2{margin:0;font-size:17px}
@@ -253,40 +258,45 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 @media(pointer:coarse){#usProbeDrag{width:44px;height:44px}}
 
 .us-controls,.us-panels{display:grid;gap:10px}
-.us-controls{grid-template-columns:minmax(0,1fr)}
-.us-panels{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.us-controls{grid-template-columns:minmax(0,1fr) min(48%,360px);align-items:start;margin-top:5px}
+.us-orientation{margin:0;font-size:11px;color:#adcad8}
+.us-orientation canvas{display:block;width:100%;height:auto;background:#080e16;border:1px solid #254256;border-radius:5px}
+.us-panels{flex:1;min-height:240px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
 .us-focus-control{display:grid;justify-items:center;align-self:center;gap:4px;min-width:64px}
 .us-focus-control label{margin:0;font-size:12px;font-weight:600}
 .us-focus-control span,.us-focus-control output{font-size:11px;color:#adcad8;white-space:nowrap}
 .us-focus-control input{
  writing-mode:vertical-lr;direction:rtl;width:32px;height:clamp(110px,32dvh,300px);margin:0;
 }
-.us-controls label{display:flex;justify-content:space-between;gap:6px}
-.us-controls input{width:100%;margin:0}
-#usRotation{
+.us-controls label:is([for="usRotation"],[for="usTilt"]){display:flex;justify-content:space-between;gap:6px}
+:is(#usRotation,#usTilt){width:100%;margin:0}
+:is(#usRotation,#usTilt){
  appearance:none;height:18px;background:transparent;cursor:pointer;
  --us-rotation-track:linear-gradient(to right,#387db0 0 49.6%,#d9edf5 49.6% 50.4%,#427f71 50.4% 100%);
 }
-#usRotation::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--us-rotation-track)}
-#usRotation::-moz-range-track{height:6px;border-radius:3px;background:var(--us-rotation-track)}
-#usRotation::-webkit-slider-thumb{appearance:none;width:16px;height:16px;margin-top:-5px;border-radius:50%;background:#e5faff}
-#usRotation::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#e5faff}
+:is(#usRotation,#usTilt)::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--us-rotation-track)}
+:is(#usRotation,#usTilt)::-moz-range-track{height:6px;border-radius:3px;background:var(--us-rotation-track)}
+:is(#usRotation,#usTilt)::-webkit-slider-thumb{appearance:none;width:16px;height:16px;margin-top:-5px;border-radius:50%;background:#e5faff}
+:is(#usRotation,#usTilt)::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#e5faff}
+.us-secondary-controls{display:flex;flex-wrap:wrap;align-items:start;gap:6px 12px;margin-top:6px}
+.us-secondary-controls .us-mask-toggle{margin:0 0 5px}
+.us-tilt-control{width:min(100%,250px);margin-left:auto}
 .us-range-directions{display:flex;justify-content:space-between;color:#adcad8;font-size:11px}
 .us-controls output{white-space:nowrap;font-variant-numeric:tabular-nums}
-.us-panels figure{margin:0;min-width:0}
+.us-panels figure{display:grid;grid-template-rows:auto minmax(0,1fr);margin:0;min-width:0;min-height:0}
 .us-panels figcaption{padding:6px 0;font-weight:600;font-size:13px}
-.us-panels canvas{display:block;width:100%;max-height:60dvh;object-fit:contain;background:#080e16;border:1px solid #254256}
+.us-panels canvas{display:block;width:100%;height:100%;min-height:0;object-fit:contain;background:#080e16;border:1px solid #254256}
 .us-mask-toggle{display:flex;align-items:center;gap:6px;margin:8px 0}
 #usError:empty{display:none}
 @media(max-width:540px){
- .us-panels{grid-template-columns:minmax(0,1fr) auto}
+ .us-panels{flex:none;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto}
  .us-panels figure{grid-column:1}
  .us-focus-control{grid-column:2;grid-row:1 / span 2;min-width:54px}
- .us-panels canvas{max-height:50dvh}
+ .us-panels canvas{height:auto;max-height:58dvh}
  #usDialog button{min-height:44px}
 }
 </style></head><body>
-<header id="viewerHeader"><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><div class="viewer-header-main"><strong>Visor MPR · v2</strong><button type="button" id="toggleGeneralPanel" aria-controls="generalPanel" aria-expanded="true" aria-label="Plegar panel general" title="Plegar panel general"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M8 3v14"/></svg></button> <button type="button" id="headerUsMode" data-tool="us" aria-pressed="false" aria-label="Modo US" title="Modo US">
+<header id="viewerHeader"><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><div class="viewer-header-main"><strong>Visor MPR · v2</strong><button type="button" id="toggleGeneralPanel" aria-controls="generalPanel" aria-expanded="true" aria-label="Plegar panel general" title="Plegar panel general"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M8 3v14"/></svg></button> <button type="button" id="togglePaneHeaders" aria-expanded="true" aria-label="Contraer cabeceros de las vistas" title="Contraer cabeceros de las vistas"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M2 8h16m-11 5 3-2 3 2"/></svg></button> <button type="button" id="headerUsMode" data-tool="us" aria-pressed="false" aria-label="Modo US" title="Modo US">
  <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 2h8v10c0 2 1 3 3 5l4 5v4Q16 33 5 26v-4l4-5c2-2 3-3 3-5Z"/><path d="M6 24Q16 30 26 24"/></svg>
 </button> <span id="headerPresentationControls" role="group" aria-label="Controles de presentación" hidden>
  <button type="button" id="headerPresentationPrev" aria-label="Vista anterior" title="Vista anterior"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4 6 8l4 4"/></svg></button>
@@ -356,11 +366,24 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
  </div>
  <div class="us-controls">
   <div><label for="usRotation">Giro del plano <output id="usRotationValue" for="usRotation">180°</output></label>
-   <input type="range" id="usRotation" min="0" max="360" value="180" step="1"><div class="us-range-directions" aria-hidden="true"><span>0° · Dch</span><span>180°</span><span>Izq · 0°</span></div></div>
- </div>
+   <input type="range" id="usRotation" min="0" max="360" value="180" step="1"><div class="us-range-directions" aria-hidden="true"><span>0° · Dch</span><span>180°</span><span>Izq · 0°</span></div>
+   <div class="us-secondary-controls">
+    <div>
  <label class="us-mask-toggle"><input type="checkbox" id="usSectorMask" checked> Máscara en abanico</label>
  <label class="us-mask-toggle"><input type="checkbox" id="usShowInfo" checked> Mostrar información en la imagen</label>
  <p class="note" id="usDepth"></p>
+    </div>
+   <div class="us-tilt-control">
+    <label for="usTilt">Inclinación en el plano <output id="usTiltValue" for="usTilt">0°</output></label>
+    <input type="range" id="usTilt" min="-15" max="15" value="0" step="1">
+    <div class="us-range-directions" aria-hidden="true"><span>−15° · Izq</span><span>+15° · Dch</span></div>
+   </div>
+   </div>
+  </div>
+  <figure class="us-orientation">
+   <canvas id="usOrientation" width="720" height="380" role="img" aria-label="Esquema del corte con ejes anterior, posterior, superior, inferior, derecha e izquierda. El modelo anatómico aparece dentro del recuadro gris de la exploración. El borde rosa indica el lado izquierdo de la imagen. La línea amarilla muestra la intersección del plano con el modelo. La cruz marca el punto de referencia cuando está visible."></canvas>
+  </figure>
+ </div>
  <div class="us-panels">
   <figure><figcaption>Corte TAC / RM</figcaption><canvas id="usImage" width="480" height="520" aria-label="Corte oblicuo del volumen"></canvas></figure>
   <div class="us-focus-control">
@@ -2197,6 +2220,17 @@ function installPaneMenus(){
    indicator.textContent=$('toolHint').textContent;
   }
  };
+ const headersToggle=$('togglePaneHeaders');
+ headersToggle.onclick=()=>{
+  const collapsed=document.body.classList.toggle('pane-headers-collapsed');
+  if(collapsed)closeMenus();
+  const label=collapsed?'Desplegar cabeceros de las vistas':'Contraer cabeceros de las vistas';
+  headersToggle.setAttribute('aria-expanded',String(!collapsed));
+  headersToggle.setAttribute('aria-label',label);
+  headersToggle.title=label;
+  resize3D();
+  repaintAll();
+ };
  new MutationObserver(refresh).observe($('toolHint'),{childList:true,characterData:true,subtree:true});
  document.addEventListener('pointerdown',event=>{
   if(!event.target.closest('.pane-menu,.pane-menu-trigger'))closeMenus();
@@ -2624,7 +2658,7 @@ generalPanelToggle.onclick=()=>{
 };
 // El punto de entrada permanece fijo. El enfoque se desplaza sobre la normal
 // del plano girado, y el nuevo plano pasa por ambos puntos.
-function usCutFrame(probe, initialFocus, angle, shift){
+function usCutFrame(probe, initialFocus, angle, shift, tilt){
  const initialDown=initialFocus.clone().sub(probe).normalize();
  const reference=Math.abs(initialDown.x)<.9
   ? new THREE.Vector3(1,0,0) : new THREE.Vector3(0,1,0);
@@ -2633,7 +2667,12 @@ function usCutFrame(probe, initialFocus, angle, shift){
  const focus=initialFocus.clone().addScaledVector(
   initialDown.clone().cross(right).normalize(),shift);
  const down=focus.clone().sub(probe).normalize();
- return {focus,down,right,normal:down.clone().cross(right).normalize()};
+ const normal=down.clone().cross(right).normalize();
+ const focusDistance=probe.distanceTo(focus);
+ down.applyAxisAngle(normal,tilt);
+ right.applyAxisAngle(normal,tilt);
+ focus.copy(probe).addScaledVector(down,focusDistance);
+ return {focus,down,right,normal};
 }
 
 function createUsModel(){
@@ -2707,6 +2746,7 @@ function installUsMode(){
  $('headerUsMode').onclick=toggleUsTool;
  const dialog=$('usDialog');
  const rotation=$('usRotation');
+ const tilt=$('usTilt');
  const offset=$('usOffset');
  const probeDragButton=$('usProbeDrag');
  const sectorMask=$('usSectorMask');
@@ -2731,6 +2771,11 @@ function installUsMode(){
  sectorPath.closePath();
 
  const sectionCamera=new THREE.OrthographicCamera();
+ const orientationCamera=new THREE.OrthographicCamera();
+ const orientationRight=new THREE.Vector3(.82,-.57,0).normalize();
+ const orientationUp=new THREE.Vector3(-.31,-.45,.84);
+ orientationUp.addScaledVector(orientationRight,-orientationUp.dot(orientationRight)).normalize();
+ const orientationNormal=orientationRight.clone().cross(orientationUp);
  const rendererSize=new THREE.Vector2();
  let session=null;
  let pendingFrame=0;
@@ -2771,14 +2816,13 @@ function installUsMode(){
   ctx.restore();
  }
 
- function drawUsReference(canvas,toggle,center,right,down,normal){
-  if(!selectedWorldPoint||!$(toggle).checked)return;
+ function visibleUsReference(center,right,down,normal){
+  if(!selectedWorldPoint||!($('showCross').checked||$('show3DMarker').checked))return;
   const relative=selectedWorldPoint.clone().sub(center);
   const x=width/2+relative.dot(right)/mmPerPixel;
   const y=height/2+relative.dot(down)/mmPerPixel;
   if(x<0||x>=width||y<0||y>=height)return;
-  const ctx=canvas.getContext('2d');
-  if(sectorMask.checked&&!ctx.isPointInPath(sectorPath,x,y))return;
+  if(sectorMask.checked&&!imageCanvas.getContext('2d').isPointInPath(sectorPath,x,y))return;
   const signedDistance=relative.dot(normal);
   const distance=Math.abs(signedDistance);
   const projected=distance>=.1;
@@ -2787,6 +2831,13 @@ function installUsMode(){
   const lightness=82-25*Math.min(distance/30,1);
   const hue=signedDistance>0?0:214;
   const color=projected?'hsl('+hue+' 100% '+lightness+'%)':'#fff500';
+  return {point:selectedWorldPoint,x,y,distance,projected,side,color};
+ }
+
+ function drawUsReference(canvas,toggle,reference){
+  if(!reference||!$(toggle).checked)return;
+  const {x,y,distance,projected,side,color}=reference;
+  const ctx=canvas.getContext('2d');
   ctx.save();
   ctx.beginPath();
   ctx.moveTo(x-8,y);ctx.lineTo(x+8,y);
@@ -2814,18 +2865,159 @@ function installUsMode(){
   return magnitude.toLocaleString('es-ES',{maximumFractionDigits:1})+'° '+(angle<180?'Dch':'Izq');
  }
 
+ function drawOrientation(probe,focus,right,down,normal,bounds,reference){
+  const canvas=$('usOrientation'),ctx=canvas.getContext('2d');
+  const {min,max}=bounds;
+  const corners=[];
+  for(const x of [min.x,max.x])for(const y of [min.y,max.y])for(const z of [min.z,max.z]){
+   corners.push(new THREE.Vector3(x,y,z));
+  }
+  const point=(u,v)=>probe.clone().addScaledVector(right,u).addScaledVector(down,v);
+  const fanVisible=sectorMask.checked;
+  const arcSteps=12;
+  let plane=[point(-width*mmPerPixel/2,0),point(width*mmPerPixel/2,0),
+   point(width*mmPerPixel/2,depthMm),point(-width*mmPerPixel/2,depthMm)];
+  if(fanVisible){
+   plane=[];
+   for(const radius of [outerRadius,innerRadius]){
+    for(let i=0;i<=arcSteps;i++){
+     const t=(radius===outerRadius?i:arcSteps-i)/arcSteps;
+     const angle=startAngle+(endAngle-startAngle)*t;
+     plane.push(point(radius*Math.cos(angle)*mmPerPixel,(radius*Math.sin(angle)-innerRadius)*mmPerPixel));
+    }
+   }
+  }
+  const transducer=[[-9,-28],[9,-28],[9,-14],[22,-3],[22,2],[0,6],[-22,2],[-22,-3],[-9,-14]]
+   .map(([u,v])=>point(u*1.7,v*1.7));
+  // Proyección fija de las coordenadas RAS para apreciar el movimiento real.
+  const project=p=>[orientationRight.dot(p),-orientationUp.dot(p)];
+  // Encuadrar la anatomía y la sonda, aunque el volumen de la exploración sea mayor.
+  const extent=[...transducer,focus];
+  const {min:modelMin,max:modelMax}=session.modelBounds;
+  for(const x of [modelMin.x,modelMax.x])for(const y of [modelMin.y,modelMax.y]){
+   for(const z of [modelMin.z,modelMax.z])extent.push(new THREE.Vector3(x,y,z));
+  }
+  if(reference)extent.push(reference.point);
+  const projectedExtent=extent.map(project);
+  const xs=projectedExtent.map(([x])=>x),ys=projectedExtent.map(([,y])=>y);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  const axisWidth=112;
+  const scale=Math.min((canvas.width-axisWidth-32)/Math.max(1,x1-x0),(canvas.height-28)/Math.max(1,y1-y0));
+  const screen=p=>{
+   const [x,y]=project(p);
+   return [(canvas.width+axisWidth)/2+(x-(x0+x1)/2)*scale,canvas.height/2+(y-(y0+y1)/2)*scale];
+  };
+  function draw(points,stroke,fill){
+   ctx.beginPath();
+   points.forEach((p,i)=>{const [x,y]=screen(p);if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});
+   if(fill){ctx.closePath();ctx.fillStyle=fill;ctx.fill();}
+   ctx.strokeStyle=stroke;ctx.stroke();
+  }
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const target=session.initialFocus.clone();
+  const [targetX,targetY]=project(target);
+  target.addScaledVector(orientationRight,(x0+x1)/2-axisWidth/(2*scale)-targetX);
+  target.addScaledVector(orientationUp,targetY-(y0+y1)/2);
+  const distance=session.modelSize+20;
+  Object.assign(orientationCamera,{left:-canvas.width/(2*scale),right:canvas.width/(2*scale),
+   top:canvas.height/(2*scale),bottom:-canvas.height/(2*scale),near:.1,far:2*distance});
+  orientationCamera.position.copy(target).addScaledVector(orientationNormal,distance);
+  orientationCamera.up.copy(orientationUp);
+  orientationCamera.lookAt(target);
+  orientationCamera.updateProjectionMatrix();
+  session.light.position.copy(orientationCamera.position);
+  session.light.target.position.copy(session.initialFocus);
+  renderer.setSize(canvas.width,canvas.height,false);
+  const clipping=renderer.localClippingEnabled;
+  try{
+   renderer.localClippingEnabled=false;
+   renderer.render(session.sectionScene,orientationCamera);
+   ctx.drawImage(renderer.domElement,0,0,canvas.width,canvas.height);
+  }finally{
+   renderer.localClippingEnabled=clipping;
+  }
+  ctx.clearRect(0,0,axisWidth,canvas.height);
+  ctx.save();
+  ctx.beginPath();ctx.rect(axisWidth,0,canvas.width-axisWidth,canvas.height);ctx.clip();
+  ctx.lineWidth=1.4;
+  for(let i=0;i<corners.length;i++)for(const bit of [1,2,4]){
+   if(!(i&bit))draw([corners[i],corners[i|bit]],'#526c82');
+  }
+  draw(plane,'#52dcd5','#52dcd545');
+  ctx.save();
+  ctx.clip(); // El trazado actual delimita el abanico o rectángulo del corte.
+  const cutPlane=new THREE.Plane().setFromNormalAndCoplanarPoint(normal,probe);
+  ctx.beginPath();
+  session.slabModel.traverseVisible(mesh=>{
+   if(!mesh.isMesh||!mesh.geometry.getAttribute('position'))return;
+   const materials=Array.isArray(mesh.material)?mesh.material:[mesh.material];
+   if(!materials.some(material=>material.visible&&material.opacity>0))return;
+   if(!mesh.geometry.boundingBox)mesh.geometry.computeBoundingBox();
+   if(!mesh.geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld).intersectsPlane(cutPlane))return;
+   for(const [start,end] of meshPlaneSegments(mesh,cutPlane,screen)){
+    ctx.moveTo(...start);ctx.lineTo(...end);
+   }
+  });
+  ctx.lineCap='round';
+  ctx.lineWidth=5;ctx.strokeStyle='#263017';ctx.stroke();
+  ctx.lineWidth=2.5;ctx.strokeStyle='#f7ff90';ctx.stroke();
+  ctx.restore();
+  const markedEdge=fanVisible?[plane[arcSteps],plane[arcSteps+1]]:[plane[0],plane[3]];
+  ctx.lineWidth=8;
+  draw(markedEdge,'#40132e');
+  ctx.lineWidth=5;
+  draw(markedEdge,'#ff70bb');
+  ctx.lineWidth=1.4;
+  draw([probe,focus],'#e5faff');
+  draw(transducer,'#ffe3a4','#e9a83f');
+
+  ctx.restore();
+  const axisX=axisWidth/2,axisY=canvas.height/2;
+  ctx.font='600 17px system-ui';
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.lineWidth=2;
+  for(const [label,x,y,z,color] of [
+   ['Dch',1,0,0,'#ffadad'],['Izq',-1,0,0,'#ffadad'],
+   ['Ant',0,1,0,'#a4eab9'],['Post',0,-1,0,'#a4eab9'],
+   ['Sup',0,0,1,'#acd8ff'],['Inf',0,0,-1,'#acd8ff']
+  ]){
+   const [dx,dy]=project({x,y,z});
+   const length=Math.hypot(dx,dy);
+   ctx.beginPath();ctx.moveTo(axisX,axisY);
+   ctx.lineTo(axisX+26*dx/length,axisY+26*dy/length);
+   ctx.strokeStyle=color;ctx.stroke();
+   ctx.fillStyle=color;
+   ctx.fillText(label,axisX+42*dx/length,axisY+42*dy/length);
+  }
+  ctx.beginPath();ctx.arc(...screen(focus),4,0,Math.PI*2);ctx.fillStyle='#e5faff';ctx.fill();
+  if(reference){
+   const [x,y]=screen(reference.point);
+   ctx.beginPath();
+   ctx.moveTo(x-9,y);ctx.lineTo(x+9,y);
+   ctx.moveTo(x,y-9);ctx.lineTo(x,y+9);
+   ctx.strokeStyle='#081521';ctx.lineWidth=7;ctx.stroke();
+   ctx.strokeStyle=reference.color;ctx.lineWidth=4;ctx.stroke();
+  }
+ }
+
  function renderCut(){
   const {probe,initialFocus,sectionScene,slabModel,light,clippingPlanes,modelSize}=session;
   const angle=Number(rotation.value);
   const shift=Number(offset.value);
-  const {focus,down,right,normal}=usCutFrame(probe,initialFocus,THREE.MathUtils.degToRad(angle),shift);
+  const tiltDegrees=Number(tilt.value);
+  const {focus,down,right,normal}=usCutFrame(probe,initialFocus,THREE.MathUtils.degToRad(angle),shift,THREE.MathUtils.degToRad(tiltDegrees));
   const focusDistance=probe.distanceTo(focus);
   const focusRow=probeRow+focusDistance/mmPerPixel;
   const center=probe.clone().addScaledVector(down,(height/2-probeRow)*mmPerPixel);
+  const reference=visibleUsReference(center,right,down,normal);
   const rotationLabel=rotationLabelFor(angle);
   const offsetLabel=shift===0?'0 mm':Math.abs(shift)+' mm '+(shift<0?'Inf':'Sup');
   $('usRotationValue').textContent=rotationLabel;
   $('usOffsetValue').textContent=offsetLabel;
+  const tiltLabel=tiltDegrees===0?'0°':Math.abs(tiltDegrees)+'° '+(tiltDegrees<0?'Izq':'Dch');
+  $('usTiltValue').textContent=tiltLabel;
+  tilt.setAttribute('aria-valuetext',tiltLabel);
   rotation.setAttribute('aria-valuetext',rotationLabel);
   offset.setAttribute('aria-valuetext',offsetLabel);
   $('usDepth').textContent='Profundidad visible: 25 cm · Enfoque: '+(focusDistance/10).toFixed(1)+' cm'+
@@ -2838,7 +3030,7 @@ function installUsMode(){
   resampleVolume(imageCanvas,{origin,u,v,sx:1,sy:1});
   applySectorMask(imageCanvas);
   drawAxis(imageCanvas,focusRow);
-  drawUsReference(imageCanvas,'showCross',center,right,down,normal);
+  drawUsReference(imageCanvas,'showCross',reference);
 
   const halfThickness=5;
   clippingPlanes[0].setFromNormalAndCoplanarPoint(normal,focus.clone().addScaledVector(normal,-halfThickness));
@@ -2862,6 +3054,7 @@ function installUsMode(){
    renderer.setSize(width,height,false);
    renderer.render(sectionScene,sectionCamera);
    modelCanvas.getContext('2d').drawImage(renderer.domElement,0,0,width,height);
+   drawOrientation(probe,focus,right,down,normal,session.volumeBounds,reference);
   }finally{
    renderer.setSize(rendererSize.x,rendererSize.y,false);
    renderer.render(scene,camera);
@@ -2869,7 +3062,7 @@ function installUsMode(){
   drawUsFilledFace(modelCanvas,slabModel,clippingPlanes[1],center,right,down,mmPerPixel);
   applySectorMask(modelCanvas);
   drawAxis(modelCanvas,focusRow);
-  drawUsReference(modelCanvas,'show3DMarker',center,right,down,normal);
+  drawUsReference(modelCanvas,'show3DMarker',reference);
  }
 
  function scheduleCut(){
@@ -2943,8 +3136,11 @@ function installUsMode(){
    return;
   }
   releaseSection();
-  session={probe,initialFocus,modelSize:bounds.getSize(new THREE.Vector3()).length(),...createUsModel()};
+  const volumeSize=new THREE.Vector3(...volumeInfo.sizes.map((count,axis)=>count*volumeInfo.spacing[axis]));
+  const volumeBounds=new THREE.Box3().setFromCenterAndSize(volumeInfo.centerRAS,volumeSize);
+  session={probe,initialFocus,volumeBounds,modelBounds:bounds,modelSize:bounds.getSize(new THREE.Vector3()).length(),...createUsModel()};
   rotation.value=rotation.defaultValue;
+  tilt.value=tilt.defaultValue;
   const limit=Math.max(10,Math.min(150,Math.ceil(session.modelSize/2)));
   offset.min=-limit;
   offset.max=limit;
@@ -2955,7 +3151,7 @@ function installUsMode(){
   scheduleCut();
  }
  for(const axis of ['x','y','z'])$('ct'+axis).addEventListener('click',event=>chooseEntryPoint(axis,event));
- for(const input of [rotation,offset])input.addEventListener('input',scheduleCut);
+ for(const input of [rotation,offset,tilt])input.addEventListener('input',scheduleCut);
  for(const input of [sectorMask,showInfo])input.addEventListener('change',scheduleCut);
  $('usRepick').onclick=()=>{
   dialog.close();
