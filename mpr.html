@@ -21,7 +21,7 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 #loadingDetail{display:block;margin-top:5px;font-size:11px;color:#c1d7e5;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 #namedViewList .named-view-row{padding:0;margin:7px 0;border-left:1px solid #405c73}#namedViewList .named-view-header{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px;padding:9px 8px}#namedViewList .saved-view-title{font-size:13px;margin:0;min-width:0;line-height:1.4}#namedViewList .named-view-open{width:auto;margin:0;padding:5px 7px;font-size:10px;white-space:nowrap}#namedViewList .named-view-toggle{margin:0;padding:5px 6px;background:transparent;border:1px solid #536d83;color:#c8dce9;font-size:10px;white-space:nowrap}#namedViewList .named-view-toggle:hover{background:#29465d}#namedViewList .named-view-settings{padding:3px 10px 10px;border-top:1px solid #40566c}#namedViewList .named-view-settings[hidden]{display:none!important}
 /* Rediseño v2 */
-#section-case[hidden]{display:none!important}
+#caseLocalFiles[hidden]{display:none!important}
 :root{--panel:#0d1d2b;--edge:#254256;--accent:#26c8e5}body{background:#07111c;color:#e2edf6}header{background:#0a1825;padding:10px 18px;border-color:var(--edge)}header strong{font-size:16px}header small{font-size:11px}.layout{grid-template-columns:350px minmax(0,1fr);height:calc(100dvh - var(--viewer-header-height, 70px));min-height:0}.layout>aside{grid-column:1;grid-row:1}.layout>.views{grid-column:2;grid-row:1}.views{height:100%;min-height:0;gap:8px;padding:10px}.pane{border-color:var(--edge);border-radius:9px}.pane h2{background:#102131;color:#c5deee;padding:10px 12px}.sliceTools{background:#0d1c2a}.stage{min-height:100px}aside{background:var(--panel);border:0;border-right:1px solid var(--edge);padding:12px;max-height:100%;scrollbar-width:thin;scrollbar-color:#335469 transparent}.sidebar-heading{background:var(--panel);padding:10px 0;z-index:4}.sidebar-heading strong{font-size:19px}.quick-toolbar{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:12px 0}.quick-toolbar button{display:flex;flex-direction:column;align-items:center;gap:5px;margin:0;padding:10px 3px;font-size:23px;background:#12293c;border:1px solid var(--edge)}.quick-toolbar span{font-size:10px}.quick-toolbar button[aria-pressed=true]{background:#073b50;border-color:var(--accent);color:#64e5fa}.sidebar-heading>div:not(.quick-toolbar) button{background:transparent;color:#94afc4;padding:4px 8px}button{background:#193c53;border:1px solid #31566e;border-radius:6px;color:#e2eff9}button:hover:enabled{background:#23536c;border-color:#44b2cb}input,select,textarea{accent-color:var(--accent)}input[type=search]{width:100%;padding:10px;background:#081724;border:1px solid #34566f;color:white;border-radius:7px;margin-bottom:10px}details.sidebar-group{background:#102232;border-color:var(--edge);border-radius:9px;margin:9px 0}details.sidebar-group>summary{font-size:14px;padding:14px 12px;list-style:none}details.sidebar-group>summary::after{content:'⌄';float:right;color:#89bed4}details.sidebar-group[open]>summary{background:#173347;border-color:var(--edge)}details.sidebar-group[open]>summary::after{content:'⌃'}.sidebar-subgroup{border-color:var(--edge);margin:6px 0;padding:9px 0}.sidebar-subgroup>summary{color:#a6c9dd;font-size:12px}.sidebar-body .sidebar-body{padding:2px 0 10px}.note{color:#91adbf}.sidebar-body h4{border-color:var(--edge)}#modelLayers .model-layer{background:#0d1e2d;border-color:#294356;margin:4px 0}#modelLayers .layer-header{gap:8px;padding:10px 8px}#modelLayers .layer-head{font-size:12px;font-weight:500}#modelLayers .layer-head .color-dot{width:10px;height:10px;flex-shrink:0;border-radius:50%;box-shadow:0 0 0 1px #ffffff30}.header-volume{font-size:10px;color:#9dbbce;white-space:nowrap;font-variant-numeric:tabular-nums}#modelLayers .layer-toggle{border:0;font-size:12px;padding:5px;color:#78bdd6}#modelLayers .model-layer.selected{outline:1px solid var(--accent);background:#12374b}#modelLayers .layer-settings{border-color:#294356}.volume-summary{background:#0c2938;border-color:#285b70}.volume-summary strong{color:#5cddf1}#namedViewList .named-view-row{border-color:var(--edge);overflow:hidden;background:#0c1c2a}#namedViewList .named-view-header{grid-template-columns:1fr auto auto}#namedViewList .saved-view-title{font-weight:600;color:#e1f1fb}.sidebar-body:has(#namedViewList)>label{font-size:12px}#addNamedView,#capture{background:#07536b;border-color:#2f9fba}body:has(.pane.maximized) .pane.maximized{left:356px;right:6px}body:has(.pane.maximized) aside{left:0;right:auto;width:350px}button:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media(max-width:900px){.layout{grid-template-columns:300px minmax(0,1fr)}body:has(.pane.maximized) .pane.maximized{left:306px}body:has(.pane.maximized) aside{width:300px}.views{padding:6px;gap:5px}}
 @media(max-width:700px){.layout{display:flex;flex-direction:column;height:auto}.layout>aside{order:0;max-height:48vh;border-bottom:1px solid var(--edge)}.layout>.views{order:1;height:auto;grid-template-columns:1fr;grid-template-rows:repeat(4,320px)}body:has(.pane.maximized) .pane.maximized{left:4px;right:4px;top:48vh}body:has(.pane.maximized) aside{width:100%;height:47vh;bottom:auto}.stage{min-height:180px}}
@@ -29,7 +29,7 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 #modelLayers .structure-visibility{display:flex;align-items:center;gap:3px;font-size:10px;margin:0;color:#a8c9dc;white-space:nowrap}#modelLayers .layer-head{cursor:pointer}#modelLayers .layer-header{gap:5px}#modelLayers .header-volume{max-width:68px;overflow:hidden;text-overflow:ellipsis}#modelLayers .layer-toggle{font-size:10px;padding:5px 2px}.structure-actions{display:grid;grid-template-columns:1fr 1fr;gap:4px}#resetLayers,.structure-actions button{font-size:11px;margin:0;padding:8px 5px}.structure-actions button{height:28px;min-height:28px;padding:1px 5px;line-height:11px;display:flex;align-items:center;justify-content:center}#legacyStructureControls[hidden]{display:none!important}
 #independentStructures{display:block!important}#independentStructures #modelLayers{display:block!important}#modelLayers .structure-hidden .layer-head{opacity:.45}#modelLayers input:disabled{cursor:not-allowed}
 
-.tree-toolbar{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}.tree-toolbar button,.tree-import{font-size:10px;padding:6px}.tree-import{border:1px solid #31566e;border-radius:6px;margin:2px;cursor:pointer}.tree-import input{width:160px;font-size:10px}#structureTree{overflow-x:auto;max-width:100%}.tree-group{border:0;border-left:1px solid #33566b;padding:0;margin:5px 0 5px 7px}.tree-group>summary{display:flex;gap:5px;align-items:center;list-style:none;padding:8px 4px;background:#153044;cursor:pointer}.tree-group>summary:before{content:'▸';color:#5ed2e8}.tree-group[open]>summary:before{content:'▾'}.tree-children{padding-left:10px;min-width:260px}.tree-name{flex:1;min-width:70px;overflow-wrap:anywhere;font-size:12px}.tree-leaf{display:flex;align-items:center;gap:5px;padding:8px 3px;border-bottom:1px solid #233e50}.tree-leaf[hidden],.tree-group[hidden],#groupEditor[hidden]{display:none!important}.tree-visibility{display:flex;align-items:center;gap:2px;font-size:10px;margin:0;white-space:nowrap}.tree-leaf button,.tree-group summary button{font-size:10px;padding:3px}.tree-group small{font-size:9px;white-space:nowrap;color:#99b9cc}#structureTree>details[data-group=all]>summary{padding:10px;background:#153044}#groupEditor{padding:12px;background:#102d40;border:1px solid #38758f;border-radius:7px}#groupMembers{max-height:220px;overflow:auto}#groupMembers label{display:flex;gap:7px}.color-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.tree-toolbar{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}.tree-toolbar button{font-size:10px;padding:6px}#structureTree{overflow-x:auto;max-width:100%}.tree-group{border:0;border-left:1px solid #33566b;padding:0;margin:5px 0 5px 7px}.tree-group>summary{display:flex;gap:5px;align-items:center;list-style:none;padding:8px 4px;background:#153044;cursor:pointer}.tree-group>summary:before{content:'▸';color:#5ed2e8}.tree-group[open]>summary:before{content:'▾'}.tree-children{padding-left:10px;min-width:260px}.tree-name{flex:1;min-width:70px;overflow-wrap:anywhere;font-size:12px}.tree-leaf{display:flex;align-items:center;gap:5px;padding:8px 3px;border-bottom:1px solid #233e50}.tree-leaf[hidden],.tree-group[hidden],#groupEditor[hidden]{display:none!important}.tree-visibility{display:flex;align-items:center;gap:2px;font-size:10px;margin:0;white-space:nowrap}.tree-leaf button,.tree-group summary button{font-size:10px;padding:3px}.tree-group small{font-size:9px;white-space:nowrap;color:#99b9cc}#structureTree>details[data-group=all]>summary{padding:10px;background:#153044}#groupEditor{padding:12px;background:#102d40;border:1px solid #38758f;border-radius:7px}#groupMembers{max-height:220px;overflow:auto}#groupMembers label{display:flex;gap:7px}.color-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 
 .segment-branch{margin:4px 0;border:0;padding:0}.segment-branch>summary{list-style:none;cursor:pointer}.segment-branch>summary:before{content:'▸';color:#77cee4}.segment-branch[open]>summary:before{content:'▾'}.segment-branch[hidden]{display:none!important}.segment-branch small{font-size:9px;color:#9dbdcf;white-space:nowrap}.branch-actions{display:flex;gap:3px;flex-wrap:wrap}.branch-actions button{font-size:10px;padding:5px}#childrenEditor{border:1px solid #38758f;background:#102d40;padding:12px;border-radius:7px}#childrenEditor[hidden]{display:none!important}#childrenOptions{max-height:230px;overflow:auto}#childrenOptions label{display:flex;gap:7px}
 
@@ -83,8 +83,8 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 #namedViewList .saved-view-icon{margin-right:6px;color:#f2bd67;font-size:14px;line-height:0;vertical-align:middle}
 #namedViewList .named-view-header:has(.named-view-open[aria-current=true]){background:#263d4a;box-shadow:inset 0 0 0 1px #f2bd67}
 .pane-quick-tools{position:absolute;right:43px;top:2px;z-index:12;display:flex;gap:2px;max-width:calc(100% - 48px);flex-wrap:wrap;justify-content:flex-end;background:#102534e8;border-radius:5px}.pane-quick-tools button{display:flex;align-items:center;justify-content:center;width:26px;height:25px;padding:4px;margin:0;background:#19394d;border:1px solid #31566e;color:#d9edf5}.pane-quick-tools button:hover{background:#28566d}.pane-quick-tools button[aria-pressed=true]{background:#147f8c;border-color:#78e6ef}.pane-quick-tools svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}.pane:has(.pane-quick-tools) h2{height:55px;min-height:55px;padding:33px 220px 5px 10px;line-height:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pane:has(#view3d) h2{padding-right:240px}
-.pane-plane-tools{padding-left:28px;flex-basis:100%;display:flex;justify-content:flex-end;gap:3px}.pane-plane-tools button{width:auto;padding:3px 7px;font-size:11px;gap:4px}.pane:not(:has(#view3d)) .pane-quick-tools{display:grid;grid-template-columns:repeat(7,26px);gap:2px;max-width:none;justify-content:end}.pane:has(#view3d) .pane-quick-tools{width:390px}#view3d{position:relative}#modelInfoPanel{position:absolute!important;inset:auto 10px 10px auto!important;align-self:flex-end;text-align:left;max-width:calc(100% - 20px)!important}#modelInfoPanel[hidden]{display:none!important}header{position:relative;padding-right:130px}.manual-link{position:absolute;right:18px;top:14px;padding:6px 10px;background:#19394d;border:1px solid #42778b;border-radius:5px;color:#e5faff;font-size:12px;text-decoration:none}.manual-link:hover{background:#28566d}#section-saved .sidebar-body>button,#newNamedView>button,#namedViewList .named-view-actions button{min-height:28px;padding:4px 8px;font-size:11px;line-height:18px}#section-saved input[type=text]{height:30px;min-height:30px;padding:4px 7px;font:12px system-ui}#section-saved input[type=file]{height:30px;min-height:30px;padding:3px 5px;font:11px system-ui}#section-saved input[type=file]::file-selector-button{font:11px system-ui;padding:2px 6px}#section-saved textarea{padding:5px 7px;font:12px/1.4 system-ui}#newNamedView>summary{font-size:12px;line-height:18px;padding:3px 0}</style>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script><style>.case-session{border:1px solid #31546a;border-radius:6px;padding:10px;margin:8px 0 12px}.case-session-actions{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.case-session button{min-height:28px;padding:4px 8px;font-size:12px}.case-session p{margin:6px 0 0;font-size:12px}</style><style>.history-actions{display:flex;gap:6px;align-items:center}.history-actions button{height:28px;min-height:28px;padding:4px 10px;font-size:12px;margin:0}.sidebar-heading:has(.history-actions){padding-bottom:10px}.sidebar-heading #loadingPanel{margin-top:10px}</style><style>
+.pane-plane-tools{padding-left:28px;flex-basis:100%;display:flex;justify-content:flex-end;gap:3px}.pane-plane-tools button{width:auto;padding:3px 7px;font-size:11px;gap:4px}.pane:not(:has(#view3d)) .pane-quick-tools{display:grid;grid-template-columns:repeat(7,26px);gap:2px;max-width:none;justify-content:end}.pane:has(#view3d) .pane-quick-tools{width:390px}#view3d{position:relative}#modelInfoPanel{position:absolute!important;inset:auto 10px 10px auto!important;align-self:flex-end;text-align:left;max-width:calc(100% - 20px)!important}#modelInfoPanel[hidden]{display:none!important}header{position:relative;padding-right:130px}.manual-link{position:absolute;right:18px;top:14px;padding:6px 10px;background:#19394d;border:1px solid #42778b;border-radius:5px;color:#e5faff;font-size:12px;text-decoration:none}.manual-link:hover{background:#28566d}#section-saved .sidebar-body>button,#newNamedView>button,#newNamedView>summary,#namedViewList .named-view-actions button{min-height:28px;padding:4px 8px;font-size:11px;line-height:18px}#section-saved input[type=text]{height:30px;min-height:30px;padding:4px 7px;font:12px system-ui}#section-saved input[type=file]{height:30px;min-height:30px;padding:3px 5px;font:11px system-ui}#section-saved input[type=file]::file-selector-button{font:11px system-ui;padding:2px 6px}#section-saved textarea{padding:5px 7px;font:12px/1.4 system-ui}#newNamedView>summary{display:inline-flex;align-items:center;list-style:none;margin:2px;background:#193c53;border:1px solid #31566e;border-radius:6px;color:#e2eff9;cursor:pointer}#newNamedView>summary::-webkit-details-marker{display:none}</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script><style>.case-session{border:1px solid #31546a;border-radius:6px;padding:10px;margin:8px 0 12px}.case-session-actions{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.case-session button,.case-file-actions button{min-height:28px;padding:4px 8px;font-size:12px}.case-session p{margin:6px 0 0;font-size:12px}</style><style>.history-actions{display:flex;gap:6px;align-items:center}.history-actions button{height:28px;min-height:28px;padding:4px 10px;font-size:12px;margin:0}.sidebar-heading:has(.history-actions){padding-bottom:10px}.sidebar-heading #loadingPanel{margin-top:10px}</style><style>
 #casePresentation{margin:8px 0 0;padding:10px;border:1px solid #456a80;border-radius:8px;background:#102233;color:#eaf1f8}
 #casePresentation[hidden]{display:none}
 .named-view-row.is-presentation-view .named-view-header{outline:1px solid #52dcd5;outline-offset:-1px}
@@ -131,6 +131,13 @@ body.mobile-presentation #presentationStatus:empty{display:none}
  display:inline-grid;place-items:center;vertical-align:middle;width:34px;height:30px;
  margin:0 0 0 6px;padding:0;background:#19394d;border:1px solid #42778b;color:#e5faff;
 }
+#headerUsMode{
+ display:inline-grid;place-items:center;vertical-align:middle;width:34px;height:30px;
+ margin:0 0 0 10px;padding:0;background:#154451;border:1px solid #58a6b7;color:#e5faff;
+}
+#headerUsMode[aria-pressed="true"]{background:#147f8c;border-color:#91efdc}
+#headerUsMode:focus-visible{outline:2px solid #91efdc;outline-offset:2px}
+#headerUsMode svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
 #toggleGeneralPanel svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6}
 #toggleGeneralPanel:focus-visible{outline:2px solid #91efdc;outline-offset:2px}
 #toggleGeneralPanel[aria-expanded="false"]{background:#102233}
@@ -139,7 +146,7 @@ body.panel-folded:not(.mobile-presentation) .layout{grid-template-columns:minmax
 body.panel-folded .layout>#generalPanel{display:none}
 body.panel-folded:not(.mobile-presentation) .layout>.views{grid-column:1}
 body.panel-folded:not(.mobile-presentation) .pane.maximized{left:6px;right:6px;bottom:6px}
-@media(pointer:coarse){#toggleGeneralPanel{width:44px;height:44px}}
+@media(pointer:coarse){#toggleGeneralPanel,#headerUsMode{width:44px;height:44px}}
 /* La disposición sigue el espacio disponible y el tipo de puntero. */
 body:is([data-viewer-layout="phone"],[data-viewer-layout="tablet"]):not(.mobile-presentation) .layout{
  display:flex;flex-direction:column;height:auto;min-width:0;
@@ -220,8 +227,62 @@ body[data-viewer-layout="desktop"]:not(.mobile-presentation) .pane.maximized,
 body.panel-folded:not(.mobile-presentation) .pane.maximized{
  top:calc(var(--viewer-header-height, 70px) + 6px);
 }
+
+#usDialog{
+ width:min(980px,calc(100% - 20px));max-height:calc(100dvh - 20px);overflow:auto;
+ padding:12px;border:1px solid #42778b;border-radius:8px;background:#102233;color:#e5faff;
+}
+#usDialog::backdrop{background:#06101bdc}
+.us-heading,.us-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.us-heading h2{margin:0;font-size:17px}
+#usProbeDrag{
+ display:inline-grid;place-items:center;width:40px;height:36px;padding:0;
+ background:#154451;border:1px solid #58a6b7;cursor:grab;touch-action:none;user-select:none;
+}
+#usProbeDrag.is-dragging{background:#147f8c;border-color:#91efdc}
+html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog::backdrop{
+ cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20d%3D%22M12%202h8v10c0%202%201%203%203%205l4%205v4Q16%2033%205%2026v-4l4-5c2-2%203-3%203-5Z%22%20fill%3D%22%23e5faff%22%20stroke%3D%22%23081521%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M6%2024Q16%2030%2026%2024%22%20fill%3D%22none%22%20stroke%3D%22%23147f8c%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E") 16 29,grabbing!important;
+}
+#usProbeDrag svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+@media(pointer:coarse){#usProbeDrag{width:44px;height:44px}}
+
+.us-controls,.us-panels{display:grid;gap:10px}
+.us-controls{grid-template-columns:minmax(0,1fr)}
+.us-panels{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.us-focus-control{display:grid;justify-items:center;align-self:center;gap:4px;min-width:64px}
+.us-focus-control label{margin:0;font-size:12px;font-weight:600}
+.us-focus-control span,.us-focus-control output{font-size:11px;color:#adcad8;white-space:nowrap}
+.us-focus-control input{
+ writing-mode:vertical-lr;direction:rtl;width:32px;height:clamp(110px,32dvh,300px);margin:0;
+}
+.us-controls label{display:flex;justify-content:space-between;gap:6px}
+.us-controls input{width:100%;margin:0}
+#usRotation{
+ appearance:none;height:18px;background:transparent;cursor:pointer;
+ --us-rotation-track:linear-gradient(to right,#387db0 0 49.6%,#d9edf5 49.6% 50.4%,#427f71 50.4% 100%);
+}
+#usRotation::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--us-rotation-track)}
+#usRotation::-moz-range-track{height:6px;border-radius:3px;background:var(--us-rotation-track)}
+#usRotation::-webkit-slider-thumb{appearance:none;width:16px;height:16px;margin-top:-5px;border-radius:50%;background:#e5faff}
+#usRotation::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#e5faff}
+.us-range-directions{display:flex;justify-content:space-between;color:#adcad8;font-size:11px}
+.us-controls output{white-space:nowrap;font-variant-numeric:tabular-nums}
+.us-panels figure{margin:0;min-width:0}
+.us-panels figcaption{padding:6px 0;font-weight:600;font-size:13px}
+.us-panels canvas{display:block;width:100%;max-height:60dvh;object-fit:contain;background:#080e16;border:1px solid #254256}
+.us-mask-toggle{display:flex;align-items:center;gap:6px;margin:8px 0}
+#usError:empty{display:none}
+@media(max-width:540px){
+ .us-panels{grid-template-columns:minmax(0,1fr) auto}
+ .us-panels figure{grid-column:1}
+ .us-focus-control{grid-column:2;grid-row:1 / span 2;min-width:54px}
+ .us-panels canvas{max-height:50dvh}
+ #usDialog button{min-height:44px}
+}
 </style></head><body>
-<header id="viewerHeader"><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><div class="viewer-header-main"><strong>Visor MPR · v2</strong><button type="button" id="toggleGeneralPanel" aria-controls="generalPanel" aria-expanded="true" aria-label="Plegar panel general" title="Plegar panel general"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M8 3v14"/></svg></button> <span id="headerPresentationControls" role="group" aria-label="Controles de presentación" hidden>
+<header id="viewerHeader"><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><div class="viewer-header-main"><strong>Visor MPR · v2</strong><button type="button" id="toggleGeneralPanel" aria-controls="generalPanel" aria-expanded="true" aria-label="Plegar panel general" title="Plegar panel general"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M8 3v14"/></svg></button> <button type="button" id="headerUsMode" data-tool="us" aria-pressed="false" aria-label="Modo US" title="Modo US">
+ <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 2h8v10c0 2 1 3 3 5l4 5v4Q16 33 5 26v-4l4-5c2-2 3-3 3-5Z"/><path d="M6 24Q16 30 26 24"/></svg>
+</button> <span id="headerPresentationControls" role="group" aria-label="Controles de presentación" hidden>
  <button type="button" id="headerPresentationPrev" aria-label="Vista anterior" title="Vista anterior"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4 6 8l4 4"/></svg></button>
  <button type="button" id="headerPresentationNext" aria-label="Vista siguiente" title="Vista siguiente"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg></button>
  <button type="button" id="headerPresentationStop" aria-label="Detener presentación" title="Detener presentación"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="4" width="8" height="8" rx="1"/></svg></button>
@@ -235,8 +296,8 @@ body.panel-folded:not(.mobile-presentation) .pane.maximized{
 <section class="pane" data-view-pane="coronal"><h2>Coronal (eje Y)</h2><div class="stage"><canvas class="ct" id="cty"></canvas></div><div class="sliceTools"><input disabled="" id="ry" type="range"/><output id="oy">—</output></div></section>
 <section class="pane" data-view-pane="sagittal"><h2>Sagital (eje X)</h2><div class="stage"><canvas class="ct" id="ctx"></canvas></div><div class="sliceTools"><input disabled="" id="rx" type="range"/><output id="ox">—</output></div></section>
 <section class="pane" data-view-pane="3d"><h2>Vista 3D</h2><div class="stage" id="view3d"></div></section>
-</div><aside id="generalPanel"><div class="sidebar-heading"><div id="historyActions" class="history-actions" role="toolbar" aria-label="Acciones del visor"></div><div aria-busy="false" aria-live="polite" hidden="" id="loadingPanel" role="status"><span id="loadingTitle">Preparando…</span><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingDetail"></span></div></div><input id="unit" type="hidden" value="1000"/><input id="space" type="hidden" value="RAS"/><details class="sidebar-group" id="section-case" open=""><summary>▣  Caso</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p><label for="nrrd">Volumen de imagen en NRRD (archivo local)</label><input accept=".nrrd" id="nrrd" type="file"/><label for="glb">Modelo GLB (archivo local)</label><input accept=".glb" id="glb" type="file"/>
-</div></div></details><details class="sidebar-group" id="section-session"><summary>▣ Sesión del caso</summary><div class="sidebar-body" id="caseSessionControls"></div></details><details hidden id="section-visual"><summary>▤  Visualización</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-navigation"><summary>Navegación y herramientas</summary><div class="sidebar-body"><div class="tool-grid" id="tools">
+</div><aside id="generalPanel"><div class="sidebar-heading"><div id="historyActions" class="history-actions" role="toolbar" aria-label="Acciones del visor"></div><div aria-busy="false" aria-live="polite" hidden="" id="loadingPanel" role="status"><span id="loadingTitle">Preparando…</span><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingDetail"></span></div></div><input id="unit" type="hidden" value="1000"/><input id="space" type="hidden" value="RAS"/><details class="sidebar-group" id="section-case" open=""><summary>▣  Caso</summary><div class="sidebar-body"><div class="sidebar-body" id="caseLocalFiles"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p><div class="case-session-actions case-file-actions"><button type="button" data-case-file="nrrd">Cargar imagen NRRD</button><button type="button" data-case-file="glb">Cargar modelo GLB</button></div><input accept=".nrrd" id="nrrd" type="file" hidden/><input accept=".glb" id="glb" type="file" hidden/>
+</div><div id="caseSessionControls"></div></div></details><details hidden id="section-visual"><summary>▤  Visualización</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-navigation"><summary>Navegación y herramientas</summary><div class="sidebar-body"><div class="tool-grid" id="tools">
 <button aria-pressed="true" data-tool="navigate" type="button">Navegar</button><button aria-pressed="false" data-tool="pan" type="button">Desplazar</button>
 <button aria-pressed="false" data-tool="zoom" type="button">Zoom</button><button aria-pressed="false" data-tool="window" type="button">Ventana / nivel</button>
 <button aria-pressed="false" data-tool="measure2d" type="button">Medir en 2D</button><button aria-pressed="false" data-tool="measure3d" type="button">Medir en 3D</button>
@@ -246,8 +307,8 @@ body.panel-folded:not(.mobile-presentation) .pane.maximized{
 <h4>Relleno de segmentaciones</h4><label><input id="fillSegments" type="checkbox"/> Rellenar los contornos 2D cerrados</label><label for="fillOpacity">Opacidad del relleno</label><input id="fillOpacity" max="70" min="0" type="range" value="20"/><p class="note">Se rellenan bucles cerrados de la superficie; los contornos abiertos se mantienen sin relleno.</p></div></details><details class="sidebar-subgroup" id="menu-scene"><summary>Vista 3D</summary><div class="sidebar-body"><div id="view3dControls">
 <label><input checked="" id="planes" type="checkbox"/> Mostrar planos de imagen</label><div aria-label="Planos de imagen en 3D" id="planeSelection" role="group"><label><input checked="" id="planeZ" type="checkbox"/> Axial</label><label><input checked="" id="planeY" type="checkbox"/> Coronal</label><label><input checked="" id="planeX" type="checkbox"/> Sagital</label></div><p class="note">Selecciona los planos que se muestran en 3D. Los cortes y contornos MPR siguen disponibles.</p><label><input checked="" id="showmodel" type="checkbox"/> Mostrar GLB</label><label><input id="showStructureNames" type="checkbox"/> Mostrar los nombres seleccionados en 3D</label><button id="fit">Centrar vista 3D</button>
 </div>
-<h4 id="cameraOrientationHeading">Orientación de la cámara</h4><label for="cameraView">Vista anatómica</label><select id="cameraView"><option value="">Seleccionar…</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="right">Lateral derecha</option><option value="left">Lateral izquierda</option><option value="superior">Superior</option><option value="inferior">Inferior</option></select><p class="note">Selecciona la orientación de la cámara. Los planos axial, coronal y sagital se activan en «Vista 3D».</p><h4 id="modelClipHeading">Recorte del modelo</h4><label><input id="clipEnabled" type="checkbox"/> Activar recorte del GLB</label><label for="clipAxis">Eje de recorte</label><select id="clipAxis"><option value="x">Sagital (X)</option><option value="y">Coronal (Y)</option><option value="z">Axial (Z)</option></select><button id="rotateClip" type="button">Girar plano en 3D</button><label for="clipRotationConstraint">Control del giro</label><select id="clipRotationConstraint"><option value="free">Libre</option><option value="horizontal">Solo horizontal</option><option value="vertical">Solo vertical</option></select><div class="tool-grid"><button id="clipLeft" type="button">← 1°</button><button id="clipRight" type="button">1° →</button><button id="clipUp" type="button">↑ 1°</button><button id="clipDown" type="button">1° ↓</button></div><button id="alignClip" type="button">Alinear con el corte de imagen</button><button id="resetClipRotation" type="button">Restablecer orientación</button><p class="note">Arrastra para inclinar el plano. Mayús permite ajuste fino. Puedes limitar el giro a un eje o usar los botones de 1°. Esc cancela el arrastre.</p><label for="clipPosition">Posición de recorte</label><input id="clipPosition" step="0.01" max="100" min="0" type="range" value="100"/><label><input id="clipReverse" type="checkbox" checked/> Invertir lado conservado</label><p class="note">Recorte visual sin tapa; las imágenes y contornos MPR no se recortan.</p></div></details></div></details><details class="sidebar-group" id="section-structures" open=""><summary>◈  Estructuras</summary><div class="sidebar-body"><div class="sidebar-body"><label for="structureSearch">Buscar estructura</label><input id="structureSearch" placeholder="Nombre de lesión, vaso u órgano…" type="search"/><p class="note" hidden="" id="structureSearchEmpty">No hay coincidencias.</p><p id="treeMessage" class="note" aria-live="polite"></p><div id="childrenEditor" hidden><strong id="childrenTitle"></strong><input id="childrenParent" type="hidden"><p class="note">Marca las hijas directas. Una segmentación puede tener varios padres. No se permiten ciclos.</p><div id="childrenOptions"></div><button id="saveChildren" type="button">Guardar relaciones</button><button id="cancelChildren" type="button">Cancelar</button></div><div class="hierarchy-display"><label><input id="simpleHierarchy" type="checkbox" checked> Árbol simplificado</label><div><button id="expandHierarchy" type="button">Expandir árbol</button><button id="collapseHierarchy" type="button">Contraer árbol</button></div><p class="note">Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida. Desactiva esta opción para ver los controles.</p></div><section id="independentStructures"><h4>Todas las estructuras</h4><div id="modelLayers"></div><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p></section><h4>Grupos</h4><div id="structureTree"></div><div class="tree-toolbar"><button id="createGroup" type="button">+ Grupo / subgrupo</button><button id="exportTree" type="button">Exportar árbol</button><label class="tree-import">Importar árbol<input id="importTree" type="file" accept=".json"/></label></div><div id="groupEditor" hidden><input id="groupEditId" type="hidden"><label for="groupName">Nombre del grupo</label><input id="groupName" type="text" maxlength="100"><label for="groupParent">Grupo superior</label><select id="groupParent"></select><p class="note">Estructuras que pertenecen directamente a este grupo:</p><div id="groupMembers"></div><button id="saveGroup" type="button">Guardar grupo</button><button id="cancelGroup" type="button">Cancelar</button><button id="deleteGroup" type="button">Eliminar grupo</button></div><p class="note">Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad. Abre «Ajustes» para cambiar la apariencia o centrar la estructura.</p><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p><div class="structure-actions"><button id="clearSelection" type="button">Quitar selección</button><button disabled="" id="isolateStructures" type="button">Aislar seleccionadas</button><button disabled="" id="restoreVisibility" type="button">Restaurar visibilidad anterior</button><button id="showAllStructures" type="button">Mostrar todas las estructuras</button></div><div class="volume-summary"><strong id="selectedVolume">Volumen total seleccionado: 0,00 mL</strong><p class="note" id="selectedVolumeDetail">Selecciona estructuras para sumar sus volúmenes.</p><p class="note">Suma de volúmenes individuales; no descuenta solapamientos. 1 mL = 1 cm³.</p></div><button disabled="" id="resetLayers" type="button">Restablecer</button>
-<div hidden="True" id="legacyStructureControls"><select id="focusStructure"></select><button disabled="" id="centerStructure" type="button">Centrar en las cuatro ventanas</button><div id="structureSelection"></div></div></div></div></details><details hidden id="section-tools"><summary>⚒  Herramientas</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-measurements"><summary>Mediciones</summary><div class="sidebar-body"><div class="tool-grid"><button aria-pressed="false" data-tool="measure2d" id="startMeasure2d" type="button">Medir en 2D</button><button aria-pressed="false" data-tool="measure3d" id="startMeasure3d" type="button">Medir en 3D</button><button aria-pressed="false" data-tool="editMeasure" id="editMeasurements" type="button">Editar extremos</button><button aria-pressed="true" data-tool="navigate" type="button">Volver a navegar</button></div><p aria-live="polite" class="note" id="measurementHint">Elige «Medir en 2D» o «Medir en 3D» para comenzar.</p><p class="note" id="measurementEmpty">Todavía no hay mediciones.</p><p class="note">Dos clics para medir. En 2D, ambos puntos deben pertenecer al mismo corte. En 3D, selecciona superficies visibles del GLB. Distancia recta en RAS, en mm.</p><p class="note">Mediciones orientativas: precisión y escala pendientes de validación.</p><p class="note">Para conservar estas mediciones, guarda una vista nueva o pulsa «Actualizar» en una vista existente. Se incluyen al exportar la lista de vistas.</p><ol id="measurementList"></ol><button id="clearMeasures" type="button">Borrar mediciones</button></div></details><details class="sidebar-subgroup" id="menu-annotations"><summary>Textos y flechas 3D</summary><div class="sidebar-body"><label for="annotationText">Texto (opcional para flechas)</label><textarea id="annotationText" maxlength="180" placeholder="Ej.: Bifurcación portal" rows="2"></textarea><label for="annotationColor">Color</label><input id="annotationColor" type="color" value="#ffdf40"/><button id="addModelLabel" type="button">Añadir etiqueta de texto</button><button id="addModelArrow" type="button">Añadir flecha</button><label><input checked="" id="showAnnotations" type="checkbox"/> Mostrar textos y flechas</label><p aria-live="polite" class="note" id="annotationHint">Las marcas se anclan a puntos de las superficies del GLB. Guarda una vista o pulsa «Actualizar» en una vista existente para conservarlas.</p><p class="note" id="modelAnnotationEmpty"></p><div id="modelAnnotationList"></div><button id="clearModelAnnotations" type="button">Borrar todas las anotaciones del modelo</button></div></details><details class="sidebar-subgroup" id="menu-captures"><summary>Capturas</summary><div class="sidebar-body"><label for="captureView">Captura PNG</label><select id="captureView"><option value="all">Las cuatro ventanas</option><option value="z">Axial</option><option value="y">Coronal</option><option value="x">Sagital</option><option value="3d">Vista 3D</option></select><button id="capture" type="button">Descargar captura</button></div></details></div></details><details class="sidebar-group" id="section-saved"><summary>▧  Mis vistas</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div><div id="activeViewNote" hidden><label for="activeViewNoteText">Anotación de la vista seleccionada</label><textarea id="activeViewNoteText" rows="3" readonly placeholder="Sin anotación"></textarea></div><details id="newNamedView" class="sidebar-subgroup"><summary>Añadir vista</summary><label for="namedViewName">Nombre de la vista</label><input id="namedViewName" maxlength="100" placeholder="Ej.: Vista portal" type="text"/><label for="namedViewNotes">Anotación de la vista</label><textarea id="namedViewNotes" maxlength="3000" placeholder="Ej.: Lesión próxima a la bifurcación portal" rows="3"></textarea><button disabled="" id="addNamedView" type="button">Guardar</button></details><button disabled="" id="undoDeleteView" type="button">Deshacer eliminación</button><button disabled="" id="exportNamedViews" type="button">Exportar lista de vistas</button><label for="importNamedViews">Importar lista de vistas</label><input accept=".json,application/json" id="importNamedViews" type="file"/><p aria-live="polite" class="note" id="namedViewMessage">Cada nombre recupera la cámara, cortes, zoom, colores, transparencias y planos. Las vistas se conservan en este navegador para este volumen y modelo GLB; si existe un JSON publicado del caso, también se carga su lista.</p><p class="note">En «Ajustes», pulsa «Actualizar» para guardar el nombre, la anotación y la configuración actual del visor.</p></div></div></details><details class="sidebar-group" id="section-presentation">
+<h4 id="cameraOrientationHeading">Orientación de la cámara</h4><label for="cameraView">Vista anatómica</label><select id="cameraView"><option value="">Seleccionar…</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="right">Lateral derecha</option><option value="left">Lateral izquierda</option><option value="superior">Superior</option><option value="inferior">Inferior</option></select><p class="note">Selecciona la orientación de la cámara. Los planos axial, coronal y sagital se activan en «Vista 3D».</p><h4 id="modelClipHeading">Recorte del modelo</h4><label><input id="clipEnabled" type="checkbox"/> Activar recorte del GLB</label><label for="clipAxis">Eje de recorte</label><select id="clipAxis"><option value="x">Sagital (X)</option><option value="y">Coronal (Y)</option><option value="z">Axial (Z)</option></select><button id="rotateClip" type="button">Girar plano en 3D</button><label for="clipRotationConstraint">Control del giro</label><select id="clipRotationConstraint"><option value="free">Libre</option><option value="horizontal">Solo horizontal</option><option value="vertical">Solo vertical</option></select><div class="tool-grid"><button id="clipLeft" type="button">← 1°</button><button id="clipRight" type="button">1° →</button><button id="clipUp" type="button">↑ 1°</button><button id="clipDown" type="button">1° ↓</button></div><button id="alignClip" type="button">Alinear con el corte de imagen</button><button id="resetClipRotation" type="button">Restablecer orientación</button><p class="note">Arrastra para inclinar el plano. Mayús permite ajuste fino. Puedes limitar el giro a un eje o usar los botones de 1°. Esc cancela el arrastre.</p><label for="clipPosition">Posición de recorte</label><input id="clipPosition" step="0.01" max="100" min="0" type="range" value="100"/><label><input id="clipReverse" type="checkbox" checked/> Invertir lado conservado</label><p class="note">Recorte visual sin tapa; las imágenes y contornos MPR no se recortan.</p></div></details></div></details><details class="sidebar-group" id="section-structures" open=""><summary>◈  Estructuras</summary><div class="sidebar-body"><div class="sidebar-body"><label for="structureSearch">Buscar estructura</label><input id="structureSearch" placeholder="Nombre de lesión, vaso u órgano…" type="search"/><p class="note" hidden="" id="structureSearchEmpty">No hay coincidencias.</p><p id="treeMessage" class="note" aria-live="polite"></p><div id="childrenEditor" hidden><strong id="childrenTitle"></strong><input id="childrenParent" type="hidden"><p class="note">Marca las hijas directas. Una segmentación puede tener varios padres. No se permiten ciclos.</p><div id="childrenOptions"></div><button id="saveChildren" type="button">Guardar relaciones</button><button id="cancelChildren" type="button">Cancelar</button></div><div class="hierarchy-display"><label><input id="simpleHierarchy" type="checkbox" checked> Árbol simplificado</label><div><button id="expandHierarchy" type="button">Expandir árbol</button><button id="collapseHierarchy" type="button">Contraer árbol</button></div><p class="note">Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida. Desactiva esta opción para ver los controles.</p></div><section id="independentStructures"><h4>Todas las estructuras</h4><div id="modelLayers"></div><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p></section><h4>Grupos</h4><div id="structureTree"></div><div class="tree-toolbar"><button id="createGroup" type="button">+ Grupo / subgrupo</button><button id="exportTree" type="button">Exportar árbol</button><button id="importTreeButton" type="button">Importar árbol</button><input id="importTree" type="file" accept=".json" hidden/></div><div id="groupEditor" hidden><input id="groupEditId" type="hidden"><label for="groupName">Nombre del grupo</label><input id="groupName" type="text" maxlength="100"><label for="groupParent">Grupo superior</label><select id="groupParent"></select><p class="note">Estructuras que pertenecen directamente a este grupo:</p><div id="groupMembers"></div><button id="saveGroup" type="button">Guardar grupo</button><button id="cancelGroup" type="button">Cancelar</button><button id="deleteGroup" type="button">Eliminar grupo</button></div><p class="note">Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad. Abre «Ajustes» para cambiar la apariencia o centrar la estructura.</p><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p><div class="structure-actions"><button id="clearSelection" type="button">Quitar selección</button><button disabled="" id="isolateStructures" type="button">Aislar seleccionadas</button><button disabled="" id="restoreVisibility" type="button">Restaurar visibilidad anterior</button><button id="showAllStructures" type="button">Mostrar todas las estructuras</button></div><div class="volume-summary"><strong id="selectedVolume">Volumen total seleccionado: 0,00 mL</strong><p class="note" id="selectedVolumeDetail">Selecciona estructuras para sumar sus volúmenes.</p><p class="note">Suma de volúmenes individuales; no descuenta solapamientos. 1 mL = 1 cm³.</p></div><button disabled="" id="resetLayers" type="button">Restablecer</button>
+<div hidden="True" id="legacyStructureControls"><select id="focusStructure"></select><button disabled="" id="centerStructure" type="button">Centrar en las cuatro ventanas</button><div id="structureSelection"></div></div></div></div></details><details hidden id="section-tools"><summary>⚒  Herramientas</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-measurements"><summary>Mediciones</summary><div class="sidebar-body"><div class="tool-grid"><button aria-pressed="false" data-tool="measure2d" id="startMeasure2d" type="button">Medir en 2D</button><button aria-pressed="false" data-tool="measure3d" id="startMeasure3d" type="button">Medir en 3D</button><button aria-pressed="false" data-tool="editMeasure" id="editMeasurements" type="button">Editar extremos</button><button aria-pressed="true" data-tool="navigate" type="button">Volver a navegar</button></div><p aria-live="polite" class="note" id="measurementHint">Elige «Medir en 2D» o «Medir en 3D» para comenzar.</p><p class="note" id="measurementEmpty">Todavía no hay mediciones.</p><p class="note">Dos clics para medir. En 2D, ambos puntos deben pertenecer al mismo corte. En 3D, selecciona superficies visibles del GLB. Distancia recta en RAS, en mm.</p><p class="note">Mediciones orientativas: precisión y escala pendientes de validación.</p><p class="note">Para conservar estas mediciones, guarda una vista nueva o pulsa «Actualizar» en una vista existente. Se incluyen al exportar la lista de vistas.</p><ol id="measurementList"></ol><button id="clearMeasures" type="button">Borrar mediciones</button></div></details><details class="sidebar-subgroup" id="menu-annotations"><summary>Textos y flechas 3D</summary><div class="sidebar-body"><label for="annotationText">Texto (opcional para flechas)</label><textarea id="annotationText" maxlength="180" placeholder="Ej.: Bifurcación portal" rows="2"></textarea><label for="annotationColor">Color</label><input id="annotationColor" type="color" value="#ffdf40"/><button id="addModelLabel" type="button">Añadir etiqueta de texto</button><button id="addModelArrow" type="button">Añadir flecha</button><label><input checked="" id="showAnnotations" type="checkbox"/> Mostrar textos y flechas</label><p aria-live="polite" class="note" id="annotationHint">Las marcas se anclan a puntos de las superficies del GLB. Guarda una vista o pulsa «Actualizar» en una vista existente para conservarlas.</p><p class="note" id="modelAnnotationEmpty"></p><div id="modelAnnotationList"></div><button id="clearModelAnnotations" type="button">Borrar todas las anotaciones del modelo</button></div></details><details class="sidebar-subgroup" id="menu-captures"><summary>Capturas</summary><div class="sidebar-body"><label for="captureView">Captura PNG</label><select id="captureView"><option value="all">Las cuatro ventanas</option><option value="z">Axial</option><option value="y">Coronal</option><option value="x">Sagital</option><option value="3d">Vista 3D</option></select><button id="capture" type="button">Descargar captura</button></div></details></div></details><details class="sidebar-group" id="section-saved"><summary>▧  Mis vistas</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div><div id="activeViewNote" hidden><label for="activeViewNoteText">Anotación de la vista seleccionada</label><textarea id="activeViewNoteText" rows="3" readonly placeholder="Sin anotación"></textarea></div><details id="newNamedView" class="sidebar-subgroup"><summary>Añadir vista</summary><label for="namedViewName">Nombre de la vista</label><input id="namedViewName" maxlength="100" placeholder="Ej.: Vista portal" type="text"/><label for="namedViewNotes">Anotación de la vista</label><textarea id="namedViewNotes" maxlength="3000" placeholder="Ej.: Lesión próxima a la bifurcación portal" rows="3"></textarea><button disabled="" id="addNamedView" type="button">Guardar</button></details><button disabled="" id="undoDeleteView" type="button">Deshacer eliminación</button><button disabled="" id="exportNamedViews" type="button">Exportar lista de vistas</button><button id="importNamedViewsButton" type="button">Importar lista de vistas</button><input accept=".json,application/json" id="importNamedViews" type="file" hidden/><p aria-live="polite" class="note" id="namedViewMessage">Cada nombre recupera la cámara, cortes, zoom, colores, transparencias y planos. Las vistas se conservan en este navegador para este volumen y modelo GLB; si existe un JSON publicado del caso, también se carga su lista.</p><p class="note">En «Ajustes», pulsa «Actualizar» para guardar el nombre, la anotación y la configuración actual del visor.</p></div></div></details><details class="sidebar-group" id="section-presentation">
 <summary>▷ Presentación</summary>
 <div class="sidebar-body">
 <p class="note">Elige qué vistas incluir y su orden en «Mis vistas».</p>
@@ -275,6 +336,38 @@ body.panel-folded:not(.mobile-presentation) .pane.maximized{
 </div>
 </details></aside></div>
 
+
+<dialog id="usDialog" aria-labelledby="usTitle">
+ <div class="us-heading">
+  <h2 id="usTitle">Modo US</h2>
+  <div class="us-actions">
+   <button type="button" id="usProbeDrag" title="Mantén pulsado y arrastra: horizontal para girar, vertical para inclinar" aria-label="Control de sonda: mantén pulsado y arrastra en horizontal para girar y en vertical para inclinar">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 2h8v10c0 2 1 3 3 5l4 5v4Q16 33 5 26v-4l4-5c2-2 3-3 3-5Z"/><path d="M6 24Q16 30 26 24"/></svg>
+   </button>
+   <button type="button" id="usRepick">Cambiar punto de entrada</button>
+   <form method="dialog"><button>Cerrar</button></form>
+  </div>
+ </div>
+ <div class="us-controls">
+  <div><label for="usRotation">Giro del plano <output id="usRotationValue" for="usRotation">180°</output></label>
+   <input type="range" id="usRotation" min="0" max="360" value="180" step="1"><div class="us-range-directions" aria-hidden="true"><span>0° · Dch</span><span>180°</span><span>Izq · 0°</span></div></div>
+ </div>
+ <label class="us-mask-toggle"><input type="checkbox" id="usSectorMask" checked> Máscara en abanico</label>
+ <label class="us-mask-toggle"><input type="checkbox" id="usShowInfo" checked> Mostrar información en la imagen</label>
+ <p class="note" id="usDepth"></p>
+ <div class="us-panels">
+  <figure><figcaption>Corte TAC / RM</figcaption><canvas id="usImage" width="480" height="520" aria-label="Corte oblicuo del volumen"></canvas></figure>
+  <div class="us-focus-control">
+   <label for="usOffset">Enfoque</label>
+   <span aria-hidden="true">Sup</span>
+   <input type="range" id="usOffset" min="-100" max="100" value="0" step="1" aria-orientation="vertical">
+   <span aria-hidden="true">Inf</span>
+   <output id="usOffsetValue" for="usOffset">0 mm</output>
+  </div>
+  <figure><figcaption>Modelo 3D · lámina de 10 mm</figcaption><canvas id="usModel" width="480" height="520" aria-label="Lámina del modelo alineada con el corte"></canvas></figure>
+ </div>
+ <p id="usError" class="note" role="status"></p>
+</dialog>
 <script type="module">
 import * as THREE from 'three';
 import {TrackballControls} from 'three/addons/controls/TrackballControls.js';
@@ -282,7 +375,12 @@ import {NRRDLoader} from 'three/addons/loaders/NRRDLoader.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 const $=id=>document.getElementById(id), status=$('status');
 // Un enlace de caso ya identifica el modelo; la carga manual se ofrece al entrar sin él.
-$('section-case').hidden=!!new URLSearchParams(location.search).get('modelo')?.trim();
+const linkedCase=!!new URLSearchParams(location.search).get('modelo')?.trim();
+$('caseLocalFiles').hidden=linkedCase;
+$('section-case').open=!linkedCase;
+for(const button of document.querySelectorAll('[data-case-file]')){
+ button.addEventListener('click',()=>$(button.dataset.caseFile).click());
+}
 const progressPanel=$('loadingPanel'), progressTrack=$('loadingTrack'), progressFill=$('loadingFill');
 const formatMB=n=>(n/1000000).toFixed(1)+' MB';
 function showProgress(title,fraction=null,detail=''){
@@ -323,7 +421,19 @@ const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:tru
 renderer.domElement.title='Arrastrar: giro libre · Botón derecho: desplazar · Rueda: zoom';
 const controls=new TrackballControls(camera,renderer.domElement);controls.staticMoving=true;controls.rotateSpeed=2;controls.zoomSpeed=1.1;controls.panSpeed=.5;controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};
 scene.add(new THREE.HemisphereLight(0xffffff,0x405060,2.5));const light=new THREE.DirectionalLight(0xffffff,2);light.position.set(2,3,5);scene.add(light);
-const planesRoot=new THREE.Group();scene.add(planesRoot);const modelRoot=new THREE.Group();scene.add(modelRoot);let volume=null,slices={},model=null;let volumeInfo=null; let selectedWorldPoint=null; const navMarker=new THREE.Group();scene.add(navMarker);navMarker.visible=false; const markerMaterial=new THREE.MeshBasicMaterial({color:0xffff00,depthTest:false});const markerBall=new THREE.Mesh(new THREE.SphereGeometry(3,12,10),markerMaterial);navMarker.add(markerBall);const markerLineMat=new THREE.LineBasicMaterial({color:0xffff00,depthTest:false});for(const axis of [[12,0,0],[0,12,0],[0,0,12]]){const a=new THREE.Vector3(...axis);const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a.clone().negate(),a]),markerLineMat);line.renderOrder=300;navMarker.add(line)} markerBall.renderOrder=301;markerMaterial.depthWrite=false;markerLineMat.depthWrite=false;const tmpV1=new THREE.Vector3(), tmpV2=new THREE.Vector3(), tmpV3=new THREE.Vector3(), tmpI1=new THREE.Vector3(), tmpI2=new THREE.Vector3();
+const planesRoot=new THREE.Group();scene.add(planesRoot);const modelRoot=new THREE.Group();scene.add(modelRoot);let volume=null,slices={},model=null;let volumeInfo=null; let selectedWorldPoint=null;
+let lastUsEntryPoint=null;
+const usEntryTextureCanvas=document.createElement('canvas');
+usEntryTextureCanvas.width=usEntryTextureCanvas.height=28;
+drawUsEntryCross(usEntryTextureCanvas.getContext('2d'),14,14,10);
+const usEntryMarker=new THREE.Sprite(new THREE.SpriteMaterial({
+ map:new THREE.CanvasTexture(usEntryTextureCanvas),
+ depthTest:false,depthWrite:false,transparent:true,toneMapped:false
+}));
+usEntryMarker.visible=false;
+usEntryMarker.renderOrder=251;
+scene.add(usEntryMarker);
+const navMarker=new THREE.Group();scene.add(navMarker);navMarker.visible=false; const markerMaterial=new THREE.MeshBasicMaterial({color:0xffff00,depthTest:false});const markerBall=new THREE.Mesh(new THREE.SphereGeometry(3,12,10),markerMaterial);navMarker.add(markerBall);const markerLineMat=new THREE.LineBasicMaterial({color:0xffff00,depthTest:false});for(const axis of [[12,0,0],[0,12,0],[0,0,12]]){const a=new THREE.Vector3(...axis);const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a.clone().negate(),a]),markerLineMat);line.renderOrder=300;navMarker.add(line)} markerBall.renderOrder=301;markerMaterial.depthWrite=false;markerLineMat.depthWrite=false;const tmpV1=new THREE.Vector3(), tmpV2=new THREE.Vector3(), tmpV3=new THREE.Vector3(), tmpI1=new THREE.Vector3(), tmpI2=new THREE.Vector3();
 function resize3D(){
  const host=$('view3d'), width=Math.max(1,host.clientWidth), height=Math.max(1,host.clientHeight);
  camera.aspect=width/height;
@@ -345,8 +455,8 @@ const orientation={z:{transpose:false,flipH:true,flipV:false},y:{transpose:false
 let obliqueRotation=new THREE.Quaternion(),obliquePivot=null,obliqueShift=new THREE.Vector3();
 let planePoints=[];const planePointRoot=new THREE.Group();scene.add(planePointRoot);
 function obliqueActive(){return obliquePivot!==null}
-function resampleOblique(slice,basis){
- const canvas=slice.canvas,ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,image=ctx.createImageData(w,h);
+function resampleVolume(canvas,basis){
+ const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height,image=ctx.createImageData(w,h);
  const d=volumeInfo.directionsRAS,origin=new THREE.Vector3(...volumeInfo.originRAS);
  const inverse=new THREE.Matrix4().set(d[0][0],d[1][0],d[2][0],0,d[0][1],d[1][1],d[2][1],0,d[0][2],d[1][2],d[2][2],0,0,0,0,1).invert();
  const start=basis.origin.clone().sub(origin).applyMatrix4(inverse);
@@ -366,7 +476,11 @@ function resampleOblique(slice,basis){
   const gray=Math.max(0,Math.min(255,(intensity-low)/range*255));
   image.data[offset]=image.data[offset+1]=image.data[offset+2]=gray;
  }
- ctx.putImageData(image,0,0);slice.mesh.material.map.needsUpdate=true;
+ ctx.putImageData(image,0,0);
+}
+function resampleOblique(slice,basis){
+ resampleVolume(slice.canvas,basis);
+ slice.mesh.material.map.needsUpdate=true;
  const pivot=obliquePivot.clone().sub(planesRoot.position);
  slice.mesh.position.sub(pivot).applyQuaternion(obliqueRotation).add(pivot).add(obliqueShift);
  slice.mesh.quaternion.premultiply(obliqueRotation);slice.mesh.updateMatrix();slice.mesh.updateMatrixWorld(true);
@@ -415,6 +529,7 @@ function paint(axis){
  ctx.drawImage(source,0,0);ctx.restore();
  drawContours(axis, ctx, dest);
  drawCrosshair(axis, ctx, dest);
+ drawLastUsEntry(axis, ctx, dest);
  drawClipIntersection(axis,ctx,dest);
  drawMeasurements(axis,ctx,dest);
  $('o'+axis).textContent=String(i);
@@ -496,6 +611,37 @@ function drawClipIntersection(axis,ctx,dest){
  ctx.save();ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);ctx.lineTo(points[1].x,points[1].y);
  ctx.strokeStyle='#081521';ctx.lineWidth=4;ctx.stroke();ctx.strokeStyle='#ff66cc';ctx.lineWidth=2;ctx.setLineDash([8,4]);ctx.stroke();ctx.restore();
 }
+function drawUsEntryCross(ctx,x,y,radius){
+ ctx.save();
+ ctx.beginPath();
+ ctx.moveTo(x-radius,y);ctx.lineTo(x+radius,y);
+ ctx.moveTo(x,y-radius);ctx.lineTo(x,y+radius);
+ ctx.strokeStyle='#081521';ctx.lineWidth=5;ctx.stroke();
+ ctx.strokeStyle='#439bff';ctx.lineWidth=2.5;ctx.stroke();
+ ctx.restore();
+}
+
+function drawLastUsEntry(axis,ctx,dest){
+ if(!lastUsEntryPoint||!$('showCross').checked)return;
+ const basis=slicePixelBasis(axis);
+ const normal=basis.u.clone().cross(basis.v).normalize();
+ const distance=Math.abs(lastUsEntryPoint.clone().sub(basis.origin).dot(normal));
+ const halfSlice=volumeInfo.spacing[{x:0,y:1,z:2}[axis]]/2;
+ if(distance>halfSlice+1e-5)return;
+ const {x,y}=worldToPixel(axis,lastUsEntryPoint,basis,dest);
+ if(x<0||x>dest.width||y<0||y>dest.height)return;
+ ctx.save();
+ drawUsEntryCross(ctx,x,y,7);
+ ctx.fillStyle='#439bff';
+ ctx.strokeStyle='#081521';
+ ctx.font='bold 12px system-ui';
+ const labelX=Math.max(2,Math.min(x+9,dest.width-ctx.measureText('US').width-2));
+ const labelY=Math.max(12,Math.min(y-8,dest.height-2));
+ ctx.lineWidth=3;ctx.strokeText('US',labelX,labelY);
+ ctx.fillText('US',labelX,labelY);
+ ctx.restore();
+}
+
 function drawCrosshair(axis,ctx,dest){
  if(!selectedWorldPoint || !$('showCross').checked || !volumeInfo) return;
  let reference=selectedWorldPoint;
@@ -564,36 +710,13 @@ $('showCross').addEventListener('change',()=>['x','y','z'].forEach(paint));
 $('show3DMarker').addEventListener('change',()=>navMarker.visible=!!selectedWorldPoint&&$('show3DMarker').checked);
 $('resetNav').addEventListener('click',()=>{selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Punto de referencia borrado.';['x','y','z'].forEach(paint)});
 
-function drawContours(axis, ctx, dest){
- contourPaths[axis]=[];
- if(!model||!volumeInfo) return;
- // El plano físico debe ser EXACTAMENTE el del corte renderizado.
- // sliceAccess/reverseAccess ya incorporan el orden de índices y sus inversiones.
- // Calcularlo como origin + slider*direction falla especialmente en X e Y.
- const pixelBasis=slicePixelBasis(axis);
- const component={x:0,y:1,z:2}[axis];
- const normal=new THREE.Vector3(0,0,0);
- normal.setComponent(component,1);if(obliqueActive())normal.applyQuaternion(obliqueRotation);
- const planeLevel=pixelBasis.origin.dot(normal);
- const plane=new THREE.Plane(normal,-planeLevel);
- model.updateWorldMatrix(true,true);
+function meshPlaneSegments(obj,plane,project){
+ const geometry=obj.geometry;
+ const pos=geometry.getAttribute('position');
+ if(!pos)return [];
+ const idx=geometry.index;
+ const segments=[];
  const edgePairs=[[0,1],[1,2],[2,0]];
- model.traverse(obj=>{
-  if(!obj.isMesh || !obj.visible || obj.userData.contourVisible===false) return;
-  const geom=obj.geometry; const pos=geom.getAttribute('position'); if(!pos) return;
-  if(!obj.geometry.boundingBox)obj.geometry.computeBoundingBox();
-  const worldBox=obj.geometry.boundingBox.clone().applyMatrix4(obj.matrixWorld);
-  const level=planeLevel;
-  if(!worldBox.intersectsPlane(plane))return;
-  const idx=geom.index;
-  const mats=Array.isArray(obj.material)?obj.material:[obj.material];
-  const color=(selectedStructures.has(obj.userData.structureKey)?'#ffff00':null)||(obj.userData.contourColor)||(mats[0]?.color?.getStyle()||'#ff5555');
-  ctx.strokeStyle=color; ctx.lineWidth=selectedStructures.has(obj.userData.structureKey)?3:1.5; ctx.beginPath(); let drew=false;const segments=[];
-  let cache=contourCache.get(obj);if(!cache){cache=new Map();contourCache.set(obj,cache)}
-  const cacheKey=JSON.stringify([axis,pixelBasis.origin.toArray(),pixelBasis.u.toArray(),pixelBasis.v.toArray(),pixelBasis.sx,pixelBasis.sy,dest.width,dest.height,orientation[axis],obj.matrixWorld.elements,pos.version,idx?.version]);
-  const cached=cache.get(cacheKey);
-  if(cached){for(const [p1,p2] of cached){ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);segments.push([p1,p2])}drew=segments.length>0;}
-  else{
   const triCount=idx?idx.count/3:pos.count/3;
   for(let t=0;t<triCount;t++){
     const ids=idx?[idx.getX(t*3),idx.getX(t*3+1),idx.getX(t*3+2)]:[t*3,t*3+1,t*3+2];
@@ -611,9 +734,44 @@ function drawContours(axis, ctx, dest){
       }
     }
     if(pts.length>=2){
-      const p1=worldToPixel(axis, pts[0], pixelBasis, dest), p2=worldToPixel(axis, pts[1], pixelBasis, dest);
-      if(p1&&p2){ ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); segments.push([p1,p2]);drew=true; }
+      const p1=project(pts[0]), p2=project(pts[1]);
+      segments.push([p1,p2]);
     }
+  }
+ return segments;
+}
+
+function drawContours(axis, ctx, dest){
+ contourPaths[axis]=[];
+ if(!model||!volumeInfo) return;
+ // El plano físico debe ser EXACTAMENTE el del corte renderizado.
+ // sliceAccess/reverseAccess ya incorporan el orden de índices y sus inversiones.
+ // Calcularlo como origin + slider*direction falla especialmente en X e Y.
+ const pixelBasis=slicePixelBasis(axis);
+ const component={x:0,y:1,z:2}[axis];
+ const normal=new THREE.Vector3(0,0,0);
+ normal.setComponent(component,1);if(obliqueActive())normal.applyQuaternion(obliqueRotation);
+ const planeLevel=pixelBasis.origin.dot(normal);
+ const plane=new THREE.Plane(normal,-planeLevel);
+ model.updateWorldMatrix(true,true);
+ model.traverse(obj=>{
+  if(!obj.isMesh || !obj.visible || obj.userData.contourVisible===false) return;
+  const geom=obj.geometry; const pos=geom.getAttribute('position'); if(!pos) return;
+  if(!obj.geometry.boundingBox)obj.geometry.computeBoundingBox();
+  const worldBox=obj.geometry.boundingBox.clone().applyMatrix4(obj.matrixWorld);
+  const level=planeLevel;
+  if(!worldBox.intersectsPlane(plane))return;
+  const idx=geom.index;
+  const mats=Array.isArray(obj.material)?obj.material:[obj.material];
+  const color=(selectedStructures.has(obj.userData.structureKey)?'#ffff00':null)||(obj.userData.contourColor)||(mats[0]?.color?.getStyle()||'#ff5555');
+  ctx.strokeStyle=color; ctx.lineWidth=selectedStructures.has(obj.userData.structureKey)?3:1.5; ctx.beginPath(); let drew=false;const segments=[];
+  let cache=contourCache.get(obj);if(!cache){cache=new Map();contourCache.set(obj,cache)}
+  const cacheKey=JSON.stringify([axis,pixelBasis.origin.toArray(),pixelBasis.u.toArray(),pixelBasis.v.toArray(),pixelBasis.sx,pixelBasis.sy,dest.width,dest.height,orientation[axis],obj.matrixWorld.elements,pos.version,idx?.version]);
+  const cached=cache.get(cacheKey);
+  if(cached){for(const [p1,p2] of cached){ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);segments.push([p1,p2])}drew=segments.length>0;}
+  else{
+  for(const [p1,p2] of meshPlaneSegments(obj,plane,point=>worldToPixel(axis,point,pixelBasis,dest))){
+   ctx.moveTo(p1.x,p1.y);ctx.lineTo(p2.x,p2.y);segments.push([p1,p2]);drew=true;
   }
   if(cache.size>=12)cache.delete(cache.keys().next().value);cache.set(cacheKey,segments);
   }
@@ -622,7 +780,7 @@ function drawContours(axis, ctx, dest){
 }
 
 function initSlices(){obliquePivot=null;obliqueRotation.identity();obliqueShift.set(0,0,0);clearRoot(planesRoot);slices={};for(const [axis,n] of [['x',volume.RASDimensions[0]],['y',volume.RASDimensions[1]],['z',volume.RASDimensions[2]]]){const size=Math.max(2,n);const slider=$('r'+axis);slider.disabled=false;slider.min='0';slider.max=String(size-1);slider.value=String(Math.floor((size-1)/2));const slice=volume.extractSlice(axis,+slider.value);slices[axis]=slice;planesRoot.add(slice.mesh);slider.oninput=()=>paint(axis);paint(axis)}updatePlaneVisibility();fit()}
-async function loadNrrdData(data,label){const hash=await contentHash(data);if(volumeContentHash&&volumeContentHash!==hash)clearModelAnnotations();clearMeasurements();selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Pulsa un punto en un corte para sincronizar las vistas.';volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();volumeContentHash=hash;syncNamedViews();status.textContent=`Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}
+async function loadNrrdData(data,label){const hash=await contentHash(data);if(volumeContentHash!==hash)lastUsEntryPoint=null;if(volumeContentHash&&volumeContentHash!==hash)clearModelAnnotations();clearMeasurements();selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Pulsa un punto en un corte para sincronizar las vistas.';volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();volumeContentHash=hash;syncNamedViews();status.textContent=`Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}
 $('nrrd').onchange=async e=>{const file=e.target.files[0];if(!file)return;status.textContent='Leyendo NRRD local…';showProgress('Leyendo volumen local',null,formatMB(file.size));try{await loadNrrdData(await file.arrayBuffer(),file.name);finishProgress(true,'Volumen local preparado')}catch(err){console.error(err);status.textContent='Error leyendo NRRD: '+err.message;finishProgress(false,err.message)}};
 $('apply').onclick=()=>{if(!volume)return;const w=Number($('ww').value),l=Number($('wl').value);if(!Number.isFinite(w)||w<=0||!Number.isFinite(l)){status.textContent='Ventana no válida';return}volume.windowLow=l-w/2;volume.windowHigh=l+w/2;['x','y','z'].forEach(paint)};
 function updatePlaneVisibility(){
@@ -741,7 +899,7 @@ async function loadGlbFromUrl(url,label){
   const hash=await contentHash(buffer);const result=await new GLTFLoader().parseAsync(buffer,url.startsWith('blob:')?new URL('./',location.href).href:new URL('./',url).href);
   clearRoot(modelRoot);model=result.scene;modelRoot.add(model);
   const counts=buildModelLayers(model);$('modelLayers').hidden=false;$('independentEmpty').hidden=layerControls.size>0;buildStructureSelection();clearModelAnnotations();
-  updateModelTransform();updateClip();clearMeasurements();modelContentHash=hash;loadedModelName=label.split(/[\\/]/).pop().replace(/\.glb$/i,'');loadTree();syncNamedViews();
+  updateModelTransform();updateClip();clearMeasurements();if(modelContentHash!==hash)lastUsEntryPoint=null;modelContentHash=hash;loadedModelName=label.split(/[\\/]/).pop().replace(/\.glb$/i,'');loadTree();syncNamedViews();
   if(volume)['x','y','z'].forEach(paint);
   status.textContent=`GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
 }
@@ -805,7 +963,7 @@ function setWindow(level,width){
  if(volume){volume.windowLow=level-width/2;volume.windowHigh=level+width/2;repaintAll()}
 }
 $('windowPreset').onchange=()=>{if($('windowPreset').value!=='custom'){const [l,w]=$('windowPreset').value.split(',').map(Number);setWindow(l,w);$('windowPreset').value=l+','+w}};
-const toolHints={threePoints:'Marca tres puntos en 2D o sobre superficies 3D. Esc cancela.',rotateClip:'Arrastra en 3D para orientar el plano de recorte. Pulsa Navegar para volver a girar el modelo.',oblique:'Arrastra un punto azul de la cruz para girar suavemente. Mayús permite ajuste fino. Doble clic en el icono restablece la orientación.',cut:'Pulsa una estructura para ocultarla en las cuatro ventanas.',deleteMeasure:'Pulsa una medición, un texto o una flecha para borrarlos.',editMeasure:'Arrastra un extremo de una medición. En 2D permanece en su corte; en 3D se desplaza sobre superficies visibles del GLB. Esc cancela.',annotation:'Etiqueta 3D: pulsa una superficie del modelo.',arrow:'Pulsa el origen y después la punta de la flecha sobre el modelo.',navigate:'Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.',pan:'Arrastra con el botón izquierdo para desplazar el volumen.',zoom:'Rueda sobre el volumen para aumentar o reducir. Ctrl + rueda funciona en cualquier modo.',window:'Arrastra en el Volumen: horizontal = anchura, vertical = nivel.',measure2d:'Pulsa dos puntos en el mismo corte del volumen. Esc cancela el primer punto.',measure3d:'Pulsa dos puntos en superficies visibles del GLB. Arrastrar sigue girando la cámara.',select:'Pulsa un contorno o su interior en el volumen, o una superficie en 3D. Se resalta en amarillo.'};
+const toolHints={us:'Modo US: marca el punto de entrada en un corte axial, coronal o sagital.',threePoints:'Marca tres puntos en 2D o sobre superficies 3D. Esc cancela.',rotateClip:'Arrastra en 3D para orientar el plano de recorte. Pulsa Navegar para volver a girar el modelo.',oblique:'Arrastra un punto azul de la cruz para girar suavemente. Mayús permite ajuste fino. Doble clic en el icono restablece la orientación.',cut:'Pulsa una estructura para ocultarla en las cuatro ventanas.',deleteMeasure:'Pulsa una medición, un texto o una flecha para borrarlos.',editMeasure:'Arrastra un extremo de una medición. En 2D permanece en su corte; en 3D se desplaza sobre superficies visibles del GLB. Esc cancela.',annotation:'Etiqueta 3D: pulsa una superficie del modelo.',arrow:'Pulsa el origen y después la punta de la flecha sobre el modelo.',navigate:'Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.',pan:'Arrastra con el botón izquierdo para desplazar el volumen.',zoom:'Rueda sobre el volumen para aumentar o reducir. Ctrl + rueda funciona en cualquier modo.',window:'Arrastra en el Volumen: horizontal = anchura, vertical = nivel.',measure2d:'Pulsa dos puntos en el mismo corte del volumen. Esc cancela el primer punto.',measure3d:'Pulsa dos puntos en superficies visibles del GLB. Arrastrar sigue girando la cámara.',select:'Pulsa un contorno o su interior en el volumen, o una superficie en 3D. Se resalta en amarillo.'};
 function updateToolCursor(){
  const icons={navigate:'navigate',zoom:'zoom',window:'window',deleteMeasure:'deleteMeasure',select:'select',cut:'cut'};
  const svg=icons[activeTool]&&document.querySelector('.pane-quick-tools [data-tool="'+activeTool+'"] svg');
@@ -1212,6 +1370,7 @@ $('addNamedView').onclick=()=>{try{if(!namedCaseKey)throw new Error('Carga el vo
 $('namedViewName').addEventListener('keydown',e=>{if(e.key==='Enter')$('addNamedView').click()});
 $('undoDeleteView').onclick=()=>{if(!deletedView)return;const {view,index}=deletedView;view.name=uniqueViewName(view.name);namedViews.splice(index,0,view);deletedView=null;persistNamedViews()};
 $('exportNamedViews').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'mpr-named-views',version:1,caseKey:namedCaseKey,views:namedViews},null,2)],{type:'application/json'}),loadedModelName+'_vista.json');
+$('importNamedViewsButton').onclick=()=>$('importNamedViews').click();
 $('importNamedViews').onchange=async e=>{
  const file=e.target.files[0];if(!file)return;
  try{
@@ -1311,6 +1470,15 @@ function updateStructureNames(){
 annotationRoot=new THREE.Group();scene.add(annotationRoot);
 function updateAnnotationScale(){
  if(!annotationRoot)return;const width=Math.max(1,$('view3d').clientWidth),height=Math.max(1,$('view3d').clientHeight),forward=camera.getWorldDirection(new THREE.Vector3()),right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion),up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion),placed=[];
+ usEntryMarker.visible=false;
+ if(lastUsEntryPoint&&$('showCross').checked&&$('show3DMarker').checked){
+  const depth=lastUsEntryPoint.clone().sub(camera.position).dot(forward);
+  if(depth>camera.near&&depth<camera.far){
+   usEntryMarker.position.copy(lastUsEntryPoint);
+   usEntryMarker.scale.setScalar(28*2*depth*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/height);
+   usEntryMarker.visible=true;
+  }
+ }
  for(const ball of [...measurementRoot.children,...annotationRoot.children,...planePointRoot.children]){
   if(!ball.userData.pixelRadius)continue;
   const depth=ball.position.clone().sub(camera.position).dot(forward);
@@ -1707,7 +1875,7 @@ async function autoLoadCase(){
   status.textContent='Caso '+basename+' cargado (GLB y NRRD). Verifica la alineación en los tres planos.';
   finishProgress(true,'Modelo y volumen preparados');
   await loadPublishedViews(basename,root);
- }catch(err){console.error(err);$('section-case').hidden=false;$('section-case').open=true;status.textContent='Carga automática incompleta: '+err.message+'. Puedes seleccionar el NRRD manualmente.';finishProgress(false,err.message);}
+ }catch(err){console.error(err);$('caseLocalFiles').hidden=false;$('section-case').open=true;status.textContent='Carga automática incompleta: '+err.message+'. Puedes seleccionar el NRRD manualmente.';finishProgress(false,err.message);}
 }
 autoLoadCase();
 
@@ -1771,7 +1939,7 @@ function editNode(id=null,parent=null){const n=structureNodes.find(n=>n.id===id)
  panel.scrollIntoView({block:'nearest'});
 }
 function renderTree(){const host=$('structureTree'),canonical=$('modelLayers'),open=new Set([...host.querySelectorAll('details[open]')].map(d=>d.dataset.node));for(const l of layerControls.values()){if(l.card.parentElement!==canonical)canonical.append(l.card);l.card.hidden=false;}canonical.hidden=false;host.replaceChildren();host.className='';treeRows.length=0;
- $('treeMode').textContent=treeEditing?'✓ Terminar edición':'Editar árbol';$('createGroup').hidden=!treeEditing;$('importTree').parentElement.hidden=false;$('groupEditor').hidden=true;
+ $('treeMode').textContent=treeEditing?'✓ Terminar edición':'Editar árbol';$('createGroup').hidden=!treeEditing;$('groupEditor').hidden=true;
  const containers=new Map([[null,host]]),pending=[...structureNodes];while(pending.length){const i=pending.findIndex(n=>containers.has(n.parent));if(i<0)break;const n=pending.splice(i,1)[0],details=document.createElement('details');details.className='tree-group unified-node';details.dataset.node=n.id;details.open=open.has(n.id);const row=document.createElement('summary'),title=document.createElement('span');title.className='tree-name';title.title=n.type==='segment'?'Estructura original: '+n.key:n.name;title.textContent=(n.type==='group'?'▱ ':'')+(n.name||n.key);const c=treeControls(()=>nodeKeys(n.id));if(!treeEditing)row.append(c.selection);if(n.type==='segment'){const dot=document.createElement('span');dot.className='color-dot';c.dot=dot;c.key=n.key;row.append(dot);}row.append(title);if(!treeEditing)row.append(c.label);else {title.title+=' · Doble clic para editar';title.ondblclick=e=>{e.preventDefault();e.stopPropagation();editNode(n.id);};}
 
  treeRows.push(c);if(treeEditing){row.draggable=true;row.ondragstart=e=>{e.stopPropagation();e.dataTransfer.setData('text/plain',n.id);e.dataTransfer.setData('application/x-mpr-tree-node',n.id);};row.ondragover=e=>{e.preventDefault();e.stopPropagation();};row.ondrop=e=>{e.preventDefault();e.stopPropagation();details.open=true;const source=e.dataTransfer.getData('text/plain');try{const key=e.dataTransfer.getData('application/x-mpr-structure');if(key){addStructureReference(key,n.id);return;}if(!structureNodes.some(a=>a.id===source))return;applyNodes(structureNodes.map(a=>a.id===source?{...a,parent:n.id}:a));}catch(err){$('treeMessage').textContent=err.message;}};}details.append(row);const body=document.createElement('div');body.className='tree-children';details.append(body);containers.get(n.parent).append(details);containers.set(n.id,body);
@@ -1801,7 +1969,8 @@ function renderStructureCatalog(){
 function filterTree(){const q=$('structureSearch').value.trim().toLocaleLowerCase('es');let count=0;for(const [key,l] of layerControls){l.card.hidden=!!q&&!key.toLocaleLowerCase('es').includes(q);if(!l.card.hidden)count++;}for(const d of [...$('structureTree').querySelectorAll('.unified-node')].reverse()){const own=d.querySelector(':scope > summary .tree-name').textContent.toLocaleLowerCase('es').includes(q),child=[...d.querySelectorAll('.unified-node')].some(c=>!c.hidden);d.hidden=!!q&&!own&&!child;if(!d.hidden)count++;if(q&&!d.hidden)d.open=true;}$('structureSearchEmpty').hidden=!q||count>0;}
 const catalog=document.createElement('section');catalog.id='structureCatalog';catalog.hidden=true;$('structureTree').before(catalog);const toolbar=$('createGroup').parentElement;const mode=button('Editar árbol',()=>{treeEditing=!treeEditing;renderTree();});mode.id='treeMode';toolbar.prepend(mode);
 $('createGroup').textContent='+ Crear grupo';$('createGroup').onclick=()=>editNode();$('childrenEditor').hidden=true;document.querySelector('.hierarchy-display').remove();
-$('createGroup').hidden=true;$('importTree').parentElement.hidden=false;$('exportTree').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'mpr-structure-tree',version:2,modelHash:modelContentHash,nodes:structureNodes,groups:[],relations:[]},null,2)],{type:'application/json'}),loadedModelName+'_estructura.json');
+$('createGroup').hidden=true;$('exportTree').onclick=()=>downloadBlob(new Blob([JSON.stringify({format:'mpr-structure-tree',version:2,modelHash:modelContentHash,nodes:structureNodes,groups:[],relations:[]},null,2)],{type:'application/json'}),loadedModelName+'_estructura.json');
+$('importTreeButton').onclick=()=>$('importTree').click();
 $('importTree').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;if(f.size>5000000)throw new Error('Archivo demasiado grande.');const d=JSON.parse(await f.text());if(d.format!=='mpr-structure-tree'||![1,2].includes(d.version)||!modelContentHash||d.modelHash!==modelContentHash)throw new Error('El árbol no corresponde a este GLB.');if(d.nodes)applyNodes(d.nodes);else applyHierarchy(d.groups,d.relations||[]);$('treeMessage').textContent='Árbol importado.';}catch(err){$('treeMessage').textContent=err.message;}finally{e.target.value='';}};
 
 
@@ -1861,6 +2030,10 @@ function installPaneMenus(){
     panel.append(section);
    }
    if(reset)panel.append(reset);
+   if(!sceneView)panel.append(button('Modo US',()=>{
+    closeMenus(true);
+    toggleUsTool();
+   }));
    panel.append(maximize);
    panel.hidden=false;trigger.setAttribute('aria-expanded','true');
   };
@@ -2081,9 +2254,9 @@ $('showmodel').addEventListener('change',updateVisibleModelInfo);
 for(const id of ['fillSegments','showCross','show3DMarker','planes','planeX','planeY','planeZ','clipEnabled','showStructureNames'])for(const event of ['input','change'])$(id).addEventListener(event,syncPaneToggles);
 
 function installCaseHistory(adapter,host){
- const box=document.createElement('section');box.className='case-session';box.innerHTML='<strong>Sesión del caso</strong><div class="case-session-actions"><button type="button" data-case="save">Guardar caso</button><button type="button" data-case="load">Abrir caso</button><button type="button" data-case="undo" disabled title="Ctrl+Z">↶ Deshacer</button><button type="button" data-case="redo" disabled title="Ctrl+Mayús+Z">↷ Rehacer</button></div><input type="file" accept=".json,application/json" hidden><p class="note hint" aria-live="polite">El archivo guarda la configuración; carga los mismos archivos de imagen y modelo para recuperarla.</p>';
+ const box=document.createElement('section');box.className='case-session';box.innerHTML='<strong>Configuración del caso</strong><div class="case-session-actions"><button type="button" data-case="load">Importar</button><button type="button" data-case="save">Exportar</button><button type="button" data-case="undo" disabled title="Ctrl+Z">↶ Deshacer</button><button type="button" data-case="redo" disabled title="Ctrl+Mayús+Z">↷ Rehacer</button></div><input type="file" accept=".json,application/json" hidden><p class="note hint" aria-live="polite">El archivo guarda la configuración; carga los mismos archivos de imagen y modelo para recuperarla.</p>';
  host.prepend(box);const buttons=Object.fromEntries([...box.querySelectorAll('[data-case]')].map(b=>[b.dataset.case,b])),button=k=>buttons[k],message=box.querySelector('p'),input=box.querySelector('input');
- const historyActions=$('historyActions');historyActions.append(button('undo'),button('redo'));box.querySelector('strong').remove();
+ const historyActions=$('historyActions');historyActions.append(button('undo'),button('redo'));
  let entries=[],cursor=-1,key=null,busy=false,timer=null,total=0;
  function sync(){button('undo').disabled=cursor<1;button('redo').disabled=cursor<0||cursor>=entries.length-1;button('save').disabled=!adapter.key();}
  function reset(){entries=[];cursor=-1;total=0;key=adapter.key();sync();}
@@ -2351,7 +2524,7 @@ function installCasePresentation() {
   if (!panel.hidden && namedCaseKey !== presentationCase) endPresentation();
  });
  document.addEventListener('keydown', event => {
-  if (panel.hidden || event.ctrlKey || event.metaKey || event.altKey ||
+  if ($('usDialog').open || panel.hidden || event.ctrlKey || event.metaKey || event.altKey ||
       event.target.closest('input,textarea,select,[contenteditable="true"]')) return;
   if (!['Escape','ArrowLeft','ArrowRight'].includes(event.key)) return;
   event.preventDefault();
@@ -2428,4 +2601,349 @@ generalPanelToggle.onclick=()=>{
  resize3D();
  repaintAll();
 };
+// El punto de entrada permanece fijo. El enfoque se desplaza sobre la normal
+// del plano girado, y el nuevo plano pasa por ambos puntos.
+function usCutFrame(probe, initialFocus, angle, shift){
+ const initialDown=initialFocus.clone().sub(probe).normalize();
+ const reference=Math.abs(initialDown.x)<.9
+  ? new THREE.Vector3(1,0,0) : new THREE.Vector3(0,1,0);
+ const right=reference.addScaledVector(initialDown,-reference.dot(initialDown))
+  .normalize().applyAxisAngle(initialDown,angle);
+ const focus=initialFocus.clone().addScaledVector(
+  initialDown.clone().cross(right).normalize(),shift);
+ const down=focus.clone().sub(probe).normalize();
+ return {focus,down,right,normal:down.clone().cross(right).normalize()};
+}
+
+function createUsModel(){
+ const sectionScene=new THREE.Scene();
+ sectionScene.background=new THREE.Color('#080e16');
+ const slabModel=model.clone(true);
+ const materials=new Map();
+ const clippingPlanes=[new THREE.Plane(),new THREE.Plane()];
+ function slabMaterial(original){
+  if(!materials.has(original)){
+   const material=original.clone();
+   material.side=THREE.DoubleSide;
+   material.clippingPlanes=clippingPlanes;
+   material.clipIntersection=false;
+   materials.set(original,material);
+  }
+  return materials.get(original);
+ }
+ slabModel.traverse(object=>{
+  if(!object.isMesh)return;
+  object.material=Array.isArray(object.material)
+   ? object.material.map(slabMaterial) : slabMaterial(object.material);
+ });
+ const light=new THREE.DirectionalLight(0xffffff,2);
+ sectionScene.add(slabModel,light,light.target,new THREE.HemisphereLight(0xffffff,0x405060,2.5));
+ return {sectionScene,slabModel,light,clippingPlanes,materials};
+}
+
+function drawUsFilledFace(canvas,slabModel,plane,center,right,down,mmPerPixel){
+ const caps=[];
+ const relative=new THREE.Vector3();
+ const project=point=>{
+  relative.copy(point).sub(center);
+  return {x:canvas.width/2+relative.dot(right)/mmPerPixel,
+          y:canvas.height/2+relative.dot(down)/mmPerPixel};
+ };
+ slabModel.traverseVisible(mesh=>{
+  if(!mesh.isMesh)return;
+  const geometry=mesh.geometry;
+  if(!geometry.getAttribute('position'))return;
+  if(!geometry.boundingBox)geometry.computeBoundingBox();
+  if(!geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld).intersectsPlane(plane))return;
+  const materials=Array.isArray(mesh.material)?mesh.material:[mesh.material];
+  const material=materials.find(item=>item.visible&&item.opacity>0);
+  if(!material)return;
+  const loops=closedLoops(meshPlaneSegments(mesh,plane,project));
+  if(!loops.length)return;
+  const area=Math.max(...loops.map(loop=>Math.abs(THREE.ShapeUtils.area(loop))));
+  caps.push({loops,area,color:mesh.userData.contourColor||material.color?.getStyle()||'#ff5555',opacity:material.opacity});
+ });
+ // Dibujar primero las secciones grandes para conservar los vasos y lesiones internos.
+ caps.sort((a,b)=>b.area-a.area);
+ const ctx=canvas.getContext('2d');
+ ctx.save();
+ for(const cap of caps){
+  ctx.fillStyle=cap.color;
+  ctx.globalAlpha=cap.opacity;
+  ctx.fill(loopsPath(cap.loops),'evenodd');
+ }
+ ctx.restore();
+}
+
+function toggleUsTool(){
+ setTool(activeTool==='us'?'navigate':'us');
+ if(activeTool==='us'&&(!volume||!model)){
+  $('toolHint').textContent='Carga un volumen de TAC o RM y un modelo GLB para usar el Modo US.';
+ }
+}
+
+function installUsMode(){
+ $('headerUsMode').onclick=toggleUsTool;
+ const dialog=$('usDialog');
+ const rotation=$('usRotation');
+ const offset=$('usOffset');
+ const probeDragButton=$('usProbeDrag');
+ const sectorMask=$('usSectorMask');
+ const showInfo=$('usShowInfo');
+ const imageCanvas=$('usImage');
+ const modelCanvas=$('usModel');
+ const width=imageCanvas.width;
+ const height=imageCanvas.height;
+ const probeRow=height*.08;
+ const depthMm=250;
+ const mmPerPixel=depthMm/(height-probeRow);
+ // Sector anular con vértice virtual por encima de la sonda.
+ const innerRadius=70;
+ const apexY=probeRow-innerRadius;
+ const outerRadius=height-apexY;
+ const halfAngle=THREE.MathUtils.degToRad(25);
+ const startAngle=Math.PI/2-halfAngle;
+ const endAngle=Math.PI/2+halfAngle;
+ const sectorPath=new Path2D();
+ sectorPath.arc(width/2,apexY,outerRadius,startAngle,endAngle);
+ sectorPath.arc(width/2,apexY,innerRadius,endAngle,startAngle,true);
+ sectorPath.closePath();
+
+ const sectionCamera=new THREE.OrthographicCamera();
+ const rendererSize=new THREE.Vector2();
+ let session=null;
+ let pendingFrame=0;
+ let probeDrag=null;
+
+ function applySectorMask(canvas){
+  if(!sectorMask.checked)return;
+  const ctx=canvas.getContext('2d');
+  ctx.save();
+  ctx.globalCompositeOperation='destination-in';
+  ctx.fillStyle='#fff';
+  ctx.fill(sectorPath);
+  ctx.globalCompositeOperation='destination-over';
+  ctx.fillStyle='#080e16';
+  ctx.fillRect(0,0,width,height);
+  ctx.restore();
+ }
+
+ function drawAxis(canvas,focusRow){
+  const ctx=canvas.getContext('2d');
+  ctx.save();
+  ctx.strokeStyle='#58d9ee';
+  ctx.fillStyle='#adf3ff';
+  ctx.lineWidth=1;
+  ctx.setLineDash([5,5]);
+  ctx.beginPath();
+  ctx.moveTo(width/2,probeRow);
+  ctx.lineTo(width/2,Math.min(focusRow,height));
+  ctx.stroke();
+  ctx.setLineDash([]);
+  const markers=[probeRow];
+  if(focusRow<=height-7)markers.push(focusRow);
+  for(const y of markers){
+   ctx.beginPath();
+   ctx.arc(width/2,y,4,0,Math.PI*2);
+   ctx.fill();
+  }
+  ctx.restore();
+ }
+
+ function drawUsReference(canvas,toggle,center,right,down,normal){
+  if(!selectedWorldPoint||!$(toggle).checked)return;
+  const relative=selectedWorldPoint.clone().sub(center);
+  const x=width/2+relative.dot(right)/mmPerPixel;
+  const y=height/2+relative.dot(down)/mmPerPixel;
+  if(x<0||x>=width||y<0||y>=height)return;
+  const ctx=canvas.getContext('2d');
+  if(sectorMask.checked&&!ctx.isPointInPath(sectorPath,x,y))return;
+  const signedDistance=relative.dot(normal);
+  const distance=Math.abs(signedDistance);
+  const projected=distance>=.1;
+  // La normal positiva coincide con el sentido Sup del desplazamiento US.
+  const side=signedDistance>0?'Sup':'Inf';
+  const lightness=82-25*Math.min(distance/30,1);
+  const hue=signedDistance>0?0:214;
+  const color=projected?'hsl('+hue+' 100% '+lightness+'%)':'#fff500';
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x-8,y);ctx.lineTo(x+8,y);
+  ctx.moveTo(x,y-8);ctx.lineTo(x,y+8);
+  ctx.strokeStyle='#081521';ctx.lineWidth=4;ctx.stroke();
+  ctx.strokeStyle=color;ctx.lineWidth=2;
+  if(projected)ctx.setLineDash([3,2]);
+  ctx.stroke();
+  if(showInfo.checked){
+   ctx.font='13px system-ui';
+   const label=projected?'Ref. · '+distance.toFixed(1)+' mm '+side:'Ref.';
+   const tx=Math.max(3,Math.min(x+11,width-ctx.measureText(label).width-3));
+   const ty=Math.max(13,Math.min(y-10,height-4));
+   ctx.setLineDash([]);
+   ctx.strokeStyle='#081521';ctx.lineWidth=3;ctx.strokeText(label,tx,ty);
+   ctx.fillStyle=color;ctx.fillText(label,tx,ty);
+  }
+  ctx.restore();
+ }
+
+ function rotationLabelFor(angle){
+  if(angle===0||angle===360)return '0°';
+  if(angle===180)return '180°';
+  const magnitude=angle<180?angle:360-angle;
+  return magnitude.toLocaleString('es-ES',{maximumFractionDigits:1})+'° '+(angle<180?'Dch':'Izq');
+ }
+
+ function renderCut(){
+  const {probe,initialFocus,sectionScene,slabModel,light,clippingPlanes,modelSize}=session;
+  const angle=Number(rotation.value);
+  const shift=Number(offset.value);
+  const {focus,down,right,normal}=usCutFrame(probe,initialFocus,THREE.MathUtils.degToRad(angle),shift);
+  const focusDistance=probe.distanceTo(focus);
+  const focusRow=probeRow+focusDistance/mmPerPixel;
+  const center=probe.clone().addScaledVector(down,(height/2-probeRow)*mmPerPixel);
+  const rotationLabel=rotationLabelFor(angle);
+  const offsetLabel=shift===0?'0 mm':Math.abs(shift)+' mm '+(shift<0?'Inf':'Sup');
+  $('usRotationValue').textContent=rotationLabel;
+  $('usOffsetValue').textContent=offsetLabel;
+  rotation.setAttribute('aria-valuetext',rotationLabel);
+  offset.setAttribute('aria-valuetext',offsetLabel);
+  $('usDepth').textContent='Profundidad visible: 25 cm · Enfoque: '+(focusDistance/10).toFixed(1)+' cm'+
+   (focusDistance>depthMm?' (fuera del encuadre)':'');
+
+  // El píxel central de cada panel representa el mismo punto del plano.
+  const u=right.clone().multiplyScalar(mmPerPixel);
+  const v=down.clone().multiplyScalar(mmPerPixel);
+  const origin=center.clone().addScaledVector(u,-(width-1)/2).addScaledVector(v,-(height-1)/2);
+  resampleVolume(imageCanvas,{origin,u,v,sx:1,sy:1});
+  applySectorMask(imageCanvas);
+  drawAxis(imageCanvas,focusRow);
+  drawUsReference(imageCanvas,'showCross',center,right,down,normal);
+
+  const halfThickness=5;
+  clippingPlanes[0].setFromNormalAndCoplanarPoint(normal,focus.clone().addScaledVector(normal,-halfThickness));
+  clippingPlanes[1].setFromNormalAndCoplanarPoint(normal.clone().negate(),focus.clone().addScaledVector(normal,halfThickness));
+  const halfWidth=width*mmPerPixel/2;
+  const halfHeight=height*mmPerPixel/2;
+  const cameraDistance=modelSize+20;
+  Object.assign(sectionCamera,{left:-halfWidth,right:halfWidth,top:halfHeight,bottom:-halfHeight,
+   near:.1,far:cameraDistance+20});
+  sectionCamera.position.copy(center).addScaledVector(normal,cameraDistance);
+  sectionCamera.up.copy(down).negate();
+  sectionCamera.lookAt(center);
+  sectionCamera.updateProjectionMatrix();
+  light.position.copy(sectionCamera.position);
+  light.target.position.copy(center);
+
+  // Se reutiliza el contexto WebGL. La escena principal y sus materiales
+  // permanecen separados del recorte US.
+  renderer.getSize(rendererSize);
+  try{
+   renderer.setSize(width,height,false);
+   renderer.render(sectionScene,sectionCamera);
+   modelCanvas.getContext('2d').drawImage(renderer.domElement,0,0,width,height);
+  }finally{
+   renderer.setSize(rendererSize.x,rendererSize.y,false);
+   renderer.render(scene,camera);
+  }
+  drawUsFilledFace(modelCanvas,slabModel,clippingPlanes[1],center,right,down,mmPerPixel);
+  applySectorMask(modelCanvas);
+  drawAxis(modelCanvas,focusRow);
+  drawUsReference(modelCanvas,'show3DMarker',center,right,down,normal);
+ }
+
+ function scheduleCut(){
+  if(pendingFrame)return;
+  pendingFrame=requestAnimationFrame(()=>{
+   pendingFrame=0;
+   if(!session||!dialog.open)return;
+   try{
+    renderCut();
+    $('usError').textContent='';
+   }catch(error){
+    $('usError').textContent='No se pudo generar el corte. '+error.message;
+   }
+  });
+ }
+
+ function stopProbeDrag(){
+  if(!probeDrag)return;
+  const {pointerId}=probeDrag;
+  probeDrag=null;
+  probeDragButton.classList.remove('is-dragging');
+  document.documentElement.classList.remove('us-probe-dragging');
+  if(probeDragButton.hasPointerCapture(pointerId))probeDragButton.releasePointerCapture(pointerId);
+ }
+
+ probeDragButton.addEventListener('pointerdown',event=>{
+  if(!session||probeDrag||event.button!==0)return;
+  probeDragButton.setPointerCapture(event.pointerId);
+  probeDrag={pointerId:event.pointerId,x:event.clientX,y:event.clientY,
+   angle:Number(rotation.value),shift:Number(offset.value)};
+  probeDragButton.classList.add('is-dragging');
+  document.documentElement.classList.add('us-probe-dragging');
+ });
+ probeDragButton.addEventListener('pointermove',event=>{
+  if(!probeDrag||event.pointerId!==probeDrag.pointerId)return;
+  const turn=Math.round((event.clientX-probeDrag.x)/2);
+  const tilt=Math.round((probeDrag.y-event.clientY)/2);
+  const angle=turn===0?probeDrag.angle:((probeDrag.angle+turn)%360+360)%360;
+  const shift=THREE.MathUtils.clamp(probeDrag.shift+tilt,Number(offset.min),Number(offset.max));
+  if(Number(rotation.value)===angle&&Number(offset.value)===shift)return;
+  rotation.value=String(angle);
+  offset.value=String(shift);
+  scheduleCut();
+ });
+ for(const type of ['pointerup','pointercancel','lostpointercapture']){
+  probeDragButton.addEventListener(type,event=>{
+   if(event.pointerId===probeDrag?.pointerId)stopProbeDrag();
+  });
+ }
+
+ function releaseSection(){
+  stopProbeDrag();
+  cancelAnimationFrame(pendingFrame);
+  pendingFrame=0;
+  if(!session)return;
+  for(const material of session.materials.values())material.dispose();
+  session=null;
+ }
+
+ function chooseEntryPoint(axis,event){
+  if(activeTool!=='us'||event.button!==0||!volume||!model||!slices[axis])return;
+  const canvas=$('ct'+axis);
+  const p=pointOnCanvas(event,axis);
+  if(p.x<0||p.y<0||p.x>canvas.width||p.y>canvas.height)return;
+  const probe=pixelToWorld(axis,p.x,p.y,canvas);
+  model.updateWorldMatrix(true,true);
+  const bounds=new THREE.Box3().setFromObject(model);
+  const initialFocus=bounds.getCenter(new THREE.Vector3());
+  if(bounds.isEmpty()||probe.distanceTo(initialFocus)<2){
+   $('toolHint').textContent='Elige un punto a más de 2 mm del centro del modelo.';
+   return;
+  }
+  releaseSection();
+  session={probe,initialFocus,modelSize:bounds.getSize(new THREE.Vector3()).length(),...createUsModel()};
+  rotation.value=rotation.defaultValue;
+  const limit=Math.max(10,Math.min(150,Math.ceil(session.modelSize/2)));
+  offset.min=-limit;
+  offset.max=limit;
+  offset.value=0;
+  lastUsEntryPoint=probe.clone();
+  setTool('navigate');
+  dialog.showModal();
+  scheduleCut();
+ }
+ for(const axis of ['x','y','z'])$('ct'+axis).addEventListener('click',event=>chooseEntryPoint(axis,event));
+ for(const input of [rotation,offset])input.addEventListener('input',scheduleCut);
+ for(const input of [sectorMask,showInfo])input.addEventListener('change',scheduleCut);
+ $('usRepick').onclick=()=>{
+  dialog.close();
+  setTool('us');
+ };
+ dialog.addEventListener('close',releaseSection);
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&activeTool==='us')setTool('navigate');
+ });
+}
+installUsMode();
 </script></body></html>
