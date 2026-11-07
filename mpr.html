@@ -258,29 +258,47 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 @media(pointer:coarse){#usProbeDrag{width:44px;height:44px}}
 
 .us-controls,.us-panels{display:grid;gap:10px}
-.us-controls{grid-template-columns:minmax(0,1fr) min(48%,360px);align-items:start;margin-top:5px}
+.us-controls{grid-template-columns:minmax(0,1fr) min(29%,300px) min(33%,360px);align-items:start;margin-top:5px;--us-preview-height:min(24dvh,190px)}
+.us-entry-preview{margin:0;min-width:0;color:#adcad8;font-size:12px;text-align:center}
+.us-controls figure figcaption{font-size:12px;line-height:16px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.us-controls figure canvas{display:block;height:var(--us-preview-height);max-width:100%;object-fit:contain;margin:auto;background:#080e16;outline:1px solid #254256;border-radius:5px;touch-action:none;cursor:grab}
+.us-entry-preview canvas{width:auto}
+.us-entry-preview canvas:active{cursor:grabbing}
+.us-entry-preview canvas:focus-visible{outline:2px solid #91efdc}
+@media(max-width:850px){
+ .us-controls{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .us-controls>div{grid-column:1/-1}
+}
 .us-orientation{margin:0;font-size:11px;color:#adcad8}
-.us-orientation canvas{display:block;width:100%;height:auto;background:#080e16;border:1px solid #254256;border-radius:5px}
-.us-panels{flex:1;min-height:240px;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+.us-orientation canvas{width:100%}
+#usDialog .us-preview-maximized{
+ position:fixed;inset:12px;z-index:2;display:grid;grid-template-rows:auto minmax(0,1fr);
+ gap:8px;padding:12px;background:#102233;border:1px solid #42778b;border-radius:8px;
+ box-shadow:0 0 0 100vmax #06101bdc;
+}
+#usDialog .us-preview-maximized.us-entry-preview{grid-template-rows:auto minmax(0,1fr) auto}
+#usDialog .us-preview-maximized canvas{width:100%;height:100%;min-height:0;max-width:100%}
+.us-orientation canvas:active{cursor:grabbing}
+.us-orientation canvas:focus-visible{outline:2px solid #91efdc;outline-offset:2px}
+.us-panels{flex:1;min-height:240px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1fr)}
 .us-focus-control{display:grid;justify-items:center;align-self:center;gap:4px;min-width:64px}
 .us-focus-control label{margin:0;font-size:12px;font-weight:600}
 .us-focus-control span,.us-focus-control output{font-size:11px;color:#adcad8;white-space:nowrap}
-.us-focus-control input{
- writing-mode:vertical-lr;direction:rtl;width:32px;height:clamp(110px,32dvh,300px);margin:0;
-}
+#usOffset{writing-mode:vertical-lr;direction:rtl;width:32px;height:88px;margin:0;--us-track-direction:to top}
 .us-controls label:is([for="usRotation"],[for="usTilt"]){display:flex;justify-content:space-between;gap:6px}
-:is(#usRotation,#usTilt){width:100%;margin:0}
-:is(#usRotation,#usTilt){
- appearance:none;height:18px;background:transparent;cursor:pointer;
- --us-rotation-track:linear-gradient(to right,#387db0 0 49.6%,#d9edf5 49.6% 50.4%,#427f71 50.4% 100%);
+:is(#usRotation,#usTilt){width:100%;height:18px;margin:0}
+:is(#usRotation,#usTilt,#usOffset){
+ appearance:none;background:transparent;cursor:pointer;
+ --us-rotation-track:linear-gradient(var(--us-track-direction,to right),#387db0 0 49.6%,#d9edf5 49.6% 50.4%,#427f71 50.4% 100%);
 }
-:is(#usRotation,#usTilt)::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--us-rotation-track)}
-:is(#usRotation,#usTilt)::-moz-range-track{height:6px;border-radius:3px;background:var(--us-rotation-track)}
-:is(#usRotation,#usTilt)::-webkit-slider-thumb{appearance:none;width:16px;height:16px;margin-top:-5px;border-radius:50%;background:#e5faff}
-:is(#usRotation,#usTilt)::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#e5faff}
+:is(#usRotation,#usTilt,#usOffset)::-webkit-slider-runnable-track{block-size:6px;border-radius:3px;background:var(--us-rotation-track)}
+:is(#usRotation,#usTilt,#usOffset)::-moz-range-track{block-size:6px;border-radius:3px;background:var(--us-rotation-track)}
+:is(#usRotation,#usTilt,#usOffset)::-webkit-slider-thumb{appearance:none;width:16px;height:16px;margin-block-start:-5px;border-radius:50%;background:#e5faff}
+:is(#usRotation,#usTilt,#usOffset)::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#e5faff}
 .us-secondary-controls{display:flex;flex-wrap:wrap;align-items:start;gap:6px 12px;margin-top:6px}
 .us-secondary-controls .us-mask-toggle{margin:0 0 5px}
-.us-tilt-control{width:min(100%,250px);margin-left:auto}
+.us-motion-group{display:grid;grid-template-columns:auto minmax(0,250px);align-items:center;gap:10px;width:min(100%,324px);margin-left:auto}
+.us-motion-controls{display:grid;gap:6px;min-width:0}
 .us-range-directions{display:flex;justify-content:space-between;color:#adcad8;font-size:11px}
 .us-controls output{white-space:nowrap;font-variant-numeric:tabular-nums}
 .us-panels figure{display:grid;grid-template-rows:auto minmax(0,1fr);margin:0;min-width:0;min-height:0}
@@ -289,9 +307,7 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 .us-mask-toggle{display:flex;align-items:center;gap:6px;margin:8px 0}
 #usError:empty{display:none}
 @media(max-width:540px){
- .us-panels{flex:none;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto}
- .us-panels figure{grid-column:1}
- .us-focus-control{grid-column:2;grid-row:1 / span 2;min-width:54px}
+ .us-panels{flex:none;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto}
  .us-panels canvas{height:auto;max-height:58dvh}
  #usDialog button{min-height:44px}
 }
@@ -365,34 +381,46 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
   </div>
  </div>
  <div class="us-controls">
-  <div><label for="usRotation">Giro del plano <output id="usRotationValue" for="usRotation">180°</output></label>
-   <input type="range" id="usRotation" min="0" max="360" value="180" step="1"><div class="us-range-directions" aria-hidden="true"><span>0° · Dch</span><span>180°</span><span>Izq · 0°</span></div>
-   <div class="us-secondary-controls">
-    <div>
- <label class="us-mask-toggle"><input type="checkbox" id="usSectorMask" checked> Máscara en abanico</label>
- <label class="us-mask-toggle"><input type="checkbox" id="usShowInfo" checked> Mostrar información en la imagen</label>
- <p class="note" id="usDepth"></p>
+  <div class="us-secondary-controls">
+   <div>
+    <label class="us-mask-toggle"><input type="checkbox" id="usSectorMask" checked> Máscara en abanico</label>
+    <label class="us-mask-toggle"><input type="checkbox" id="usShowInfo" checked> Mostrar información en la imagen</label>
+    <p class="note" id="usDepth"></p>
+   </div>
+   <div class="us-motion-group">
+    <div class="us-focus-control">
+     <label for="usOffset" title="Inclina el abanico desde el punto de entrada. El valor indica el desplazamiento del extremo profundo.">Enfoque</label>
+     <span aria-hidden="true">Sup</span>
+     <input type="range" id="usOffset" min="-100" max="100" value="0" step="1" aria-orientation="vertical">
+     <span aria-hidden="true">Inf</span>
+     <output id="usOffsetValue" for="usOffset">0 mm</output>
     </div>
-   <div class="us-tilt-control">
-    <label for="usTilt">Inclinación en el plano <output id="usTiltValue" for="usTilt">0°</output></label>
-    <input type="range" id="usTilt" min="-15" max="15" value="0" step="1">
-    <div class="us-range-directions" aria-hidden="true"><span>−15° · Izq</span><span>+15° · Dch</span></div>
+   <div class="us-motion-controls">
+    <div>
+     <label for="usRotation">Giro del plano <output id="usRotationValue" for="usRotation">180°</output></label>
+     <input type="range" id="usRotation" min="0" max="360" value="180" step="1">
+     <div class="us-range-directions" aria-hidden="true"><span>0° · Dch</span><span>180°</span><span>Izq · 0°</span></div>
+    </div>
+    <div>
+     <label for="usTilt">Inclinación en el plano <output id="usTiltValue" for="usTilt">0°</output></label>
+     <input type="range" id="usTilt" min="-15" max="15" value="0" step="1">
+     <div class="us-range-directions" aria-hidden="true"><span>−15° · Izq</span><span>+15° · Dch</span></div>
+    </div>
    </div>
    </div>
   </div>
+  <figure class="us-entry-preview">
+   <figcaption id="usEntryTitle"></figcaption>
+   <canvas id="usEntryCanvas" tabindex="0" title="Doble clic o Intro para ampliar o restaurar." aria-labelledby="usEntryTitle" aria-describedby="usEntryHint"></canvas>
+   <div id="usEntryHint">Arrastra la cruz azul o usa las flechas. Turquesa dentro del corte, violeta fuera y amarillo en el plano central.</div>
+  </figure>
   <figure class="us-orientation">
-   <canvas id="usOrientation" width="720" height="380" role="img" aria-label="Esquema del corte con ejes anterior, posterior, superior, inferior, derecha e izquierda. El modelo anatómico aparece dentro del recuadro gris de la exploración. El borde rosa indica el lado izquierdo de la imagen. La línea amarilla muestra la intersección del plano con el modelo. La cruz marca el punto de referencia cuando está visible."></canvas>
+   <figcaption>Esquema 3D</figcaption>
+   <canvas id="usOrientation" width="720" height="380" tabindex="0" title="Arrastra para girar. Doble clic o Intro para ampliar o restaurar. Inicio restablece la orientación." aria-label="Arrastra o usa las flechas para girar el esquema. Pulsa Intro para ampliar o restaurar e Inicio para restablecer la orientación. Esquema del corte con ejes anterior, posterior, superior, inferior, derecha e izquierda. El modelo anatómico aparece dentro del recuadro gris de la exploración. El borde rosa indica el lado izquierdo de la imagen. La línea amarilla muestra la intersección del plano con el modelo. La cruz marca el punto de referencia cuando está visible."></canvas>
   </figure>
  </div>
  <div class="us-panels">
   <figure><figcaption>Corte TAC / RM</figcaption><canvas id="usImage" width="480" height="520" aria-label="Corte oblicuo del volumen"></canvas></figure>
-  <div class="us-focus-control">
-   <label for="usOffset">Enfoque</label>
-   <span aria-hidden="true">Sup</span>
-   <input type="range" id="usOffset" min="-100" max="100" value="0" step="1" aria-orientation="vertical">
-   <span aria-hidden="true">Inf</span>
-   <output id="usOffsetValue" for="usOffset">0 mm</output>
-  </div>
   <figure><figcaption>Modelo 3D · lámina de 10 mm</figcaption><canvas id="usModel" width="480" height="520" aria-label="Lámina del modelo alineada con el corte"></canvas></figure>
  </div>
  <p id="usError" class="note" role="status"></p>
@@ -2656,22 +2684,16 @@ generalPanelToggle.onclick=()=>{
  resize3D();
  repaintAll();
 };
-// El punto de entrada permanece fijo. El enfoque se desplaza sobre la normal
-// del plano girado, y el nuevo plano pasa por ambos puntos.
-function usCutFrame(probe, initialFocus, angle, shift, tilt){
- const initialDown=initialFocus.clone().sub(probe).normalize();
- const reference=Math.abs(initialDown.x)<.9
+function usCutFrame(probe, initialFocus, angle, tilt){
+ const down=initialFocus.clone().sub(probe).normalize();
+ const reference=Math.abs(down.x)<.9
   ? new THREE.Vector3(1,0,0) : new THREE.Vector3(0,1,0);
- const right=reference.addScaledVector(initialDown,-reference.dot(initialDown))
-  .normalize().applyAxisAngle(initialDown,angle);
- const focus=initialFocus.clone().addScaledVector(
-  initialDown.clone().cross(right).normalize(),shift);
- const down=focus.clone().sub(probe).normalize();
+ const right=reference.addScaledVector(down,-reference.dot(down))
+  .normalize().applyAxisAngle(down,angle);
  const normal=down.clone().cross(right).normalize();
- const focusDistance=probe.distanceTo(focus);
  down.applyAxisAngle(normal,tilt);
  right.applyAxisAngle(normal,tilt);
- focus.copy(probe).addScaledVector(down,focusDistance);
+ const focus=probe.clone().addScaledVector(down,probe.distanceTo(initialFocus));
  return {focus,down,right,normal};
 }
 
@@ -2749,6 +2771,9 @@ function installUsMode(){
  const tilt=$('usTilt');
  const offset=$('usOffset');
  const probeDragButton=$('usProbeDrag');
+ const entryCanvas=$('usEntryCanvas'),orientationCanvas=$('usOrientation');
+ const entryImage=document.createElement('canvas');
+ let entryDrag=null;
  const sectorMask=$('usSectorMask');
  const showInfo=$('usShowInfo');
  const imageCanvas=$('usImage');
@@ -2776,6 +2801,9 @@ function installUsMode(){
  const orientationUp=new THREE.Vector3(-.31,-.45,.84);
  orientationUp.addScaledVector(orientationRight,-orientationUp.dot(orientationRight)).normalize();
  const orientationNormal=orientationRight.clone().cross(orientationUp);
+ const defaultOrientationRight=orientationRight.clone(),defaultOrientationUp=orientationUp.clone();
+ const superiorAxis=new THREE.Vector3(0,0,1);
+ let orientationDrag=null,orientationFrame=0;
  const rendererSize=new THREE.Vector2();
  let session=null;
  let pendingFrame=0;
@@ -2791,6 +2819,13 @@ function installUsMode(){
   ctx.globalCompositeOperation='destination-over';
   ctx.fillStyle='#080e16';
   ctx.fillRect(0,0,width,height);
+  ctx.globalCompositeOperation='source-over';
+  // El ángulo final corresponde al mismo borde izquierdo que en las miniaturas.
+  ctx.beginPath();
+  ctx.moveTo(width/2+innerRadius*Math.cos(endAngle),apexY+innerRadius*Math.sin(endAngle));
+  ctx.lineTo(width/2+outerRadius*Math.cos(endAngle),apexY+outerRadius*Math.sin(endAngle));
+  ctx.lineWidth=5;ctx.strokeStyle='#40132e';ctx.stroke();
+  ctx.lineWidth=2.5;ctx.strokeStyle='#ff70bb';ctx.stroke();
   ctx.restore();
  }
 
@@ -2823,14 +2858,11 @@ function installUsMode(){
   const y=height/2+relative.dot(down)/mmPerPixel;
   if(x<0||x>=width||y<0||y>=height)return;
   if(sectorMask.checked&&!imageCanvas.getContext('2d').isPointInPath(sectorPath,x,y))return;
-  const signedDistance=relative.dot(normal);
+  const signedDistance=relative.dot(normal)*(normal.z<0?-1:1);
   const distance=Math.abs(signedDistance);
   const projected=distance>=.1;
-  // La normal positiva coincide con el sentido Sup del desplazamiento US.
   const side=signedDistance>0?'Sup':'Inf';
-  const lightness=82-25*Math.min(distance/30,1);
-  const hue=signedDistance>0?0:214;
-  const color=projected?'hsl('+hue+' 100% '+lightness+'%)':'#fff500';
+  const color=!projected?'#fff500':signedDistance>0?'#64c5a8':'#559eff';
   return {point:selectedWorldPoint,x,y,distance,projected,side,color};
  }
 
@@ -2865,8 +2897,41 @@ function installUsMode(){
   return magnitude.toLocaleString('es-ES',{maximumFractionDigits:1})+'° '+(angle<180?'Dch':'Izq');
  }
 
+ const fanArcSteps=12;
+ const fanOutline=[outerRadius,innerRadius].flatMap(radius=>
+  Array.from({length:fanArcSteps+1},(_,i)=>{
+   const step=radius===outerRadius?i:fanArcSteps-i;
+   const angle=startAngle+(endAngle-startAngle)*step/fanArcSteps;
+   return [radius*Math.cos(angle)*mmPerPixel,(radius*Math.sin(angle)-innerRadius)*mmPerPixel];
+  })
+ );
+
+ function drawUsProbe(ctx,project,lineWidth){
+  function path(start,segments,stroke,fill){
+   ctx.beginPath();
+   ctx.moveTo(...project(...start));
+   for(const segment of segments){
+    if(segment.length===2)ctx.lineTo(...project(...segment));
+    else ctx.quadraticCurveTo(...project(segment[0],segment[1]),...project(segment[2],segment[3]));
+   }
+   if(fill){ctx.closePath();ctx.fillStyle=fill;ctx.fill();}
+   ctx.strokeStyle=stroke;ctx.stroke();
+  }
+  ctx.save();
+  ctx.lineJoin='round';ctx.lineCap='round';
+  ctx.lineWidth=2.8*lineWidth;
+  path([0,-42],[[0,-54,8,-61]],'#92a9be');
+  ctx.lineWidth=lineWidth;
+  path([-7,-45],[[0,-48,7,-45],[10,-30],[11,-23,18,-19],
+   [28,-14,29,-9],[27,-4],[0,4,-27,-4],[-29,-9],
+   [-28,-14,-18,-19],[-11,-23,-10,-30],[-7,-45]],'#a7c3d6','#e6f3fb');
+  path([-29,-9],[[0,-2,29,-9],[27,-4],[0,4,-27,-4],[-29,-9]],'#9cdad6','#174654');
+  path([-4,-40],[[-6,-31,-7,-26]],'#7297ae');
+  ctx.restore();
+ }
+
  function drawOrientation(probe,focus,right,down,normal,bounds,reference){
-  const canvas=$('usOrientation'),ctx=canvas.getContext('2d');
+  const canvas=orientationCanvas,ctx=canvas.getContext('2d');
   const {min,max}=bounds;
   const corners=[];
   for(const x of [min.x,max.x])for(const y of [min.y,max.y])for(const z of [min.z,max.z]){
@@ -2874,25 +2939,14 @@ function installUsMode(){
   }
   const point=(u,v)=>probe.clone().addScaledVector(right,u).addScaledVector(down,v);
   const fanVisible=sectorMask.checked;
-  const arcSteps=12;
-  let plane=[point(-width*mmPerPixel/2,0),point(width*mmPerPixel/2,0),
+  const plane=fanVisible?fanOutline.map(([u,v])=>point(u,v)):[
+   point(-width*mmPerPixel/2,0),point(width*mmPerPixel/2,0),
    point(width*mmPerPixel/2,depthMm),point(-width*mmPerPixel/2,depthMm)];
-  if(fanVisible){
-   plane=[];
-   for(const radius of [outerRadius,innerRadius]){
-    for(let i=0;i<=arcSteps;i++){
-     const t=(radius===outerRadius?i:arcSteps-i)/arcSteps;
-     const angle=startAngle+(endAngle-startAngle)*t;
-     plane.push(point(radius*Math.cos(angle)*mmPerPixel,(radius*Math.sin(angle)-innerRadius)*mmPerPixel));
-    }
-   }
-  }
-  const transducer=[[-9,-28],[9,-28],[9,-14],[22,-3],[22,2],[0,6],[-22,2],[-22,-3],[-9,-14]]
-   .map(([u,v])=>point(u*1.7,v*1.7));
-  // Proyección fija de las coordenadas RAS para apreciar el movimiento real.
+  const transducerBounds=[[-29,-61],[29,-61],[-29,4],[29,4]].map(([u,v])=>point(u,v));
+  // El modelo, el abanico y las referencias comparten la cámara del esquema.
   const project=p=>[orientationRight.dot(p),-orientationUp.dot(p)];
   // Encuadrar la anatomía y la sonda, aunque el volumen de la exploración sea mayor.
-  const extent=[...transducer,focus];
+  const extent=[...transducerBounds,focus];
   const {min:modelMin,max:modelMax}=session.modelBounds;
   for(const x of [modelMin.x,modelMax.x])for(const y of [modelMin.y,modelMax.y]){
    for(const z of [modelMin.z,modelMax.z])extent.push(new THREE.Vector3(x,y,z));
@@ -2962,14 +3016,14 @@ function installUsMode(){
   ctx.lineWidth=5;ctx.strokeStyle='#263017';ctx.stroke();
   ctx.lineWidth=2.5;ctx.strokeStyle='#f7ff90';ctx.stroke();
   ctx.restore();
-  const markedEdge=fanVisible?[plane[arcSteps],plane[arcSteps+1]]:[plane[0],plane[3]];
+  const markedEdge=fanVisible?[plane[fanArcSteps],plane[fanArcSteps+1]]:[plane[0],plane[3]];
   ctx.lineWidth=8;
   draw(markedEdge,'#40132e');
   ctx.lineWidth=5;
   draw(markedEdge,'#ff70bb');
   ctx.lineWidth=1.4;
   draw([probe,focus],'#e5faff');
-  draw(transducer,'#ffe3a4','#e9a83f');
+  drawUsProbe(ctx,(u,v)=>screen(point(u,v)),1.8);
 
   ctx.restore();
   const axisX=axisWidth/2,axisY=canvas.height/2;
@@ -2984,6 +3038,7 @@ function installUsMode(){
   ]){
    const [dx,dy]=project({x,y,z});
    const length=Math.hypot(dx,dy);
+   if(length<.08)continue;
    ctx.beginPath();ctx.moveTo(axisX,axisY);
    ctx.lineTo(axisX+26*dx/length,axisY+26*dy/length);
    ctx.strokeStyle=color;ctx.stroke();
@@ -3006,13 +3061,34 @@ function installUsMode(){
   const angle=Number(rotation.value);
   const shift=Number(offset.value);
   const tiltDegrees=Number(tilt.value);
-  const {focus,down,right,normal}=usCutFrame(probe,initialFocus,THREE.MathUtils.degToRad(angle),shift,THREE.MathUtils.degToRad(tiltDegrees));
-  const focusDistance=probe.distanceTo(focus);
+  const {focus,down,right,normal}=usCutFrame(session.originalProbe,initialFocus,THREE.MathUtils.degToRad(angle),THREE.MathUtils.degToRad(tiltDegrees));
+  // Reorientar el corte hacia el foco fijo con el menor giro posible.
+  const aimingDirection=focus.clone().sub(probe);
+  const focusDistance=aimingDirection.length();
+  if(focusDistance>1e-8){
+   aimingDirection.divideScalar(focusDistance);
+   const swivel=new THREE.Quaternion().setFromUnitVectors(down,aimingDirection);
+   down.copy(aimingDirection);
+   right.applyQuaternion(swivel);
+   normal.crossVectors(down,right).normalize();
+  }
+  // Elegir el sentido anatómico y detener el giro donde el arco
+  // alcanza su altura máxima o mínima, antes de que invierta el sentido.
+  const superiorSign=normal.z<0?-1:1;
+  const requestedPitch=Math.asin(THREE.MathUtils.clamp(shift/depthMm,-1,1));
+  const highestPitch=Math.atan2(Math.abs(normal.z),down.z);
+  const pitch=Math.hypot(normal.z,down.z)<1e-8?0:
+   THREE.MathUtils.clamp(requestedPitch,highestPitch-Math.PI,highestPitch);
+  down.applyAxisAngle(right,-superiorSign*pitch);
+  normal.crossVectors(down,right).normalize();
+  focus.copy(probe).addScaledVector(down,focusDistance);
   const focusRow=probeRow+focusDistance/mmPerPixel;
   const center=probe.clone().addScaledVector(down,(height/2-probeRow)*mmPerPixel);
   const reference=visibleUsReference(center,right,down,normal);
+  paintEntryPreview(right,down);
   const rotationLabel=rotationLabelFor(angle);
-  const offsetLabel=shift===0?'0 mm':Math.abs(shift)+' mm '+(shift<0?'Inf':'Sup');
+  const appliedShift=Math.round(depthMm*Math.sin(pitch));
+  const offsetLabel=appliedShift===0?'0 mm':Math.abs(appliedShift)+' mm '+(appliedShift<0?'Inf':'Sup');
   $('usRotationValue').textContent=rotationLabel;
   $('usOffsetValue').textContent=offsetLabel;
   const tiltLabel=tiltDegrees===0?'0°':Math.abs(tiltDegrees)+'° '+(tiltDegrees<0?'Izq':'Dch');
@@ -3054,7 +3130,8 @@ function installUsMode(){
    renderer.setSize(width,height,false);
    renderer.render(sectionScene,sectionCamera);
    modelCanvas.getContext('2d').drawImage(renderer.domElement,0,0,width,height);
-   drawOrientation(probe,focus,right,down,normal,session.volumeBounds,reference);
+   session.orientationArgs=[probe,focus,right,down,normal,session.volumeBounds,reference];
+   drawOrientation(...session.orientationArgs);
   }finally{
    renderer.setSize(rendererSize.x,rendererSize.y,false);
    renderer.render(scene,camera);
@@ -3113,13 +3190,283 @@ function installUsMode(){
   });
  }
 
+ function entryImageRect(){
+  const box=entryCanvas.getBoundingClientRect();
+  const scale=Math.min(box.width/entryCanvas.width,box.height/entryCanvas.height);
+  const width=entryCanvas.width*scale,height=entryCanvas.height*scale;
+  return {left:box.left+(box.width-width)/2,top:box.top+(box.height-height)/2,width,height};
+ }
+
+ function paintEntryPreview(right,down){
+  const ctx=entryCanvas.getContext('2d');
+  ctx.drawImage(entryImage,0,0);
+  const {x,y,u,v}=session.entry;
+  const px=x*entryCanvas.width,py=y*entryCanvas.height;
+  const scale=entryCanvas.width/entryImageRect().width;
+  const fanScale=.26*Math.min(u.length(),v.length())/depthMm;
+  const sx=fanScale*entryCanvas.width/u.lengthSq(),sy=fanScale*entryCanvas.height/v.lengthSq();
+  const rx=right.dot(u)*sx,ry=right.dot(v)*sy;
+  const dx=down.dot(u)*sx,dy=down.dot(v)*sy;
+  const projectFan=([lateral,depth])=>[
+   px+lateral*rx+depth*dx,py+lateral*ry+depth*dy
+  ];
+  const projectedFan=fanOutline.map(projectFan);
+  const sliceNormal=u.clone().cross(v).normalize();
+  const lateralDistance=right.dot(sliceNormal),depthDistance=down.dot(sliceNormal);
+  const distance=([lateral,depth])=>lateral*lateralDistance+depth*depthDistance;
+  const halfSpacing=session.entry.halfSpacing;
+
+  function clipFan(points,limit,sign){
+   const clipped=[];
+   for(let i=0;i<points.length;i++){
+    const a=points[i],b=points[(i+1)%points.length];
+    const da=sign*(distance(a)-limit),db=sign*(distance(b)-limit);
+    if(da>=0)clipped.push(a);
+    if((da>=0)!==(db>=0)){
+     const t=da/(da-db);
+     clipped.push([a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]);
+    }
+   }
+   return clipped;
+  }
+  function traceFan(points){
+   ctx.beginPath();
+   if(points.length<3)return;
+   ctx.moveTo(...points[0]);
+   for(const point of points.slice(1))ctx.lineTo(...point);
+   ctx.closePath();
+  }
+
+  ctx.save();
+  const bands=[
+   [clipFan(fanOutline,-halfSpacing,-1),'#a78bfa80'],
+   [clipFan(fanOutline,halfSpacing,1),'#a78bfa80'],
+   [clipFan(clipFan(fanOutline,-halfSpacing,1),halfSpacing,-1),'#52dcd5b0']
+  ];
+  for(const [points,color] of bands){
+   traceFan(points.map(projectFan));
+   ctx.fillStyle=color;ctx.fill('evenodd');
+  }
+  traceFan(projectedFan);
+  ctx.lineJoin='round';
+  ctx.lineWidth=3.5*scale;ctx.strokeStyle='#081521';ctx.stroke();
+  ctx.lineWidth=1.6*scale;ctx.strokeStyle='#68fff1';ctx.stroke();
+
+  if(session.entry.axis==='z'){
+   // RAS positivo en Z indica superior, con independencia de los giros de pantalla.
+   const heights=fanOutline.slice(0,fanArcSteps+1).map(([lateral,depth])=>{
+    const height=lateral*right.z+depth*down.z;
+    return Math.abs(height)<1e-6?0:height;
+   });
+   const strokeArc=(start,end,height)=>{
+    if(height===0)return;
+    ctx.beginPath();ctx.moveTo(...start);ctx.lineTo(...end);
+    ctx.lineWidth=4.5*scale;ctx.strokeStyle='#081521';ctx.stroke();
+    ctx.lineWidth=2.5*scale;ctx.strokeStyle=height>0?'#64c5a8':'#559eff';ctx.stroke();
+   };
+   for(let i=0;i<fanArcSteps;i++){
+    const start=projectedFan[i],end=projectedFan[i+1];
+    const a=heights[i],b=heights[i+1];
+    if(a*b<0){
+     const t=a/(a-b);
+     const crossing=[start[0]+(end[0]-start[0])*t,start[1]+(end[1]-start[1])*t];
+     strokeArc(start,crossing,a);
+     strokeArc(crossing,end,b);
+    }else strokeArc(start,end,a||b);
+   }
+  }
+  ctx.beginPath();
+  ctx.moveTo(...projectedFan[fanArcSteps]);
+  ctx.lineTo(...projectedFan[fanArcSteps+1]);
+  ctx.lineWidth=4*scale;ctx.strokeStyle='#40132e';ctx.stroke();
+  ctx.lineWidth=2*scale;ctx.strokeStyle='#ff70bb';ctx.stroke();
+
+  // Intersectar antes de proyectar conserva la línea incluso de canto.
+  if(Math.hypot(lateralDistance,depthDistance)>1e-6){
+   const distances=fanOutline.map(distance);
+   const crossings=[];
+   for(let i=0;i<fanOutline.length;i++){
+    const j=(i+1)%fanOutline.length;
+    const a=distances[i],b=distances[j];
+    if((a>0)===(b>0))continue;
+    const t=a/(a-b);
+    const [ax,ay]=projectedFan[i],[bx,by]=projectedFan[j];
+    const [al,ad]=fanOutline[i],[bl,bd]=fanOutline[j];
+    const lateral=al+(bl-al)*t,depth=ad+(bd-ad)*t;
+    crossings.push({x:ax+(bx-ax)*t,y:ay+(by-ay)*t,order:lateral*depthDistance-depth*lateralDistance});
+   }
+   crossings.sort((a,b)=>a.order-b.order);
+   ctx.beginPath();
+   for(let i=0;i+1<crossings.length;i+=2){
+    ctx.moveTo(crossings[i].x,crossings[i].y);
+    ctx.lineTo(crossings[i+1].x,crossings[i+1].y);
+   }
+   ctx.setLineDash([5*scale,3*scale]);
+   ctx.lineWidth=4*scale;ctx.strokeStyle='#35290a';ctx.stroke();
+   ctx.lineWidth=2*scale;ctx.strokeStyle='#ffe65c';ctx.stroke();
+  }
+  ctx.restore();
+  drawUsProbe(ctx,(u,v)=>projectFan([u,v]),scale);
+  drawUsEntryCross(ctx,px,py,9*scale);
+  if(session.entry.axis==='z'&&selectedWorldPoint&&$('showCross').checked){
+   const relative=selectedWorldPoint.clone().sub(session.entry.origin);
+   const refX=relative.dot(u)/u.lengthSq()*entryCanvas.width;
+   const refY=relative.dot(v)/v.lengthSq()*entryCanvas.height;
+   if(refX>=0&&refX<entryCanvas.width&&refY>=0&&refY<entryCanvas.height){
+    const height=relative.dot(sliceNormal)*sliceNormal.z;
+    const inPlane=Math.abs(height)<.1;
+    const radius=11*scale,gap=4*scale;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(refX-radius,refY);ctx.lineTo(refX-gap,refY);
+    ctx.moveTo(refX+gap,refY);ctx.lineTo(refX+radius,refY);
+    ctx.moveTo(refX,refY-radius);ctx.lineTo(refX,refY-gap);
+    ctx.moveTo(refX,refY+gap);ctx.lineTo(refX,refY+radius);
+    ctx.moveTo(refX+gap,refY);ctx.arc(refX,refY,gap,0,Math.PI*2);
+    ctx.lineWidth=4*scale;ctx.strokeStyle='#081521';ctx.stroke();
+    ctx.lineWidth=2*scale;ctx.strokeStyle=inPlane?'#fff500':height>0?'#64c5a8':'#559eff';ctx.stroke();
+    ctx.restore();
+   }
+  }
+ }
+
+ function prepareEntryPreview({width,height,origin,u,v,axis}){
+  const scale=360/Math.max(width,height);
+  entryCanvas.width=entryImage.width=Math.max(1,Math.round(width*scale));
+  entryCanvas.height=entryImage.height=Math.max(1,Math.round(height*scale));
+  const dx=u.clone().divideScalar(entryCanvas.width),dy=v.clone().divideScalar(entryCanvas.height);
+  resampleVolume(entryImage,{origin:origin.clone().addScaledVector(dx,.5).addScaledVector(dy,.5),u:dx,v:dy,sx:1,sy:1});
+  $('usEntryTitle').textContent=({x:'Corte sagital',y:'Corte coronal',z:'Corte axial'})[axis]+' · Punto de entrada';
+  $('usEntryHint').textContent=axis==='z'
+   ?'Arrastra la cruz de entrada o usa las flechas. Arco y referencia: verde Sup, azul Inf.'
+   :'Arrastra la cruz azul o usa las flechas. Turquesa dentro del corte, violeta fuera y amarillo en el plano central.';
+ }
+
+ function moveUsEntry(x,y){
+  const entry=session.entry;
+  entry.x=THREE.MathUtils.clamp(x,.5/entry.width,1-.5/entry.width);
+  entry.y=THREE.MathUtils.clamp(y,.5/entry.height,1-.5/entry.height);
+  session.probe.copy(entry.origin).addScaledVector(entry.u,entry.x).addScaledVector(entry.v,entry.y);
+  lastUsEntryPoint=session.probe.clone();
+  scheduleCut();
+ }
+ entryCanvas.addEventListener('pointerdown',event=>{
+  if(!session||entryDrag||event.button!==0)return;
+  const rect=entryImageRect(),{x,y}=session.entry;
+  if(Math.hypot(event.clientX-rect.left-x*rect.width,event.clientY-rect.top-y*rect.height)>24)return;
+  entryCanvas.setPointerCapture(event.pointerId);
+  entryDrag={id:event.pointerId,clientX:event.clientX,clientY:event.clientY,x,y};
+ });
+ entryCanvas.addEventListener('pointermove',event=>{
+  if(!session||entryDrag?.id!==event.pointerId)return;
+  const rect=entryImageRect();
+  moveUsEntry(entryDrag.x+(event.clientX-entryDrag.clientX)/rect.width,
+   entryDrag.y+(event.clientY-entryDrag.clientY)/rect.height);
+ });
+ for(const type of ['pointerup','pointercancel','lostpointercapture']){
+  entryCanvas.addEventListener(type,event=>{if(entryDrag?.id===event.pointerId)entryDrag=null;});
+ }
+ entryCanvas.addEventListener('keydown',event=>{
+  const direction={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[event.key];
+  if(!session||!direction)return;
+  event.preventDefault();
+  const {x,y,width,height}=session.entry;
+  const step=event.shiftKey?5:1;
+  moveUsEntry(x+direction[0]*step/width,y+direction[1]*step/height);
+ });
+
+ function scheduleOrientation(){
+  if(orientationFrame||pendingFrame)return;
+  orientationFrame=requestAnimationFrame(()=>{
+   orientationFrame=0;
+   if(!dialog.open||!session?.orientationArgs||pendingFrame)return;
+   renderer.getSize(rendererSize);
+   try{
+    drawOrientation(...session.orientationArgs);
+   }finally{
+    renderer.setSize(rendererSize.x,rendererSize.y,false);
+    renderer.render(scene,camera);
+   }
+  });
+ }
+
+ function orbitOrientation(yaw,pitch){
+  orientationRight.applyAxisAngle(superiorAxis,yaw);
+  orientationUp.applyAxisAngle(superiorAxis,yaw);
+  const elevation=Math.asin(THREE.MathUtils.clamp(orientationNormal.z,-1,1));
+  const limit=THREE.MathUtils.degToRad(89);
+  const change=THREE.MathUtils.clamp(elevation+pitch,-limit,limit)-elevation;
+  orientationUp.applyAxisAngle(orientationRight,-change);
+  orientationNormal.crossVectors(orientationRight,orientationUp).normalize();
+  scheduleOrientation();
+ }
+
+ function resetOrientation(){
+  orientationRight.copy(defaultOrientationRight);
+  orientationUp.copy(defaultOrientationUp);
+  orientationNormal.crossVectors(orientationRight,orientationUp).normalize();
+ }
+
+ orientationCanvas.addEventListener('pointerdown',event=>{
+  if(!session||orientationDrag||event.button!==0)return;
+  orientationCanvas.setPointerCapture(event.pointerId);
+  orientationDrag={id:event.pointerId,x:event.clientX,y:event.clientY};
+ });
+ orientationCanvas.addEventListener('pointermove',event=>{
+  if(orientationDrag?.id!==event.pointerId)return;
+  orbitOrientation((orientationDrag.x-event.clientX)*.01,(event.clientY-orientationDrag.y)*.01);
+  orientationDrag.x=event.clientX;
+  orientationDrag.y=event.clientY;
+ });
+ for(const type of ['pointerup','pointercancel','lostpointercapture']){
+  orientationCanvas.addEventListener(type,event=>{if(orientationDrag?.id===event.pointerId)orientationDrag=null;});
+ }
+ function toggleUsPreview(canvas){
+  const figure=canvas.closest('figure');
+  const current=dialog.querySelector('.us-preview-maximized');
+  current?.classList.remove('us-preview-maximized');
+  if(current!==figure)figure.classList.add('us-preview-maximized');
+  scheduleCut();
+ }
+ for(const canvas of [entryCanvas,orientationCanvas]){
+  canvas.addEventListener('dblclick',()=>toggleUsPreview(canvas));
+  canvas.addEventListener('keydown',event=>{
+   if(event.key!=='Enter')return;
+   event.preventDefault();
+   toggleUsPreview(canvas);
+  });
+ }
+ dialog.addEventListener('cancel',event=>{
+  const figure=dialog.querySelector('.us-preview-maximized');
+  if(!figure)return;
+  event.preventDefault();
+  toggleUsPreview(figure.querySelector('canvas'));
+ });
+ orientationCanvas.addEventListener('keydown',event=>{
+  if(event.key==='Home'){
+   event.preventDefault();resetOrientation();scheduleOrientation();
+   return;
+  }
+  const directions={ArrowLeft:[.1,0],ArrowRight:[-.1,0],ArrowUp:[0,-.1],ArrowDown:[0,.1]};
+  if(!Object.hasOwn(directions,event.key))return;
+  event.preventDefault();
+  orbitOrientation(...directions[event.key]);
+ });
+
  function releaseSection(){
+  dialog.querySelector('.us-preview-maximized')?.classList.remove('us-preview-maximized');
+  orientationDrag=null;
+  cancelAnimationFrame(orientationFrame);
+  orientationFrame=0;
+  resetOrientation();
+  entryDrag=null;
   stopProbeDrag();
   cancelAnimationFrame(pendingFrame);
   pendingFrame=0;
   if(!session)return;
   for(const material of session.materials.values())material.dispose();
   session=null;
+  repaintAll();
  }
 
  function chooseEntryPoint(axis,event){
@@ -3138,13 +3485,19 @@ function installUsMode(){
   releaseSection();
   const volumeSize=new THREE.Vector3(...volumeInfo.sizes.map((count,axis)=>count*volumeInfo.spacing[axis]));
   const volumeBounds=new THREE.Box3().setFromCenterAndSize(volumeInfo.centerRAS,volumeSize);
-  session={probe,initialFocus,volumeBounds,modelBounds:bounds,modelSize:bounds.getSize(new THREE.Vector3()).length(),...createUsModel()};
+  const origin=pixelToWorld(axis,0,0,canvas);
+  const entry={axis,origin,halfSpacing:volumeInfo.spacing[{x:0,y:1,z:2}[axis]]/2,
+   width:canvas.width,height:canvas.height,x:p.x/canvas.width,y:p.y/canvas.height,
+   u:pixelToWorld(axis,canvas.width,0,canvas).sub(origin),
+   v:pixelToWorld(axis,0,canvas.height,canvas).sub(origin)};
+  session={probe,originalProbe:probe.clone(),entry,initialFocus,volumeBounds,modelBounds:bounds,modelSize:bounds.getSize(new THREE.Vector3()).length(),...createUsModel()};
   rotation.value=rotation.defaultValue;
   tilt.value=tilt.defaultValue;
   const limit=Math.max(10,Math.min(150,Math.ceil(session.modelSize/2)));
   offset.min=-limit;
   offset.max=limit;
   offset.value=0;
+  prepareEntryPreview(entry);
   lastUsEntryPoint=probe.clone();
   setTool('navigate');
   dialog.showModal();
