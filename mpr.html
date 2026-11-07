@@ -81,9 +81,10 @@ body:has(.pane.maximized) aside{position:fixed;top:0;right:0;bottom:0;width:290p
 #namedViewList .named-view-header{grid-template-columns:minmax(0,1fr) auto}
 #namedViewList .named-view-header button{padding-block:1px;line-height:14px;white-space:normal}
 #namedViewList .saved-view-icon{margin-right:6px;color:#f2bd67;font-size:14px;line-height:0;vertical-align:middle}
+#namedViewList .saved-view-icon svg{display:inline-block;width:1em;height:1em;vertical-align:-.15em}
 #namedViewList .named-view-header:has(.named-view-open[aria-current=true]){background:#263d4a;box-shadow:inset 0 0 0 1px #f2bd67}
 .pane-quick-tools{position:absolute;right:43px;top:2px;z-index:12;display:flex;gap:2px;max-width:calc(100% - 48px);flex-wrap:wrap;justify-content:flex-end;background:#102534e8;border-radius:5px}.pane-quick-tools button{display:flex;align-items:center;justify-content:center;width:26px;height:25px;padding:4px;margin:0;background:#19394d;border:1px solid #31566e;color:#d9edf5}.pane-quick-tools button:hover{background:#28566d}.pane-quick-tools button[aria-pressed=true]{background:#147f8c;border-color:#78e6ef}.pane-quick-tools svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}.pane:has(.pane-quick-tools) h2{height:55px;min-height:55px;padding:33px 220px 5px 10px;line-height:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pane:has(#view3d) h2{padding-right:240px}
-.pane-plane-tools{padding-left:28px;flex-basis:100%;display:flex;justify-content:flex-end;gap:3px}.pane-plane-tools button{width:auto;padding:3px 7px;font-size:11px;gap:4px}.pane:not(:has(#view3d)) .pane-quick-tools{display:grid;grid-template-columns:repeat(7,26px);gap:2px;max-width:none;justify-content:end}.pane:has(#view3d) .pane-quick-tools{width:390px}#view3d{position:relative}#modelInfoPanel{position:absolute!important;inset:auto 10px 10px auto!important;align-self:flex-end;text-align:left;max-width:calc(100% - 20px)!important}#modelInfoPanel[hidden]{display:none!important}header{position:relative;padding-right:130px}.manual-link{position:absolute;right:18px;top:14px;padding:6px 10px;background:#19394d;border:1px solid #42778b;border-radius:5px;color:#e5faff;font-size:12px;text-decoration:none}.manual-link:hover{background:#28566d}#section-saved .sidebar-body>button,#newNamedView>button,#newNamedView>summary,#namedViewList .named-view-actions button{min-height:28px;padding:4px 8px;font-size:11px;line-height:18px}#section-saved input[type=text]{height:30px;min-height:30px;padding:4px 7px;font:12px system-ui}#section-saved input[type=file]{height:30px;min-height:30px;padding:3px 5px;font:11px system-ui}#section-saved input[type=file]::file-selector-button{font:11px system-ui;padding:2px 6px}#section-saved textarea{padding:5px 7px;font:12px/1.4 system-ui}#newNamedView>summary{display:inline-flex;align-items:center;list-style:none;margin:2px;background:#193c53;border:1px solid #31566e;border-radius:6px;color:#e2eff9;cursor:pointer}#newNamedView>summary::-webkit-details-marker{display:none}</style>
+.pane-plane-tools{padding-left:28px;flex-basis:100%;display:flex;justify-content:flex-end;gap:3px}.pane-plane-tools button{width:auto;padding:3px 7px;font-size:11px;gap:4px}.pane:not(:has(#view3d)) .pane-quick-tools{display:grid;grid-template-columns:repeat(8,26px);gap:2px;max-width:none;justify-content:end}.pane:has(#view3d) .pane-quick-tools{width:418px}#view3d{position:relative}#modelInfoPanel{position:absolute!important;inset:auto 10px 10px auto!important;align-self:flex-end;text-align:left;max-width:calc(100% - 20px)!important}#modelInfoPanel[hidden]{display:none!important}header{position:relative;padding-right:130px}.manual-link{position:absolute;right:18px;top:14px;padding:6px 10px;background:#19394d;border:1px solid #42778b;border-radius:5px;color:#e5faff;font-size:12px;text-decoration:none}.manual-link:hover{background:#28566d}#section-saved .sidebar-body>button,#newNamedView>button,#newNamedView>summary,#namedViewList .named-view-actions button{min-height:28px;padding:4px 8px;font-size:11px;line-height:18px}#section-saved input[type=text]{height:30px;min-height:30px;padding:4px 7px;font:12px system-ui}#section-saved input[type=file]{height:30px;min-height:30px;padding:3px 5px;font:11px system-ui}#section-saved input[type=file]::file-selector-button{font:11px system-ui;padding:2px 6px}#section-saved textarea{padding:5px 7px;font:12px/1.4 system-ui}#newNamedView>summary{display:inline-flex;align-items:center;list-style:none;margin:2px;background:#193c53;border:1px solid #31566e;border-radius:6px;color:#e2eff9;cursor:pointer}#newNamedView>summary::-webkit-details-marker{display:none}</style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script><style>.case-session{border:1px solid #31546a;border-radius:6px;padding:10px;margin:8px 0 12px}.case-session-actions{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}.case-session button,.case-file-actions button{min-height:28px;padding:4px 8px;font-size:12px}.case-session p{margin:6px 0 0;font-size:12px}</style><style>.history-actions{display:flex;gap:6px;align-items:center}.history-actions button{height:28px;min-height:28px;padding:4px 10px;font-size:12px;margin:0}.sidebar-heading:has(.history-actions){padding-bottom:10px}.sidebar-heading #loadingPanel{margin-top:10px}</style><style>
 #casePresentation{margin:8px 0 0;padding:10px;border:1px solid #456a80;border-radius:8px;background:#102233;color:#eaf1f8}
 #casePresentation[hidden]{display:none}
@@ -359,6 +360,22 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 .us-panels figcaption{padding:6px 0;font-weight:600;font-size:13px}
 .us-panels canvas{display:block;width:100%;height:100%;min-height:0;object-fit:contain;background:#080e16;border:1px solid #254256}
 .us-mask-toggle{display:flex;align-items:center;gap:6px;margin:8px 0}
+.range-stepper{
+ display:flex;align-items:center;gap:4px;width:100%;min-width:0;
+}
+.sliceTools>.range-stepper,.layer-row>.range-stepper{flex:1 1 0}
+.range-stepper:not(.is-vertical)>input{flex:1 1 0;min-width:0;margin-inline:0}
+.range-stepper.is-vertical{width:auto;flex-direction:column;gap:3px}
+.range-stepper>button.range-stepper-button{
+ display:grid;place-items:center;flex:none;width:24px;height:24px;min-height:0;
+ margin:0;padding:0;background:#19394d;border:1px solid #42778b;border-radius:5px;color:#e5faff;
+}
+.range-stepper>button.range-stepper-button:hover:not(:disabled){background:#28566d}
+.range-stepper>button.range-stepper-button:focus-visible{outline:2px solid #91efdc;outline-offset:1px}
+.range-stepper>button.range-stepper-button svg{width:13px;height:13px;pointer-events:none}
+@media(pointer:coarse){
+ .range-stepper>button.range-stepper-button{width:34px;height:34px}
+}
 #usError:empty{display:none}
 @media(min-width:1650px){
  #usDialog[open]{
@@ -384,12 +401,38 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 @media(max-width:540px){
  .us-panels{flex:none;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto}
  .us-panels canvas{height:auto;max-height:58dvh}
- #usDialog button{min-height:44px}
+ #usDialog button:not(.range-stepper-button){min-height:44px}
 }
+#section-trajectory>summary svg{vertical-align:-2px;margin-right:3px}
+/* La reconstrucción sustituye todo el panel 3D durante la edición. */
+.pane:has(> #trajectoryPreview:not([hidden])) > :not(#trajectoryPreview){visibility:hidden}
+#trajectoryPreview{
+ position:absolute;z-index:14;inset:0;
+ margin:0;display:grid;grid-template-rows:auto minmax(0,1fr);
+ background:#080e16;color:#e5faff;overflow:hidden;
+}
+#trajectoryPreview[hidden]{display:none}
+#trajectoryPreview figcaption{
+ display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px 10px;
+ padding:5px 8px;font-size:12px;font-weight:600;background:#102233;
+}
+#trajectoryPreviewTitle{
+ height:auto;min-height:0;margin:0;padding:0;background:none;color:inherit;
+ font:inherit;white-space:normal;
+}
+.trajectory-jumps{display:flex;flex-wrap:wrap;gap:5px}
+#trajectoryPreview .trajectory-jumps button{
+ margin:0;padding:4px 7px;border:1px solid #3c6277;border-radius:5px;background:#17364a;
+ color:#e5faff;font:inherit;white-space:nowrap;
+}
+#trajectoryPreview .trajectory-jumps button[aria-pressed="true"]{border-color:var(--endpoint-color)}
+.trajectory-jumps span{color:var(--endpoint-color);margin-right:4px}
+@media(pointer:coarse){#trajectoryPreview .trajectory-jumps button{min-height:44px}}
+#trajectoryPreview canvas{display:block;width:100%;height:100%;min-width:0;min-height:0;object-fit:contain;touch-action:none}
 </style></head><body>
 <header id="viewerHeader"><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><div class="viewer-header-main"><strong>Visor MPR · v2</strong><button type="button" id="toggleGeneralPanel" aria-controls="generalPanel" aria-expanded="true" aria-label="Plegar panel general" title="Plegar panel general"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M8 3v14"/></svg></button> <button type="button" id="togglePaneHeaders" aria-expanded="true" aria-label="Contraer cabeceros de las vistas" title="Contraer cabeceros de las vistas"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M2 8h16m-11 5 3-2 3 2"/></svg></button> <span id="headerUsTools" role="group" aria-label="Herramientas del Modo US"><button type="button" id="headerUsMode" data-tool="us" aria-pressed="false" aria-label="Modo US" title="Modo US">
  <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 4q8-6 16 0M13 7q5-4 10 0M16 10q2-2 4 0"/><path d="M11 14q7-6 14 0v4q0 3-3 5-1 1-1 3v2a3 3 0 0 1-6 0v-2q0-2-1-3-3-2-3-5zM11 17q7-5 14 0M18 25v3M18 31C12 34 12 23 7 24c-3 0-4 3-4 5"/></svg>
-</button> <button type="button" id="headerUsTarget" data-tool="usTarget" aria-pressed="false" aria-label="Marcar objetivo US" title="Marcar objetivo US">
+</button> <button type="button" id="headerUsTarget" data-tool="usTarget" aria-pressed="false" aria-label="Marcar objetivo US" title="Marcar objetivo US · Doble clic para borrar">
  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
 </button></span> <span id="headerPresentationControls" role="group" aria-label="Controles de presentación" hidden>
  <button type="button" id="headerPresentationPrev" aria-label="Vista anterior" title="Vista anterior"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4 6 8l4 4"/></svg></button>
@@ -404,7 +447,19 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 <section class="pane" data-view-pane="axial"><h2>Axial (eje Z)</h2><div class="stage"><canvas class="ct" id="ctz"></canvas></div><div class="sliceTools"><input disabled="" id="rz" type="range"/><output id="oz">—</output></div></section>
 <section class="pane" data-view-pane="coronal"><h2>Coronal (eje Y)</h2><div class="stage"><canvas class="ct" id="cty"></canvas></div><div class="sliceTools"><input disabled="" id="ry" type="range"/><output id="oy">—</output></div></section>
 <section class="pane" data-view-pane="sagittal"><h2>Sagital (eje X)</h2><div class="stage"><canvas class="ct" id="ctx"></canvas></div><div class="sliceTools"><input disabled="" id="rx" type="range"/><output id="ox">—</output></div></section>
-<section class="pane" data-view-pane="3d"><h2>Vista 3D</h2><div class="stage" id="view3d"></div></section>
+<section class="pane" data-view-pane="3d"><h2>Vista 3D</h2><div class="stage" id="view3d"></div>
+ <figure id="trajectoryPreview" aria-labelledby="trajectoryPreviewTitle" hidden>
+  <figcaption>
+   <h2 id="trajectoryPreviewTitle">Reconstrucción longitudinal</h2>
+   <div class="trajectory-jumps" role="group" aria-label="Controles de edición de la trayectoria">
+    <button type="button" id="jumpTrajectoryEntry" aria-pressed="false"><span aria-hidden="true">●</span>Ir a entrada</button>
+    <button type="button" id="jumpTrajectoryDestination" aria-pressed="false"><span aria-hidden="true">●</span>Ir a destino</button>
+    <button type="button" id="finishTrajectoryEdit">Terminar edición</button>
+   </div>
+  </figcaption>
+  <canvas id="trajectoryPreviewImage" width="216" height="320" aria-label="Corte longitudinal del volumen, con la entrada arriba y el destino abajo"></canvas>
+ </figure>
+</section>
 </div><aside id="generalPanel"><div class="sidebar-heading"><div id="historyActions" class="history-actions" role="toolbar" aria-label="Acciones del visor"></div><div aria-busy="false" aria-live="polite" hidden="" id="loadingPanel" role="status"><span id="loadingTitle">Preparando…</span><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingDetail"></span></div></div><input id="unit" type="hidden" value="1000"/><input id="space" type="hidden" value="RAS"/><details class="sidebar-group" id="section-case" open=""><summary>▣  Caso</summary><div class="sidebar-body"><div class="sidebar-body" id="caseLocalFiles"><p class="note">Enlace automático: <code>?modelo=modelos/1.glb</code> busca <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También puedes cargar archivos locales usando los controles siguientes.</p><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p><div class="case-session-actions case-file-actions"><button type="button" data-case-file="nrrd">Cargar imagen NRRD</button><button type="button" data-case-file="glb">Cargar modelo GLB</button></div><input accept=".nrrd" id="nrrd" type="file" hidden/><input accept=".glb" id="glb" type="file" hidden/>
 </div><div id="caseSessionControls"></div></div></details><details hidden id="section-visual"><summary>▤  Visualización</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-navigation"><summary>Navegación y herramientas</summary><div class="sidebar-body"><div class="tool-grid" id="tools">
 <button aria-pressed="true" data-tool="navigate" type="button">Navegar</button><button aria-pressed="false" data-tool="pan" type="button">Desplazar</button>
@@ -417,7 +472,29 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 <label><input checked="" id="planes" type="checkbox"/> Mostrar planos de imagen</label><div aria-label="Planos de imagen en 3D" id="planeSelection" role="group"><label><input checked="" id="planeZ" type="checkbox"/> Axial</label><label><input checked="" id="planeY" type="checkbox"/> Coronal</label><label><input checked="" id="planeX" type="checkbox"/> Sagital</label></div><p class="note">Selecciona los planos que se muestran en 3D. Los cortes y contornos MPR siguen disponibles.</p><label><input checked="" id="showmodel" type="checkbox"/> Mostrar GLB</label><label><input id="showStructureNames" type="checkbox"/> Mostrar los nombres seleccionados en 3D</label><button id="fit">Centrar vista 3D</button>
 </div>
 <h4 id="cameraOrientationHeading">Orientación de la cámara</h4><label for="cameraView">Vista anatómica</label><select id="cameraView"><option value="">Seleccionar…</option><option value="anterior">Anterior</option><option value="posterior">Posterior</option><option value="right">Lateral derecha</option><option value="left">Lateral izquierda</option><option value="superior">Superior</option><option value="inferior">Inferior</option></select><p class="note">Selecciona la orientación de la cámara. Los planos axial, coronal y sagital se activan en «Vista 3D».</p><h4 id="modelClipHeading">Recorte del modelo</h4><label for="clipPosition">Posición de recorte</label><input id="clipPosition" step="0.01" max="100" min="0" type="range" value="100"/><label><input id="clipEnabled" type="checkbox"/> Activar recorte del GLB</label><label for="clipAxis">Eje de recorte</label><select id="clipAxis"><option value="x">Sagital (X)</option><option value="y">Coronal (Y)</option><option value="z">Axial (Z)</option></select><button id="rotateClip" type="button">Girar plano en 3D</button><label for="clipRotationConstraint">Control del giro</label><select id="clipRotationConstraint"><option value="free">Libre</option><option value="horizontal">Solo horizontal</option><option value="vertical">Solo vertical</option></select><div class="tool-grid"><button id="clipLeft" type="button">← 1°</button><button id="clipRight" type="button">1° →</button><button id="clipUp" type="button">↑ 1°</button><button id="clipDown" type="button">1° ↓</button></div><button id="alignClip" type="button">Alinear con el corte de imagen</button><button id="resetClipRotation" type="button">Restablecer orientación</button><p class="note">Arrastra para inclinar el plano. Mayús permite ajuste fino. Puedes limitar el giro a un eje o usar los botones de 1°. Esc cancela el arrastre.</p><label><input id="clipReverse" type="checkbox" checked/> Invertir lado conservado</label><p class="note">Recorte visual sin tapa; las imágenes y contornos MPR no se recortan.</p></div></details></div></details><details class="sidebar-group" id="section-structures" open=""><summary>◈  Estructuras</summary><div class="sidebar-body"><div class="sidebar-body"><label for="structureSearch">Buscar estructura</label><input id="structureSearch" placeholder="Nombre de lesión, vaso u órgano…" type="search"/><p class="note" hidden="" id="structureSearchEmpty">No hay coincidencias.</p><p id="treeMessage" class="note" aria-live="polite"></p><div id="childrenEditor" hidden><strong id="childrenTitle"></strong><input id="childrenParent" type="hidden"><p class="note">Marca las hijas directas. Una segmentación puede tener varios padres. No se permiten ciclos.</p><div id="childrenOptions"></div><button id="saveChildren" type="button">Guardar relaciones</button><button id="cancelChildren" type="button">Cancelar</button></div><div class="hierarchy-display"><label><input id="simpleHierarchy" type="checkbox" checked> Árbol simplificado</label><div><button id="expandHierarchy" type="button">Expandir árbol</button><button id="collapseHierarchy" type="button">Contraer árbol</button></div><p class="note">Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida. Desactiva esta opción para ver los controles.</p></div><section id="independentStructures"><h4>Todas las estructuras</h4><div id="modelLayers"></div><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p></section><h4>Grupos</h4><div id="structureTree"></div><div class="tree-toolbar"><button id="createGroup" type="button">+ Grupo / subgrupo</button><button id="exportTree" type="button">Exportar árbol</button><button id="importTreeButton" type="button">Importar árbol</button><input id="importTree" type="file" accept=".json" hidden/></div><div id="groupEditor" hidden><input id="groupEditId" type="hidden"><label for="groupName">Nombre del grupo</label><input id="groupName" type="text" maxlength="100"><label for="groupParent">Grupo superior</label><select id="groupParent"></select><p class="note">Estructuras que pertenecen directamente a este grupo:</p><div id="groupMembers"></div><button id="saveGroup" type="button">Guardar grupo</button><button id="cancelGroup" type="button">Cancelar</button><button id="deleteGroup" type="button">Eliminar grupo</button></div><p class="note">Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad. Abre «Ajustes» para cambiar la apariencia o centrar la estructura.</p><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p><div class="structure-actions"><button id="clearSelection" type="button">Quitar selección</button><button disabled="" id="isolateStructures" type="button">Aislar seleccionadas</button><button disabled="" id="restoreVisibility" type="button">Restaurar visibilidad anterior</button><button id="showAllStructures" type="button">Mostrar todas las estructuras</button></div><div class="volume-summary"><strong id="selectedVolume">Volumen total seleccionado: 0,00 mL</strong><p class="note" id="selectedVolumeDetail">Selecciona estructuras para sumar sus volúmenes.</p><p class="note">Suma de volúmenes individuales; no descuenta solapamientos. 1 mL = 1 cm³.</p></div><button disabled="" id="resetLayers" type="button">Restablecer</button>
-<div hidden="True" id="legacyStructureControls"><select id="focusStructure"></select><button disabled="" id="centerStructure" type="button">Centrar en las cuatro ventanas</button><div id="structureSelection"></div></div></div></div></details><details hidden id="section-tools"><summary>⚒  Herramientas</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-measurements"><summary>Mediciones</summary><div class="sidebar-body"><div class="tool-grid"><button aria-pressed="false" data-tool="measure2d" id="startMeasure2d" type="button">Medir en 2D</button><button aria-pressed="false" data-tool="measure3d" id="startMeasure3d" type="button">Medir en 3D</button><button aria-pressed="false" data-tool="editMeasure" id="editMeasurements" type="button">Editar extremos</button><button aria-pressed="true" data-tool="navigate" type="button">Volver a navegar</button></div><p aria-live="polite" class="note" id="measurementHint">Elige «Medir en 2D» o «Medir en 3D» para comenzar.</p><p class="note" id="measurementEmpty">Todavía no hay mediciones.</p><p class="note">Dos clics para medir. En 2D, ambos puntos deben pertenecer al mismo corte. En 3D, selecciona superficies visibles del GLB. Distancia recta en RAS, en mm.</p><p class="note">Mediciones orientativas: precisión y escala pendientes de validación.</p><p class="note">Para conservar estas mediciones, guarda una vista nueva o pulsa «Actualizar» en una vista existente. Se incluyen al exportar la lista de vistas.</p><ol id="measurementList"></ol><button id="clearMeasures" type="button">Borrar mediciones</button></div></details><details class="sidebar-subgroup" id="menu-annotations"><summary>Textos y flechas 3D</summary><div class="sidebar-body"><label for="annotationText">Texto (opcional para flechas)</label><textarea id="annotationText" maxlength="180" placeholder="Ej.: Bifurcación portal" rows="2"></textarea><label for="annotationColor">Color</label><input id="annotationColor" type="color" value="#ffdf40"/><button id="addModelLabel" type="button">Añadir etiqueta de texto</button><button id="addModelArrow" type="button">Añadir flecha</button><label><input checked="" id="showAnnotations" type="checkbox"/> Mostrar textos y flechas</label><p aria-live="polite" class="note" id="annotationHint">Las marcas se anclan a puntos de las superficies del GLB. Guarda una vista o pulsa «Actualizar» en una vista existente para conservarlas.</p><p class="note" id="modelAnnotationEmpty"></p><div id="modelAnnotationList"></div><button id="clearModelAnnotations" type="button">Borrar todas las anotaciones del modelo</button></div></details><details class="sidebar-subgroup" id="menu-captures"><summary>Capturas</summary><div class="sidebar-body"><label for="captureView">Captura PNG</label><select id="captureView"><option value="all">Las cuatro ventanas</option><option value="z">Axial</option><option value="y">Coronal</option><option value="x">Sagital</option><option value="3d">Vista 3D</option></select><button id="capture" type="button">Descargar captura</button></div></details></div></details><details class="sidebar-group" id="section-saved"><summary>▧  Mis vistas</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div><div id="activeViewNote" hidden><label for="activeViewNoteText">Anotación de la vista seleccionada</label><textarea id="activeViewNoteText" rows="3" readonly placeholder="Sin anotación"></textarea></div><details id="newNamedView" class="sidebar-subgroup"><summary>Añadir vista</summary><label for="namedViewName">Nombre de la vista</label><input id="namedViewName" maxlength="100" placeholder="Ej.: Vista portal" type="text"/><label for="namedViewNotes">Anotación de la vista</label><textarea id="namedViewNotes" maxlength="3000" placeholder="Ej.: Lesión próxima a la bifurcación portal" rows="3"></textarea><button disabled="" id="addNamedView" type="button">Guardar</button></details><button disabled="" id="undoDeleteView" type="button">Deshacer eliminación</button><button disabled="" id="exportNamedViews" type="button">Exportar lista de vistas</button><button id="importNamedViewsButton" type="button">Importar lista de vistas</button><input accept=".json,application/json" id="importNamedViews" type="file" hidden/><p aria-live="polite" class="note" id="namedViewMessage">Cada nombre recupera la cámara, cortes, zoom, colores, transparencias y planos. Las vistas se conservan en este navegador para este volumen y modelo GLB; si existe un JSON publicado del caso, también se carga su lista.</p><p class="note">En «Ajustes», pulsa «Actualizar» para guardar el nombre, la anotación y la configuración actual del visor.</p></div></div></details><details class="sidebar-group" id="section-presentation">
+<div hidden="True" id="legacyStructureControls"><select id="focusStructure"></select><button disabled="" id="centerStructure" type="button">Centrar en las cuatro ventanas</button><div id="structureSelection"></div></div></div></div></details><details hidden id="section-tools"><summary>⚒  Herramientas</summary><div class="sidebar-body"><details class="sidebar-subgroup" id="menu-measurements"><summary>Mediciones</summary><div class="sidebar-body"><div class="tool-grid"><button aria-pressed="false" data-tool="measure2d" id="startMeasure2d" type="button">Medir en 2D</button><button aria-pressed="false" data-tool="measure3d" id="startMeasure3d" type="button">Medir en 3D</button><button aria-pressed="false" data-tool="editMeasure" id="editMeasurements" type="button">Editar extremos</button><button aria-pressed="true" data-tool="navigate" type="button">Volver a navegar</button></div><p aria-live="polite" class="note" id="measurementHint">Elige «Medir en 2D» o «Medir en 3D» para comenzar.</p><p class="note" id="measurementEmpty">Todavía no hay mediciones.</p><p class="note">Dos clics para medir. En 2D, ambos puntos deben pertenecer al mismo corte. En 3D, selecciona superficies visibles del GLB. Distancia recta en RAS, en mm.</p><p class="note">Mediciones orientativas: precisión y escala pendientes de validación.</p><p class="note">Para conservar estas mediciones, guarda una vista nueva o pulsa «Actualizar» en una vista existente. Se incluyen al exportar la lista de vistas.</p><ol id="measurementList"></ol><button id="clearMeasures" type="button">Borrar mediciones</button></div></details><details class="sidebar-subgroup" id="menu-annotations"><summary>Textos y flechas 3D</summary><div class="sidebar-body"><label for="annotationText">Texto (opcional para flechas)</label><textarea id="annotationText" maxlength="180" placeholder="Ej.: Bifurcación portal" rows="2"></textarea><label for="annotationColor">Color</label><input id="annotationColor" type="color" value="#ffdf40"/><button id="addModelLabel" type="button">Añadir etiqueta de texto</button><button id="addModelArrow" type="button">Añadir flecha</button><label><input checked="" id="showAnnotations" type="checkbox"/> Mostrar textos y flechas</label><p aria-live="polite" class="note" id="annotationHint">Las marcas se anclan a puntos de las superficies del GLB. Guarda una vista o pulsa «Actualizar» en una vista existente para conservarlas.</p><p class="note" id="modelAnnotationEmpty"></p><div id="modelAnnotationList"></div><button id="clearModelAnnotations" type="button">Borrar todas las anotaciones del modelo</button></div></details><details class="sidebar-subgroup" id="menu-captures"><summary>Capturas</summary><div class="sidebar-body"><label for="captureView">Captura PNG</label><select id="captureView"><option value="all">Las cuatro ventanas</option><option value="z">Axial</option><option value="y">Coronal</option><option value="x">Sagital</option><option value="3d">Vista 3D</option></select><button id="capture" type="button">Descargar captura</button></div></details></div></details><details class="sidebar-group" id="section-trajectory">
+ <summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="5" r="2.5"/><path d="m7 17 10-10"/></svg> Trayectoria 3D</summary>
+ <div class="sidebar-body">
+  <div class="tool-grid">
+   <button type="button" id="newTrajectory">Nueva trayectoria</button>
+   <button type="button" id="editTrajectory" data-tool="trajectory" aria-pressed="false" disabled>Editar extremos</button>
+   <button type="button" id="saveTrajectory" disabled>Guardar como vista</button>
+   <button type="button" id="clearTrajectory" disabled>Borrar trayectoria</button>
+   <button type="button" id="openTrajectoryUs" disabled>Abrir US con trayectoria</button>
+  </div>
+  <p id="trajectoryHint" class="note" role="status">Marca una entrada y un destino en los cortes o en el modelo 3D.</p>
+  <p id="trajectoryLength" class="note" hidden></p>
+  <div id="trajectoryAngles" class="note" hidden>
+   <strong>Ángulos con los planos</strong>
+   <div>
+    <span>Axial <output id="trajectoryAngleZ">—</output></span> ·
+    <span>Coronal <output id="trajectoryAngleY">—</output></span> ·
+    <span>Sagital <output id="trajectoryAngleX">—</output></span>
+   </div>
+   <small>0° paralelo · 90° perpendicular</small>
+  </div>
+ </div>
+</details><details class="sidebar-group" id="section-saved"><summary>▧  Mis vistas</summary><div class="sidebar-body"><div class="sidebar-body"><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div><div id="activeViewNote" hidden><label for="activeViewNoteText">Anotación de la vista seleccionada</label><textarea id="activeViewNoteText" rows="3" readonly placeholder="Sin anotación"></textarea></div><details id="newNamedView" class="sidebar-subgroup"><summary>Añadir vista</summary><label for="namedViewName">Nombre de la vista</label><input id="namedViewName" maxlength="100" placeholder="Ej.: Vista portal" type="text"/><label for="namedViewNotes">Anotación de la vista</label><textarea id="namedViewNotes" maxlength="3000" placeholder="Ej.: Lesión próxima a la bifurcación portal" rows="3"></textarea><button disabled="" id="addNamedView" type="button">Guardar</button></details><button disabled="" id="undoDeleteView" type="button">Deshacer eliminación</button><button disabled="" id="exportNamedViews" type="button">Exportar lista de vistas</button><button id="importNamedViewsButton" type="button">Importar lista de vistas</button><input accept=".json,application/json" id="importNamedViews" type="file" hidden/><p aria-live="polite" class="note" id="namedViewMessage">Cada nombre recupera la cámara, cortes, zoom, colores, transparencias y planos. Las vistas se conservan en este navegador para este volumen y modelo GLB; si existe un JSON publicado del caso, también se carga su lista.</p><p class="note">En «Ajustes», pulsa «Actualizar» para guardar el nombre, la anotación y la configuración actual del visor.</p></div></div></details><details class="sidebar-group" id="section-presentation">
 <summary>▷ Presentación</summary>
 <div class="sidebar-body">
 <p class="note">Elige qué vistas incluir y su orden en «Mis vistas».</p>
@@ -467,6 +544,7 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
     <label class="us-mask-toggle"><input type="checkbox" id="usSectorMask" checked> Máscara en abanico</label>
     <label class="us-mask-toggle"><input type="checkbox" id="usShowInfo" checked> Mostrar información en la imagen</label>
     <p class="note" id="usDepth"></p>
+    <p class="note" id="usTrajectoryAxis" hidden>Eje US: entrada → destino de la trayectoria 3D. El giro rota el plano alrededor de este eje.</p>
     <div id="usTargetInfo" hidden>
      <strong id="usTargetReadout"></strong>
      <button type="button" id="usClearTarget">Quitar objetivo</button>
@@ -529,6 +607,45 @@ import {TrackballControls} from 'three/addons/controls/TrackballControls.js';
 import {NRRDLoader} from 'three/addons/loaders/NRRDLoader.js';
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 const $=id=>document.getElementById(id), status=$('status');
+
+function addRangeStepper(range){
+ const sliceLabels={rx:'Corte sagital',ry:'Corte coronal',rz:'Corte axial'};
+ const labelNode=range.labels?.[0]?.cloneNode(true);
+ labelNode?.querySelector('output')?.remove();
+ const label=range.getAttribute('aria-label')||labelNode?.textContent.trim()||sliceLabels[range.id]||'Valor';
+ if(sliceLabels[range.id])range.setAttribute('aria-label',label);
+ const vertical=range.getAttribute('aria-orientation')==='vertical';
+ const wrapper=document.createElement('span');
+ wrapper.className=vertical?'range-stepper is-vertical':'range-stepper';
+ const paths={left:'m9 3-4 4 4 4',right:'m5 3 4 4-4 4',up:'m3 9 4-4 4 4',down:'m3 5 4 4 4-4'};
+ function makeStep(increase,direction){
+  const button=document.createElement('button');
+  button.type='button';button.className='range-stepper-button';
+  const caption=(increase?'Aumentar: ':'Disminuir: ')+label;
+  button.title=caption;button.setAttribute('aria-label',caption);
+  button.innerHTML='<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+paths[direction]+'"/></svg>';
+  button.onclick=()=>{
+   if(range.matches(':disabled'))return;
+   const previous=range.value;
+   // El recorte mantiene su precisión de arrastre; las flechas avanzan un punto porcentual.
+   const steps=range.id==='clipPosition'?100:1;
+   if(increase)range.stepUp(steps);else range.stepDown(steps);
+   if(range.value===previous)return;
+   range.dispatchEvent(new Event('input',{bubbles:true}));
+   range.dispatchEvent(new Event('change',{bubbles:true}));
+  };
+  return button;
+ }
+ const first=vertical?makeStep(true,'up'):makeStep(false,'left');
+ const last=vertical?makeStep(false,'down'):makeStep(true,'right');
+ range.before(wrapper);
+ wrapper.append(first,range,last);
+ if(range.disabled||range.id==='usTilt'||range.id==='usOffset'){
+  const sync=()=>{first.disabled=last.disabled=range.disabled};
+  sync();
+  new MutationObserver(sync).observe(range,{attributes:true,attributeFilter:['disabled']});
+ }
+}
 // Un enlace de caso ya identifica el modelo; la carga manual se ofrece al entrar sin él.
 const linkedCase=!!new URLSearchParams(location.search).get('modelo')?.trim();
 $('caseLocalFiles').hidden=linkedCase;
@@ -578,16 +695,21 @@ let batchRestore=false;const contourCache=new WeakMap();
 let activeTool='navigate',selectedStructure=null;let volumeContentHash=null,modelContentHash=null,loadedModelName="modelo";
 const viewStates={x:{zoom:1,x:0,y:0},y:{zoom:1,x:0,y:0},z:{zoom:1,x:0,y:0}},viewAppliers={};
 const contourPaths={x:[],y:[],z:[]},layerControls=new Map(),measurements=[];
+let trajectory=null,trajectoryStart=null,trajectoryJumpEnd=null;
+const trajectoryColor='#ffd36e';
+const trajectoryEndColors={a:'#66e4bd',b:'#ff91bc'};
+const minTrajectoryLength=.1;
+const trajectoryAngleFormat=new Intl.NumberFormat('es-ES',{minimumFractionDigits:1,maximumFractionDigits:1});
 let pendingMeasure=null;
 
 const scene=new THREE.Scene();scene.background=new THREE.Color('#0b1320');
 const camera=new THREE.PerspectiveCamera(45,1,.1,100000);camera.position.set(400,350,400);
-const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.domElement.className='webgl';$('view3d').appendChild(renderer.domElement);
+const renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.domElement.className='webgl';$('view3d').prepend(renderer.domElement);
 renderer.domElement.title='Arrastrar: giro libre · Botón derecho: desplazar · Rueda: zoom';
 const controls=new TrackballControls(camera,renderer.domElement);controls.staticMoving=true;controls.rotateSpeed=2;controls.zoomSpeed=1.1;controls.panSpeed=.5;controls.mouseButtons={LEFT:THREE.MOUSE.ROTATE,MIDDLE:THREE.MOUSE.DOLLY,RIGHT:THREE.MOUSE.PAN};
 scene.add(new THREE.HemisphereLight(0xffffff,0x405060,2.5));const light=new THREE.DirectionalLight(0xffffff,2);light.position.set(2,3,5);scene.add(light);
 const planesRoot=new THREE.Group();scene.add(planesRoot);const modelRoot=new THREE.Group();scene.add(modelRoot);let volume=null,slices={},model=null;let volumeInfo=null; let selectedWorldPoint=null;
-let lastUsEntryPoint=null,usTargetPoint=null;
+let lastUsEntryPoint=null,usTargetPoint=null,usTargetPath=null;
 const usTargetColor='#ffbc75';
 const usEntryTextureCanvas=document.createElement('canvas');
 usEntryTextureCanvas.width=usEntryTextureCanvas.height=28;
@@ -709,6 +831,7 @@ function paint(axis){
  drawUsTargetOnSlice(axis,ctx,dest);
  drawClipIntersection(axis,ctx,dest);
  drawMeasurements(axis,ctx,dest);
+ drawTrajectorySlice(axis,ctx,dest);
  $('o'+axis).textContent=String(i);
 }
 // VolumeSlice de Three.js centra los planos 3D alrededor de (0,0,0).
@@ -821,10 +944,58 @@ function drawUsTargetOnSlice(axis,ctx,dest){
  if(x>=0&&x<dest.width&&y>=0&&y<dest.height)drawUsTargetMark(ctx,x,y);
 }
 
-function selectUsTarget(point){
+function selectUsTarget(point,path=null){
+ if(!path&&trajectory){
+  const fraction=trajectoryFraction(trajectory,point);
+  const onPath=trajectory.a.clone().lerp(trajectory.b,fraction);
+  if(onPath.distanceTo(point)<=1){
+   point=onPath;
+   path={trajectory,fraction};
+  }
+ }
  usTargetPoint=point.clone();
+ usTargetPath=path;
  setTool('navigate');
- $('toolHint').textContent='Objetivo US marcado. Abre el Modo US y elige el punto de entrada.';
+ $('toolHint').textContent=path?'Objetivo sobre la trayectoria. Activa el Modo US y pulsa la trayectoria para usarla como eje.':
+  'Objetivo US marcado. Abre el Modo US y elige el punto de entrada.';
+}
+
+function trajectoryFraction(path,point){
+ const direction=path.b.clone().sub(path.a);
+ return THREE.MathUtils.clamp(point.clone().sub(path.a).dot(direction)/direction.lengthSq(),0,1);
+}
+
+function selectUsTargetOnPath(point){
+ const fraction=trajectoryFraction(trajectory,point);
+ selectUsTarget(trajectory.a.clone().lerp(trajectory.b,fraction),{trajectory,fraction});
+}
+
+function targetOnTrajectorySlice(event,axis,canvas){
+ if(!trajectory)return null;
+ const {plane}=trajectoryPlane(axis);
+ const {a,b}=trajectory;
+ const da=plane.distanceToPoint(a),db=plane.distanceToPoint(b);
+ const mouse={x:event.clientX,y:event.clientY};
+ if(Math.abs(da)<=1e-6&&Math.abs(db)<=1e-6){
+  const start=screenEndpoint(a,canvas,axis),end=screenEndpoint(b,canvas,axis);
+  if(segmentDistance(mouse,start,end)>12)return null;
+  const dx=end.x-start.x,dy=end.y-start.y;
+  const t=THREE.MathUtils.clamp(((mouse.x-start.x)*dx+(mouse.y-start.y)*dy)/(dx*dx+dy*dy||1),0,1);
+  return a.clone().lerp(b,t);
+ }
+ const t=trajectoryIntersection(da,db);
+ const near=point=>{
+  const screen=screenEndpoint(point,canvas,axis);
+  return Math.hypot(mouse.x-screen.x,mouse.y-screen.y)<=12;
+ };
+ if(t!==null){
+  const point=a.clone().lerp(b,t);
+  if(near(point))return point;
+ }
+ const tolerance=volumeInfo.spacing[{x:0,y:1,z:2}[axis]]/2+1e-5;
+ if(Math.abs(da)<=tolerance&&near(a))return a;
+ if(Math.abs(db)<=tolerance&&near(b))return b;
+ return null;
 }
 
 function drawLastUsEntry(axis,ctx,dest){
@@ -886,11 +1057,14 @@ function chooseSlice(axis,physical){
  while(low<high){const mid=Math.floor((low+high)/2);if(physicalCoordinateAt(axis,mid)*sign<physical*sign)low=mid+1;else high=mid;}
  const before=Math.max(0,low-1);slider.value=String(Math.abs(physicalCoordinateAt(axis,before)-physical)<Math.abs(physicalCoordinateAt(axis,low)-physical)?before:low);
 }
+function chooseSlicesAtPoint(point){
+ const base=obliqueActive()?point.clone().sub(obliqueShift).sub(obliquePivot).applyQuaternion(obliqueRotation.clone().invert()).add(obliquePivot):point;
+ chooseSlice('x',base.x);chooseSlice('y',base.y);chooseSlice('z',base.z);
+}
 function applyReferencePoint(point){
  if(!point || !['x','y','z'].every(a=>slices[a]))return;
  selectedWorldPoint=point.clone();
- const base=obliqueActive()?point.clone().sub(obliqueShift).sub(obliquePivot).applyQuaternion(obliqueRotation.clone().invert()).add(obliquePivot):point;
- chooseSlice('x',base.x);chooseSlice('y',base.y);chooseSlice('z',base.z);
+ chooseSlicesAtPoint(point);
  navMarker.position.copy(point);navMarker.visible=$('show3DMarker').checked;
  $('navPoint').textContent=`Posición RAS: X ${point.x.toFixed(1)} mm · Y ${point.y.toFixed(1)} mm · Z ${point.z.toFixed(1)} mm`;
  ['x','y','z'].forEach(paint);
@@ -986,13 +1160,13 @@ function drawContours(axis, ctx, dest){
 }
 
 function initSlices(){obliquePivot=null;obliqueRotation.identity();obliqueShift.set(0,0,0);clearRoot(planesRoot);slices={};for(const [axis,n] of [['x',volume.RASDimensions[0]],['y',volume.RASDimensions[1]],['z',volume.RASDimensions[2]]]){const size=Math.max(2,n);const slider=$('r'+axis);slider.disabled=false;slider.min='0';slider.max=String(size-1);slider.value=String(Math.floor((size-1)/2));const slice=volume.extractSlice(axis,+slider.value);slices[axis]=slice;planesRoot.add(slice.mesh);slider.oninput=()=>paint(axis);paint(axis)}updatePlaneVisibility();fit()}
-async function loadNrrdData(data,label){const hash=await contentHash(data);if(volumeContentHash!==hash){lastUsEntryPoint=null;usTargetPoint=null;}if(volumeContentHash&&volumeContentHash!==hash)clearModelAnnotations();clearMeasurements();selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Pulsa un punto en un corte para sincronizar las vistas.';volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();volumeContentHash=hash;syncNamedViews();status.textContent=`Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}
+async function loadNrrdData(data,label){const hash=await contentHash(data);if(volumeContentHash!==hash){lastUsEntryPoint=null;usTargetPoint=null;resetTrajectory();}if(volumeContentHash&&volumeContentHash!==hash)clearModelAnnotations();clearMeasurements();selectedWorldPoint=null;navMarker.visible=false;$('navPoint').textContent='Pulsa un punto en un corte para sincronizar las vistas.';volumeInfo=parseNrrdGeometry(data);const physicalCenter=volumeInfo.centerRAS;volume=new NRRDLoader().parse(data);planesRoot.position.copy(physicalCenter);if(!Number.isFinite(volume.windowLow)||!Number.isFinite(volume.windowHigh))throw new Error('Ventana no disponible');volume.windowLow=Number($('wl').value)-Number($('ww').value)/2;volume.windowHigh=Number($('wl').value)+Number($('ww').value)/2;initSlices();volumeContentHash=hash;syncNamedViews();status.textContent=`Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;}
 bindLocalFile($('nrrd'),async file=>{
  status.textContent='Leyendo NRRD…';showProgress('Leyendo volumen',null,formatMB(file.size));
  await loadNrrdData(await file.arrayBuffer(),file.name);
  finishProgress(true,'Volumen preparado');
 },message=>{status.textContent='Error leyendo NRRD: '+message;finishProgress(false,message);});
-$('apply').onclick=()=>{if(!volume)return;const w=Number($('ww').value),l=Number($('wl').value);if(!Number.isFinite(w)||w<=0||!Number.isFinite(l)){status.textContent='Ventana no válida';return}volume.windowLow=l-w/2;volume.windowHigh=l+w/2;['x','y','z'].forEach(paint)};
+$('apply').onclick=()=>{if(!volume)return;const w=Number($('ww').value),l=Number($('wl').value);if(!Number.isFinite(w)||w<=0||!Number.isFinite(l)){status.textContent='Ventana no válida';return}volume.windowLow=l-w/2;volume.windowHigh=l+w/2;repaintAll()};
 function updatePlaneVisibility(){
  planesRoot.visible=$('planes').checked;
  for(const axis of ['x','y','z']){
@@ -1077,6 +1251,7 @@ function buildModelLayers(root){
    ['x','y','z'].forEach(a=>paint(a));
   });
   opacityRow.append(opacityLabel,slider,percent);
+  addRangeStepper(slider);
 
   const resetButton=document.createElement('button');resetButton.type='button';resetButton.className='reset-layer';resetButton.textContent='Restablecer';
   const reset=()=>{
@@ -1109,7 +1284,7 @@ async function loadGlbFromUrl(url,label){
   const hash=await contentHash(buffer);const result=await new GLTFLoader().parseAsync(buffer,url.startsWith('blob:')?new URL('./',location.href).href:new URL('./',url).href);
   clearRoot(modelRoot);model=result.scene;modelRoot.add(model);
   const counts=buildModelLayers(model);$('modelLayers').hidden=false;$('independentEmpty').hidden=layerControls.size>0;buildStructureSelection();clearModelAnnotations();
-  updateModelTransform();updateClip();clearMeasurements();if(modelContentHash!==hash){lastUsEntryPoint=null;usTargetPoint=null;}modelContentHash=hash;loadedModelName=label.split(/[\\/]/).pop().replace(/\.glb$/i,'');loadTree();syncNamedViews();
+  updateModelTransform();updateClip();clearMeasurements();if(modelContentHash!==hash){lastUsEntryPoint=null;usTargetPoint=null;resetTrajectory();}modelContentHash=hash;loadedModelName=label.split(/[\\/]/).pop().replace(/\.glb$/i,'');loadTree();syncNamedViews();
   if(volume)['x','y','z'].forEach(paint);
   status.textContent=`GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
 }
@@ -1159,7 +1334,7 @@ function togglePane(pane){
 }
 for(const pane of document.querySelectorAll('.pane')){
  pane.addEventListener('dblclick',event=>{
-  if(event.target.closest('button,input,select,.pane-menu,.pane-quick-tools')||(['measure2d','measure3d','editMeasure','deleteMeasure','threePoints','select','cut','annotation','arrow','usTarget'].includes(activeTool)&&!event.target.closest('h2')))return;
+  if(event.target.closest('button,input,select,.pane-menu,.pane-quick-tools')||(['measure2d','measure3d','editMeasure','deleteMeasure','threePoints','select','cut','annotation','arrow','usTarget','trajectory'].includes(activeTool)&&!event.target.closest('h2')))return;
   event.preventDefault();togglePane(pane);
  });
 }
@@ -1167,8 +1342,18 @@ document.addEventListener('keydown',event=>{
  if(event.key==='Escape'&&!event.defaultPrevented)document.querySelectorAll('.pane.maximized').forEach(item=>item.classList.remove('maximized'));
 });
 
-const repaintAll=()=>{['x','y','z'].forEach(paint);syncPaneToggles()};
+const repaintAll=()=>{['x','y','z'].forEach(paint);syncPaneToggles();scheduleTrajectoryPreview()};
 const measurementRoot=new THREE.Group();scene.add(measurementRoot);
+const trajectoryRoot=new THREE.Group();scene.add(trajectoryRoot);
+let trajectoryPreviewFrame=0;
+const trajectoryPreviewCanvas=$('trajectoryPreviewImage');
+new ResizeObserver(scheduleTrajectoryPreview).observe(trajectoryPreviewCanvas);
+$('finishTrajectoryEdit').onclick=()=>setTool('navigate');
+const trajectoryJumpButtons={a:$('jumpTrajectoryEntry'),b:$('jumpTrajectoryDestination')};
+for(const [end,button] of Object.entries(trajectoryJumpButtons)){
+ button.style.setProperty('--endpoint-color',trajectoryEndColors[end]);
+ button.onclick=()=>jumpToTrajectoryEnd(end);
+}
 renderer.localClippingEnabled=true;
 function setWindow(level,width){
  level=Number(level);width=Math.max(1,Number(width));
@@ -1177,7 +1362,7 @@ function setWindow(level,width){
  if(volume){volume.windowLow=level-width/2;volume.windowHigh=level+width/2;repaintAll()}
 }
 $('windowPreset').onchange=()=>{if($('windowPreset').value!=='custom'){const [l,w]=$('windowPreset').value.split(',').map(Number);setWindow(l,w);$('windowPreset').value=l+','+w}};
-const toolHints={usTarget:'Marca el objetivo en un corte o sobre una superficie visible del modelo 3D. Esc cancela.',us:'Modo US: marca el punto de entrada en un corte axial, coronal o sagital.',threePoints:'Marca tres puntos en 2D o sobre superficies 3D. Esc cancela.',rotateClip:'Arrastra en 3D para orientar el plano de recorte. Pulsa Navegar para volver a girar el modelo.',oblique:'Arrastra un punto azul de la cruz para girar suavemente. Mayús permite ajuste fino. Doble clic en el icono restablece la orientación.',cut:'Pulsa una estructura para ocultarla en las cuatro ventanas.',deleteMeasure:'Pulsa una medición, un texto o una flecha para borrarlos.',editMeasure:'Arrastra un extremo de una medición. En 2D permanece en su corte; en 3D se desplaza sobre superficies visibles del GLB. Esc cancela.',annotation:'Etiqueta 3D: pulsa una superficie del modelo.',arrow:'Pulsa el origen y después la punta de la flecha sobre el modelo.',navigate:'Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.',pan:'Arrastra con el botón izquierdo para desplazar el volumen.',zoom:'Rueda sobre el volumen para aumentar o reducir. Ctrl + rueda funciona en cualquier modo.',window:'Arrastra en el Volumen: horizontal = anchura, vertical = nivel.',measure2d:'Pulsa dos puntos en el mismo corte del volumen. Esc cancela el primer punto.',measure3d:'Pulsa dos puntos en superficies visibles del GLB. Arrastrar sigue girando la cámara.',select:'Pulsa un contorno o su interior en el volumen, o una superficie en 3D. Se resalta en amarillo.'};
+const toolHints={trajectory:'Marca la entrada y el destino en los cortes o el modelo 3D.',usTarget:'Marca el objetivo sobre la trayectoria, en un corte o en una superficie visible del modelo 3D. Esc cancela.',us:'Modo US: pulsa la trayectoria 3D o elige una entrada manual en un corte axial, coronal o sagital.',threePoints:'Marca tres puntos en 2D o sobre superficies 3D. Esc cancela.',rotateClip:'Arrastra en 3D para orientar el plano de recorte. Pulsa Navegar para volver a girar el modelo.',oblique:'Arrastra un punto azul de la cruz para girar suavemente. Mayús permite ajuste fino. Doble clic en el icono restablece la orientación.',cut:'Pulsa una estructura para ocultarla en las cuatro ventanas.',deleteMeasure:'Pulsa una medición, un texto o una flecha para borrarlos.',editMeasure:'Arrastra un extremo de una medición. En 2D permanece en su corte; en 3D se desplaza sobre superficies visibles del GLB. Esc cancela.',annotation:'Etiqueta 3D: pulsa una superficie del modelo.',arrow:'Pulsa el origen y después la punta de la flecha sobre el modelo.',navigate:'Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.',pan:'Arrastra con el botón izquierdo para desplazar el volumen.',zoom:'Rueda sobre el volumen para aumentar o reducir. Ctrl + rueda funciona en cualquier modo.',window:'Arrastra en el Volumen: horizontal = anchura, vertical = nivel.',measure2d:'Pulsa dos puntos en el mismo corte del volumen. Esc cancela el primer punto.',measure3d:'Pulsa dos puntos en superficies visibles del GLB. Arrastrar sigue girando la cámara.',select:'Pulsa un contorno o su interior en el volumen, o una superficie en 3D. Se resalta en amarillo.'};
 function updateToolCursor(){
  const icons={navigate:'navigate',zoom:'zoom',window:'window',deleteMeasure:'deleteMeasure',select:'select',cut:'cut'};
  const svg=icons[activeTool]&&document.querySelector('.pane-quick-tools [data-tool="'+activeTool+'"] svg');
@@ -1193,7 +1378,17 @@ function updateToolCursor(){
  }
 }
 function setTool(tool){if(typeof measurementDrag!=='undefined'&&measurementDrag)endMeasurementDrag(true);if(activeTool!==tool){pendingArrow=null;if(annotationRoot)renderAnnotations()}if(tool==='threePoints'&&activeTool!==tool)planePoints=[];if(activeTool==='threePoints'&&tool!=='threePoints'){clearRoot(planePointRoot);planePoints=[]}
- activeTool=tool;if(typeof clipGuide!=='undefined')updateClip();updateToolCursor();pendingMeasure=null;document.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===tool)));$('toolHint').textContent=toolHints[tool];updateMeasurementHint();if(tool.startsWith('measure')||tool==='editMeasure')($('section-tools').open=true,$('measurementList').closest('details').open=true);repaintAll();renderMeasure3D()}
+ if(activeTool==='trajectory'&&tool!=='trajectory'){
+  trajectoryJumpEnd=null;
+  if(trajectoryStart){
+   trajectoryStart=null;
+   renderTrajectory();
+  }
+ }
+ activeTool=tool;if(typeof clipGuide!=='undefined')updateClip();updateToolCursor();pendingMeasure=null;document.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===tool)));$('toolHint').textContent=toolHints[tool];updateMeasurementHint();if(tool==='trajectory'){
+  $('section-trajectory').open=true;
+  updateTrajectoryPanel();
+ }if(tool.startsWith('measure')||tool==='editMeasure')($('section-tools').open=true,$('measurementList').closest('details').open=true);repaintAll();renderMeasure3D()}
 document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>setTool(b.dataset.tool));
 function pointOnCanvas(event,axis){const c=$('ct'+axis),r=c.getBoundingClientRect();return{x:(event.clientX-r.left)*c.width/r.width,y:(event.clientY-r.top)*c.height/r.height}}
 function addMeasurement(point,axis=null){
@@ -1273,7 +1468,19 @@ for(const axis of ['x','y','z'])$('ct'+axis).addEventListener('click',event=>{
   }
   if(closest){measurements.splice(measurements.indexOf(closest),1);updateMeasurementList();repaintAll()}
  }
- if(activeTool==='usTarget')selectUsTarget(pixelToWorld(axis,p.x,p.y,$('ct'+axis)));
+ if(activeTool==='trajectory'){
+  const canvas=$('ct'+axis);
+  if(p.x>=0&&p.x<=canvas.width&&p.y>=0&&p.y<=canvas.height)addTrajectoryPoint(pixelToWorld(axis,p.x,p.y,canvas));
+  return;
+ }
+ if(activeTool==='usTarget'){
+  const canvas=$('ct'+axis);
+  if(p.x<0||p.x>canvas.width||p.y<0||p.y>canvas.height)return;
+  const point=targetOnTrajectorySlice(event,axis,canvas);
+  if(point)selectUsTargetOnPath(point);
+  else selectUsTarget(pixelToWorld(axis,p.x,p.y,canvas));
+  return;
+ }
  if(activeTool==='threePoints')addPlanePoint(pixelToWorld(axis,p.x,p.y,$('ct'+axis)));
  if(activeTool==='measure2d')addMeasurement(pixelToWorld(axis,p.x,p.y,$('ct'+axis)),axis);
  if(['select','cut'].includes(activeTool)){
@@ -1285,12 +1492,25 @@ const raycaster=new THREE.Raycaster();let down3D=null;
 renderer.domElement.addEventListener('pointerdown',e=>{if(e.button===0)down3D={x:e.clientX,y:e.clientY}});
 renderer.domElement.addEventListener('pointerup',e=>{
  if(!down3D||Math.hypot(e.clientX-down3D.x,e.clientY-down3D.y)>5){down3D=null;return}down3D=null;
- if(!['measure3d','threePoints','select','cut','annotation','arrow','usTarget'].includes(activeTool)||!model||!modelRoot.visible)return;
- const r=renderer.domElement.getBoundingClientRect();raycaster.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);model.updateWorldMatrix(true,true);
+ if(!['measure3d','threePoints','select','cut','annotation','arrow','usTarget','trajectory','us'].includes(activeTool))return;
+ const canvas=renderer.domElement,r=canvas.getBoundingClientRect();
+ raycaster.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1),camera);
+ if((activeTool==='us'||activeTool==='usTarget')&&trajectory){
+  const point=new THREE.Vector3();
+  raycaster.ray.distanceSqToSegment(trajectory.a,trajectory.b,undefined,point);
+  const screen=screenEndpoint(point,canvas);
+  if(screen&&Math.hypot(e.clientX-screen.x,e.clientY-screen.y)<=12){
+   if(activeTool==='us')openUsAlongTrajectory(point);
+   else selectUsTargetOnPath(point);
+   return;
+  }
+ }
+ if(activeTool==='us'||!model||!modelRoot.visible)return;
+ model.updateWorldMatrix(true,true);
  const visible=o=>{for(let p=o;p;p=p.parent)if(!p.visible)return false;return true};
  const hit=raycaster.intersectObject(model,true).find(h=>visible(h.object)&&!(Array.isArray(h.object.material)?h.object.material:[h.object.material]).every(m=>m.opacity===0)&&(!clipPlane||clipPlane.distanceToPoint(h.point)>=-1e-5));
  if(!hit){$('toolHint').textContent='No se ha seleccionado ninguna superficie visible.';return}
- if(activeTool==='usTarget')selectUsTarget(hit.point);else if(activeTool==='threePoints')addPlanePoint(hit.point);else if(['annotation','arrow'].includes(activeTool))pickAnnotation(hit.point);else if(activeTool==='measure3d')addMeasurement(hit.point);else if(activeTool==='cut')setSynchronizedVisibility([hit.object.userData.structureKey],false);else{selectStructure(hit.object.userData.structureKey,e.shiftKey);if(volume)applyReferencePoint(hit.point)}
+ if(activeTool==='trajectory')addTrajectoryPoint(hit.point);else if(activeTool==='usTarget')selectUsTarget(hit.point);else if(activeTool==='threePoints')addPlanePoint(hit.point);else if(['annotation','arrow'].includes(activeTool))pickAnnotation(hit.point);else if(activeTool==='measure3d')addMeasurement(hit.point);else if(activeTool==='cut')setSynchronizedVisibility([hit.object.userData.structureKey],false);else{selectStructure(hit.object.userData.structureKey,e.shiftKey);if(volume)applyReferencePoint(hit.point)}
 });
 let clipPlane=null,clipRotation=new THREE.Quaternion();
 const clipGuide=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:0x58d9ee,wireframe:true,transparent:true,opacity:.65,depthTest:false,depthWrite:false,side:THREE.DoubleSide}));
@@ -1380,6 +1600,212 @@ $('capture').onclick=()=>{
  try{renderer.render(scene,camera);const selection=$('captureView').value;let result;if(selection==='all'){result=document.createElement('canvas');result.width=1800;result.height=1400;const ctx=result.getContext('2d');[...document.querySelectorAll('.pane')].forEach((pane,i)=>ctx.drawImage(capturePane(pane),i%2*900,Math.floor(i/2)*700))}else{const pane=(selection==='3d'?$('view3d'):$('ct'+selection)).closest('.pane');result=capturePane(pane,1400,1000)}result.toBlob(blob=>{if(blob)downloadBlob(blob,'captura_mpr.png');else status.textContent='No se pudo exportar la captura.'},'image/png')}
  catch(error){status.textContent='No se pudo exportar: '+error.message}
 };
+function trajectoryPlane(axis){
+ const basis=slicePixelBasis(axis);
+ return {basis,plane:new THREE.Plane().setFromNormalAndCoplanarPoint(basis.u.clone().cross(basis.v).normalize(),basis.origin)};
+}
+
+function trajectoryIntersection(a,b){
+ const epsilon=1e-6;
+ if(Math.abs(a)<=epsilon)return 0;
+ if(Math.abs(b)<=epsilon)return 1;
+ return Math.sign(a)===Math.sign(b)?null:a/(a-b);
+}
+
+function trajectoryAngle(a,b,normal){
+ const direction=b.clone().sub(a).normalize();
+ const sine=THREE.MathUtils.clamp(Math.abs(direction.dot(normal)),0,1);
+ return THREE.MathUtils.radToDeg(Math.asin(sine));
+}
+
+function drawTrajectorySlice(axis,ctx,dest){
+ if(!trajectory&&!trajectoryStart)return;
+ const {basis,plane}=trajectoryPlane(axis);
+ const project=point=>worldToPixel(axis,point,basis,dest);
+ const tolerance=volumeInfo.spacing[{x:0,y:1,z:2}[axis]]/2+1e-5;
+ const a=trajectory?.a??trajectoryStart,b=trajectory?.b;
+ if(b){
+  const output=$('trajectoryAngle'+axis.toUpperCase());
+  output.value=trajectoryAngleFormat.format(trajectoryAngle(a,b,plane.normal))+'°';
+ }
+ const da=plane.distanceToPoint(a),db=b?plane.distanceToPoint(b):null;
+ const dot=(point,color,filled)=>{
+  const {x,y}=project(point);
+  ctx.beginPath();ctx.arc(x,y,filled?5:7,0,Math.PI*2);
+  if(filled){ctx.fillStyle=color;ctx.fill();}
+  ctx.strokeStyle='#081521';ctx.lineWidth=4;ctx.stroke();
+  ctx.strokeStyle=color;ctx.lineWidth=2;ctx.stroke();
+ };
+ ctx.save();
+ if(b){
+  if(Math.abs(da)<=1e-6&&Math.abs(db)<=1e-6){
+   const start=project(a),end=project(b);
+   ctx.beginPath();ctx.moveTo(start.x,start.y);ctx.lineTo(end.x,end.y);
+   ctx.strokeStyle='#081521';ctx.lineWidth=5;ctx.stroke();
+   ctx.strokeStyle=trajectoryColor;ctx.lineWidth=2;ctx.stroke();
+  }else{
+   const t=trajectoryIntersection(da,db);
+   if(t!==null)dot(a.clone().lerp(b,t),trajectoryColor,false);
+  }
+ }
+ if(Math.abs(da)<=tolerance)dot(a,trajectoryEndColors.a,true);
+ if(b&&Math.abs(db)<=tolerance)dot(b,trajectoryEndColors.b,true);
+ if(b&&trajectoryJumpEnd&&Math.abs(trajectoryJumpEnd==='a'?da:db)<=tolerance){
+  const {x,y}=project(trajectory[trajectoryJumpEnd]);
+  ctx.beginPath();
+  ctx.moveTo(x-13,y);ctx.lineTo(x-7,y);ctx.moveTo(x+7,y);ctx.lineTo(x+13,y);
+  ctx.moveTo(x,y-13);ctx.lineTo(x,y-7);ctx.moveTo(x,y+7);ctx.lineTo(x,y+13);
+  ctx.strokeStyle='#081521';ctx.lineWidth=4;ctx.stroke();
+  ctx.strokeStyle=trajectoryEndColors[trajectoryJumpEnd];ctx.lineWidth=2;ctx.stroke();
+ }
+ ctx.restore();
+}
+
+function trajectoryPreviewFrameFor(a,b,width,height){
+ const down=b.clone().sub(a);
+ const length=down.length();
+ down.divideScalar(length);
+ // Proyectar un eje anatómico sobre el corte para orientar el ancho.
+ const lateral=Math.abs(down.x)<.9?new THREE.Vector3(1,0,0):new THREE.Vector3(0,1,0);
+ lateral.addScaledVector(down,-lateral.dot(down)).normalize();
+ const mmPerPixel=Math.max(.55,(length+30)/height);
+ const u=lateral.multiplyScalar(mmPerPixel),v=down.multiplyScalar(mmPerPixel);
+ const origin=a.clone().lerp(b,.5).addScaledVector(u,-(width-1)/2).addScaledVector(v,-(height-1)/2);
+ const halfPixels=length/(2*mmPerPixel);
+ return {basis:{origin,u,v,sx:1,sy:1},entryY:height/2-halfPixels,destinationY:height/2+halfPixels};
+}
+
+function jumpToTrajectoryEnd(end){
+ if(activeTool!=='trajectory'||!trajectory||!volumeInfo||measurementDrag||!['x','y','z'].every(axis=>slices[axis]))return;
+ trajectoryJumpEnd=end;
+ chooseSlicesAtPoint(trajectory[end]);
+ const pane=trajectoryPreviewCanvas.closest('.pane');
+ if(pane.classList.contains('maximized'))togglePane(pane);
+ repaintAll();
+}
+
+function scheduleTrajectoryPreview(){
+ for(const [end,button] of Object.entries(trajectoryJumpButtons)){
+  button.setAttribute('aria-pressed',String(trajectoryJumpEnd===end));
+ }
+ const preview=$('trajectoryPreview');
+ preview.hidden=!(activeTool==='trajectory'&&trajectory&&volume&&volumeInfo);
+ if(preview.hidden){
+  cancelAnimationFrame(trajectoryPreviewFrame);trajectoryPreviewFrame=0;
+  return;
+ }
+ if(trajectoryPreviewFrame)return;
+ trajectoryPreviewFrame=requestAnimationFrame(()=>{
+  trajectoryPreviewFrame=0;
+  const canvas=trajectoryPreviewCanvas;
+  const w=canvas.clientWidth,h=canvas.clientHeight;
+  if(!w||!h)return;
+  const scale=Math.min(1,640/Math.max(w,h));
+  const width=Math.max(1,Math.round(w*scale)),height=Math.max(1,Math.round(h*scale));
+  if(canvas.width!==width)canvas.width=width;
+  if(canvas.height!==height)canvas.height=height;
+  const {basis,entryY,destinationY}=trajectoryPreviewFrameFor(trajectory.a,trajectory.b,width,height);
+  resampleVolume(canvas,basis);
+  const ctx=canvas.getContext('2d'),centerX=width/2;
+  ctx.save();
+  ctx.beginPath();ctx.moveTo(centerX,entryY);ctx.lineTo(centerX,destinationY);
+  ctx.strokeStyle='#081521';ctx.lineWidth=5;ctx.stroke();
+  ctx.strokeStyle=trajectoryColor;ctx.lineWidth=2;ctx.stroke();
+  ctx.font='600 13px system-ui';ctx.textBaseline='middle';
+  for(const [end,y,label] of [['a',entryY,'Entrada'],['b',destinationY,'Destino']]){
+   ctx.beginPath();ctx.arc(centerX,y,5,0,Math.PI*2);
+   ctx.strokeStyle='#081521';ctx.lineWidth=3;ctx.stroke();
+   ctx.fillStyle=trajectoryEndColors[end];ctx.fill();
+   if(trajectoryJumpEnd===end){
+    ctx.beginPath();ctx.arc(centerX,y,8,0,Math.PI*2);
+    ctx.strokeStyle='#e5faff';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.strokeStyle='#081521';ctx.lineWidth=3;
+   }
+   const labelX=centerX+(end==='a'?-10:10);
+   ctx.textAlign=end==='a'?'right':'left';
+   ctx.strokeText(label,labelX,y);
+   ctx.fillText(label,labelX,y);
+  }
+  ctx.restore();
+ });
+}
+
+function renderTrajectory(){
+ if(usTargetPath?.trajectory===trajectory&&trajectory){
+  usTargetPoint.copy(trajectory.a).lerp(trajectory.b,usTargetPath.fraction);
+ }
+ while(trajectoryRoot.children.length){
+  const object=trajectoryRoot.children[0];
+  trajectoryRoot.remove(object);
+  object.geometry?.dispose();object.material?.map?.dispose();object.material?.dispose();
+ }
+ const a=trajectory?.a??trajectoryStart,b=trajectory?.b;
+ if(a){
+  for(const [end,point] of [['a',a],['b',b]]){
+   if(!point)continue;
+   const ball=new THREE.Mesh(new THREE.SphereGeometry(1,12,8),new THREE.MeshBasicMaterial({
+    color:trajectoryEndColors[end],depthTest:false,depthWrite:false
+   }));
+   ball.position.copy(point);ball.userData.pixelRadius=6;ball.renderOrder=105;
+   trajectoryRoot.add(ball);
+  }
+ }
+ if(b){
+  const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),
+   new THREE.LineBasicMaterial({color:trajectoryColor,depthTest:false,depthWrite:false}));
+  line.renderOrder=104;trajectoryRoot.add(line);
+  trajectoryRoot.add(annotationSprite(a.distanceTo(b).toFixed(1)+' mm',trajectoryColor,a.clone().lerp(b,.5),trajectoryRoot));
+ }
+ updateTrajectoryPanel();
+}
+
+function updateTrajectoryPanel(){
+ const hint=trajectory?'Pulsa «Editar extremos» para empezar o terminar. Arrastra el punto verde (entrada) o el rosa (destino).':
+  trajectoryStart?'Entrada marcada. Pulsa el punto de destino.':'Marca una entrada y un destino en los cortes o en el modelo 3D.';
+ $('trajectoryHint').textContent=hint;
+ $('trajectoryLength').hidden=!trajectory;
+ $('trajectoryAngles').hidden=!trajectory||!volume;
+ $('trajectoryLength').textContent=trajectory?'Longitud: '+trajectory.a.distanceTo(trajectory.b).toFixed(1)+' mm':'';
+ $('editTrajectory').disabled=!trajectory;
+ $('editTrajectory').setAttribute('aria-pressed',String(!!trajectory&&activeTool==='trajectory'));
+ $('saveTrajectory').disabled=!trajectory||!currentViewCase();
+ $('openTrajectoryUs').disabled=!trajectory||!volume||!model;
+ $('clearTrajectory').disabled=!trajectory&&!trajectoryStart;
+ scheduleTrajectoryPreview();
+ if(activeTool==='trajectory')$('toolHint').textContent=hint;
+}
+
+function addTrajectoryPoint(point){
+ if(trajectory)return;
+ if(!trajectoryStart)trajectoryStart=point.clone();
+ else{
+  if(trajectoryStart.distanceTo(point)<minTrajectoryLength){
+   $('trajectoryHint').textContent='El destino debe ser distinto de la entrada.';
+   return;
+  }
+  trajectory={a:trajectoryStart,b:point.clone()};trajectoryStart=null;
+  setTool('navigate');
+  document.dispatchEvent(new Event('case-state-change'));
+ }
+ renderTrajectory();repaintAll();
+}
+
+function resetTrajectory(){
+ if(measurementDrag?.isTrajectory)endMeasurementDrag(true);
+ trajectory=null;trajectoryStart=null;trajectoryJumpEnd=null;usTargetPath=null;renderTrajectory();
+}
+
+$('newTrajectory').onclick=()=>{resetTrajectory();setTool('trajectory');};
+$('editTrajectory').onclick=()=>setTool(activeTool==='trajectory'?'navigate':'trajectory');
+$('clearTrajectory').onclick=()=>{resetTrajectory();repaintAll();};
+$('saveTrajectory').onclick=()=>{
+ if(!trajectory||!currentViewCase())return;
+ setGeneralPanelFolded(false);
+ $('section-saved').open=true;
+ $('newNamedView').open=true;
+ $('namedViewName').focus();
+};
+
 function measurementData(){return measurements.map(m=>({axis:m.axis,index:m.index,a:m.a.toArray(),b:m.b.toArray()}))}
 function validateMeasurements(items){
  if(items===undefined)return;
@@ -1391,7 +1817,7 @@ function restoreMeasurements(items){
  measurements.splice(0,measurements.length,...(items||[]).map(m=>({axis:m.axis,index:m.index,a:new THREE.Vector3(...m.a),b:new THREE.Vector3(...m.b)})));pendingMeasure=null;updateMeasurementList();renderMeasure3D();
 }
 
-function configData(){return{format:'mpr-viewer',version:1,oblique:obliqueActive()?{pivot:obliquePivot.toArray(),rotation:obliqueRotation.toArray(),shift:obliqueShift.toArray()}:null,maximizedPane:document.querySelector('.pane.maximized')?.dataset.viewPane??null,caseSignature:{sizes:volumeInfo?.sizes||null,origin:volumeInfo?.originRAS||null,structures:[...layerControls.keys()]},referencePoint:selectedWorldPoint?.toArray()||null,measurements:measurementData(),annotations:structuredClone(modelAnnotations),annotationsVisible:$('showAnnotations').checked,structureNamesVisible:$('showStructureNames').checked,structureNodes:structuredClone(structureNodes),structureGroups:structuredClone(structureGroups),structureRelations:structuredClone(structureRelations),window:[Number($('wl').value),Number($('ww').value)],views:viewStates,camera:{position:camera.position.toArray(),up:camera.up.toArray(),target:controls.target.toArray(),near:camera.near,far:camera.far},slices:Object.fromEntries(['x','y','z'].map(a=>[a,Number($('r'+a).value)])),flags:Object.fromEntries(['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'].map(id=>[id,$(id).checked])),fillOpacity:Number($('fillOpacity').value),clipRotation:clipRotation.toArray(),clipAxis:$('clipAxis').value,clipPosition:Number($('clipPosition').value),layers:[...layerControls].map(([key,l])=>({key,visible:l.visible.checked,color:l.picker.value,contour:l.contourCheck.checked,nameVisible:l.nameCheck.checked,opacity:Number(l.slider.value)}))}}
+function configData(){return{format:'mpr-viewer',version:1,oblique:obliqueActive()?{pivot:obliquePivot.toArray(),rotation:obliqueRotation.toArray(),shift:obliqueShift.toArray()}:null,maximizedPane:document.querySelector('.pane.maximized')?.dataset.viewPane??null,caseSignature:{sizes:volumeInfo?.sizes||null,origin:volumeInfo?.originRAS||null,structures:[...layerControls.keys()]},referencePoint:selectedWorldPoint?.toArray()||null,measurements:measurementData(),...(trajectory?{trajectory:{a:trajectory.a.toArray(),b:trajectory.b.toArray()}}:{}),annotations:structuredClone(modelAnnotations),annotationsVisible:$('showAnnotations').checked,structureNamesVisible:$('showStructureNames').checked,structureNodes:structuredClone(structureNodes),structureGroups:structuredClone(structureGroups),structureRelations:structuredClone(structureRelations),window:[Number($('wl').value),Number($('ww').value)],views:viewStates,camera:{position:camera.position.toArray(),up:camera.up.toArray(),target:controls.target.toArray(),near:camera.near,far:camera.far},slices:Object.fromEntries(['x','y','z'].map(a=>[a,Number($('r'+a).value)])),flags:Object.fromEntries(['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'].map(id=>[id,$(id).checked])),fillOpacity:Number($('fillOpacity').value),clipRotation:clipRotation.toArray(),clipAxis:$('clipAxis').value,clipPosition:Number($('clipPosition').value),layers:[...layerControls].map(([key,l])=>({key,visible:l.visible.checked,color:l.picker.value,contour:l.contourCheck.checked,nameVisible:l.nameCheck.checked,opacity:Number(l.slider.value)}))}}
 function validateConfig(data){
  if(data.structureNodes!==undefined)validateNodes(data.structureNodes);if(data.structureGroups!==undefined)validateTree(data.structureGroups);if(data.structureRelations!==undefined)validateStructureRelations(data.structureRelations);
  validateMeasurements(data?.measurements);
@@ -1409,6 +1835,10 @@ function validateConfig(data){
  if(data.structureNamesVisible!==undefined&&typeof data.structureNamesVisible!=='boolean')throw new Error('Visibilidad de nombres inválida.');
  if(data.annotationsVisible!==undefined&&typeof data.annotationsVisible!=='boolean')throw new Error('Visibilidad de anotaciones inválida.');
  if(data.referencePoint!==null&&!vec(data.referencePoint))throw new Error('Punto de referencia inválido.');
+ if(data.trajectory!==undefined&&(!vec(data.trajectory?.a)||!vec(data.trajectory?.b)||
+  new THREE.Vector3(...data.trajectory.a).distanceTo(new THREE.Vector3(...data.trajectory.b))<minTrajectoryLength)){
+  throw new Error('Trayectoria 3D inválida.');
+ }
  if(data.usProbe!==undefined){
   const pose=data.usProbe,entry=pose?.entry;
   if(!entry||!['x','y','z'].includes(entry.axis)||
@@ -1419,7 +1849,9 @@ function validateConfig(data){
     !finite(entry.x,0,1)||!finite(entry.y,0,1)||
     !finite(pose.rotation,0,360)||!finite(pose.tilt,-15,15)||!finite(pose.offset,-150,150)||
     typeof pose.mask!=='boolean'||typeof pose.info!=='boolean'||
-    (pose.target!=null&&!vec(pose.target))){
+    (pose.target!=null&&!vec(pose.target))||
+    (pose.axisEnd!==undefined&&(!vec(pose.axisEnd)||
+     new THREE.Vector3(...pose.axisEnd).distanceTo(new THREE.Vector3(...pose.originalProbe))<minTrajectoryLength))){
    throw new Error('Posición de la sonda inválida.');
   }
  }
@@ -1432,7 +1864,14 @@ function restoreConfig(data,{applyTree=true}={}){
  for(const pane of document.querySelectorAll('.pane[data-view-pane]')){
   pane.classList.toggle('maximized',pane.dataset.viewPane===data.maximizedPane);
  }
- ['x','y','z'].forEach(paint);syncPaneToggles();status.textContent='Configuración recuperada.';
+ if(measurementDrag?.isTrajectory)endMeasurementDrag(true);
+ trajectoryJumpEnd=null;
+ const restoredPath=data.trajectory?{a:new THREE.Vector3(...data.trajectory.a),b:new THREE.Vector3(...data.trajectory.b)}:null;
+ if(!trajectory||!restoredPath||!trajectory.a.equals(restoredPath.a)||!trajectory.b.equals(restoredPath.b)){
+  trajectory=restoredPath;usTargetPath=null;
+ }
+ trajectoryStart=null;renderTrajectory();
+ repaintAll();status.textContent='Configuración recuperada.';
 }
 
 let namedViews=[],namedCaseKey=null,deletedView=null,activeNamedView=null;const expandedNamedViews=new WeakSet();
@@ -1441,7 +1880,7 @@ async function contentHash(bytes){const digest=await crypto.subtle.digest('SHA-2
 function syncNamedViews(){
  const key=currentViewCase();if(key===namedCaseKey)return;namedCaseKey=key;activeNamedView=null;namedViews=[];deletedView=null;$('namedViewNotes').value='';
  if(key)try{const data=JSON.parse(localStorage.getItem(key)||'[]');if(Array.isArray(data))namedViews=data.filter(v=>typeof v.name==='string'&&v.config?.format==='mpr-viewer').slice(0,100)}catch{ $('namedViewMessage').textContent='No se pudo leer el guardado del navegador. Puedes importar un archivo de vistas.';}
- loadTree();renderNamedViews();document.dispatchEvent(new Event('case-state-change'));
+ loadTree();renderNamedViews();updateTrajectoryPanel();document.dispatchEvent(new Event('case-state-change'));
 }
 function persistNamedViews({refreshRows=true}={}){
  document.dispatchEvent(new Event('case-state-change'));
@@ -1511,7 +1950,9 @@ function makeSavedViewButton(view,label,current){
  const icon=document.createElement('span');
  icon.className='saved-view-icon';
  icon.setAttribute('aria-hidden','true');
- icon.textContent=view.config.usProbe?'US':'▦';
+ if(view.config.usProbe)icon.textContent='US';
+ else if(view.config.trajectory)icon.append($('section-trajectory').querySelector('summary svg').cloneNode(true));
+ else icon.textContent='▦';
  button.append(icon,document.createTextNode(view.name));
  return button;
 }
@@ -1738,13 +2179,13 @@ function updateAnnotationScale(){
    marker.scale.setScalar(28*2*depth*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/height);
   }
  }
- for(const ball of [...measurementRoot.children,...annotationRoot.children,...planePointRoot.children]){
+ for(const ball of [...measurementRoot.children,...trajectoryRoot.children,...annotationRoot.children,...planePointRoot.children]){
   if(!ball.userData.pixelRadius)continue;
   const depth=ball.position.clone().sub(camera.position).dot(forward);
   ball.visible=depth>camera.near&&depth<camera.far;
   if(ball.visible)ball.scale.setScalar(ball.userData.pixelRadius*2*depth*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/height);
  }
- for(const root of [annotationRoot,measurementRoot]){if(!root?.visible)continue;root.traverse(o=>{if(!o.isSprite||!o.userData.labelPixels||o.userData.structureVisible===false)return;
+ for(const root of [annotationRoot,measurementRoot,trajectoryRoot]){if(!root?.visible)continue;root.traverse(o=>{if(!o.isSprite||!o.userData.labelPixels||o.userData.structureVisible===false)return;
   const anchor=o.userData.anchor,depth=anchor.clone().sub(camera.position).dot(forward);o.visible=depth>camera.near;if(o.userData.leader)o.userData.leader.visible=o.visible;if(!o.visible)return;
   const perPixel=2*depth*Math.tan(THREE.MathUtils.degToRad(camera.fov/2))/height,p=anchor.clone().project(camera),ax=(p.x+1)*width/2,ay=(1-p.y)*height/2,factor=Math.min(1,(width-12)/o.userData.labelPixels[0]),w=o.userData.labelPixels[0]*factor,h=o.userData.labelPixels[1]*factor;
   let left=Math.max(6,Math.min(width-w-6,ax+12)),top=Math.max(6,Math.min(height-h-6,ay-h-12));
@@ -2029,6 +2470,40 @@ function screenEndpoint(point,canvas,axis=null){
  if(axis){const p=worldToPixel(axis,point,slicePixelBasis(axis),canvas);return{x:r.left+p.x*r.width/canvas.width,y:r.top+p.y*r.height/canvas.height}}
  const p=point.clone().project(camera);return p.z>=-1&&p.z<=1?{x:r.left+(p.x+1)*r.width/2,y:r.top+(1-p.y)*r.height/2}:null;
 }
+function nearestTrajectoryPreviewEnd(event){
+ if(!trajectory)return null;
+ const canvas=trajectoryPreviewCanvas,{width,height}=canvas,rect=canvas.getBoundingClientRect();
+ const scale=Math.min(rect.width/width,rect.height/height);
+ if(!scale)return null;
+ const {basis,entryY,destinationY}=trajectoryPreviewFrameFor(trajectory.a,trajectory.b,width,height);
+ const x=rect.left+rect.width/2,y=rect.top+(rect.height-height*scale)/2;
+ const da=Math.hypot(event.clientX-x,event.clientY-(y+entryY*scale));
+ const db=Math.hypot(event.clientX-x,event.clientY-(y+destinationY*scale));
+ if(Math.min(da,db)>14)return null;
+ // Conservar el plano y la escala de partida mientras la reconstrucción se actualiza.
+ const previewDrag={x:event.clientX,y:event.clientY,u:basis.u.divideScalar(scale),v:basis.v.divideScalar(scale)};
+ return {m:trajectory,end:da<=db?'a':'b',previewDrag};
+}
+function nearestTrajectoryEnd(event,axis,canvas){
+ if(!trajectory)return null;
+ const slice=axis?trajectoryPlane(axis):null;
+ const tolerance=axis?volumeInfo.spacing[{x:0,y:1,z:2}[axis]]/2+1e-5:0;
+ let hit=null,distance=14;
+ for(const end of ['a','b']){
+  const point=trajectory[end];
+  if(slice&&Math.abs(slice.plane.distanceToPoint(point))>tolerance)continue;
+  const pixel=screenEndpoint(point,canvas,axis);
+  if(!pixel)continue;
+  const d=Math.hypot(event.clientX-pixel.x,event.clientY-pixel.y);
+  if(d<distance){distance=d;hit={m:trajectory,end}}
+ }
+ return hit;
+}
+function pointOnTrajectoryDragPlane(event,canvas,plane){
+ const r=canvas.getBoundingClientRect();
+ raycaster.setFromCamera(new THREE.Vector2((event.clientX-r.left)/r.width*2-1,1-(event.clientY-r.top)/r.height*2),camera);
+ return raycaster.ray.intersectPlane(plane,new THREE.Vector3());
+}
 function nearestMeasurementEnd(event,axis,canvas){
  let best=null,distance=14;
  for(const m of measurements){if(m.axis!==axis||(axis&&m.index!==Number($('r'+axis).value)))continue;
@@ -2046,11 +2521,25 @@ function endMeasurementDrag(cancel=false){
  const d=measurementDrag;if(!d)return;
  if(cancel)d.m[d.end].copy(d.original);measurementDrag=null;controls.enabled=d.orbitEnabled;d.canvas.style.cursor=d.cursor;
  if(d.canvas.hasPointerCapture(d.pointerId))d.canvas.releasePointerCapture(d.pointerId);
+ if(d.isTrajectory){
+  renderTrajectory();repaintAll();
+  if(!cancel)document.dispatchEvent(new Event('case-state-change'));
+  return;
+ }
  redrawEditedMeasurement(d.axis);$('measurementHint').textContent=cancel?'Edición cancelada.': 'Medición actualizada. Actualiza la vista guardada para conservar el cambio.';
 }
-for(const axis of ['x','y','z',null]){
- const canvas=axis?$('ct'+axis):renderer.domElement;
+for(const [axis,canvas] of [...['x','y','z'].map(axis=>[axis,$('ct'+axis)]),
+ [null,renderer.domElement],[null,trajectoryPreviewCanvas]]){
+ const isPreview=canvas===trajectoryPreviewCanvas;
+ let suppressTrajectoryClick=false;
+ canvas.addEventListener('click',event=>{
+  if(!suppressTrajectoryClick||event.detail===0)return;
+  suppressTrajectoryClick=false;
+  event.preventDefault();event.stopImmediatePropagation();
+ },true);
  canvas.addEventListener('pointerdown',event=>{
+  suppressTrajectoryClick=false;
+  if(isPreview&&activeTool!=='trajectory')return;
   if(activeTool==='deleteMeasure'&&!axis&&event.button===0){
    let annotation=null;
    if(annotationRoot.visible){
@@ -2079,24 +2568,67 @@ for(const axis of ['x','y','z',null]){
    if(closest){event.preventDefault();event.stopImmediatePropagation();measurements.splice(measurements.indexOf(closest),1);updateMeasurementList();renderMeasure3D()}
    return;
   }
-  if(activeTool!=='editMeasure'||event.button!==0||measurementDrag)return;
-  if(axis&&!slices[axis])return;const hit=nearestMeasurementEnd(event,axis,canvas);if(!hit)return;
+  const isTrajectory=activeTool==='trajectory';
+  if((!isTrajectory&&activeTool!=='editMeasure')||event.button!==0||measurementDrag)return;
+  if(axis&&!slices[axis])return;
+  const hit=isPreview?nearestTrajectoryPreviewEnd(event):
+   isTrajectory?nearestTrajectoryEnd(event,axis,canvas):nearestMeasurementEnd(event,axis,canvas);
+  if(!hit)return;
   event.preventDefault();event.stopImmediatePropagation();pendingMeasure=null;down3D=null;
-  measurementDrag={...hit,axis,canvas,pointerId:event.pointerId,original:hit.m[hit.end].clone(),orbitEnabled:controls.enabled,cursor:canvas.style.cursor};controls.enabled=false;canvas.style.cursor='grabbing';canvas.setPointerCapture(event.pointerId);
+  const original=hit.m[hit.end].clone();
+  const plane=isTrajectory&&!axis&&!isPreview?new THREE.Plane().setFromNormalAndCoplanarPoint(camera.getWorldDirection(new THREE.Vector3()),original):null;
+  const anchor=plane?pointOnTrajectoryDragPlane(event,canvas,plane):null;
+  measurementDrag={...hit,axis,canvas,pointerId:event.pointerId,original,isTrajectory,plane,anchor,
+   orbitEnabled:controls.enabled,cursor:canvas.style.cursor};controls.enabled=false;canvas.style.cursor='grabbing';canvas.setPointerCapture(event.pointerId);
+  if(isTrajectory)return;
   $('measurementHint').textContent=axis?'Arrastra el extremo dentro del mismo corte. Esc cancela.':'Arrastra el extremo sobre una superficie visible del GLB. Esc cancela.';
  },true);
  canvas.addEventListener('pointermove',event=>{
   const d=measurementDrag;
-  if(!d){if(activeTool==='editMeasure'&&(!axis||slices[axis]))canvas.style.cursor=nearestMeasurementEnd(event,axis,canvas)?'grab':axis?'crosshair':'auto';return}
+  if(!d){
+   if(!axis||slices[axis]){
+    if(activeTool==='trajectory'){
+     const hit=isPreview?nearestTrajectoryPreviewEnd(event):nearestTrajectoryEnd(event,axis,canvas);
+     canvas.style.cursor=hit?'grab':'crosshair';
+    }
+    if(activeTool==='editMeasure')canvas.style.cursor=nearestMeasurementEnd(event,axis,canvas)?'grab':axis?'crosshair':'auto';
+   }
+   return;
+  }
   if(d.canvas!==canvas||d.pointerId!==event.pointerId)return;event.preventDefault();event.stopImmediatePropagation();
-  let point;if(axis){const p=pointOnCanvas(event,axis);point=pixelToWorld(axis,Math.max(0,Math.min(canvas.width,p.x)),Math.max(0,Math.min(canvas.height,p.y)),canvas)}else point=dragSurfacePoint(event);
+  let point;
+  if(d.previewDrag){
+   const {x,y,u,v}=d.previewDrag;
+   point=d.original.clone().addScaledVector(u,event.clientX-x).addScaledVector(v,event.clientY-y);
+  }else if(axis){
+   const p=pointOnCanvas(event,axis);
+   point=pixelToWorld(axis,Math.max(0,Math.min(canvas.width,p.x)),Math.max(0,Math.min(canvas.height,p.y)),canvas);
+  }else if(d.isTrajectory){
+   point=d.anchor?pointOnTrajectoryDragPlane(event,canvas,d.plane)?.sub(d.anchor).add(d.original):null;
+  }else point=dragSurfacePoint(event);
+  if(d.isTrajectory){
+   if(point&&point.distanceTo(d.m[d.end==='a'?'b':'a'])>=minTrajectoryLength){
+    d.m[d.end].copy(point);renderTrajectory();repaintAll();
+   }
+   return;
+  }
   if(point){d.m[d.end].copy(point);redrawEditedMeasurement(axis)}else $('measurementHint').textContent='Sitúa el extremo sobre una superficie visible del GLB.';
  },true);
- canvas.addEventListener('pointerup',event=>{if(measurementDrag?.canvas!==canvas||measurementDrag.pointerId!==event.pointerId)return;event.preventDefault();event.stopImmediatePropagation();down3D=null;endMeasurementDrag()},true);
+ canvas.addEventListener('pointerup',event=>{
+  if(measurementDrag?.canvas!==canvas||measurementDrag.pointerId!==event.pointerId)return;
+  suppressTrajectoryClick=measurementDrag.isTrajectory;
+  event.preventDefault();event.stopImmediatePropagation();down3D=null;endMeasurementDrag();
+ },true);
  canvas.addEventListener('pointercancel',()=>{if(measurementDrag?.canvas===canvas)endMeasurementDrag(true)},true);
  canvas.addEventListener('lostpointercapture',()=>{if(measurementDrag?.canvas===canvas)endMeasurementDrag(true)});
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&measurementDrag){e.preventDefault();endMeasurementDrag(true)}});
+document.addEventListener('keydown',e=>{
+ if(e.key!=='Escape')return;
+ if(measurementDrag){
+  e.preventDefault();
+  endMeasurementDrag(true);
+ }else if(activeTool==='trajectory'&&!trajectory)setTool('navigate');
+});
 document.addEventListener('wheel',e=>{if(measurementDrag){e.preventDefault();e.stopImmediatePropagation()}},{capture:true,passive:false});
 
 // Un enlace por caso: ?modelo=modelos/1.glb -> nrrd/1.nrrd.parts.json o nrrd/1.nrrd
@@ -2306,6 +2838,7 @@ function installPaneMenus(){
    navigate:'<path d="m5 3 14 9-7 1-3 7z"/>',
    window:'<circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h8"/>',
    measure:'<path d="m3 16 13-13 5 5L8 21zM7 12l3 3m0-6 3 3m0-6 3 3"/>',
+   trajectory:'<circle cx="5" cy="19" r="2.5"/><circle cx="19" cy="5" r="2.5"/><path d="m7 17 10-10"/>',
    camera:'<path d="m12 3 9 5v9l-9 5-9-5V8zM3 8l9 5 9-5m-9 5v9"/>',
    clip:'<path d="M5 3v18m4-16 11 7-11 7M2 8h6M2 16h6"/>',
    zoom:'<circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M7 10h6m-3-3v6"/>',
@@ -2370,6 +2903,7 @@ function installPaneMenus(){
   quick('reset','Restablecer vista',()=>{if(sceneView)fit();else reset.click()});
   if(sceneView)quick('camera','Vistas anatómicas',()=>showSection('menu-scene','cameraOrientationHeading'));
   quick('measure',sceneView?'Medir en 3D':'Medir en 2D',null,sceneView?'measure3d':'measure2d');
+  quick('trajectory','Trayectoria 3D · marca entrada y destino o arrastra sus extremos',null,'trajectory');
   if(sceneView){
    quick('arrow','Textos y flechas',()=>showSection('menu-annotations'));
    quick('erase','Borrar medida, texto o flecha · pulsa el elemento',null,'deleteMeasure');
@@ -2565,6 +3099,8 @@ function captureSavedView(view) {
  const primary = selectedStructure;
  const isolation = isolationSnapshot;
  const measure = pendingMeasure;
+ const entry = trajectoryStart;
+ const targetPath = usTargetPath;
  const arrow = pendingArrow;
  const message = status.textContent;
  const mobileMode = document.body.classList.contains('mobile-presentation');
@@ -2593,6 +3129,9 @@ function captureSavedView(view) {
   selectedStructure = primary;
   isolationSnapshot = isolation;
   pendingMeasure = measure;
+  trajectoryStart = entry;
+  if(targetPath&&trajectory)usTargetPath={trajectory,fraction:targetPath.fraction};
+  if(entry){renderTrajectory();repaintAll();}
   pendingArrow = arrow;
   if (measure) {updateMeasurementHint();renderMeasure3D();}
   if (arrow) renderAnnotations();
@@ -2944,6 +3483,19 @@ function drawUsFilledFace(canvas,slabModel,plane,center,right,down,mmPerPixel){
  ctx.restore();
 }
 
+function openUsAlongTrajectory(point){
+ if(!volume||!model||!trajectory)return;
+ const target=point??(usTargetPath?.trajectory===trajectory?null:trajectory.b);
+ try{
+  usMode.openTrajectory(trajectory);
+  if(target)selectUsTargetOnPath(target);
+  $('toolHint').textContent='Modo US abierto con la trayectoria 3D como eje.';
+ }catch(error){
+  $('trajectoryHint').textContent=error.message;
+  $('toolHint').textContent=error.message;
+ }
+}
+
 function toggleUsTool(){
  setTool(activeTool==='us'?'navigate':'us');
  if(activeTool==='us'&&(!volume||!model)){
@@ -2953,9 +3505,17 @@ function toggleUsTool(){
 
 function installUsMode(){
  $('headerUsMode').onclick=toggleUsTool;
- $('headerUsTarget').onclick=()=>{
-  if(!volume&&!model){$('toolHint').textContent='Carga el volumen o el modelo para marcar un objetivo US.';return;}
+ $('openTrajectoryUs').onclick=()=>openUsAlongTrajectory();
+ const targetButton=$('headerUsTarget');
+ targetButton.onclick=event=>{
+  if(event.detail>1)return;
+  if(!volume&&!model&&!trajectory){$('toolHint').textContent='Carga el volumen o el modelo para marcar un objetivo US.';return;}
   setTool(activeTool==='usTarget'?'navigate':'usTarget');
+ };
+ targetButton.ondblclick=()=>{
+  clearUsTarget();
+  if(activeTool==='usTarget')setTool('navigate');
+  $('toolHint').textContent='Objetivo US borrado.';
  };
  const dialog=$('usDialog');
  const rotation=$('usRotation');
@@ -3288,31 +3848,34 @@ function installUsMode(){
  }
 
  function renderCut(){
-  const {probe,initialFocus,sectionScene,slabModel,light,clippingPlanes,modelSize}=session;
+  const {probe,axisEnd,initialFocus,sectionScene,slabModel,light,clippingPlanes,modelSize}=session;
   const angle=Number(rotation.value);
-  const shift=Number(offset.value);
-  const tiltDegrees=Number(tilt.value);
-  const {focus,down,right,normal}=usCutFrame(session.originalProbe,initialFocus,THREE.MathUtils.degToRad(angle),THREE.MathUtils.degToRad(tiltDegrees));
-  // Reorientar el corte hacia el foco fijo con el menor giro posible.
-  const aimingDirection=focus.clone().sub(probe);
-  const focusDistance=aimingDirection.length();
-  if(focusDistance>1e-8){
-   aimingDirection.divideScalar(focusDistance);
-   const swivel=new THREE.Quaternion().setFromUnitVectors(down,aimingDirection);
-   down.copy(aimingDirection);
-   right.applyQuaternion(swivel);
+  const tiltDegrees=axisEnd?0:Number(tilt.value);
+  const {focus,down,right,normal}=usCutFrame(axisEnd?probe:session.originalProbe,axisEnd??initialFocus,
+   THREE.MathUtils.degToRad(angle),THREE.MathUtils.degToRad(tiltDegrees));
+  const focusDistance=probe.distanceTo(focus);
+  let pitch=0;
+  if(axisEnd){
+   focus.copy(axisEnd);
+  }else{
+   // Reorientar el corte hacia el foco fijo con el menor giro posible.
+   if(focusDistance>1e-8){
+    const aimingDirection=focus.clone().sub(probe).divideScalar(focusDistance);
+    const swivel=new THREE.Quaternion().setFromUnitVectors(down,aimingDirection);
+    down.copy(aimingDirection);
+    right.applyQuaternion(swivel);
+    normal.crossVectors(down,right).normalize();
+   }
+   // Limitar la inclinación donde el arco alcanza su altura máxima o mínima.
+   const superiorSign=normal.z<0?-1:1;
+   const requestedPitch=Math.asin(THREE.MathUtils.clamp(Number(offset.value)/depthMm,-1,1));
+   const highestPitch=Math.atan2(Math.abs(normal.z),down.z);
+   pitch=Math.hypot(normal.z,down.z)<1e-8?0:
+    THREE.MathUtils.clamp(requestedPitch,highestPitch-Math.PI,highestPitch);
+   down.applyAxisAngle(right,-superiorSign*pitch);
    normal.crossVectors(down,right).normalize();
+   focus.copy(probe).addScaledVector(down,focusDistance);
   }
-  // Elegir el sentido anatómico y detener el giro donde el arco
-  // alcanza su altura máxima o mínima, antes de que invierta el sentido.
-  const superiorSign=normal.z<0?-1:1;
-  const requestedPitch=Math.asin(THREE.MathUtils.clamp(shift/depthMm,-1,1));
-  const highestPitch=Math.atan2(Math.abs(normal.z),down.z);
-  const pitch=Math.hypot(normal.z,down.z)<1e-8?0:
-   THREE.MathUtils.clamp(requestedPitch,highestPitch-Math.PI,highestPitch);
-  down.applyAxisAngle(right,-superiorSign*pitch);
-  normal.crossVectors(down,right).normalize();
-  focus.copy(probe).addScaledVector(down,focusDistance);
   const focusRow=probeRow+focusDistance/mmPerPixel;
   const center=probe.clone().addScaledVector(down,(height/2-probeRow)*mmPerPixel);
   const reference=visibleUsReference(center,right,down,normal);
@@ -3329,7 +3892,7 @@ function installUsMode(){
   tilt.setAttribute('aria-valuetext',tiltLabel);
   rotation.setAttribute('aria-valuetext',rotationLabel);
   offset.setAttribute('aria-valuetext',offsetLabel);
-  $('usDepth').textContent='Profundidad visible: 25 cm · Enfoque: '+(focusDistance/10).toFixed(1)+' cm'+
+  $('usDepth').textContent='Profundidad visible: 25 cm · '+(axisEnd?'Destino de la trayectoria: ':'Enfoque: ')+(focusDistance/10).toFixed(1)+' cm'+
    (focusDistance>depthMm?' (fuera del encuadre)':'');
 
   // El píxel central de cada panel representa el mismo punto del plano.
@@ -3411,7 +3974,7 @@ function installUsMode(){
  probeDragButton.addEventListener('pointermove',event=>{
   if(!probeDrag||event.pointerId!==probeDrag.pointerId)return;
   const turn=Math.round((event.clientX-probeDrag.x)/2);
-  const tilt=Math.round((probeDrag.y-event.clientY)/2);
+  const tilt=session.axisEnd?0:Math.round((probeDrag.y-event.clientY)/2);
   const angle=turn===0?probeDrag.angle:((probeDrag.angle+turn)%360+360)%360;
   const shift=THREE.MathUtils.clamp(probeDrag.shift+tilt,Number(offset.min),Number(offset.max));
   if(Number(rotation.value)===angle&&Number(offset.value)===shift)return;
@@ -3572,7 +4135,7 @@ function installUsMode(){
   const dx=u.clone().divideScalar(entryCanvas.width),dy=v.clone().divideScalar(entryCanvas.height);
   resampleVolume(entryImage,{origin:origin.clone().addScaledVector(dx,.5).addScaledVector(dy,.5),u:dx,v:dy,sx:1,sy:1});
   $('usEntryTitle').textContent=({x:'Corte sagital',y:'Corte coronal',z:'Corte axial'})[axis]+' · Punto de entrada';
-  $('usEntryHint').textContent=axis==='z'
+  $('usEntryHint').textContent=session.axisEnd?'Entrada fijada al extremo inicial de la trayectoria 3D.':axis==='z'
    ?'Arrastra la cruz de entrada o usa las flechas. Arco y referencia: verde Sup, azul Inf.'
    :'Arrastra la cruz azul o usa las flechas. Turquesa dentro del corte, violeta fuera y amarillo en el plano central.';
  }
@@ -3586,7 +4149,7 @@ function installUsMode(){
   scheduleCut();
  }
  entryCanvas.addEventListener('pointerdown',event=>{
-  if(!session||entryDrag||event.button!==0)return;
+  if(!session||session.axisEnd||entryDrag||event.button!==0)return;
   const rect=entryImageRect(),{x,y}=session.entry;
   if(Math.hypot(event.clientX-rect.left-x*rect.width,event.clientY-rect.top-y*rect.height)>24)return;
   entryCanvas.setPointerCapture(event.pointerId);
@@ -3603,7 +4166,7 @@ function installUsMode(){
  }
  entryCanvas.addEventListener('keydown',event=>{
   const direction={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[event.key];
-  if(!session||!direction)return;
+  if(!session||session.axisEnd||!direction)return;
   event.preventDefault();
   const {x,y,width,height}=session.entry;
   const step=event.shiftKey?5:1;
@@ -3709,6 +4272,8 @@ function installUsMode(){
   const canvas=$('ct'+axis);
   const p=pointOnCanvas(event,axis);
   if(p.x<0||p.y<0||p.x>canvas.width||p.y>canvas.height)return;
+  const pathPoint=targetOnTrajectorySlice(event,axis,canvas);
+  if(pathPoint){openUsAlongTrajectory(pathPoint);return;}
   const probe=pixelToWorld(axis,p.x,p.y,canvas);
   const origin=pixelToWorld(axis,0,0,canvas);
   const entry={axis,origin,width:canvas.width,height:canvas.height,
@@ -3722,26 +4287,45 @@ function installUsMode(){
   }
  }
 
- function openSection(entry,probe,originalProbe,savedView){
+ function openTrajectory(path){
+  const probe=path.a.clone(),axis='z';
+  const canvas=$('ct'+axis),basis=slicePixelBasis(axis);
+  const normal=basis.u.clone().cross(basis.v).normalize();
+  const origin=pixelToWorld(axis,0,0,canvas);
+  const u=pixelToWorld(axis,canvas.width,0,canvas).sub(origin);
+  const v=pixelToWorld(axis,0,canvas.height,canvas).sub(origin);
+  origin.addScaledVector(normal,probe.clone().sub(origin).dot(normal));
+  const pixel=worldToPixel(axis,probe,basis,canvas);
+  const inPreview=pixel.x>=0&&pixel.x<=canvas.width&&pixel.y>=0&&pixel.y<=canvas.height;
+  if(!inPreview)origin.copy(probe).addScaledVector(u,-.5).addScaledVector(v,-.5);
+  const entry={axis,origin,u,v,width:canvas.width,height:canvas.height,
+   x:inPreview?pixel.x/canvas.width:.5,y:inPreview?pixel.y/canvas.height:.5};
+  openSection(entry,probe,probe.clone(),undefined,path.b.clone());
+ }
+
+ function openSection(entry,probe,originalProbe,savedView,axisEnd=null){
   const pose=savedView?.config.usProbe;
   model.updateWorldMatrix(true,true);
   const bounds=new THREE.Box3().setFromObject(model);
-  const initialFocus=bounds.getCenter(new THREE.Vector3());
-  if(bounds.isEmpty()||originalProbe.distanceTo(initialFocus)<2){
+  const initialFocus=axisEnd??bounds.getCenter(new THREE.Vector3());
+  if(bounds.isEmpty()||(!axisEnd&&originalProbe.distanceTo(initialFocus)<2)){
    throw new Error('Elige un punto a más de 2 mm del centro del modelo.');
   }
   const volumeSize=new THREE.Vector3(...volumeInfo.sizes.map((count,axis)=>count*volumeInfo.spacing[axis]));
   const volumeBounds=new THREE.Box3().setFromCenterAndSize(volumeInfo.centerRAS,volumeSize);
   entry.halfSpacing=volumeInfo.spacing[{x:0,y:1,z:2}[entry.axis]]/2;
   releaseSection();
-  session={probe,originalProbe,entry,initialFocus,volumeBounds,modelBounds:bounds,
+  session={probe,originalProbe,entry,initialFocus,axisEnd,volumeBounds,modelBounds:bounds,
    modelSize:bounds.getSize(new THREE.Vector3()).length(),...createUsModel()};
   rotation.value=pose?.rotation??rotation.defaultValue;
-  tilt.value=pose?.tilt??tilt.defaultValue;
+  tilt.disabled=offset.disabled=!!axisEnd;
+  tilt.value=axisEnd?0:pose?.tilt??tilt.defaultValue;
+  $('usTrajectoryAxis').hidden=!axisEnd;
+  $('usRepick').textContent=axisEnd?'Usar entrada manual':'Cambiar punto de entrada';
   const limit=Math.max(10,Math.min(150,Math.ceil(session.modelSize/2)));
   offset.min=-limit;
   offset.max=limit;
-  offset.value=pose?.offset??0;
+  offset.value=axisEnd?0:pose?.offset??0;
   if(pose){
    sectorMask.checked=pose.mask;
    showInfo.checked=pose.info;
@@ -3803,7 +4387,8 @@ function installUsMode(){
    originalProbe:session.originalProbe.toArray(),
    entry:{axis,origin:origin.toArray(),u:u.toArray(),v:v.toArray(),width,height,x,y},
    rotation:Number(rotation.value),tilt:Number(tilt.value),offset:Number(offset.value),
-   mask:sectorMask.checked,info:showInfo.checked,target:usTargetPoint?.toArray()??null
+   mask:sectorMask.checked,info:showInfo.checked,target:usTargetPoint?.toArray()??null,
+   ...(session.axisEnd?{axisEnd:session.axisEnd.toArray()}:{})
   };
   const view={name,notes:'',includeInPresentation:false,config};
   namedViews.push(view);
@@ -3816,30 +4401,41 @@ function installUsMode(){
   const pose=view.config.usProbe;
   const entry={...pose.entry,origin:new THREE.Vector3(...pose.entry.origin),
    u:new THREE.Vector3(...pose.entry.u),v:new THREE.Vector3(...pose.entry.v)};
-  const probe=entry.origin.clone().addScaledVector(entry.u,entry.x).addScaledVector(entry.v,entry.y);
-  openSection(entry,probe,new THREE.Vector3(...pose.originalProbe),view);
+  const originalProbe=new THREE.Vector3(...pose.originalProbe);
+  const axisEnd=pose.axisEnd?new THREE.Vector3(...pose.axisEnd):null;
+  const probe=axisEnd?originalProbe.clone():entry.origin.clone().addScaledVector(entry.u,entry.x).addScaledVector(entry.v,entry.y);
+  openSection(entry,probe,originalProbe,view,axisEnd);
   if(pose.target!==undefined){
    usTargetPoint=pose.target?new THREE.Vector3(...pose.target):null;
+   usTargetPath=null;
+   if(usTargetPoint&&axisEnd&&trajectory&&trajectory.a.equals(originalProbe)&&trajectory.b.equals(axisEnd)){
+    usTargetPath={trajectory,fraction:trajectoryFraction(trajectory,usTargetPoint)};
+   }
    repaintAll();
   }
  }
  for(const axis of ['x','y','z'])$('ct'+axis).addEventListener('click',event=>chooseEntryPoint(axis,event));
  for(const input of [rotation,offset,tilt])input.addEventListener('input',scheduleCut);
  for(const input of [sectorMask,showInfo,$('showCross')])input.addEventListener('change',scheduleCut);
- $('usClearTarget').onclick=()=>{
+ function clearUsTarget(){
   usTargetPoint=null;
+  usTargetPath=null;
   repaintAll();
   scheduleCut();
- };
+ }
+ $('usClearTarget').onclick=clearUsTarget;
  $('usRepick').onclick=()=>{
+  usTargetPath=null;
   dialog.close();
   setTool('us');
+  $('toolHint').textContent='Para elegir una entrada manual, pulsa un corte fuera de la trayectoria.';
  };
  dialog.addEventListener('close',()=>{if(!dialog.open)releaseSection()});
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&['us','usTarget'].includes(activeTool))setTool('navigate');
  });
- return {restorePosition};
+ return {restorePosition,openTrajectory};
 }
 const usMode=installUsMode();
+document.querySelectorAll('input[type="range"]').forEach(addRangeStepper);
 </script></body></html>
