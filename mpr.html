@@ -143,7 +143,7 @@ body.mobile-presentation #presentationStatus:empty{display:none}
 }
 #headerUsMode[aria-pressed="true"]{background:#147f8c;border-color:#91efdc}
 #headerUsMode:focus-visible{outline:2px solid #91efdc;outline-offset:2px}
-#headerUsMode svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+#headerUsMode svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}
 #toggleGeneralPanel svg,#togglePaneHeaders svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.6}
 #toggleGeneralPanel:focus-visible,#togglePaneHeaders:focus-visible{outline:2px solid #91efdc;outline-offset:2px}
 #toggleGeneralPanel[aria-expanded="false"],#togglePaneHeaders[aria-expanded="false"]{background:#102233}
@@ -246,15 +246,46 @@ body.panel-folded:not(.mobile-presentation) .pane.maximized{
 #usDialog::backdrop{background:#06101bdc}
 .us-heading,.us-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .us-heading h2{margin:0;font-size:17px}
+.us-saved-positions{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin:6px 0}
+#usSavePosition{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+#usPositionNoteForm:not([hidden]){display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:4px 6px;margin-top:8px}
+#usPositionNoteForm label{grid-column:1/-1}
+#usPositionNoteForm button{margin:0;align-self:start}
+#usPositionNoteForm label{font-size:12px;font-weight:600}
+#usPositionNote{width:100%;min-width:0;resize:vertical}
+.us-saved-positions input{max-width:min(220px,100%)}
+.us-position-panel{flex:0 1 300px;min-width:0;max-width:100%}
+.us-position-panel h3{margin:0 0 4px;font-size:12px}
+#usPositionList{
+ --us-position-row-height:27px;--us-position-row-gap:4px;
+ list-style:none;margin:0;padding:0;display:grid;
+ grid-auto-rows:var(--us-position-row-height);gap:var(--us-position-row-gap);
+ max-height:calc(3 * var(--us-position-row-height) + 2 * var(--us-position-row-gap));
+ overflow-y:auto;
+ color-scheme:dark;scrollbar-color:#52758b #0d1d2b;scrollbar-width:thin;
+}
+@media(pointer:coarse),(max-width:540px){
+ #usPositionList{--us-position-row-height:44px}
+}
+#usPositionList li{min-width:0}
+#usPositionList .named-view-open{
+ display:block;width:100%;height:100%;margin:0;padding:4px 8px;
+ border:1px solid #405c73;border-radius:8px;background:#153044;
+ text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#usPositionList .named-view-open:hover{background:#29465d}
+#usPositionList .named-view-open[aria-current=true]{background:#263d4a;border-color:#f2bd67}
+#usPositionList .saved-view-icon{margin-right:6px;color:#f2bd67}
+#usPositionEmpty{margin:0}
 #usProbeDrag{
  display:inline-grid;place-items:center;width:40px;height:36px;padding:0;
  background:#154451;border:1px solid #58a6b7;cursor:grab;touch-action:none;user-select:none;
 }
 #usProbeDrag.is-dragging{background:#147f8c;border-color:#91efdc}
 html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog::backdrop{
- cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cpath%20d%3D%22M12%202h8v10c0%202%201%203%203%205l4%205v4Q16%2033%205%2026v-4l4-5c2-2%203-3%203-5Z%22%20fill%3D%22%23e5faff%22%20stroke%3D%22%23081521%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M6%2024Q16%2030%2026%2024%22%20fill%3D%22none%22%20stroke%3D%22%23147f8c%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fsvg%3E") 16 29,grabbing!important;
+ cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cg%20stroke%3D%22%23081521%22%20stroke-width%3D%224%22%3E%3Cpath%20d%3D%22M10%204q8-6%2016%200M13%207q5-4%2010%200M16%2010q2-2%204%200%22%2F%3E%3Cpath%20d%3D%22M11%2014q7-6%2014%200v4q0%203-3%205-1%201-1%203v2a3%203%200%200%201-6%200v-2q0-2-1-3-3-2-3-5zM11%2017q7-5%2014%200M18%2025v3M18%2031C12%2034%2012%2023%207%2024c-3%200-4%203-4%205%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%23e5faff%22%20stroke-width%3D%221.9%22%3E%3Cpath%20d%3D%22M10%204q8-6%2016%200M13%207q5-4%2010%200M16%2010q2-2%204%200%22%2F%3E%3Cpath%20d%3D%22M11%2014q7-6%2014%200v4q0%203-3%205-1%201-1%203v2a3%203%200%200%201-6%200v-2q0-2-1-3-3-2-3-5zM11%2017q7-5%2014%200M18%2025v3M18%2031C12%2034%2012%2023%207%2024c-3%200-4%203-4%205%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 18 14,grabbing!important;
 }
-#usProbeDrag svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+#usProbeDrag svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linejoin:round;stroke-linecap:round}
 @media(pointer:coarse){#usProbeDrag{width:44px;height:44px}}
 
 .us-controls,.us-panels{display:grid;gap:10px}
@@ -271,13 +302,24 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 }
 .us-orientation{margin:0;font-size:11px;color:#adcad8}
 .us-orientation canvas{width:100%}
-#usDialog .us-preview-maximized{
- position:fixed;inset:12px;z-index:2;display:grid;grid-template-rows:auto minmax(0,1fr);
- gap:8px;padding:12px;background:#102233;border:1px solid #42778b;border-radius:8px;
+#usDialog figure.us-preview-maximized{
+ --preview-top:max(8px,env(safe-area-inset-top));
+ --preview-right:max(8px,env(safe-area-inset-right));
+ --preview-bottom:max(8px,env(safe-area-inset-bottom));
+ --preview-left:max(8px,env(safe-area-inset-left));
+ position:fixed;inset:var(--preview-top) var(--preview-right) var(--preview-bottom) var(--preview-left);
+ z-index:2;margin:0;grid-area:auto;align-self:auto;
+ max-width:calc(100dvw - var(--preview-left) - var(--preview-right));
+ max-height:calc(100dvh - var(--preview-top) - var(--preview-bottom));
+ display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);
+ overflow:hidden;gap:8px;padding:12px;background:#102233;border:1px solid #42778b;border-radius:8px;
  box-shadow:0 0 0 100vmax #06101bdc;
 }
 #usDialog .us-preview-maximized.us-entry-preview{grid-template-rows:auto minmax(0,1fr) auto}
-#usDialog .us-preview-maximized canvas{width:100%;height:100%;min-height:0;max-width:100%}
+#usDialog .us-preview-maximized canvas{
+ width:100%;height:100%;min-width:0;min-height:0;max-width:100%;max-height:100%;
+ margin:0;object-fit:contain;
+}
 .us-orientation canvas:active{cursor:grabbing}
 .us-orientation canvas:focus-visible{outline:2px solid #91efdc;outline-offset:2px}
 .us-panels{flex:1;min-height:240px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:minmax(0,1fr)}
@@ -295,9 +337,12 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 :is(#usRotation,#usTilt,#usOffset)::-moz-range-track{block-size:6px;border-radius:3px;background:var(--us-rotation-track)}
 :is(#usRotation,#usTilt,#usOffset)::-webkit-slider-thumb{appearance:none;width:16px;height:16px;margin-block-start:-5px;border-radius:50%;background:#e5faff}
 :is(#usRotation,#usTilt,#usOffset)::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#e5faff}
-.us-secondary-controls{display:flex;flex-wrap:wrap;align-items:start;gap:6px 12px;margin-top:6px}
-.us-secondary-controls .us-mask-toggle{margin:0 0 5px}
-.us-motion-group{display:grid;grid-template-columns:auto minmax(0,250px);align-items:center;gap:10px;width:min(100%,324px);margin-left:auto}
+.us-save-column{min-width:0}
+.us-position-options{margin-top:12px}
+.us-position-options .us-mask-toggle{margin:0 0 5px}
+.us-position-options .note{margin:8px 0 0}
+#usPositionMessage:empty{display:none}
+.us-motion-group{display:grid;grid-template-columns:auto minmax(0,250px);align-items:center;gap:10px;width:min(100%,324px);margin:6px 0 0 auto}
 .us-motion-controls{display:grid;gap:6px;min-width:0}
 .us-range-directions{display:flex;justify-content:space-between;color:#adcad8;font-size:11px}
 .us-controls output{white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -306,6 +351,27 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 .us-panels canvas{display:block;width:100%;height:100%;min-height:0;object-fit:contain;background:#080e16;border:1px solid #254256}
 .us-mask-toggle{display:flex;align-items:center;gap:6px;margin:8px 0}
 #usError:empty{display:none}
+@media(min-width:1650px){
+ #usDialog[open]{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 324px 300px 360px;
+  grid-template-rows:auto auto minmax(240px,1fr) auto;
+  column-gap:10px;
+ }
+ #usDialog .us-heading{grid-area:1/1/2/-1}
+ #usDialog .us-saved-positions{grid-area:2/1;align-self:start}
+ #usDialog .us-controls{display:contents}
+ #usDialog .us-save-column{flex:0 1 min(324px,calc(50% - 5px))}
+ #usDialog .us-position-panel{flex-basis:min(300px,calc(50% - 5px))}
+ #usDialog :is(.us-motion-group,.us-entry-preview,.us-orientation){
+  grid-row:2;align-self:start;margin-top:6px;
+ }
+ #usDialog .us-motion-group{grid-column:2}
+ #usDialog .us-entry-preview{grid-column:3}
+ #usDialog .us-orientation{grid-column:4}
+ #usDialog .us-panels{grid-area:3/1/4/-1}
+ #usError{grid-area:4/1/5/-1}
+}
 @media(max-width:540px){
  .us-panels{flex:none;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto}
  .us-panels canvas{height:auto;max-height:58dvh}
@@ -313,7 +379,7 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
 }
 </style></head><body>
 <header id="viewerHeader"><a class="manual-link" href="manual/index.html" target="_blank" rel="noopener" title="Abrir manual práctico">ⓘ Manual</a><div class="viewer-header-main"><strong>Visor MPR · v2</strong><button type="button" id="toggleGeneralPanel" aria-controls="generalPanel" aria-expanded="true" aria-label="Plegar panel general" title="Plegar panel general"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M8 3v14"/></svg></button> <button type="button" id="togglePaneHeaders" aria-expanded="true" aria-label="Contraer cabeceros de las vistas" title="Contraer cabeceros de las vistas"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="2" y="3" width="16" height="14" rx="2"/><path d="M2 8h16m-11 5 3-2 3 2"/></svg></button> <button type="button" id="headerUsMode" data-tool="us" aria-pressed="false" aria-label="Modo US" title="Modo US">
- <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 2h8v10c0 2 1 3 3 5l4 5v4Q16 33 5 26v-4l4-5c2-2 3-3 3-5Z"/><path d="M6 24Q16 30 26 24"/></svg>
+ <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 4q8-6 16 0M13 7q5-4 10 0M16 10q2-2 4 0"/><path d="M11 14q7-6 14 0v4q0 3-3 5-1 1-1 3v2a3 3 0 0 1-6 0v-2q0-2-1-3-3-2-3-5zM11 17q7-5 14 0M18 25v3M18 31C12 34 12 23 7 24c-3 0-4 3-4 5"/></svg>
 </button> <span id="headerPresentationControls" role="group" aria-label="Controles de presentación" hidden>
  <button type="button" id="headerPresentationPrev" aria-label="Vista anterior" title="Vista anterior"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 4 6 8l4 4"/></svg></button>
  <button type="button" id="headerPresentationNext" aria-label="Vista siguiente" title="Vista siguiente"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 4l4 4-4 4"/></svg></button>
@@ -374,27 +440,45 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
   <h2 id="usTitle">Modo US</h2>
   <div class="us-actions">
    <button type="button" id="usProbeDrag" title="Mantén pulsado y arrastra: horizontal para girar, vertical para inclinar" aria-label="Control de sonda: mantén pulsado y arrastra en horizontal para girar y en vertical para inclinar">
-    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M12 2h8v10c0 2 1 3 3 5l4 5v4Q16 33 5 26v-4l4-5c2-2 3-3 3-5Z"/><path d="M6 24Q16 30 26 24"/></svg>
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 4q8-6 16 0M13 7q5-4 10 0M16 10q2-2 4 0"/><path d="M11 14q7-6 14 0v4q0 3-3 5-1 1-1 3v2a3 3 0 0 1-6 0v-2q0-2-1-3-3-2-3-5zM11 17q7-5 14 0M18 25v3M18 31C12 34 12 23 7 24c-3 0-4 3-4 5"/></svg>
    </button>
    <button type="button" id="usRepick">Cambiar punto de entrada</button>
    <form method="dialog"><button>Cerrar</button></form>
   </div>
  </div>
- <div class="us-controls">
-  <div class="us-secondary-controls">
-   <div>
+ <div class="us-saved-positions">
+  <div class="us-save-column">
+   <form id="usSavePosition">
+    <input type="text" id="usPositionName" maxlength="100" placeholder="Nombre de la posición" aria-label="Nombre de la posición de la sonda" required>
+    <button>Guardar posición</button>
+   </form>
+   <div class="us-position-options">
     <label class="us-mask-toggle"><input type="checkbox" id="usSectorMask" checked> Máscara en abanico</label>
     <label class="us-mask-toggle"><input type="checkbox" id="usShowInfo" checked> Mostrar información en la imagen</label>
     <p class="note" id="usDepth"></p>
    </div>
-   <div class="us-motion-group">
-    <div class="us-focus-control">
-     <label for="usOffset" title="Inclina el abanico desde el punto de entrada. El valor indica el desplazamiento del extremo profundo.">Enfoque</label>
-     <span aria-hidden="true">Sup</span>
-     <input type="range" id="usOffset" min="-100" max="100" value="0" step="1" aria-orientation="vertical">
-     <span aria-hidden="true">Inf</span>
-     <output id="usOffsetValue" for="usOffset">0 mm</output>
-    </div>
+  </div>
+  <section class="us-position-panel" aria-labelledby="usPositionTitle">
+   <h3 id="usPositionTitle">Posiciones guardadas</h3>
+   <p class="note" id="usPositionEmpty">Sin posiciones guardadas.</p>
+   <ul id="usPositionList" aria-labelledby="usPositionTitle"></ul>
+   <form id="usPositionNoteForm" hidden>
+    <label for="usPositionNote">Anotación de la vista seleccionada</label>
+    <textarea id="usPositionNote" rows="2" maxlength="3000"></textarea>
+    <button>Guardar anotación</button>
+   </form>
+  </section>
+  <span class="note" id="usPositionMessage" role="status"></span>
+ </div>
+ <div class="us-controls">
+  <div class="us-motion-group">
+   <div class="us-focus-control">
+    <label for="usOffset" title="Inclina el abanico desde el punto de entrada. El valor indica el desplazamiento del extremo profundo.">Enfoque</label>
+    <span aria-hidden="true">Sup</span>
+    <input type="range" id="usOffset" min="-100" max="100" value="0" step="1" aria-orientation="vertical">
+    <span aria-hidden="true">Inf</span>
+    <output id="usOffsetValue" for="usOffset">0 mm</output>
+   </div>
    <div class="us-motion-controls">
     <div>
      <label for="usRotation">Giro del plano <output id="usRotationValue" for="usRotation">180°</output></label>
@@ -406,7 +490,6 @@ html.us-probe-dragging,html.us-probe-dragging *,html.us-probe-dragging #usDialog
      <input type="range" id="usTilt" min="-15" max="15" value="0" step="1">
      <div class="us-range-directions" aria-hidden="true"><span>−15° · Izq</span><span>+15° · Dch</span></div>
     </div>
-   </div>
    </div>
   </div>
   <figure class="us-entry-preview">
@@ -1269,6 +1352,19 @@ function validateConfig(data){
  if(data.structureNamesVisible!==undefined&&typeof data.structureNamesVisible!=='boolean')throw new Error('Visibilidad de nombres inválida.');
  if(data.annotationsVisible!==undefined&&typeof data.annotationsVisible!=='boolean')throw new Error('Visibilidad de anotaciones inválida.');
  if(data.referencePoint!==null&&!vec(data.referencePoint))throw new Error('Punto de referencia inválido.');
+ if(data.usProbe!==undefined){
+  const pose=data.usProbe,entry=pose?.entry;
+  if(!entry||!['x','y','z'].includes(entry.axis)||
+    !vec(entry.origin)||!vec(entry.u)||!vec(entry.v)||!vec(pose.originalProbe)||
+    new THREE.Vector3(...entry.u).cross(new THREE.Vector3(...entry.v)).lengthSq()<1e-12||
+    !Number.isInteger(entry.width)||!finite(entry.width,1,1e6)||
+    !Number.isInteger(entry.height)||!finite(entry.height,1,1e6)||
+    !finite(entry.x,0,1)||!finite(entry.y,0,1)||
+    !finite(pose.rotation,0,360)||!finite(pose.tilt,-15,15)||!finite(pose.offset,-150,150)||
+    typeof pose.mask!=='boolean'||typeof pose.info!=='boolean'){
+   throw new Error('Posición de la sonda inválida.');
+  }
+ }
 }
 function restoreConfig(data,{applyTree=true}={}){
  validateConfig(data);finishPresentationCamera();clipRotation=data.clipRotation?new THREE.Quaternion(...data.clipRotation):new THREE.Quaternion();obliqueShift=data.oblique?.shift?new THREE.Vector3(...data.oblique.shift):new THREE.Vector3();obliquePivot=data.oblique?new THREE.Vector3(...data.oblique.pivot):null;obliqueRotation=data.oblique?new THREE.Quaternion(...data.oblique.rotation):new THREE.Quaternion();if(applyTree){if(data.structureNodes!==undefined)applyNodes(data.structureNodes);else if(data.structureGroups!==undefined)applyHierarchy(data.structureGroups,data.structureRelations||[]);}isolationSnapshot=null;batchRestore=true;try{const flagIds=['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'];pendingMeasure=null;selectedWorldPoint=data.referencePoint?new THREE.Vector3(...data.referencePoint):null;if(selectedWorldPoint)navMarker.position.copy(selectedWorldPoint);selectStructure(null);setWindow(...data.window);for(const a of ['x','y','z']){Object.assign(viewStates[a],data.views[a]);viewAppliers[a]();$('r'+a).value=data.slices[a]}
@@ -1303,7 +1399,7 @@ function updateActiveViewNote(){
  $('activeViewNoteText').value=activeNamedView?.notes||'';
 }
 function presentationViews(){
- return namedViews.filter(view => view.includeInPresentation !== false);
+ return namedViews.filter(view => !view.config.usProbe && view.includeInPresentation !== false);
 }
 function refreshPresentationStart(){
  const included=presentationViews();
@@ -1334,6 +1430,33 @@ function reorderNamedView(view, target, after){
  persistNamedViews({refreshRows:false});
  return true;
 }
+function openNamedView(view){
+ restoreConfig(structuredClone(view.config));
+ if(view.config.usProbe)usMode.restorePosition(view);
+ activeNamedView=view;
+ $('newNamedView').open=false;
+ updateActiveViewNote();
+ for(const row of $('namedViewList').querySelectorAll('.named-view-open')){
+  row.setAttribute('aria-current',String(row.title==='Recuperar '+view.name));
+ }
+ $('namedViewName').value=view.name;
+ $('namedViewNotes').value=view.notes||'';
+ $('namedViewMessage').textContent='Vista recuperada: '+view.name;
+}
+function makeSavedViewButton(view,label,current){
+ const button=document.createElement('button');
+ button.className='named-view-open';
+ button.type='button';
+ button.title='Recuperar '+view.name;
+ button.setAttribute('aria-label','Recuperar '+label+' '+view.name);
+ button.setAttribute('aria-current',String(current));
+ const icon=document.createElement('span');
+ icon.className='saved-view-icon';
+ icon.setAttribute('aria-hidden','true');
+ icon.textContent=view.config.usProbe?'US':'▦';
+ button.append(icon,document.createTextNode(view.name));
+ return button;
+}
 function renderNamedViews(){
  let draggedView=null;
 
@@ -1342,12 +1465,15 @@ function renderNamedViews(){
  $('namedViewList').replaceChildren();$('addNamedView').disabled=!namedCaseKey;$('exportNamedViews').disabled=!namedViews.length;$('undoDeleteView').disabled=!deletedView;
  $('namedViewEmpty').textContent=!namedCaseKey?'Carga el volumen y el modelo GLB para guardar las vistas de este caso.':namedViews.length?'':'Todavía no hay vistas guardadas para este caso.';
  for(const view of namedViews){
- const row=document.createElement('div');row.className='named-view-row';const open=document.createElement('button');open.className='named-view-open';open.type='button';const icon=document.createElement('span');icon.className='saved-view-icon';icon.setAttribute('aria-hidden','true');icon.textContent='▦';open.append(icon,document.createTextNode(view.name));open.title='Recuperar '+view.name;open.setAttribute('aria-label','Recuperar vista '+view.name);
- open.setAttribute('aria-current',String(view===activeNamedView));
- open.onclick=()=>{try{restoreConfig(structuredClone(view.config));activeNamedView=view;$('newNamedView').open=false;updateActiveViewNote();for(const label of $('namedViewList').querySelectorAll('.named-view-open'))label.setAttribute('aria-current',String(label===open));$('namedViewName').value=view.name;$('namedViewNotes').value=view.notes||'';$('namedViewMessage').textContent='Vista recuperada: '+view.name}catch(e){$('namedViewMessage').textContent=e.message}};
+ const row=document.createElement('div');row.className='named-view-row';
+ const open=makeSavedViewButton(view,'vista',view===activeNamedView);
+ open.onclick=()=>{
+  try{openNamedView(view)}
+  catch(error){$('namedViewMessage').textContent=error.message}
+ };
  const actions=document.createElement('div');actions.className='named-view-actions';
  for(const [label,action] of [
- ['Actualizar',()=>{const name=nameInput.value.trim();if(!name)throw new Error('Escribe un nombre para la vista.');if(namedViews.some(v=>v!==view&&v.name===name))throw new Error('Ya existe una vista con ese nombre.');const config=structuredClone(configData());Object.assign(view,{name,notes:note.value,config});persistNamedViews();$('namedViewMessage').textContent='Vista actualizada: '+view.name}],
+ ['Actualizar',()=>{const name=nameInput.value.trim();if(!name)throw new Error('Escribe un nombre para la vista.');if(namedViews.some(v=>v!==view&&v.name===name))throw new Error('Ya existe una vista con ese nombre.');const config=structuredClone(configData());if(view.config.usProbe)config.usProbe=view.config.usProbe;Object.assign(view,{name,notes:note.value,config});persistNamedViews();$('namedViewMessage').textContent='Vista actualizada: '+view.name}],
  ['Eliminar',()=>{if(activeNamedView===view)activeNamedView=null;deletedView={view,index:namedViews.indexOf(view)};namedViews=namedViews.filter(v=>v!==view);persistNamedViews()}]
  ]){const b=document.createElement('button');b.type='button';b.textContent=label;b.className=label==='Eliminar'?'view-action-delete':'view-action-secondary';b.onclick=()=>{try{action()}catch(e){$('namedViewMessage').textContent=e.message}};actions.append(b)}
  const nameLabel=document.createElement('label');nameLabel.className='view-note-label';nameLabel.textContent='Nombre de la vista';
@@ -1364,7 +1490,8 @@ function renderNamedViews(){
  const presentationLabel=document.createElement('label');
  const includeInPresentation=document.createElement('input');
  includeInPresentation.type='checkbox';
- includeInPresentation.checked=view.includeInPresentation!==false;
+ includeInPresentation.checked=!view.config.usProbe&&view.includeInPresentation!==false;
+ presentationLabel.hidden=!!view.config.usProbe;
  function updatePresentationOutline(){
   row.classList.toggle('is-presentation-view',includeInPresentation.checked);
   const context=includeInPresentation.checked ? '. Incluida en presentación' : '';
@@ -2771,6 +2898,12 @@ function installUsMode(){
  const tilt=$('usTilt');
  const offset=$('usOffset');
  const probeDragButton=$('usProbeDrag');
+ const positionList=$('usPositionList');
+ const positionNoteForm=$('usPositionNoteForm');
+ const positionNote=$('usPositionNote');
+ let positionForNote=null;
+ const positionName=$('usPositionName');
+ const positionMessage=$('usPositionMessage');
  const entryCanvas=$('usEntryCanvas'),orientationCanvas=$('usOrientation');
  const entryImage=document.createElement('canvas');
  let entryDrag=null;
@@ -2907,26 +3040,23 @@ function installUsMode(){
  );
 
  function drawUsProbe(ctx,project,lineWidth){
-  function path(start,segments,stroke,fill){
-   ctx.beginPath();
-   ctx.moveTo(...project(...start));
-   for(const segment of segments){
-    if(segment.length===2)ctx.lineTo(...project(...segment));
-    else ctx.quadraticCurveTo(...project(segment[0],segment[1]),...project(segment[2],segment[3]));
-   }
-   if(fill){ctx.closePath();ctx.fillStyle=fill;ctx.fill();}
-   ctx.strokeStyle=stroke;ctx.stroke();
-  }
   ctx.save();
-  ctx.lineJoin='round';ctx.lineCap='round';
-  ctx.lineWidth=2.8*lineWidth;
-  path([0,-42],[[0,-54,8,-61]],'#92a9be');
-  ctx.lineWidth=lineWidth;
-  path([-7,-45],[[0,-48,7,-45],[10,-30],[11,-23,18,-19],
-   [28,-14,29,-9],[27,-4],[0,4,-27,-4],[-29,-9],
-   [-28,-14,-18,-19],[-11,-23,-10,-30],[-7,-45]],'#a7c3d6','#e6f3fb');
-  path([-29,-9],[[0,-2,29,-9],[27,-4],[0,4,-27,-4],[-29,-9]],'#9cdad6','#174654');
-  path([-4,-40],[[-6,-31,-7,-26]],'#7297ae');
+  ctx.lineJoin='round';
+  ctx.lineWidth=1.5*lineWidth;
+  ctx.fillStyle='#7948b8';
+  ctx.strokeStyle='#e6cbff';
+  ctx.beginPath();
+  ctx.moveTo(...project(-6,-49));
+  ctx.lineTo(...project(6,-49));
+  ctx.lineTo(...project(8,-22));
+  ctx.lineTo(...project(21,-9));
+  ctx.lineTo(...project(21,-4));
+  ctx.quadraticCurveTo(...project(0,4),...project(-21,-4));
+  ctx.lineTo(...project(-21,-9));
+  ctx.lineTo(...project(-8,-22));
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
   ctx.restore();
  }
 
@@ -3475,33 +3605,114 @@ function installUsMode(){
   const p=pointOnCanvas(event,axis);
   if(p.x<0||p.y<0||p.x>canvas.width||p.y>canvas.height)return;
   const probe=pixelToWorld(axis,p.x,p.y,canvas);
+  const origin=pixelToWorld(axis,0,0,canvas);
+  const entry={axis,origin,width:canvas.width,height:canvas.height,
+   x:p.x/canvas.width,y:p.y/canvas.height,
+   u:pixelToWorld(axis,canvas.width,0,canvas).sub(origin),
+   v:pixelToWorld(axis,0,canvas.height,canvas).sub(origin)};
+  try{
+   openSection(entry,probe,probe.clone());
+  }catch(error){
+   $('toolHint').textContent=error.message;
+  }
+ }
+
+ function openSection(entry,probe,originalProbe,savedView){
+  const pose=savedView?.config.usProbe;
   model.updateWorldMatrix(true,true);
   const bounds=new THREE.Box3().setFromObject(model);
   const initialFocus=bounds.getCenter(new THREE.Vector3());
-  if(bounds.isEmpty()||probe.distanceTo(initialFocus)<2){
-   $('toolHint').textContent='Elige un punto a más de 2 mm del centro del modelo.';
-   return;
+  if(bounds.isEmpty()||originalProbe.distanceTo(initialFocus)<2){
+   throw new Error('Elige un punto a más de 2 mm del centro del modelo.');
   }
-  releaseSection();
   const volumeSize=new THREE.Vector3(...volumeInfo.sizes.map((count,axis)=>count*volumeInfo.spacing[axis]));
   const volumeBounds=new THREE.Box3().setFromCenterAndSize(volumeInfo.centerRAS,volumeSize);
-  const origin=pixelToWorld(axis,0,0,canvas);
-  const entry={axis,origin,halfSpacing:volumeInfo.spacing[{x:0,y:1,z:2}[axis]]/2,
-   width:canvas.width,height:canvas.height,x:p.x/canvas.width,y:p.y/canvas.height,
-   u:pixelToWorld(axis,canvas.width,0,canvas).sub(origin),
-   v:pixelToWorld(axis,0,canvas.height,canvas).sub(origin)};
-  session={probe,originalProbe:probe.clone(),entry,initialFocus,volumeBounds,modelBounds:bounds,modelSize:bounds.getSize(new THREE.Vector3()).length(),...createUsModel()};
-  rotation.value=rotation.defaultValue;
-  tilt.value=tilt.defaultValue;
+  entry.halfSpacing=volumeInfo.spacing[{x:0,y:1,z:2}[entry.axis]]/2;
+  releaseSection();
+  session={probe,originalProbe,entry,initialFocus,volumeBounds,modelBounds:bounds,
+   modelSize:bounds.getSize(new THREE.Vector3()).length(),...createUsModel()};
+  rotation.value=pose?.rotation??rotation.defaultValue;
+  tilt.value=pose?.tilt??tilt.defaultValue;
   const limit=Math.max(10,Math.min(150,Math.ceil(session.modelSize/2)));
   offset.min=-limit;
   offset.max=limit;
-  offset.value=0;
+  offset.value=pose?.offset??0;
+  if(pose){
+   sectorMask.checked=pose.mask;
+   showInfo.checked=pose.info;
+  }
   prepareEntryPreview(entry);
   lastUsEntryPoint=probe.clone();
+  repaintAll();
   setTool('navigate');
-  dialog.showModal();
+  positionName.value='';
+  positionMessage.textContent='';
+  renderSavedPositions(savedView);
+  if(!dialog.open)dialog.showModal();
   scheduleCut();
+ }
+
+ function renderSavedPositions(selected){
+  positionForNote=selected??null;
+  positionNoteForm.hidden=!positionForNote;
+  positionNote.value=positionForNote?.notes||'';
+  const positions=namedViews.filter(view=>view.config.usProbe);
+  $('usPositionEmpty').hidden=positions.length>0;
+  positionList.replaceChildren(...positions.map(view=>{
+   const row=document.createElement('li');
+   const button=makeSavedViewButton(view,'posición',view===selected);
+   button.onclick=()=>{
+    try{
+     openNamedView(view);
+     positionList.querySelector('[aria-current="true"]')?.focus();
+     positionMessage.textContent='Posición recuperada: '+view.name;
+    }catch(error){
+     positionMessage.textContent=error.message;
+    }
+   };
+   row.append(button);
+   return row;
+  }));
+ }
+
+ positionNoteForm.onsubmit=event=>{
+  event.preventDefault();
+  if(!session||!namedViews.includes(positionForNote))return;
+  positionForNote.notes=positionNote.value.slice(0,3000);
+  persistNamedViews();
+  positionMessage.textContent=$('namedViewMessage').textContent;
+ };
+
+ $('usSavePosition').onsubmit=event=>{
+  event.preventDefault();
+  if(!session||!namedCaseKey)return;
+  const name=positionName.value.trim();
+  if(!name||namedViews.some(view=>view.name===name)||namedViews.length>=100){
+   positionMessage.textContent=!name?'Escribe un nombre.':namedViews.length>=100?
+    'Máximo de 100 vistas por caso.':'Ya existe una vista con ese nombre.';
+   return;
+  }
+  const {axis,origin,u,v,width,height,x,y}=session.entry;
+  const config=structuredClone(configData());
+  config.usProbe={
+   originalProbe:session.originalProbe.toArray(),
+   entry:{axis,origin:origin.toArray(),u:u.toArray(),v:v.toArray(),width,height,x,y},
+   rotation:Number(rotation.value),tilt:Number(tilt.value),offset:Number(offset.value),
+   mask:sectorMask.checked,info:showInfo.checked
+  };
+  const view={name,notes:'',includeInPresentation:false,config};
+  namedViews.push(view);
+  persistNamedViews();
+  renderSavedPositions(view);
+  positionName.value='';
+  positionMessage.textContent=$('namedViewMessage').textContent;
+ };
+ function restorePosition(view){
+  const pose=view.config.usProbe;
+  const entry={...pose.entry,origin:new THREE.Vector3(...pose.entry.origin),
+   u:new THREE.Vector3(...pose.entry.u),v:new THREE.Vector3(...pose.entry.v)};
+  const probe=entry.origin.clone().addScaledVector(entry.u,entry.x).addScaledVector(entry.v,entry.y);
+  openSection(entry,probe,new THREE.Vector3(...pose.originalProbe),view);
  }
  for(const axis of ['x','y','z'])$('ct'+axis).addEventListener('click',event=>chooseEntryPoint(axis,event));
  for(const input of [rotation,offset,tilt])input.addEventListener('input',scheduleCut);
@@ -3510,10 +3721,11 @@ function installUsMode(){
   dialog.close();
   setTool('us');
  };
- dialog.addEventListener('close',releaseSection);
+ dialog.addEventListener('close',()=>{if(!dialog.open)releaseSection()});
  document.addEventListener('keydown',event=>{
   if(event.key==='Escape'&&activeTool==='us')setTool('navigate');
  });
+ return {restorePosition};
 }
-installUsMode();
+const usMode=installUsMode();
 </script></body></html>
