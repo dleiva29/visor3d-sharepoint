@@ -1,0 +1,1807 @@
+{
+  "format": "mpr-named-views",
+  "version": 1,
+  "caseKey": "mpr-named-views-v1:99a43eee15523ee5cd996739439b57944a162a479aa43eb9cfd963e2100d3002:0443607b92298288e5d90772a5726fe5462842b5d4ce1904f62db0dec67ae6b7",
+  "views": [
+    {
+      "name": "1",
+      "notes": "",
+      "includeInPresentation": false,
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": null,
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            491
+          ],
+          "origin": [
+            207.59769999999997,
+            209.5508,
+            1377
+          ],
+          "structures": [
+            "Hígado",
+            "Porta",
+            "s1",
+            "s2",
+            "s3",
+            "s4",
+            "s5",
+            "s6",
+            "s7",
+            "s8",
+            "Tumor",
+            "Venas_Suprahepáticas"
+          ]
+        },
+        "referencePoint": null,
+        "measurements": [],
+        "trajectory": {
+          "a": [
+            -52.88329041533672,
+            18.14891501597606,
+            1696
+          ],
+          "b": [
+            -97.14757156549611,
+            -149.5188166134155,
+            1622
+          ]
+        },
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": false,
+        "structureNodes": [
+          {
+            "id": "d553a576-1924-4ed4-9ded-59dbf8d22e9e",
+            "type": "group",
+            "name": "LHD",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "33262730-32b6-4a3e-9124-9c2d88ee44bb",
+            "type": "group",
+            "name": "Anatomía",
+            "parent": null
+          },
+          {
+            "id": "bdab6fc7-2de3-4212-8b52-16deaa9baacb",
+            "type": "group",
+            "name": "LHI",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "63276eea-45e6-4eb2-bca1-79e6016f3b02",
+            "type": "segment",
+            "key": "s5",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "dbbde511-b0e7-45c4-97b6-307756bc85da",
+            "type": "segment",
+            "key": "s6",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "533575fa-cf7d-453c-a047-be721546e13b",
+            "type": "segment",
+            "key": "s7",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "7e26e600-e5c6-4dbc-b098-485c425f8a1c",
+            "type": "segment",
+            "key": "s8",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "3bbf314b-dad0-4924-b9d0-c0fe2538d664",
+            "type": "segment",
+            "key": "s1",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "b271ea28-359c-4266-b1b0-0a1c4420fe57",
+            "type": "segment",
+            "key": "s2",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "f0d3d898-0f30-4a72-8eaa-ec50e70ae6b6",
+            "type": "segment",
+            "key": "s3",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "50be8090-745d-4032-817e-4e610b1633f9",
+            "type": "segment",
+            "key": "s4",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            219.37009448792713,
+            91.00542584402062,
+            2211.5977468136
+          ],
+          "up": [
+            -0.4904985465177429,
+            0.34760404960538027,
+            0.799113634323631
+          ],
+          "target": [
+            -1.9122999999999877,
+            0.04080000000004702,
+            1622
+          ],
+          "near": 0.7704623579708485,
+          "far": 77046.23579708485
+        },
+        "slices": {
+          "x": 209,
+          "y": 209,
+          "z": 319
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "x",
+        "clipPosition": 100,
+        "layers": [
+          {
+            "key": "Hígado",
+            "visible": false,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Porta",
+            "visible": true,
+            "color": "#ad61ea",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s1",
+            "visible": true,
+            "color": "#ffffff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s2",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s3",
+            "visible": true,
+            "color": "#8cb266",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s4",
+            "visible": true,
+            "color": "#8ceb2d",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s5",
+            "visible": true,
+            "color": "#70bdc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s6",
+            "visible": true,
+            "color": "#718dc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s7",
+            "visible": true,
+            "color": "#13418b",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s8",
+            "visible": true,
+            "color": "#000cb8",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Tumor",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Venas_Suprahepáticas",
+            "visible": true,
+            "color": "#0008ff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ],
+        "usProbe": {
+          "originalProbe": [
+            144.29396198082776,
+            94.6054006389786,
+            1696
+          ],
+          "entry": {
+            "axis": "z",
+            "origin": [
+              208.0076999999966,
+              209.9608,
+              1696
+            ],
+            "u": [
+              -419.8399999999965,
+              0,
+              0
+            ],
+            "v": [
+              0,
+              -419.8399999999965,
+              0
+            ],
+            "width": 419,
+            "height": 419,
+            "x": 0.18859929376156045,
+            "y": 0.2273919623339499
+          },
+          "rotation": 170,
+          "tilt": 3,
+          "offset": -8,
+          "mask": true,
+          "info": true,
+          "target": null
+        }
+      }
+    },
+    {
+      "name": "3D Anterior",
+      "notes": "",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": "3d",
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            491
+          ],
+          "origin": [
+            207.59769999999997,
+            209.5508,
+            1377
+          ],
+          "structures": [
+            "Hígado",
+            "Porta",
+            "s1",
+            "s2",
+            "s3",
+            "s4",
+            "s5",
+            "s6",
+            "s7",
+            "s8",
+            "Tumor",
+            "Venas_Suprahepáticas"
+          ]
+        },
+        "referencePoint": null,
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": true,
+        "structureNodes": [
+          {
+            "id": "d553a576-1924-4ed4-9ded-59dbf8d22e9e",
+            "type": "group",
+            "name": "LHD",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "33262730-32b6-4a3e-9124-9c2d88ee44bb",
+            "type": "group",
+            "name": "Anatomía",
+            "parent": null
+          },
+          {
+            "id": "bdab6fc7-2de3-4212-8b52-16deaa9baacb",
+            "type": "group",
+            "name": "LHI",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "63276eea-45e6-4eb2-bca1-79e6016f3b02",
+            "type": "segment",
+            "key": "s5",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "dbbde511-b0e7-45c4-97b6-307756bc85da",
+            "type": "segment",
+            "key": "s6",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "533575fa-cf7d-453c-a047-be721546e13b",
+            "type": "segment",
+            "key": "s7",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "7e26e600-e5c6-4dbc-b098-485c425f8a1c",
+            "type": "segment",
+            "key": "s8",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "3bbf314b-dad0-4924-b9d0-c0fe2538d664",
+            "type": "segment",
+            "key": "s1",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "b271ea28-359c-4266-b1b0-0a1c4420fe57",
+            "type": "segment",
+            "key": "s2",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "f0d3d898-0f30-4a72-8eaa-ec50e70ae6b6",
+            "type": "segment",
+            "key": "s3",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "50be8090-745d-4032-817e-4e610b1633f9",
+            "type": "segment",
+            "key": "s4",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            230.041148077114,
+            300.92669431229376,
+            2158.32695381188
+          ],
+          "up": [
+            -0.2652626817084448,
+            -0.1419895150862653,
+            0.9536638229997049
+          ],
+          "target": [
+            -1.9122999999999877,
+            0.04080000000004702,
+            1622
+          ],
+          "near": 0.7704623579708485,
+          "far": 77046.23579708485
+        },
+        "slices": {
+          "x": 209,
+          "y": 209,
+          "z": 245
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "x",
+        "clipPosition": 100,
+        "layers": [
+          {
+            "key": "Hígado",
+            "visible": false,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Porta",
+            "visible": true,
+            "color": "#ad61ea",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s1",
+            "visible": true,
+            "color": "#ffffff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s2",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s3",
+            "visible": true,
+            "color": "#8cb266",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s4",
+            "visible": true,
+            "color": "#8ceb2d",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s5",
+            "visible": true,
+            "color": "#70bdc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s6",
+            "visible": true,
+            "color": "#718dc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s7",
+            "visible": true,
+            "color": "#13418b",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s8",
+            "visible": true,
+            "color": "#000cb8",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Tumor",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Venas_Suprahepáticas",
+            "visible": true,
+            "color": "#0008ff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ]
+      }
+    },
+    {
+      "name": "3D Posterior",
+      "notes": "",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": "3d",
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            491
+          ],
+          "origin": [
+            207.59769999999997,
+            209.5508,
+            1377
+          ],
+          "structures": [
+            "Hígado",
+            "Porta",
+            "s1",
+            "s2",
+            "s3",
+            "s4",
+            "s5",
+            "s6",
+            "s7",
+            "s8",
+            "Tumor",
+            "Venas_Suprahepáticas"
+          ]
+        },
+        "referencePoint": null,
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": true,
+        "structureNodes": [
+          {
+            "id": "d553a576-1924-4ed4-9ded-59dbf8d22e9e",
+            "type": "group",
+            "name": "LHD",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "33262730-32b6-4a3e-9124-9c2d88ee44bb",
+            "type": "group",
+            "name": "Anatomía",
+            "parent": null
+          },
+          {
+            "id": "bdab6fc7-2de3-4212-8b52-16deaa9baacb",
+            "type": "group",
+            "name": "LHI",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "63276eea-45e6-4eb2-bca1-79e6016f3b02",
+            "type": "segment",
+            "key": "s5",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "dbbde511-b0e7-45c4-97b6-307756bc85da",
+            "type": "segment",
+            "key": "s6",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "533575fa-cf7d-453c-a047-be721546e13b",
+            "type": "segment",
+            "key": "s7",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "7e26e600-e5c6-4dbc-b098-485c425f8a1c",
+            "type": "segment",
+            "key": "s8",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "3bbf314b-dad0-4924-b9d0-c0fe2538d664",
+            "type": "segment",
+            "key": "s1",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "b271ea28-359c-4266-b1b0-0a1c4420fe57",
+            "type": "segment",
+            "key": "s2",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "f0d3d898-0f30-4a72-8eaa-ec50e70ae6b6",
+            "type": "segment",
+            "key": "s3",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "50be8090-745d-4032-817e-4e610b1633f9",
+            "type": "segment",
+            "key": "s4",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            -120.95850629457416,
+            -368.65564718892284,
+            1763.4715504951473
+          ],
+          "up": [
+            0.0005097285540112682,
+            0.0036070917298143576,
+            0.9999933645110122
+          ],
+          "target": [
+            55.93319050967693,
+            16.776829957962036,
+            1761.9910836219788
+          ],
+          "near": 0.42408850328679454,
+          "far": 42408.85032867946
+        },
+        "slices": {
+          "x": 209,
+          "y": 209,
+          "z": 245
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "x",
+        "clipPosition": 100,
+        "layers": [
+          {
+            "key": "Hígado",
+            "visible": false,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Porta",
+            "visible": true,
+            "color": "#ad61ea",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s1",
+            "visible": true,
+            "color": "#ffffff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s2",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s3",
+            "visible": true,
+            "color": "#8cb266",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s4",
+            "visible": true,
+            "color": "#8ceb2d",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s5",
+            "visible": true,
+            "color": "#70bdc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s6",
+            "visible": true,
+            "color": "#718dc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s7",
+            "visible": true,
+            "color": "#13418b",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s8",
+            "visible": true,
+            "color": "#000cb8",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Tumor",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Venas_Suprahepáticas",
+            "visible": true,
+            "color": "#0008ff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ]
+      }
+    },
+    {
+      "name": "3D Recorte",
+      "notes": "",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": "3d",
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            491
+          ],
+          "origin": [
+            207.59769999999997,
+            209.5508,
+            1377
+          ],
+          "structures": [
+            "Hígado",
+            "Porta",
+            "s1",
+            "s2",
+            "s3",
+            "s4",
+            "s5",
+            "s6",
+            "s7",
+            "s8",
+            "Tumor",
+            "Venas_Suprahepáticas"
+          ]
+        },
+        "referencePoint": null,
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": true,
+        "structureNodes": [
+          {
+            "id": "d553a576-1924-4ed4-9ded-59dbf8d22e9e",
+            "type": "group",
+            "name": "LHD",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "33262730-32b6-4a3e-9124-9c2d88ee44bb",
+            "type": "group",
+            "name": "Anatomía",
+            "parent": null
+          },
+          {
+            "id": "bdab6fc7-2de3-4212-8b52-16deaa9baacb",
+            "type": "group",
+            "name": "LHI",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "63276eea-45e6-4eb2-bca1-79e6016f3b02",
+            "type": "segment",
+            "key": "s5",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "dbbde511-b0e7-45c4-97b6-307756bc85da",
+            "type": "segment",
+            "key": "s6",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "533575fa-cf7d-453c-a047-be721546e13b",
+            "type": "segment",
+            "key": "s7",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "7e26e600-e5c6-4dbc-b098-485c425f8a1c",
+            "type": "segment",
+            "key": "s8",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "3bbf314b-dad0-4924-b9d0-c0fe2538d664",
+            "type": "segment",
+            "key": "s1",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "b271ea28-359c-4266-b1b0-0a1c4420fe57",
+            "type": "segment",
+            "key": "s2",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "f0d3d898-0f30-4a72-8eaa-ec50e70ae6b6",
+            "type": "segment",
+            "key": "s3",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "50be8090-745d-4032-817e-4e610b1633f9",
+            "type": "segment",
+            "key": "s4",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            108.78395657902387,
+            247.30815079397428,
+            2220.8209422413515
+          ],
+          "up": [
+            -0.43481586297087454,
+            -0.2520877729576565,
+            0.864515424983351
+          ],
+          "target": [
+            -1.9122999999999877,
+            0.04080000000004702,
+            1622
+          ],
+          "near": 0.7704623579708485,
+          "far": 77046.23579708485
+        },
+        "slices": {
+          "x": 209,
+          "y": 209,
+          "z": 245
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": true,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "z",
+        "clipPosition": 66.67,
+        "layers": [
+          {
+            "key": "Hígado",
+            "visible": false,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Porta",
+            "visible": true,
+            "color": "#ad61ea",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s1",
+            "visible": true,
+            "color": "#ffffff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s2",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s3",
+            "visible": true,
+            "color": "#8cb266",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s4",
+            "visible": true,
+            "color": "#8ceb2d",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s5",
+            "visible": true,
+            "color": "#70bdc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s6",
+            "visible": true,
+            "color": "#718dc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s7",
+            "visible": true,
+            "color": "#13418b",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s8",
+            "visible": true,
+            "color": "#000cb8",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Tumor",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Venas_Suprahepáticas",
+            "visible": true,
+            "color": "#0008ff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tm",
+      "notes": "",
+      "includeInPresentation": false,
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": null,
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            491
+          ],
+          "origin": [
+            207.59769999999997,
+            209.5508,
+            1377
+          ],
+          "structures": [
+            "Hígado",
+            "Porta",
+            "s1",
+            "s2",
+            "s3",
+            "s4",
+            "s5",
+            "s6",
+            "s7",
+            "s8",
+            "Tumor",
+            "Venas_Suprahepáticas"
+          ]
+        },
+        "referencePoint": null,
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": false,
+        "structureNodes": [
+          {
+            "id": "d553a576-1924-4ed4-9ded-59dbf8d22e9e",
+            "type": "group",
+            "name": "LHD",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "33262730-32b6-4a3e-9124-9c2d88ee44bb",
+            "type": "group",
+            "name": "Anatomía",
+            "parent": null
+          },
+          {
+            "id": "bdab6fc7-2de3-4212-8b52-16deaa9baacb",
+            "type": "group",
+            "name": "LHI",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "63276eea-45e6-4eb2-bca1-79e6016f3b02",
+            "type": "segment",
+            "key": "s5",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "dbbde511-b0e7-45c4-97b6-307756bc85da",
+            "type": "segment",
+            "key": "s6",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "533575fa-cf7d-453c-a047-be721546e13b",
+            "type": "segment",
+            "key": "s7",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "7e26e600-e5c6-4dbc-b098-485c425f8a1c",
+            "type": "segment",
+            "key": "s8",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "3bbf314b-dad0-4924-b9d0-c0fe2538d664",
+            "type": "segment",
+            "key": "s1",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "b271ea28-359c-4266-b1b0-0a1c4420fe57",
+            "type": "segment",
+            "key": "s2",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "f0d3d898-0f30-4a72-8eaa-ec50e70ae6b6",
+            "type": "segment",
+            "key": "s3",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "50be8090-745d-4032-817e-4e610b1633f9",
+            "type": "segment",
+            "key": "s4",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            108.78395657902387,
+            247.30815079397428,
+            2220.8209422413515
+          ],
+          "up": [
+            -0.43481586297087454,
+            -0.2520877729576565,
+            0.864515424983351
+          ],
+          "target": [
+            -1.9122999999999877,
+            0.04080000000004702,
+            1622
+          ],
+          "near": 0.7704623579708485,
+          "far": 77046.23579708485
+        },
+        "slices": {
+          "x": 209,
+          "y": 209,
+          "z": 406
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": true,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "z",
+        "clipPosition": 66.67,
+        "layers": [
+          {
+            "key": "Hígado",
+            "visible": false,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Porta",
+            "visible": true,
+            "color": "#ad61ea",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s1",
+            "visible": true,
+            "color": "#ffffff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s2",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s3",
+            "visible": true,
+            "color": "#8cb266",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s4",
+            "visible": true,
+            "color": "#8ceb2d",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s5",
+            "visible": true,
+            "color": "#70bdc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s6",
+            "visible": true,
+            "color": "#718dc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s7",
+            "visible": true,
+            "color": "#13418b",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s8",
+            "visible": true,
+            "color": "#000cb8",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Tumor",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Venas_Suprahepáticas",
+            "visible": true,
+            "color": "#0008ff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ],
+        "usProbe": {
+          "originalProbe": [
+            20.89051150159557,
+            149.60041661341904,
+            1783
+          ],
+          "entry": {
+            "axis": "z",
+            "origin": [
+              208.0076999999966,
+              209.9608,
+              1783
+            ],
+            "u": [
+              -419.8399999999965,
+              0,
+              0
+            ],
+            "v": [
+              0,
+              -419.8399999999965,
+              0
+            ],
+            "width": 419,
+            "height": 419,
+            "x": 0.4456869009584664,
+            "y": 0.14376996805111822
+          },
+          "rotation": 192,
+          "tilt": -15,
+          "offset": -8,
+          "mask": true,
+          "info": true,
+          "target": null
+        }
+      }
+    },
+    {
+      "name": "Acceso",
+      "notes": "",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": null,
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            491
+          ],
+          "origin": [
+            207.59769999999997,
+            209.5508,
+            1377
+          ],
+          "structures": [
+            "Hígado",
+            "Porta",
+            "s1",
+            "s2",
+            "s3",
+            "s4",
+            "s5",
+            "s6",
+            "s7",
+            "s8",
+            "Tumor",
+            "Venas_Suprahepáticas"
+          ]
+        },
+        "referencePoint": null,
+        "measurements": [],
+        "trajectory": {
+          "a": [
+            122.83249233226564,
+            -110.61990287539666,
+            1767
+          ],
+          "b": [
+            89.29894600638733,
+            48.99977763578411,
+            1783
+          ]
+        },
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": false,
+        "structureNodes": [
+          {
+            "id": "d553a576-1924-4ed4-9ded-59dbf8d22e9e",
+            "type": "group",
+            "name": "LHD",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "33262730-32b6-4a3e-9124-9c2d88ee44bb",
+            "type": "group",
+            "name": "Anatomía",
+            "parent": null
+          },
+          {
+            "id": "bdab6fc7-2de3-4212-8b52-16deaa9baacb",
+            "type": "group",
+            "name": "LHI",
+            "parent": "33262730-32b6-4a3e-9124-9c2d88ee44bb"
+          },
+          {
+            "id": "63276eea-45e6-4eb2-bca1-79e6016f3b02",
+            "type": "segment",
+            "key": "s5",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "dbbde511-b0e7-45c4-97b6-307756bc85da",
+            "type": "segment",
+            "key": "s6",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "533575fa-cf7d-453c-a047-be721546e13b",
+            "type": "segment",
+            "key": "s7",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "7e26e600-e5c6-4dbc-b098-485c425f8a1c",
+            "type": "segment",
+            "key": "s8",
+            "name": "",
+            "parent": "d553a576-1924-4ed4-9ded-59dbf8d22e9e"
+          },
+          {
+            "id": "3bbf314b-dad0-4924-b9d0-c0fe2538d664",
+            "type": "segment",
+            "key": "s1",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "b271ea28-359c-4266-b1b0-0a1c4420fe57",
+            "type": "segment",
+            "key": "s2",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "f0d3d898-0f30-4a72-8eaa-ec50e70ae6b6",
+            "type": "segment",
+            "key": "s3",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          },
+          {
+            "id": "50be8090-745d-4032-817e-4e610b1633f9",
+            "type": "segment",
+            "key": "s4",
+            "name": "",
+            "parent": "bdab6fc7-2de3-4212-8b52-16deaa9baacb"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            108.78395657902387,
+            247.30815079397428,
+            2220.8209422413515
+          ],
+          "up": [
+            -0.43481586297087454,
+            -0.2520877729576565,
+            0.864515424983351
+          ],
+          "target": [
+            -1.9122999999999877,
+            0.04080000000004702,
+            1622
+          ],
+          "near": 0.7704623579708485,
+          "far": 77046.23579708485
+        },
+        "slices": {
+          "x": 209,
+          "y": 209,
+          "z": 404
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": true,
+          "show3DMarker": true,
+          "fillSegments": false,
+          "clipEnabled": true,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "z",
+        "clipPosition": 66.67,
+        "layers": [
+          {
+            "key": "Hígado",
+            "visible": false,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Porta",
+            "visible": true,
+            "color": "#ad61ea",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s1",
+            "visible": true,
+            "color": "#ffffff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s2",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s3",
+            "visible": true,
+            "color": "#8cb266",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s4",
+            "visible": true,
+            "color": "#8ceb2d",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s5",
+            "visible": true,
+            "color": "#70bdc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s6",
+            "visible": true,
+            "color": "#718dc6",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s7",
+            "visible": true,
+            "color": "#13418b",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "s8",
+            "visible": true,
+            "color": "#000cb8",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Tumor",
+            "visible": true,
+            "color": "#67b389",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "Venas_Suprahepáticas",
+            "visible": true,
+            "color": "#0008ff",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ]
+      }
+    }
+  ]
+}
