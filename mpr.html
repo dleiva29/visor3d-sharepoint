@@ -1343,29 +1343,6 @@
         color: #9de1ef;
         font-weight: 600;
       }
-      #structureCatalog {
-        padding: 10px;
-        border: 1px solid #38758f;
-        border-radius: 7px;
-        margin: 10px 0;
-      }
-      #structureCatalog[hidden],
-      .catalog-item[hidden] {
-        display: none !important;
-      }
-      .catalog-list {
-        max-height: 240px;
-        overflow: auto;
-      }
-      .catalog-item {
-        padding: 8px;
-        border-bottom: 1px solid #294356;
-        cursor: grab;
-      }
-      .catalog-item:hover {
-        background: #153044;
-      }
-
       /* Filas compactas de estructuras y árbol */
       #structureTree .unified-node {
         margin: 2px 0 2px 5px;
@@ -1394,10 +1371,34 @@
       #structureTree input[type="checkbox"] {
         margin: 0 2px;
       }
-      #structureCatalog .catalog-item {
-        padding: 5px 7px;
+      #structureTree summary[draggable="true"] {
+        cursor: grab;
+      }
+      #structureTree .unified-node:not(.has-children) > summary::before {
+        content: "·";
+      }
+      #structureTree button.tree-name {
+        text-align: left;
+        font: inherit;
         font-size: 11px;
-        line-height: 1.35;
+        color: inherit;
+        background: none;
+        border: 0;
+        cursor: pointer;
+      }
+      #treeRootDrop {
+        padding: 5px;
+        border: 1px dashed #38758f;
+        margin: 4px 0;
+      }
+      #structureTree .drop-target,
+      #treeRootDrop.drop-target,
+      #independentStructures.drop-remove {
+        outline: 2px solid #5ed2e8;
+        outline-offset: -2px;
+      }
+      #modelLayers .layer-header[draggable="true"] {
+        cursor: grab;
       }
       #modelLayers .layer-header {
         padding: 6px;
@@ -1432,11 +1433,6 @@
         padding: 6px 8px;
         margin-top: 8px;
       }
-      #structureCatalog.drop-remove {
-        outline: 2px dashed #5ed2e8;
-        background: #153044;
-      }
-
       /* Igualar el ancho exterior de las filas individuales y del árbol. */
       #independentStructures,
       #modelLayers,
@@ -1575,8 +1571,7 @@
       #modelLayers .layer-name:hover {
         text-decoration: underline;
       }
-      #structureSearch,
-      #structureCatalog input[type="search"] {
+      #structureSearch {
         height: 29px;
         min-height: 0;
         padding: 3px 8px;
@@ -3394,12 +3389,7 @@
                   >Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida.
                   Desactiva esta opción para ver los controles.</p
                 ></div
-              ><section id="independentStructures"
-                ><h4>Todas las estructuras</h4><div id="modelLayers"></div
-                ><p id="independentEmpty" class="note"
-                  >Carga un GLB para mostrar sus estructuras.</p
-                ></section
-              ><h4>Grupos</h4><div id="structureTree"></div
+              ><h4>Árbol de estructuras</h4
               ><div class="tree-toolbar"
                 ><button id="createGroup" type="button">+ Grupo / subgrupo</button
                 ><button id="exportTree" type="button">Exportar árbol</button
@@ -3416,9 +3406,20 @@
                 ><button id="saveGroup" type="button">Guardar grupo</button
                 ><button id="cancelGroup" type="button">Cancelar</button
                 ><button id="deleteGroup" type="button">Eliminar grupo</button></div
+              ><div id="treeRootDrop" class="note" hidden>Suelta aquí para colocar en la raíz</div
+              ><div id="structureTree"></div
+              ><section id="independentStructures"
+                ><h4>Todas las estructuras</h4
+                ><p id="catalogEditHint" class="note" hidden
+                  >Arrastra una fila al árbol para añadir una referencia. Suelta un nodo aquí para
+                  quitarlo del árbol y conservar sus hijos.</p
+                ><div id="modelLayers"></div
+                ><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p
+                ></section
               ><p class="note"
-                >Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad. Abre
-                «Ajustes» para cambiar la apariencia o centrar la estructura.</p
+                >Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad. Pulsa el
+                nombre de una segmentación para centrarla, o abre «Ajustes» en el catálogo para
+                cambiar su apariencia.</p
               ><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p
               ><div class="structure-actions"
                 ><button id="clearSelection" type="button">Quitar selección</button
@@ -7925,7 +7926,7 @@
         $("restoreVisibility").disabled = true;
         status.textContent = "Todas las estructuras visibles.";
       };
-      function focusStructure(key, select = true) {
+      function focusStructure(key, select = true, reveal = true) {
         try {
           const layer = layerControls.get(key);
           if (!layer) throw new Error("Carga un modelo y elige una estructura.");
@@ -7947,12 +7948,14 @@
                 );
             }
           }
-          if (!layer.visible.checked) {
-            layer.visible.checked = true;
-            layer.visible.dispatchEvent(new Event("change"));
+          if (reveal) {
+            if (!layer.visible.checked) {
+              layer.visible.checked = true;
+              layer.visible.dispatchEvent(new Event("change"));
+            }
+            modelRoot.visible = true;
+            $("showmodel").checked = true;
           }
-          modelRoot.visible = true;
-          $("showmodel").checked = true;
           if (select && !selectedStructures.has(key)) selectStructure(key, true);
           if (volume && volumeInfo) {
             applyReferencePoint(center);
@@ -8952,6 +8955,7 @@
           );
         try {
           const response = await fetch(url, { credentials: "omit", cache: "no-cache" });
+          if (modelContentHash !== hash) return;
           if (response.status === 404) {
             $("treeMessage").textContent =
               "No hay árbol publicado para " + basename + ". Se conserva la organización local.";
@@ -8961,20 +8965,16 @@
           const raw = await response.text();
           if (raw.length > 5000000) throw new Error("El archivo supera 5 MB.");
           const data = JSON.parse(raw);
-          if (
-            data?.format !== "mpr-structure-tree" ||
-            ![1, 2].includes(data.version) ||
-            data.modelHash !== hash
-          )
-            throw new Error("La organización no corresponde al mismo GLB.");
-          const groups = validateTree(data.groups),
-            relations = validateStructureRelations(data.relations || []);
           if (modelContentHash !== hash) return;
-          if (data.nodes) applyNodes(data.nodes);
-          else applyHierarchy(groups, relations);
+          if (treeLocalOverride) {
+            $("treeMessage").textContent = "Se conserva el árbol guardado en este navegador.";
+            return;
+          }
+          importStructureTree(data, false);
           $("treeMessage").textContent =
             "Árbol cargado de organización_estructuras/" + basename + "_estructura.json.";
         } catch (error) {
+          if (modelContentHash !== hash) return;
           $("treeMessage").textContent =
             "No se pudo cargar el árbol publicado: " +
             error.message +
@@ -9596,8 +9596,23 @@
       }
 
       let structureNodes = [],
+        treeIndex = indexStructureNodes(structureNodes),
+        treeLocalOverride = false,
         treeEditing = false;
       const uid = () => crypto.randomUUID();
+      function indexStructureNodes(nodes) {
+        const byId = new Map(), children = new Map(), references = new Map();
+        for (const n of nodes) {
+          byId.set(n.id, n);
+          if (!children.has(n.parent)) children.set(n.parent, []);
+          children.get(n.parent).push(n);
+          if (n.type === "segment") {
+            if (!references.has(n.key)) references.set(n.key, []);
+            references.get(n.key).push(n);
+          }
+        }
+        return { byId, children, references };
+      }
       function validateNodes(nodes) {
         if (!Array.isArray(nodes) || nodes.length > 10000)
           throw new Error("Árbol inválido o demasiado grande.");
@@ -9618,22 +9633,23 @@
             throw new Error("Nodo inválido.");
           map.set(n.id, n);
         }
-        for (const n of nodes) {
-          const seen = new Set([n.id]),
-            keys = new Set(n.type === "segment" ? [n.key] : []);
-          let p = n.parent;
-          while (p !== null) {
-            if (seen.has(p) || !map.has(p)) throw new Error("Ciclo o padre inexistente.");
-            const a = map.get(p);
-            if (a.type === "segment") {
-              if (keys.has(a.key))
-                throw new Error("Una segmentación no puede ser descendiente de sí misma.");
-              keys.add(a.key);
-            }
-            seen.add(p);
-            p = a.parent;
+        const { children } = indexStructureNodes(nodes);
+        const pending = (children.get(null) || []).map((node) => ({ node, ancestor: null }));
+        const relations = [];
+        for (let i = 0; i < pending.length; i++) {
+          const { node, ancestor } = pending[i];
+          if (node.type === "segment" && ancestor !== null) {
+            if (node.key === ancestor)
+              throw new Error("Una segmentación no puede ser descendiente de sí misma.");
+            relations.push({ parent: ancestor, child: node.key });
+          }
+          for (const child of children.get(node.id) || []) {
+            pending.push({ node: child, ancestor: node.type === "segment" ? node.key : ancestor });
           }
         }
+        if (pending.length !== nodes.length) throw new Error("Ciclo o padre inexistente.");
+        // Las referencias a la misma segmentación comparten la relación, aunque estén en ramas distintas.
+        validateStructureRelations(relations);
         return nodes.map((n) =>
           n.type === "group"
             ? { id: n.id, type: n.type, name: n.name.trim(), parent: n.parent }
@@ -9642,23 +9658,23 @@
       }
       function nodeKeys(id) {
         const keys = new Set(),
-          stack = [id];
+          stack = [treeIndex.byId.get(id)];
         while (stack.length) {
-          const id = stack.pop(),
-            n = structureNodes.find((n) => n.id === id);
+          const n = stack.pop();
           if (!n) continue;
           if (n.type === "segment") keys.add(n.key);
-          for (const c of structureNodes) if (c.parent === n.id) stack.push(c.id);
+          for (const c of treeIndex.children.get(n.id) || []) stack.push(c);
         }
         return [...keys];
       }
       function saveTree() {
-        document.dispatchEvent(new Event("case-state-change"));
+        treeLocalOverride = true;
         if (treeCaseKey)
           try {
             localStorage.setItem(
               treeCaseKey,
               JSON.stringify({
+                edited: true,
                 nodes: structureNodes,
                 groups: structureGroups,
                 relations: structureRelations,
@@ -9668,14 +9684,16 @@
             $("treeMessage").textContent = "No se pudo guardar. Exporta el árbol.";
           }
       }
-      function applyNodes(nodes) {
+      function applyNodes(nodes, { reveal = [], persist = true } = {}) {
         const valid = validateNodes(nodes);
         structureNodes = valid;
-        saveTree();
-        renderTree();
+        treeIndex = indexStructureNodes(valid);
+        if (persist) saveTree();
+        document.dispatchEvent(new Event("case-state-change"));
+        renderTree(reveal);
       }
       /** Migra árboles v1 a referencias v2 sin expansión ilimitada ni mutación parcial. */
-      function applyHierarchy(groups, relations = []) {
+      function applyHierarchy(groups, relations = [], options) {
         const validGroups = validateTree(groups),
           validRelations = validateStructureRelations(relations);
         const nodes = validGroups.map((g) => ({
@@ -9708,39 +9726,61 @@
         const validNodes = validateNodes(nodes);
         structureGroups = validGroups;
         structureRelations = validRelations;
-        applyNodes(validNodes);
+        applyNodes(validNodes, options);
+      }
+      function importStructureTree(data, persist = true) {
+        if (
+          data?.format !== "mpr-structure-tree" ||
+          ![1, 2].includes(data.version) ||
+          !modelContentHash ||
+          data.modelHash !== modelContentHash
+        )
+          throw new Error("El árbol no corresponde a este GLB.");
+        if ("nodes" in data) applyNodes(data.nodes, { persist });
+        else applyHierarchy(data.groups, data.relations || [], { persist });
       }
       function loadTree() {
         const key = modelContentHash ? "mpr-tree-v1:" + modelContentHash : null;
         if (key === treeCaseKey) return;
         treeCaseKey = key;
         structureNodes = [];
+        treeIndex = indexStructureNodes(structureNodes);
         structureGroups = [];
         structureRelations = [];
+        treeLocalOverride = false;
         treeEditing = false;
         try {
           const data = key ? JSON.parse(localStorage.getItem(key) || "null") : null;
-          if (data?.nodes) applyNodes(data.nodes);
+          if (!data) {
+            renderTree();
+            return;
+          }
+          if ("nodes" in data) applyNodes(data.nodes, { persist: false });
           else
-            applyHierarchy(Array.isArray(data) ? data : data?.groups || [], data?.relations || []);
+            applyHierarchy(Array.isArray(data) ? data : data.groups || [], data.relations || [], {
+              persist: false,
+            });
+          treeLocalOverride = data.edited === true || structureNodes.length > 0;
         } catch (e) {
-          structureNodes = [];
           renderTree();
           $("treeMessage").textContent = "No se pudo recuperar el árbol: " + e.message;
         }
       }
       function visibilityClosure(initial) {
         const keys = new Set(initial),
-          pending = [...keys];
+          pending = [],
+          visited = new Set();
+        for (const key of keys)
+          for (const n of treeIndex.references.get(key) || []) pending.push(n);
         while (pending.length) {
-          const key = pending.pop();
-          for (const n of structureNodes)
-            if (n.type === "segment" && n.key === key)
-              for (const child of nodeKeys(n.id))
-                if (!keys.has(child)) {
-                  keys.add(child);
-                  pending.push(child);
-                }
+          const n = pending.pop();
+          if (visited.has(n.id)) continue;
+          visited.add(n.id);
+          if (n.type === "segment" && !keys.has(n.key)) {
+            keys.add(n.key);
+            for (const reference of treeIndex.references.get(n.key)) pending.push(reference);
+          }
+          for (const child of treeIndex.children.get(n.id) || []) pending.push(child);
         }
         return [...keys];
       }
@@ -9761,16 +9801,32 @@
         if (!previous) updateStructureSelection();
       }
       function syncTreeRows() {
-        for (const r of treeRows) {
-          const keys = r.keys(),
-            visible = keys.filter((k) => layerControls.get(k)?.visible.checked),
-            chosen = visible.filter((k) => selectedStructures.has(k));
-          r.selection.disabled = !visible.length;
-          r.selection.checked = !!visible.length && chosen.length === visible.length;
-          r.selection.indeterminate = chosen.length > 0 && chosen.length < visible.length;
-          r.visibility.checked = !!keys.length && visible.length === keys.length;
-          r.visibility.indeterminate = visible.length > 0 && visible.length < keys.length;
-          if (r.dot) r.dot.style.background = layerControls.get(r.key)?.picker.value || "#aaa";
+        const states = new Map();
+        for (let i = treeRows.length - 1; i >= 0; i--) {
+          const r = treeRows[i], { id, parent, key } = r.node;
+          const layer = layerControls.get(key);
+          const state = states.get(id) || { selected: false, unselected: false, hidden: false };
+          if (layer) {
+            if (!layer.visible.checked) state.hidden = true;
+            else if (selectedStructures.has(key)) state.selected = true;
+            else state.unselected = true;
+          }
+          const visible = state.selected || state.unselected;
+          r.selection.disabled = !visible;
+          r.selection.checked = state.selected && !state.unselected;
+          r.selection.indeterminate = state.selected && state.unselected;
+          r.visibility.disabled = !visible && !state.hidden;
+          r.visibility.checked = visible && !state.hidden;
+          r.visibility.indeterminate = visible && state.hidden;
+          if (r.dot) r.dot.style.background = layer?.picker.value || "#aaa";
+          if (parent !== null) {
+            const previous = states.get(parent);
+            states.set(parent, {
+              selected: state.selected || !!previous?.selected,
+              unselected: state.unselected || !!previous?.unselected,
+              hidden: state.hidden || !!previous?.hidden,
+            });
+          }
         }
       }
       function treeControls(keys) {
@@ -9811,7 +9867,7 @@
         return b;
       }
       function editNode(id = null, parent = null) {
-        const n = structureNodes.find((n) => n.id === id),
+        const n = treeIndex.byId.get(id),
           panel = $("groupEditor");
         panel.replaceChildren();
         panel.hidden = false;
@@ -9833,15 +9889,21 @@
         const dest = document.createElement("select");
         dest.id = "nodeParent";
         dest.add(new Option("Raíz del árbol", ""));
+        const excluded = new Set(), descendants = n ? [n] : [];
+        while (descendants.length) {
+          const child = descendants.pop();
+          excluded.add(child.id);
+          for (const descendant of treeIndex.children.get(child.id) || []) descendants.push(descendant);
+        }
         for (const a of structureNodes)
-          if (a.id !== id) {
+          if (!excluded.has(a.id)) {
             const path = [];
             let cur = a;
             while (cur) {
-              path.unshift(cur.name || cur.key);
-              cur = structureNodes.find((x) => x.id === cur.parent);
+              path.push(cur.name || cur.key);
+              cur = treeIndex.byId.get(cur.parent);
             }
-            dest.add(new Option(path.join(" / "), a.id));
+            dest.add(new Option(path.reverse().join(" / "), a.id));
           }
         dest.value = n?.parent || parent || "";
         panel.append(
@@ -9856,34 +9918,26 @@
               parent: dest.value || null,
               ...(nodeType === "group" ? { name: name.value } : { key: n.key, name: name.value }),
             };
-            applyNodes([...structureNodes.filter((x) => x.id !== id), node]);
+            applyNodes(n ? structureNodes.map((x) => (x.id === id ? node : x)) : [...structureNodes, node], {
+              reveal: [node.parent],
+            });
             panel.hidden = true;
           }),
           button("Cancelar", () => (panel.hidden = true))
         );
         if (n)
           panel.append(
-            button("Quitar nodo y sus referencias hijas", () => {
-              const ids = new Set([id]);
-              let changed = true;
-              while (changed) {
-                changed = false;
-                for (const a of structureNodes)
-                  if (ids.has(a.parent) && !ids.has(a.id)) {
-                    ids.add(a.id);
-                    changed = true;
-                  }
-              }
-              applyNodes(structureNodes.filter((a) => !ids.has(a.id)));
-              panel.hidden = true;
-            })
+            button("Quitar solo este nodo", () => removeTreeReference(id)),
+            button("Quitar nodo y su rama", () => removeTreeReference(id, true))
           );
         panel.scrollIntoView({ block: "nearest" });
       }
-      function renderTree() {
+      function renderTree(reveal = []) {
         const host = $("structureTree"),
           canonical = $("modelLayers"),
           open = new Set([...host.querySelectorAll("details[open]")].map((d) => d.dataset.node));
+        for (const id of reveal)
+          for (let n = treeIndex.byId.get(id); n; n = treeIndex.byId.get(n.parent)) open.add(n.id);
         for (const l of layerControls.values()) {
           if (l.card.parentElement !== canonical) canonical.append(l.card);
           l.card.hidden = false;
@@ -9893,113 +9947,134 @@
         host.className = "";
         treeRows.length = 0;
         $("treeMode").textContent = treeEditing ? "✓ Terminar edición" : "Editar árbol";
+        $("treeMode").setAttribute("aria-pressed", String(treeEditing));
         $("createGroup").hidden = !treeEditing;
+        $("treeRootDrop").hidden = !treeEditing;
+        bindTreeDrop($("treeRootDrop"), null);
         $("groupEditor").hidden = true;
-        const containers = new Map([[null, host]]),
-          pending = [...structureNodes];
+        const pending = [{ container: host, nodes: treeIndex.children.get(null) || [] }];
         while (pending.length) {
-          const i = pending.findIndex((n) => containers.has(n.parent));
-          if (i < 0) break;
-          const n = pending.splice(i, 1)[0],
-            details = document.createElement("details");
+          const { container, nodes, index = 0 } = pending.pop();
+          if (index >= nodes.length) continue;
+          const n = nodes[index], details = document.createElement("details");
+          pending.push({ container, nodes, index: index + 1 });
+          const children = treeIndex.children.get(n.id);
           details.className = "tree-group unified-node";
+          details.classList.toggle("has-children", !!children?.length);
           details.dataset.node = n.id;
           details.open = open.has(n.id);
-          const row = document.createElement("summary"),
-            title = document.createElement("span");
+          const row = document.createElement("summary");
+          const name = (n.type === "group" ? "▱ " : "") + (n.name || n.key);
+          const title = treeEditing
+            ? button(name, () => editNode(n.id))
+            : n.type === "segment"
+              ? button(name, () => focusStructure(n.key, false, false))
+              : document.createElement("span");
           title.className = "tree-name";
           title.title = n.type === "segment" ? "Estructura original: " + n.key : n.name;
-          title.textContent = (n.type === "group" ? "▱ " : "") + (n.name || n.key);
+          title.textContent = name;
+          if (treeEditing) title.title += " · Pulsa para editar";
           const c = treeControls(() => nodeKeys(n.id));
+          Object.assign(c, { node: n, details, title });
           if (!treeEditing) row.append(c.selection);
           if (n.type === "segment") {
             const dot = document.createElement("span");
             dot.className = "color-dot";
             c.dot = dot;
-            c.key = n.key;
             row.append(dot);
           }
           row.append(title);
           if (!treeEditing) row.append(c.label);
-          else {
-            title.title += " · Doble clic para editar";
-            title.ondblclick = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              editNode(n.id);
-            };
-          }
-
           treeRows.push(c);
           if (treeEditing) {
             row.draggable = true;
             row.ondragstart = (e) => {
               e.stopPropagation();
-              e.dataTransfer.setData("text/plain", n.id);
+              e.dataTransfer.effectAllowed = "move";
               e.dataTransfer.setData("application/x-mpr-tree-node", n.id);
             };
-            row.ondragover = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            };
-            row.ondrop = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              details.open = true;
-              const source = e.dataTransfer.getData("text/plain");
-              try {
-                const key = e.dataTransfer.getData("application/x-mpr-structure");
-                if (key) {
-                  addStructureReference(key, n.id);
-                  return;
-                }
-                if (!structureNodes.some((a) => a.id === source)) return;
-                applyNodes(
-                  structureNodes.map((a) => (a.id === source ? { ...a, parent: n.id } : a))
-                );
-              } catch (err) {
-                $("treeMessage").textContent = err.message;
-              }
-            };
+            bindTreeDrop(row, n.id);
           }
           details.append(row);
           const body = document.createElement("div");
           body.className = "tree-children";
           details.append(body);
-          containers.get(n.parent).append(details);
-          containers.set(n.id, body);
+          container.append(details);
+          if (children) pending.push({ container: body, nodes: children });
         }
         renderStructureCatalog();
         syncTreeRows();
         filterTree();
       }
+      function bindTreeDrop(target, parent) {
+        target.ondragover = (e) => {
+          const types = e.dataTransfer.types;
+          const copy = types.includes("application/x-mpr-structure");
+          if (!treeEditing || (!copy && !types.includes("application/x-mpr-tree-node"))) return;
+          e.preventDefault();
+          e.stopPropagation();
+          e.dataTransfer.dropEffect = copy ? "copy" : "move";
+          target.classList.add("drop-target");
+        };
+        target.ondragleave = (e) => {
+          if (!target.contains(e.relatedTarget)) target.classList.remove("drop-target");
+        };
+        target.ondrop = (e) => {
+          target.classList.remove("drop-target");
+          if (!treeEditing) return;
+          const key = e.dataTransfer.getData("application/x-mpr-structure");
+          const node = treeIndex.byId.get(e.dataTransfer.getData("application/x-mpr-tree-node"));
+          if (!key && !node) return;
+          e.preventDefault();
+          e.stopPropagation();
+          try {
+            if (key) addStructureReference(key, parent);
+            else applyNodes(
+              structureNodes.map((n) => (n.id === node.id ? { ...n, parent } : n)),
+              { reveal: [node.parent, parent] }
+            );
+            $("treeMessage").textContent = "";
+          } catch (err) {
+            $("treeMessage").textContent = err.message;
+          }
+        };
+      }
       function addStructureReference(key, parent) {
         if (!layerControls.has(key)) throw new Error("Estructura desconocida.");
-        if (!structureNodes.some((n) => n.id === parent))
+        if (parent !== null && !treeIndex.byId.has(parent))
           throw new Error("Selecciona un nodo de destino.");
         if (
           structureNodes.some((n) => n.type === "segment" && n.key === key && n.parent === parent)
         )
           return;
-        applyNodes([...structureNodes, { id: uid(), type: "segment", key, parent }]);
+        applyNodes([...structureNodes, { id: uid(), type: "segment", key, parent }], {
+          reveal: [parent],
+        });
       }
-      function removeTreeReference(id) {
+      function removeTreeReference(id, includeChildren = false) {
+        const node = treeIndex.byId.get(id);
+        if (!node) return;
         const ids = new Set([id]);
-        let changed = true;
-        while (changed) {
-          changed = false;
-          for (const n of structureNodes)
-            if (ids.has(n.parent) && !ids.has(n.id)) {
-              ids.add(n.id);
-              changed = true;
+        if (includeChildren) {
+          const pending = [node];
+          while (pending.length) {
+            for (const child of treeIndex.children.get(pending.pop().id) || []) {
+              ids.add(child.id);
+              pending.push(child);
             }
+          }
         }
-        applyNodes(structureNodes.filter((n) => !ids.has(n.id)));
+        applyNodes(
+          structureNodes
+            .filter((n) => !ids.has(n.id))
+            .map((n) => (n.parent === id ? { ...n, parent: node.parent } : n)),
+          { reveal: [node.parent] }
+        );
       }
       function renderStructureCatalog() {
-        const catalog = $("structureCatalog");
-        catalog.hidden = !treeEditing;
-        catalog.replaceChildren();
+        const catalog = $("independentStructures");
+        $("catalogEditHint").hidden = !treeEditing;
+        catalog.classList.remove("drop-remove");
         catalog.ondragover = (e) => {
           if (
             !treeEditing ||
@@ -10017,49 +10092,22 @@
           catalog.classList.remove("drop-remove");
           if (!treeEditing) return;
           const id = e.dataTransfer.getData("application/x-mpr-tree-node");
-          if (!id || !structureNodes.some((n) => n.id === id)) return;
+          if (!treeIndex.byId.has(id)) return;
           e.preventDefault();
           e.stopPropagation();
           removeTreeReference(id);
           $("treeMessage").textContent =
             "Referencia retirada del árbol. Las estructuras siguen disponibles.";
         };
-        if (!treeEditing) return;
-        const heading = document.createElement("strong");
-        heading.textContent = "Estructuras disponibles";
-        const hint = document.createElement("p");
-        hint.className = "note";
-        hint.textContent =
-          "Arrastra una estructura sobre un grupo o una segmentación para añadir una referencia. Para retirar una referencia del árbol, arrástrala de vuelta aquí. El catálogo conserva todos los elementos.";
-        catalog.append(heading, hint);
-        const search = document.createElement("input");
-        search.type = "search";
-        search.placeholder = "Buscar en el catálogo…";
-        search.setAttribute("aria-label", "Buscar en el catálogo");
-        catalog.append(search);
-        const list = document.createElement("div");
-        list.className = "catalog-list";
-        catalog.append(list);
-        for (const key of layerControls.keys()) {
-          const row = document.createElement("div");
-          row.className = "catalog-item";
-          row.draggable = true;
-          row.textContent = "⠿ " + key;
-          row.dataset.key = key;
-          row.title = "Arrastra para añadir una referencia";
-          row.ondragstart = (e) => {
+        for (const [key, layer] of layerControls) {
+          const row = layer.card.querySelector(".layer-header");
+          row.draggable = treeEditing;
+          row.ondragstart = treeEditing ? (e) => {
             e.stopPropagation();
             e.dataTransfer.effectAllowed = "copy";
             e.dataTransfer.setData("application/x-mpr-structure", key);
-            e.dataTransfer.setData("text/plain", key);
-          };
-          list.append(row);
+          } : null;
         }
-        search.oninput = () => {
-          const q = search.value.trim().toLocaleLowerCase("es");
-          for (const row of list.children)
-            row.hidden = !row.dataset.key.toLocaleLowerCase("es").includes(q);
-        };
       }
       function filterTree() {
         const q = $("structureSearch").value.trim().toLocaleLowerCase("es");
@@ -10068,22 +10116,21 @@
           l.card.hidden = !!q && !key.toLocaleLowerCase("es").includes(q);
           if (!l.card.hidden) count++;
         }
-        for (const d of [...$("structureTree").querySelectorAll(".unified-node")].reverse()) {
-          const own = d
-              .querySelector(":scope > summary .tree-name")
-              .textContent.toLocaleLowerCase("es")
-              .includes(q),
-            child = [...d.querySelectorAll(".unified-node")].some((c) => !c.hidden);
-          d.hidden = !!q && !own && !child;
-          if (!d.hidden) count++;
-          if (q && !d.hidden) d.open = true;
+        const matchingParents = new Set();
+        for (let i = treeRows.length - 1; i >= 0; i--) {
+          const { node, details, title } = treeRows[i];
+          const own = title.textContent.toLocaleLowerCase("es").includes(q);
+          details.hidden = !!q && !own && !matchingParents.has(node.id);
+          if (!details.hidden) {
+            count++;
+            if (q) {
+              matchingParents.add(node.parent);
+              details.open = true;
+            }
+          }
         }
         $("structureSearchEmpty").hidden = !q || count > 0;
       }
-      const catalog = document.createElement("section");
-      catalog.id = "structureCatalog";
-      catalog.hidden = true;
-      $("structureTree").before(catalog);
       const toolbar = $("createGroup").parentElement;
       const mode = button("Editar árbol", () => {
         treeEditing = !treeEditing;
@@ -10096,23 +10143,20 @@
       $("childrenEditor").hidden = true;
       document.querySelector(".hierarchy-display").remove();
       $("createGroup").hidden = true;
+      function exportStructureTree() {
+        return {
+          format: "mpr-structure-tree",
+          version: 2,
+          modelHash: modelContentHash,
+          nodes: structureNodes,
+          groups: [],
+          relations: [],
+        };
+      }
       $("exportTree").onclick = () =>
         downloadBlob(
           new Blob(
-            [
-              JSON.stringify(
-                {
-                  format: "mpr-structure-tree",
-                  version: 2,
-                  modelHash: modelContentHash,
-                  nodes: structureNodes,
-                  groups: [],
-                  relations: [],
-                },
-                null,
-                2
-              ),
-            ],
+            [JSON.stringify(exportStructureTree(), null, 2)],
             { type: "application/json" }
           ),
           loadedModelName + "_estructura.json"
@@ -10122,16 +10166,7 @@
         $("importTree"),
         async (f) => {
           if (f.size > 5000000) throw new Error("Archivo demasiado grande.");
-          const d = JSON.parse(await f.text());
-          if (
-            d.format !== "mpr-structure-tree" ||
-            ![1, 2].includes(d.version) ||
-            !modelContentHash ||
-            d.modelHash !== modelContentHash
-          )
-            throw new Error("El árbol no corresponde a este GLB.");
-          if (d.nodes) applyNodes(d.nodes);
-          else applyHierarchy(d.groups, d.relations || []);
+          importStructureTree(JSON.parse(await f.text()));
           $("treeMessage").textContent = "Árbol importado.";
         },
         (message) => {
