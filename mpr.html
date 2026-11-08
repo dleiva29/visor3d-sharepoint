@@ -7980,8 +7980,13 @@
           o.material?.map?.dispose();
           o.material?.dispose();
         }
-        for (const layer of layerControls.values()) {
-          const sprite = annotationSprite(name, "#ffffff", new THREE.Vector3(), structureNameRoot);
+        for (const [structureName, layer] of layerControls) {
+          const sprite = annotationSprite(
+            structureName,
+            "#ffffff",
+            new THREE.Vector3(),
+            structureNameRoot
+          );
           sprite.userData.leader.material.depthTest = true;
           sprite.userData.leader.material.depthWrite = false;
           sprite.userData.layer = layer;
