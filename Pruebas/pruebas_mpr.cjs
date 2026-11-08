@@ -2,7 +2,7 @@ const fs=require('fs'),vm=require('vm'),assert=require('node:assert/strict');
 const espree=require('espree');const {ESLint}=require('eslint');const globals=require('globals');
 const THREE=require('three');const {JSDOM}=require('jsdom');
 const path=require('node:path');
-const input=process.argv[2]||path.join(__dirname,'mpr.html');
+const input=process.argv[2]||path.join(__dirname,'../mpr.html');
 const original=process.argv[3]?fs.readFileSync(process.argv[3],'utf8'):null;
 const updated=fs.readFileSync(input,'utf8');
 function moduleOf(html){return [...html.matchAll(/<script\b[^>]*type="module"[^>]*>([\s\S]*?)<\/script>/g)][0][1];}
