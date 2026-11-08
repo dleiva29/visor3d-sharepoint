@@ -34,6 +34,24 @@ async function check(html, labelTests = false){const s=suite(html);const {run,te
  await test('Expansión v1 excesiva se detiene sin modificar el árbol',()=>{let i=0;const {fn,context}=run('applyHierarchy',{structureGroups:['original'],structureRelations:[],validateTree:g=>g,validateStructureRelations:r=>r,validateNodes:n=>n,applyNodes:()=>assert.fail('No debe confirmar'),uid:()=>String(++i)});assert.throws(()=>fn([{id:'g',name:'Group',parent:null,members:Array(10001).fill('A')}],[]));assert.deepEqual(context.structureGroups,['original']);});
  await test('Ángulos 3D paralelos y perpendiculares al plano',()=>{const f=run('trajectoryAngle').fn;assert.equal(f(new THREE.Vector3(),new THREE.Vector3(5,0,0),new THREE.Vector3(0,0,1)),0);assert.equal(f(new THREE.Vector3(),new THREE.Vector3(0,0,5),new THREE.Vector3(0,0,1)),90);});
  await test('Marco US ortonormal conserva la distancia al foco',()=>{const f=run('usCutFrame').fn;for(const axis of [[10,0,0],[0,10,0],[0,0,10],[3,-4,5]])for(const angle of [0,.8,Math.PI]){const probe=new THREE.Vector3(1,2,3),focus=probe.clone().add(new THREE.Vector3(...axis));const frame=f(probe,focus,angle,.2);assert.ok(Math.abs(frame.down.dot(frame.right))<1e-12);assert.ok(Math.abs(frame.normal.length()-1)<1e-12);assert.ok(Math.abs(frame.focus.distanceTo(probe)-focus.distanceTo(probe))<1e-10);}});
+ for (const name of ['downloadWithProgress','loadNrrdParts','loadPublishedStructureTree','loadPublishedViews','autoLoadCase']) {
+  await test('Credenciales limitadas al mismo origen: '+name,()=>{
+   const node=s.ast.body.find(n=>n.type==='FunctionDeclaration'&&n.id.name===name);
+   assert.ok(node,'Función de descarga presente');
+   const source=s.code.slice(...node.range);
+   assert.match(source,/credentials: "same-origin"/);
+   assert.doesNotMatch(source,/credentials: "(?:omit|include)"/);
+  });
+ }
+ await test('Descarga progresiva conserva opciones, bytes y credenciales same-origin',async()=>{
+  for(const url of ['/modelos/10.glb','https://external.example/10.glb']){
+   let request;const progress=[];
+   const {fn}=run('downloadWithProgress',{fetch:async(input,options)=>{request={input,options};return {ok:true,headers:{get:()=> '3'},body:null,arrayBuffer:async()=>new Uint8Array([1,2,3]).buffer};}});
+   const bytes=await fn(url,(...values)=>progress.push(values),{cache:'no-cache'});
+   assert.equal(request.input,url);assert.equal(request.options.credentials,'same-origin');
+   assert.equal(request.options.cache,'no-cache');assert.deepEqual([...bytes],[1,2,3]);assert.deepEqual(progress,[[3,3]]);
+  }
+ });
  await test('Una sola descarga del NRRD en la alternativa sin fragmentos',()=>{assert.ok(!s.code.includes("fetch(nrrdURL,{credentials:'omit'})")&&!/fetch\(nrrdURL,\s*\{/.test(s.code));});
 
  await test('Flechas horizontal, vertical y estado disabled',async()=>{const dom=new JSDOM('<label for="r">Posición</label><input id="r" type="range" min="0" max="10" value="5" step="1"><input id="v" type="range" min="-10" max="10" value="0" aria-orientation="vertical">');const d=dom.window.document;const f=run('addRangeStepper',{document:d,MutationObserver:dom.window.MutationObserver,Event:dom.window.Event}).fn;const r=d.getElementById('r'),v=d.getElementById('v');f(r);f(v);f(r);assert.equal(d.querySelectorAll('.range-stepper').length,2);let inputEvents=0;r.addEventListener('input',()=>inputEvents++);const buttons=r.parentElement.querySelectorAll('button');buttons[1].click();assert.equal(r.value,'6');buttons[0].click();assert.equal(r.value,'5');assert.equal(inputEvents,2);v.parentElement.querySelector('button').click();assert.equal(v.value,'1');r.disabled=true;await new Promise(resolve=>setTimeout(resolve,0));assert.ok([...buttons].every(b=>b.disabled));r.disabled=false;await new Promise(resolve=>setTimeout(resolve,0));assert.ok([...buttons].every(b=>!b.disabled));dom.window.close();});
