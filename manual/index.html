@@ -1,244 +1,358 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Manual del visor MPR · v2</title>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Manual del Visor MPR · Controles actuales</title>
 <style>
-:root{color-scheme:dark;--bg:#0b1520;--panel:#14283a;--text:#e6eef6;--muted:#b2c6d7;--line:#33516a;--accent:#75e3db}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 system-ui,sans-serif}
-header{background:var(--panel);border-bottom:1px solid var(--line);padding:2.4rem max(1.2rem,calc((100% - 1100px)/2))}
-header p{max-width:66ch;margin:.6rem 0;color:var(--muted)}.eyebrow{color:var(--accent);font-size:.85rem;letter-spacing:.09em;font-weight:700}
-h1,h2,h3{line-height:1.2;text-wrap:balance}h1{font-size:clamp(2rem,5vw,3.3rem);margin:.4rem 0}h2{font-size:1.65rem;margin:0 0 1rem}h3{font-size:1.15rem;margin:1.5rem 0 .55rem}
-a{color:var(--accent);text-underline-offset:.18em}a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:2.5rem;max-width:1140px;margin:auto;padding:1.5rem 1.25rem 3rem}
-nav{align-self:start;position:sticky;top:1rem;max-height:calc(100vh - 2rem);overflow:auto;padding:1rem;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
-nav ol{padding-left:1.35rem;margin:.5rem 0 0}nav li{padding:.18rem 0}nav a{font-size:.9rem}
-section{padding:1.65rem 0;border-bottom:1px solid var(--line);scroll-margin-top:1rem}section:first-child{padding-top:.3rem}
-p,ul,ol{margin:.6rem 0 1rem}li+li{margin-top:.25em}
-code,kbd{font-size:.88em;background:var(--panel);padding:.1em .28em;border-radius:4px;overflow-wrap:anywhere}
-pre{overflow:auto;padding:.85rem;background:var(--panel);border:1px solid var(--line);border-radius:6px}pre code{padding:0}
-.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;margin:.8rem 0}th,td{border:1px solid var(--line);padding:.5rem .65rem;text-align:left;vertical-align:top}th{background:var(--panel)}caption{text-align:left;font-weight:650;margin-bottom:.45rem}
-footer{max-width:1140px;margin:auto;padding:0 1.25rem 2rem;color:var(--muted)}
-@media(max-width:760px){.layout{grid-template-columns:1fr;gap:1.2rem}nav{position:static;max-height:none}}
-@media print{:root{color-scheme:light;--bg:white;--panel:#f0f4f6;--text:#15212b;--muted:#35495b;--line:#b7c4ce;--accent:#174b5b}header,.layout{padding:0}header{background:none}nav{position:static;max-height:none;overflow:visible}.layout{display:block}h2,h3{break-after:avoid}tr{break-inside:avoid}body{font-size:10.5pt}footer{padding:1rem 0 0}}
+
+:root{color-scheme:light;--ink:#132438;--muted:#425970;--teal:#006b60;--navy:#0b1825;--edge:#d8e4eb;--pale:#ecf5f4}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f8fb;color:var(--ink);font:1rem/1.55 system-ui,sans-serif}
+a{color:var(--teal);text-underline-offset:.2em}a:focus-visible{outline:3px solid #087e70;outline-offset:4px}
+.wrap{width:min(72rem,100% - 2rem);margin-inline:auto}
+header{background:var(--navy);color:white;padding:3rem 0 3.4rem}
+header p{max-width:43rem;color:#bdd0df}
+.kicker{font-size:.8rem;font-weight:750;letter-spacing:.09em;text-transform:uppercase;color:var(--teal);margin:0 0 .35rem}
+header .kicker{color:#71e9d6}
+h1{font-size:clamp(2.15rem,5.7vw,4rem);line-height:1.04;letter-spacing:-.04em;margin:.5rem 0 1rem}
+h2{font-size:clamp(1.4rem,3vw,2rem);line-height:1.18;margin:.3rem 0 .75rem}
+h3{font-size:1rem;margin:0}
+nav{padding:1.8rem 0 2.3rem}
+nav ol{padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,17rem),1fr));gap:.5rem}
+nav a{display:flex;align-items:baseline;gap:.65rem;background:white;border:1px solid var(--edge);padding:.65rem .75rem;border-radius:.45rem;text-decoration:none;color:var(--ink);height:100%}
+nav a:hover{background:var(--pale);text-decoration:underline}
+nav b{color:var(--teal);font-variant-numeric:tabular-nums}
+article{background:white;border:1px solid var(--edge);border-radius:.75rem;padding:clamp(1rem,3vw,2rem);margin:0 0 1.4rem;scroll-margin-top:1rem}
+article>p{color:var(--muted);margin-top:0}
+.columns{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.4rem;align-items:start}
+figure{margin:0;min-width:0}
+.samples{background:var(--navy);color:#e0f1fc;padding:1rem;border-radius:.65rem}
+.samples h3{color:#8fe7dc}
+.sample-row{margin-top:.9rem}
+.sample-label{display:block;color:#bdd0df;font-size:.85rem;font-weight:650;margin:0 0 .35rem}
+.controls{display:flex;flex-wrap:wrap;gap:.4rem}
+.control{display:inline-flex;align-items:center;gap:.42rem;min-height:2rem;border:1px solid #3c5a70;background:#1c3d53;color:#edf7ff;border-radius:.35rem;padding:.27rem .55rem;font-size:.81rem;font-weight:650;line-height:1.3;max-width:100%}
+.control.disabled{background:#263442;color:#a5b7c7}
+.control.readout{background:#152b3f;color:#90eedf}
+.control.check::before{content:"✓";color:#a3f1dd;font-weight:800}
+.control.entry::before,.control.target::before,.control.hollow::before{content:"";width:.45rem;height:.45rem;border-radius:50%;background:#61e4d0;flex:none}
+.control.target::before{background:#f9a1cb}
+.control.hollow::before{background:transparent;border:1px solid #61e4d0}
+.control.swatch::before{content:"";width:.72rem;height:.72rem;border-radius:.15rem;background:#e7ab78;flex:none}
+.control.select::after{content:"▾";color:#bfd1df}
+.control.range::after{content:"";width:2rem;height:.4rem;border-radius:1rem;background:radial-gradient(circle at 55%,#a9f5e9 0 .19rem,transparent .2rem),linear-gradient(#537c9a,#537c9a) center/100% .17rem no-repeat}
+figcaption{font-size:.82rem;color:var(--muted);margin:.45rem 0 0}
+.steps{margin:0;padding-left:1.45rem}
+.steps li{padding-left:.2rem;margin-bottom:.7rem}
+.steps li::marker{color:var(--teal);font-weight:750}
+.steps p{margin:.12rem 0 0;color:var(--muted)}
+.example{background:var(--pale);border-radius:.5rem;padding:.8rem .9rem;margin-top:.9rem}
+.example p{margin:.25rem 0 0}
+.back{display:inline-block;margin-top:.95rem;font-size:.9rem}
+footer{color:var(--muted);font-size:.85rem;padding:.3rem 0 2.2rem}
+@media(max-width:48rem){.columns{grid-template-columns:1fr}header{padding:2rem 0}}
+@media print{body{background:white}article{break-inside:avoid}.back{display:none}}
+
 </style>
-</head>
+<style> 
+.samples{background:#102232;color:#e2eff9}.group{margin:0 0 18px}.group:last-child{margin-bottom:0}.group h3{font:600 12px system-ui;color:#8fd8e6;margin-bottom:10px}.items{display:flex;flex-wrap:wrap;gap:12px;align-items:start}.item{display:inline-block;max-width:100%;font:12px system-ui;vertical-align:top}.item small{display:block;font:11px/1.4 system-ui;color:#adcad8;max-width:190px;margin:4px 0}.realbutton{display:inline-block;background:#193c53;border:1px solid #31566e;border-radius:6px;color:#e2eff9;padding:9px 12px;font:12px Arial}.iconbutton{width:34px;height:32px;display:inline-flex;align-items:center;justify-content:center;min-width:26px;min-height:25px;padding:4px;background:#19394d;border:1px solid #31566e;border-radius:5px;color:#d9edf5}.field{display:block;min-height:32px;min-width:160px;max-width:280px;background:#0e1b29;color:#dceafa;border:1px solid #4e6680;border-radius:5px;padding:7px;font:12px Arial}.check{color:#26c8e5;font-size:17px}.swatch{display:inline-block;background:#ffdf40;width:25px;height:25px;border:1px solid #536d83;border-radius:3px}.motion{display:flex;gap:12px;align-items:center;max-width:100%}.focus{width:64px;text-align:center}.focus>*{display:block}.turn{width:245px}.turn b{display:block;margin-top:9px}.turn small,.focus small{font:10px Arial;color:#adcad8}.turn em{float:right;font-style:normal}.dim{opacity:.5}.motion b{font:600 12px Arial}
+@page{size:A4;margin:15mm;@bottom-center{content:'Visor MPR · '+counter(page)+' / '+counter(pages);font:9px sans-serif;color:#617687}}
+@media print{*{box-sizing:border-box}body{font:12px/1.5 sans-serif;background:white}.wrap{width:100%}header{padding:20px 0}h1{font-size:32px}h2{font-size:22px}nav{break-after:page;padding:12px 0}nav ol{display:block;columns:2}nav li{margin-bottom:6px;break-inside:avoid}nav a{display:block;font-size:11px;padding:6px}article{break-before:page;border:0;padding:0;margin:0;break-inside:auto}.columns{display:block}.samples{padding:14px}.items{gap:14px}.group{margin-bottom:14px}.steps{margin-top:18px;columns:2;column-gap:24px}.steps li{break-inside:avoid;margin-bottom:12px}.example{break-inside:avoid}.back,footer{display:none}figcaption{font-size:9px}.realbutton{font-size:11px;padding:7px 10px}.item small{font-size:10px}}
+</style></head>
 <body>
-<header id="inicio">
-<div class="eyebrow">VISOR MPR · V2</div>
-<h1>Manual de uso del visor MPR</h1>
-<p>Guía para abrir exploraciones, revisar segmentaciones 3D, preparar vistas y utilizar el modo US. Los ejemplos usan el identificador ficticio <code>caso_001</code>.</p>
-<p>Edición del 7 de noviembre de 2026 · <a href="../mpr.html">Abrir el visor</a></p>
-</header>
-<div class="layout">
-<nav aria-label="Índice"><strong>Índice</strong><ol>
-<li><a href="#arranque">Primera sesión</a></li>
-<li><a href="#archivos">Archivos y carga</a></li>
-<li><a href="#navegacion">Interfaz y navegación</a></li>
-<li><a href="#estructuras">Estructuras y grupos</a></li>
-<li><a href="#cortes">Cortes y recorte 3D</a></li>
-<li><a href="#medidas">Medidas y anotaciones</a></li>
-<li><a href="#vistas">Mis vistas</a></li>
-<li><a href="#presentacion">Presentación del caso</a></li>
-<li><a href="#sesion">Configuración e historial</a></li>
-<li><a href="#us">Modo US</a></li>
-<li><a href="#problemas">Solución de problemas</a></li>
-<li><a href="#instalar">Publicar el manual</a></li>
-</ol></nav>
-<main>
-<section id="arranque">
-<h2>1. Primera sesión</h2>
-<ol>
-<li>Abre <code>mpr.html</code>. En <strong>Caso</strong>, carga el volumen <strong>NRRD</strong> y el modelo <strong>GLB</strong>. Si has abierto un enlace de caso con <code>?modelo=</code>, espera a que termine la carga automática.</li>
-<li>Comprueba la alineación de varios contornos conocidos en axial, coronal y sagital. Recorre unos cuantos cortes y revisa también la posición del modelo en 3D.</li>
-<li>Haz clic en un punto del volumen con <strong>Navegar</strong> para llevar los demás cortes a la misma posición. Comprueba las cruces de referencia si están activadas.</li>
-<li>Abre <strong>Estructuras</strong>, ajusta la visibilidad y crea una primera vista en <strong>Mis vistas → Añadir vista</strong>.</li>
-<li>Para llevarte la sesión, abre <strong>Caso → Configuración del caso → Exportar</strong> y guarda el JSON junto con los archivos de imagen y modelo.</li>
-</ol>
-<p>El visor combina un volumen de imagen y una malla segmentada en el mismo espacio físico. Si al abrir un caso los contornos quedan desplazados, comprueba el origen y la orientación de ambos archivos antes de utilizar medidas o cortes.</p>
-</section>
-<section id="archivos">
-<h2>2. Archivos y carga</h2>
-<h3>Carga local</h3>
-<p>Usa <strong>Cargar imagen NRRD</strong> y <strong>Cargar modelo GLB</strong> en el menú <strong>Caso</strong>. Los selectores abren archivos del equipo. El volumen aporta los vóxeles y su geometría física. El GLB aporta las superficies, nombres y materiales de las segmentaciones. Guarda ambos archivos juntos para poder recuperar después la configuración y las vistas.</p>
-<p>El visor lee el origen, los tamaños y las direcciones espaciales del NRRD. Admite volúmenes con ejes alineados en RAS o LPS. Si detecta direcciones oblicuas en el encabezado, solicita remuestrear a ejes RAS antes de superponer el GLB. Los cortes oblicuos interactivos se pueden crear después de cargar un volumen compatible.</p>
-<h3>Carga automática desde el sitio</h3>
-<p>Un enlace como <code>mpr.html?modelo=modelos/caso_001.glb</code> abre el GLB del mismo sitio. Usa un identificador de caso con letras, números, guiones o guiones bajos. El visor busca los archivos siguientes con el mismo identificador.</p>
-<div class="table-wrap"><table>
-<caption>Archivos del caso publicado</caption>
-<thead><tr><th scope="col">Contenido</th><th scope="col">Ruta de ejemplo</th></tr></thead>
-<tbody>
-<tr><td>Modelo</td><td><code>modelos/caso_001.glb</code></td></tr>
-<tr><td>Volumen completo</td><td><code>nrrd/caso_001.nrrd</code></td></tr>
-<tr><td>Manifiesto de volumen fragmentado</td><td><code>nrrd/caso_001.nrrd.parts.json</code></td></tr>
-<tr><td>Árbol de grupos opcional</td><td><code>organización_estructuras/caso_001_estructura.json</code></td></tr>
-<tr><td>Lista de vistas opcional</td><td><code>vistas/mpr/caso_001_vista.json</code></td></tr>
-</tbody></table></div>
-<p>El manifiesto tiene prioridad. Si su ruta devuelve un 404, el visor busca el NRRD completo. Conserva el manifiesto y todas las partes a las que hace referencia. Cuando la carga automática queda incompleta, el menú Caso vuelve a mostrar los selectores locales. Los controles para pegar enlaces externos se retiraron de esta versión.</p>
-<p>Utiliza casos anonimizados en sitios públicos y conserva los estudios clínicos identificables en el entorno autorizado de tu centro. Al preparar un caso de demostración, revisa también los nombres de los archivos, las anotaciones y las capturas.</p>
-</section>
-<section id="navegacion">
-<h2>3. Interfaz y navegación</h2>
-<p>El visor tiene tres ventanas de imagen, <strong>Axial</strong>, <strong>Coronal</strong> y <strong>Sagital</strong>, y una <strong>Vista 3D</strong>. El botón del panel general en el cabecero muestra u oculta los menús de caso, estructuras, vistas y presentación. El botón contiguo contrae las barras de herramientas de las cuatro vistas y deja los títulos visibles. Púlsalo otra vez para recuperar los iconos.</p>
-<div class="table-wrap"><table>
-<caption>Acciones habituales</caption>
-<thead><tr><th scope="col">Acción</th><th scope="col">Cómo usarla</th></tr></thead>
-<tbody>
-<tr><td>Recorrer cortes</td><td>Con Navegar, usa la rueda sobre una vista 2D o su deslizador inferior.</td></tr>
-<tr><td>Sincronizar los cortes</td><td>Con Navegar y la sincronización activada, pulsa el punto de interés en cualquiera de los cortes.</td></tr>
-<tr><td>Aumentar o reducir</td><td>Activa Zoom y usa la rueda. <kbd>Ctrl</kbd> + rueda también ajusta el zoom en 2D.</td></tr>
-<tr><td>Desplazar el encuadre</td><td>En el menú de navegación, elige Desplazar y arrastra con el botón izquierdo en la ventana 2D.</td></tr>
-<tr><td>Ajustar ventana y nivel</td><td>Activa Ventana / nivel y arrastra sobre la imagen. El movimiento horizontal cambia la anchura y el vertical el nivel. Los ajustes de imagen incluyen valores numéricos y preajustes.</td></tr>
-<tr><td>Centrar o restablecer</td><td>Centrar corrige el desplazamiento del encuadre. Restablecer vista recupera el encuadre inicial de la ventana o reajusta la cámara 3D a la escena.</td></tr>
-<tr><td>Maximizar o volver a las cuatro vistas</td><td>Haz doble clic en el título de la ventana. <kbd>Esc</kbd> permite salir de la vista maximizada si no hay una acción pendiente que consuma esa tecla.</td></tr>
-<tr><td>Girar en 3D</td><td>Activa Navegar y arrastra sobre el modelo. Las orientaciones anatómicas permiten saltar a anterior, posterior, derecha, izquierda, superior e inferior.</td></tr>
-<tr><td>Mostrar planos o referencias</td><td>En la barra 3D, activa Axial, Coronal o Sagital. El icono de cruce controla la referencia 3D por separado de las cruces 2D.</td></tr>
-<tr><td>Capturar</td><td>El icono de cámara captura la distribución actual. En cuadrícula recoge las cuatro vistas. Con una ventana maximizada recoge esa ventana.</td></tr>
-</tbody></table></div>
-<p>El menú <strong>⋯</strong> de cada ventana abre opciones relacionadas con esa vista. En 3D, el botón de información muestra el volumen total de las estructuras visibles, calculado a partir de las mallas. El cálculo se apoya en superficies cerradas. La suma puede contar más de una vez las regiones solapadas y se calcula sin descontar el recorte.</p>
-<p>En móvil, las ventanas se apilan. En tableta suelen ocupar dos columnas con el panel general arriba. En pantallas amplias, el panel se sitúa a la izquierda. La disposición responde al tamaño de la ventana y al tipo de puntero. El cabecero general permanece disponible al maximizar.</p>
-</section>
-<section id="estructuras">
-<h2>4. Estructuras y grupos</h2>
-<h3>Seleccionar, mostrar y ajustar</h3>
-<ul>
-<li>En <strong>Todas las estructuras</strong>, pulsa el nombre para centrar esa estructura en las cuatro vistas. Usa su casilla de selección para añadirla a la selección y <strong>Ver</strong> para cambiar su visibilidad.</li>
-<li>Abre <strong>Ajustes</strong> de una estructura para cambiar color, opacidad, contorno 2D y etiqueta 3D. <strong>Restablecer</strong> recupera los ajustes iniciales correspondientes.</li>
-<li>Con <strong>Seleccionar estructura</strong>, pulsa una superficie en 3D o un contorno o su interior en 2D. El puntero puede mostrar el nombre de la estructura detectada.</li>
-<li>Con las tijeras <strong>Cortar</strong>, pulsa una estructura para ocultarla en todas las ventanas. Para recuperarla, activa <strong>Ver</strong> o usa <strong>Mostrar todas las estructuras</strong>.</li>
-<li><strong>Aislar seleccionadas</strong> muestra solo la selección. <strong>Restaurar visibilidad anterior</strong> recupera el estado previo al aislamiento. <strong>Quitar selección</strong> limpia la selección.</li>
-<li><strong>Rellenar contornos 2D cerrados</strong> colorea el interior de los contornos que forman un bucle. El control de opacidad del relleno permite conservar la lectura de la imagen de fondo.</li>
-</ul>
-<h3>Crear y editar un árbol</h3>
-<ol>
-<li>Abre <strong>Grupos → Editar árbol</strong>. El catálogo <strong>Estructuras disponibles</strong> aparece sobre el árbol.</li>
-<li>Pulsa <strong>Crear grupo</strong>, escribe su nombre y elige el nodo superior o la raíz. Guarda el grupo.</li>
-<li>Arrastra una estructura del catálogo a un grupo o a otra segmentación. La referencia se añade al destino y el catálogo conserva la estructura original. Puedes añadir la misma estructura a varios nodos.</li>
-<li>Para retirar una referencia, arrástrala desde el árbol hasta el catálogo. Cuando acabes, pulsa <strong>Terminar edición</strong>.</li>
-</ol>
-<p>En el árbol, la selección y la visibilidad de un nodo se propagan a sus descendientes. Las apariciones de una misma estructura reflejan su estado común. La lista <strong>Todas las estructuras</strong> sigue siendo el lugar para cambiar el material y los ajustes individuales.</p>
-<p><strong>Exportar árbol</strong> descarga <code>nombre_del_modelo_estructura.json</code>. <strong>Importar árbol</strong> abre un JSON del mismo GLB y aplica su organización. El visor comprueba la identidad del modelo antes de aplicarlo.</p>
-</section>
-<section id="cortes">
-<h2>5. Cortes y recorte 3D</h2>
-<h3>Orientar los cortes de imagen</h3>
-<p>Activa <strong>Cortes oblicuos</strong> en una ventana 2D. Arrastra un punto azul de la cruz para girar los planos y usa <kbd>Mayús</kbd> para un ajuste más fino. Haz doble clic en el icono para restablecer los cortes habituales.</p>
-<p>Para construir un plano concreto, activa <strong>Plano por tres puntos</strong> y marca tres puntos en las imágenes o sobre superficies del modelo 3D. El visor usa ese plano para orientar los cortes y el recorte. Elige puntos separados que no estén alineados. <kbd>Esc</kbd> cancela la selección pendiente. Un doble clic en el icono devuelve la orientación habitual de los cortes y del recorte.</p>
-<h3>Recortar la geometría visible</h3>
-<ol>
-<li>Pulsa <strong>Recorte del modelo</strong> en 3D. Al activarlo se abre el apartado de ajustes del recorte.</li>
-<li>Elige el eje y ajusta la posición. El recorte parte de una posición del 100 % y con el sentido invertido por defecto.</li>
-<li>Para un plano oblicuo, usa la opción de orientar el plano y arrastra en 3D. Vuelve a <strong>Navegar</strong> para mover la cámara.</li>
-<li>Usa la línea de recorte de las ventanas 2D para localizar dónde cruza cada imagen. Pulsa otra vez el icono de recorte para desactivarlo.</li>
-</ol>
-<p>El recorte 3D cambia la parte de la malla que se muestra. Los cortes oblicuos 2D cambian el plano de muestreo de la imagen. Las tijeras actúan sobre la visibilidad de una estructura completa.</p>
-</section>
-<section id="medidas">
-<h2>6. Medidas y anotaciones</h2>
-<ol>
-<li>En 2D, activa <strong>Medir en 2D</strong> y marca dos puntos del mismo corte. En 3D, activa <strong>Medir en 3D</strong> y marca dos superficies visibles del GLB. La distancia se muestra en milímetros.</li>
-<li>Para corregir una medida, activa <strong>Editar extremos</strong> en el menú de mediciones y arrastra un extremo. En 2D el extremo permanece en su corte. En 3D se desplaza sobre las superficies detectadas.</li>
-<li>En 3D, abre <strong>Textos y flechas</strong>. Para un texto, activa la herramienta de etiqueta y pulsa una superficie. Para una flecha, marca primero el origen y después la punta.</li>
-<li>Con la goma <strong>Borrar medida, texto o flecha</strong>, pulsa el elemento que quieres retirar. Usa <kbd>Esc</kbd> para cancelar un primer punto pendiente.</li>
-</ol>
-<p>Guarda una vista después de añadir las marcas que quieras recuperar. Para obtener una imagen de la revisión, usa la cámara de la ventana o las opciones del apartado de capturas.</p>
-</section>
-<section id="vistas">
-<h2>7. Mis vistas</h2>
-<ol>
-<li>Prepara los cortes, la cámara, las estructuras visibles y el tamaño de las ventanas.</li>
-<li>Pulsa <strong>Añadir vista</strong>, introduce el nombre y, si quieres, una anotación. Pulsa <strong>Guardar</strong>.</li>
-<li>Para recuperar una vista, pulsa su etiqueta. El recuadro bajo la lista muestra su anotación. También se recupera si la vista se guardó con una ventana maximizada.</li>
-<li>Abre <strong>Ajustes</strong> para editar el nombre y la anotación. <strong>Actualizar</strong> guarda además la configuración que está activa en ese momento. Si solo quieres corregir el texto, recupera primero esa vista.</li>
-<li>Arrastra el asa de una etiqueta para cambiar su orden. Marca <strong>Incluir en presentación</strong> en las vistas que quieras recorrer. Su etiqueta queda turquesa.</li>
-</ol>
-<p>Una vista conserva la cámara, los cortes, el zoom y desplazamiento, la ventana y nivel, los materiales, la visibilidad, el árbol, las medidas, las anotaciones y el recorte. Las vistas se guardan en el navegador para la combinación de volumen y modelo.</p>
-<p><strong>Exportar lista de vistas</strong> genera <code>nombre_del_modelo_vista.json</code>. <strong>Importar lista de vistas</strong> comprueba que los archivos del caso coincidan y omite vistas con la misma configuración y anotación. Si se publica una lista en la carpeta <code>vistas/mpr/</code>, la carga automática conserva las vistas locales con el mismo nombre. Puedes recuperar una vista borrada recientemente con <strong>Deshacer eliminación</strong>.</p>
-</section>
-<section id="presentacion">
-<h2>8. Presentación del caso</h2>
-<ol>
-<li>En <strong>Mis vistas</strong>, marca las vistas para presentar y ordénalas con el asa de arrastre.</li>
-<li>Abre <strong>Presentación</strong>, elige la primera vista en <strong>Empezar en</strong> y pulsa <strong>Presentar caso</strong>.</li>
-<li>Usa los botones de anterior y siguiente del cabecero. También puedes usar las flechas izquierda y derecha del teclado. El nombre y la anotación acompañan cada vista. La cámara 3D anima la transición cuando corresponde y respeta la preferencia del sistema de reducir movimiento.</li>
-<li>Pulsa el icono de detener o la tecla <kbd>Esc</kbd> para salir. <strong>Descargar informe</strong> genera un HTML con las vistas de la presentación y sus anotaciones.</li>
-</ol>
-<p>La presentación se ejecuta en la misma página y pliega el panel general al empezar. En el formato móvil muestra una ventana destacada y ofrece un selector para cambiar la ventana mostrada.</p>
-</section>
-<section id="sesion">
-<h2>9. Configuración e historial</h2>
-<div class="table-wrap"><table>
-<caption>Qué archivo exportar</caption>
-<thead><tr><th scope="col">Si quieres conservar</th><th scope="col">Usa</th><th scope="col">Archivo</th></tr></thead>
-<tbody>
-<tr><td>El árbol de grupos y sus referencias</td><td>Grupos → Exportar árbol</td><td><code>modelo_estructura.json</code></td></tr>
-<tr><td>El conjunto de vistas con sus anotaciones y orden</td><td>Mis vistas → Exportar lista de vistas</td><td><code>modelo_vista.json</code></td></tr>
-<tr><td>El estado actual del visor, las vistas y la selección</td><td>Caso → Configuración del caso → Exportar</td><td><code>modelo_caso.json</code></td></tr>
-</tbody></table></div>
-<p>Para recuperar una configuración, carga primero el mismo NRRD y GLB y luego usa <strong>Caso → Configuración del caso → Importar</strong>. El JSON contiene los ajustes y las vistas. Los datos de imagen y la geometría se leen de los archivos originales. La orientación de la sonda y el estado del diálogo US son controles de la sesión US.</p>
-<p>Usa las flechas de deshacer y rehacer del panel general para recorrer los cambios del caso. Los atajos son <kbd>Ctrl</kbd> + <kbd>Z</kbd> y <kbd>Ctrl</kbd> + <kbd>Mayús</kbd> + <kbd>Z</kbd>. En macOS puedes usar <kbd>⌘</kbd>. Cuando estás escribiendo en un campo de texto, el visor deja el atajo al editor de ese campo.</p>
-</section>
-<section id="us">
-<h2>10. Modo US</h2>
-<p>El modo US permite explorar un volumen de TC o RM desde un punto de entrada y una orientación de sonda simulados. La ventana ocupa casi toda la pantalla y muestra el corte de imagen junto a una lámina de <strong>10 mm</strong> del modelo, ambos orientados de la misma forma. La imagen procede del remuestreo de la exploración y conserva el contraste del volumen.</p>
-<h3>Abrir el modo y elegir la entrada</h3>
-<ol>
-<li>Carga el NRRD y el GLB y comprueba la alineación.</li>
-<li>Si quieres conservar un cruce de referencia, selecciónalo con <strong>Navegar</strong> y activa las cruces de referencia en las vistas correspondientes.</li>
-<li>Pulsa la sonda del cabecero general y selecciona el punto de entrada en un corte axial, coronal o sagital. El eje inicial se dirige desde la entrada hacia el centro del modelo.</li>
-<li>Usa <strong>Cambiar punto de entrada</strong> para elegir otra posición. Para regresar al visor, pulsa <strong>Cerrar</strong>.</li>
-</ol>
-<h3>Ajustar la orientación y la lectura</h3>
-<div class="table-wrap"><table>
-<caption>Controles del modo US</caption>
-<thead><tr><th scope="col">Control</th><th scope="col">Efecto</th></tr></thead>
-<tbody>
-<tr><td>Giro del plano</td><td>Gira el plano alrededor del eje de la sonda. La escala recorre una vuelta completa.</td></tr>
-<tr><td>Enfoque</td><td>El deslizador vertical entre las imágenes desplaza el enfoque en el sentido Sup o Inf del control. El valor se muestra en milímetros.</td></tr>
-<tr><td>Inclinación en el plano</td><td>Inclina lateralmente la sonda entre −15° Izq y +15° Dch. La entrada queda fija y la inclinación se produce dentro del plano actual.</td></tr>
-<tr><td>Sonda del diálogo</td><td>Mantén pulsado y arrastra. El movimiento horizontal ajusta el giro y el vertical modifica el enfoque.</td></tr>
-<tr><td>Máscara en abanico</td><td>Aplica la forma del sector de una sonda convexa en ambas imágenes y en el esquema. Al desactivarla se muestra el campo rectangular.</td></tr>
-<tr><td>Mostrar información en la imagen</td><td>Muestra u oculta el texto asociado al cruce de referencia, incluida su distancia al plano cuando corresponde.</td></tr>
-</tbody></table></div>
-<p>La profundidad visible a lo largo del eje es de <strong>25 cm</strong>. El indicador de enfoque muestra su distancia al punto de entrada. Si el enfoque queda fuera del encuadre, el indicador lo señala.</p>
-<h3>Interpretar el esquema</h3>
-<ul>
-<li>Los ejes <strong>Ant, Post, Sup, Inf, Dch e Izq</strong> indican las direcciones anatómicas. El recuadro gris representa los límites físicos del NRRD. El encuadre prioriza el modelo y la sonda, por lo que parte del recuadro puede quedar fuera de la imagen.</li>
-<li>La <strong>sonda amarilla</strong> se apoya en el punto de entrada. El <strong>plano turquesa</strong> representa el campo de corte. El <strong>borde rosa</strong> corresponde al lado izquierdo de la imagen US.</li>
-<li>La <strong>línea amarilla clara</strong> señala la intersección del plano central con la superficie de las estructuras visibles. Se limita al campo que muestra el esquema.</li>
-<li>El <strong>punto blanco</strong> es el enfoque. Si el cruce de referencia es visible en una de las imágenes US, el esquema lo sitúa en su posición espacial. La cruz aparece amarilla en el plano, rojiza hacia el lado Sup del control y azulada hacia el lado Inf. El texto de la imagen indica la distancia si está activado.</li>
-</ul>
-<p>Al regresar a las ventanas habituales, la última entrada del modo US queda marcada con una cruz azul cuando la visualización de referencias correspondiente está activada.</p>
-</section>
-<section id="problemas">
-<h2>11. Solución de problemas</h2>
-<div class="table-wrap"><table>
-<caption>Qué comprobar en cada situación</caption>
-<thead><tr><th scope="col">Síntoma</th><th scope="col">Comprobación</th></tr></thead>
-<tbody>
-<tr><td>El GLB se ve pero la imagen no carga</td><td>Verifica el identificador, la carpeta <code>nrrd/</code> y el estado del manifiesto. Si hay partes, comprueba que estén todas. Puedes probar con el NRRD local.</td></tr>
-<tr><td>Imagen y modelo desalineados</td><td>Comprueba que ambos proceden de la misma geometría de referencia. Revisa origen, orientación RAS o LPS y unidades del modelo antes de volver a exportar.</td></tr>
-<tr><td>Faltan contornos</td><td>Revisa «Ver» y «Contorno 2D» en los ajustes de la estructura. Comprueba que el corte atraviesa la malla. Para el relleno se necesita un contorno cerrado.</td></tr>
-<tr><td>La rueda cambia de corte cuando quiero zoom</td><td>Activa Zoom o mantén pulsada la tecla Ctrl mientras usas la rueda.</td></tr>
-<tr><td>No encuentro las herramientas de una ventana</td><td>Comprueba si los cabeceros están contraídos. Despliégalos desde el botón del cabecero general.</td></tr>
-<tr><td>El árbol o las vistas se rechazan al importar</td><td>Verifica que elegiste el tipo de JSON correcto y que estás usando el GLB y el volumen originales del caso. Una reexportación puede cambiar la identidad del archivo.</td></tr>
-<tr><td>Una vista no aparece en la presentación</td><td>Abre sus Ajustes y comprueba «Incluir en presentación». Revisa también la vista elegida en «Empezar en».</td></tr>
-<tr><td>El modo US no se abre</td><td>Carga el NRRD y el GLB, activa la sonda y elige la entrada dentro de un corte 2D. Selecciona un punto separado del centro del modelo.</td></tr>
-<tr><td>El cruce no se ve en US</td><td>Selecciona primero una referencia y activa su visualización. Gira o inclina la sonda hasta que su proyección entre en el campo. Con la máscara activa, debe caer dentro del abanico.</td></tr>
-<tr><td>El visor queda en blanco al abrir</td><td>Comprueba que el navegador dispone de WebGL y que puede cargar las dependencias del visor. Si abres el archivo local y el navegador bloquea los módulos, usa el sitio publicado o un servidor local.</td></tr>
-</tbody></table></div>
-</section>
-<section id="instalar">
-<h2>12. Publicar el manual</h2>
-<p>Guarda este archivo como <code>manual/index.html</code> en la misma rama que <code>mpr.html</code>. El botón <strong>Manual</strong> del cabecero ya apunta a esa ruta. El manual incluye su propio estilo y un índice navegable. También puedes abrirlo como HTML independiente o imprimirlo desde el navegador.</p>
-<pre><code>mpr.html
-manual/
-  index.html</code></pre>
-<p><a href="#inicio">Volver al inicio</a></p>
-</section>
-</main>
+<header>
+<div class="wrap">
+<p class="kicker">Guía práctica · Visualización multiplanar</p>
+<h1>Manual del Visor MPR</h1>
+<p>Guía de uso con los iconos y etiquetas de mpr.html, revisión 258. Sin capturas de pantalla. Las muestras se agrupan por función; no representan la disposición completa del visor.</p>
 </div>
-<footer>Manual de uso · Visor MPR v2</footer>
+</header>
+<main class="wrap">
+<nav aria-labelledby="titulo-indice" id="indice">
+<h2 id="titulo-indice">Índice</h2>
+<ol>
+<li><a href="#inicio"><b>01</b> Conoce la pantalla principal</a></li>
+<li><a href="#carga"><b>02</b> Carga y recupera un caso</a></li>
+<li><a href="#navegacion"><b>03</b> Muévete por los cortes</a></li>
+<li><a href="#estructuras"><b>04</b> Estructuras, contornos y grupos</a></li>
+<li><a href="#recorte"><b>05</b> Cortes oblicuos y recorte 3D</a></li>
+<li><a href="#mediciones"><b>06</b> Medidas, anotaciones y capturas</a></li>
+<li><a href="#vistas"><b>07</b> Guarda vistas y presenta el caso</a></li>
+<li><a href="#crear"><b>08</b> Define una trayectoria</a></li>
+<li><a href="#editar"><b>09</b> Edita extremos y lee los ángulos</a></li>
+<li><a href="#us"><b>10</b> Explora el corte simulado</a></li>
+<li><a href="#enfoque"><b>11</b> Cambia la entrada y el enfoque</a></li>
+<li><a href="#us-eje"><b>12</b> Trabaja con la trayectoria como eje</a></li>
+<li><a href="#solucion"><b>13</b> Resuelve los problemas habituales</a></li>
+</ol>
+</nav>
+<article aria-labelledby="inicio-titulo" id="inicio">
+<p class="kicker">01 / Orientación</p>
+<h2 id="inicio-titulo">Conoce la pantalla principal</h2>
+<p>El visor reúne tres cortes del volumen, una vista 3D y un panel lateral para las acciones del caso.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Cabecera general</h3><div class="items"><div class="item"><small>Plegar panel general</small><span class="iconbutton"><svg aria-hidden="true" fill="none" height="20" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 20 20" width="20"><rect height="14" rx="2" width="16" x="2" y="3"></rect><path d="M8 3v14"></path></svg></span></div><div class="item"><small>Contraer cabeceros de las vistas</small><span class="iconbutton"><svg aria-hidden="true" fill="none" height="20" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 20 20" width="20"><rect height="14" rx="2" width="16" x="2" y="3"></rect><path d="M2 8h16m-11 5 3-2 3 2"></path></svg></span></div><div class="item"><small>Modo US</small><span class="iconbutton"><svg aria-hidden="true" fill="none" height="25" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 32 32" width="25"><path d="M10 4q8-6 16 0M13 7q5-4 10 0M16 10q2-2 4 0"></path><path d="M11 14q7-6 14 0v4q0 3-3 5-1 1-1 3v2a3 3 0 0 1-6 0v-2q0-2-1-3-3-2-3-5zM11 17q7-5 14 0M18 25v3M18 31C12 34 12 23 7 24c-3 0-4 3-4 5"></path></svg></span></div><div class="item"><small>Marcar objetivo US · Doble clic para borrar</small><span class="iconbutton"><svg aria-hidden="true" fill="none" height="25" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="25"><circle cx="12" cy="12" r="7"></circle><circle cx="12" cy="12" r="2"></circle><path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path></svg></span></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Cabecera general</h3><p>Los iconos de panel dividido y cabecera pliegan el panel general y contraen los cabeceros. El grupo de sonda y diana activa Modo US y Marcar objetivo US.</p></li>
+<li><h3>Panel del caso</h3><p>Carga archivos, organiza estructuras y accede a Trayectoria 3D, Mis vistas y Presentación.</p></li>
+<li><h3>Cortes MPR</h3><p>Axial, coronal y sagital tienen su propia barra de iconos, menú y control de corte.</p></li>
+<li><h3>Vista 3D</h3><p>Combina el modelo con los planos de imagen que actives.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Localiza el icono de panel dividido y púlsalo para plegar el panel. Deja el puntero sobre cualquier icono del visor para leer su etiqueta.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="carga-titulo" id="carga">
+<p class="kicker">02 / Archivos</p>
+<h2 id="carga-titulo">Carga y recupera un caso</h2>
+<p>El volumen y el modelo son archivos independientes. La configuración guarda el trabajo asociado al caso.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Caso</h3><div class="items"><div class="item"><span class="realbutton">Cargar imagen NRRD</span></div><div class="item"><span class="realbutton">Cargar modelo GLB</span></div></div></div><div class="group"><h3>Configuración del caso</h3><div class="items"><div class="item"><span class="realbutton">Importar</span></div><div class="item"><span class="realbutton">Exportar</span></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Carga el volumen</h3><p>Abre Caso y pulsa Cargar imagen NRRD. Espera a que se activen los tres cortes.</p></li>
+<li><h3>Añade el modelo</h3><p>Pulsa Cargar modelo GLB. Usa un modelo que comparta coordenadas con el volumen y comprueba la coincidencia de los contornos.</p></li>
+<li><h3>Guarda tu trabajo</h3><p>En Configuración del caso, usa Exportar. Para recuperarlo, carga los mismos archivos y pulsa Importar. Usa Deshacer o Rehacer para revisar cambios de la sesión.</p></li>
+<li><h3>Abre un enlace de caso</h3><p>Si el enlace identifica el modelo, el visor intenta cargar el volumen asociado. Los botones de carga local se muestran al abrir mpr.html sin el parámetro modelo.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Para retomar un caso en otro equipo, reúne el NRRD, el GLB y el archivo de configuración exportado.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="navegacion-titulo" id="navegacion">
+<p class="kicker">03 / Navegación</p>
+<h2 id="navegacion-titulo">Muévete por los cortes</h2>
+<p>Usa la navegación sincronizada para mantener una referencia común en axial, coronal y sagital.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Herramientas de los cortes</h3><div class="items"><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="m5 3 14 9-7 1-3 7z"></path></svg></span><small>Navegar</small></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><circle cx="10" cy="10" r="6"></circle><path d="m15 15 6 6M7 10h6m-3-3v6"></path></svg></span><small>Zoom</small></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><circle cx="12" cy="12" r="8"></circle><path d="M12 4v16M4 12h8"></path></svg></span><small>Ventana / nivel</small></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><circle cx="12" cy="12" r="6"></circle><path d="M12 2v6m0 8v6M2 12h6m8 0h6"></path></svg></span><small>Centrar</small></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"></path></svg></span><small>Restablecer vista</small></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="M12 2v7m0 6v7M2 12h7m6 0h7"></path><circle cx="12" cy="12" r="2"></circle></svg></span><small>Mostrar cruces de referencia</small></div></div></div><div class="group"><h3>Imagen de la exploración</h3><div class="items"><div class="item"><small>Preajuste</small><span class="field">Personalizado ▾</span></div><div class="item"><small>Nivel (HU)</small><span class="field">70</span></div><div class="item"><small>Anchura (HU)</small><span class="field">350</span></div><div class="item"><span class="realbutton">Aplicar ventana</span></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Recorre o amplía</h3><p>Usa la rueda para cambiar de corte y Ctrl + rueda para el zoom. Arrastra con el botón derecho para desplazar la imagen.</p></li>
+<li><h3>Sincroniza un punto</h3><p>En Navegar, pulsa sobre el volumen con la sincronización activada. Activa Mostrar cruces de referencia si quieres ver la posición en los cortes.</p></li>
+<li><h3>Ajusta la imagen</h3><p>Abre ⋯ en la cabecera del corte y despliega Imagen de la exploración. Elige un preajuste o aplica Nivel y Anchura; afectan a los tres planos. Haz doble clic para ampliar una vista y repite para restaurarla.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Localiza un punto en axial, púlsalo en Navegar y comprueba cómo se ajustan los cortes coronal y sagital.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="estructuras-titulo" id="estructuras">
+<p class="kicker">04 / Modelo</p>
+<h2 id="estructuras-titulo">Estructuras, contornos y grupos</h2>
+<p>El catálogo permite ajustar el aspecto de cada segmentación. El árbol permite ordenarlas para navegar por el modelo.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Estructuras</h3><div class="items"><div class="item"><small>Buscar estructura</small><span class="field">Nombre de lesión, vaso u órgano…</span></div><div class="item"><span class="realbutton">Expandir árbol</span></div><div class="item"><span class="realbutton">Contraer árbol</span></div><div class="item"><span class="realbutton">+ Grupo / subgrupo</span></div><div class="item"><span class="realbutton">Exportar árbol</span></div><div class="item"><span class="realbutton">Importar árbol</span></div><div class="item"><span class="realbutton">Aislar seleccionadas</span></div><div class="item"><span class="realbutton">Restaurar visibilidad anterior</span></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Busca y centra</h3><p>En Estructuras, busca por nombre. Pulsa la etiqueta de una estructura para centrar las vistas en ella.</p></li>
+<li><h3>Ajusta su aspecto</h3><p>Abre Ajustes para modificar color, opacidad, contorno 2D y nombre en 3D. Usa la selección y Aislar seleccionadas para revisar un conjunto.</p></li>
+<li><h3>Organiza el árbol</h3><p>Pulsa Editar árbol y arrastra elementos desde Estructuras disponibles a un grupo o a otra segmentación. Usa Exportar árbol e Importar árbol para reutilizar la organización.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Agrupa las ramas portales bajo su rama principal y ajusta los contornos de las estructuras que quieras reconocer en el TC.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="recorte-titulo" id="recorte">
+<p class="kicker">05 / Reconstrucción</p>
+<h2 id="recorte-titulo">Cortes oblicuos y recorte 3D</h2>
+<p>Puedes orientar un corte de imagen o mover un plano que recorta la geometría visible del GLB.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Barra de herramientas</h3><div class="items"><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><circle cx="5" cy="18" r="2"></circle><circle cx="12" cy="4" r="2"></circle><circle cx="20" cy="17" r="2"></circle><path d="m6 16 5-10m3 0 5 9M7 18h11"></path></svg></span><small>Plano por tres puntos</small></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="m3 15 12-12 6 6-12 12zM3 3l18 18M12 2v20"></path></svg></span><small>Cortes oblicuos</small></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="M5 3v18m4-16 11 7-11 7M2 8h6M2 16h6"></path></svg></span><small>Activar / desactivar recorte del modelo</small></div></div></div><div class="group"><h3>Recorte del modelo</h3><div class="items"><div class="item"><small>Posición de recorte</small><svg height="28" viewbox="0 0 245 28" width="245"><rect fill="#193c53" height="24" rx="5" stroke="#31566e" width="24" x="1" y="2"></rect><path d="m15 8-5 6 5 6" fill="none" stroke="#d9edf5"></path><rect fill="#26c8e5" height="6" rx="3" width="91" x="31" y="11"></rect><rect fill="#53616a" height="6" rx="3" width="91" x="122" y="11"></rect><circle cx="122" cy="14" fill="#26c8e5" r="8"></circle><rect fill="#193c53" height="24" rx="5" stroke="#31566e" width="24" x="220" y="2"></rect><path d="m230 8 5 6-5 6" fill="none" stroke="#d9edf5"></path></svg></div><div class="item"><span class="check">☐</span> Activar recorte del GLB</div><div class="item"><small>Eje de recorte</small><span class="field">Sagital (X) ▾</span></div><div class="item"><span class="realbutton">Girar plano en 3D</span></div><div class="item"><small>Control del giro</small><span class="field">Libre ▾</span></div><div class="item"><span class="realbutton">Alinear con el corte de imagen</span></div><div class="item"><span class="check">☑</span> Invertir lado conservado</div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Orienta la imagen</h3><p>Activa Cortes oblicuos y arrastra un punto azul de la cruz. Mantén Mayús para un ajuste fino. Un doble clic en el icono restablece la orientación.</p></li>
+<li><h3>Elige los planos en 3D</h3><p>En los controles de la vista 3D, activa las casillas Axial, Coronal y Sagital que quieras ver en la escena.</p></li>
+<li><h3>Recorta el modelo</h3><p>Pulsa el icono de recorte de la barra 3D, o abre ⋯ &gt; Vista 3D &gt; Recorte del modelo. Posición de recorte aparece justo debajo del título. Activa el recorte y ajusta posición, eje y giro. Alinear con el corte de imagen usa la orientación del corte.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Coloca un corte axial en la zona de interés y usa la opción de alinear para orientar el plano de recorte del modelo.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="mediciones-titulo" id="mediciones">
+<p class="kicker">06 / Herramientas</p>
+<h2 id="mediciones-titulo">Medidas, anotaciones y capturas</h2>
+<p>Los menús de cada vista agrupan las herramientas que se pueden utilizar en esa ventana.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Acceso desde las barras</h3><div class="items"><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="m3 16 13-13 5 5L8 21zM7 12l3 3m0-6 3 3m0-6 3 3"></path></svg></span><small>Medir en 2D / Medir en 3D</small></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="M4 20 20 4M9 4h11v11"></path></svg></span><small>Textos y flechas</small></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="m3 14 10-10 8 8-9 9H9zM7 10l8 8M12 21h9"></path></svg></span><small>Borrar medida, texto o flecha</small></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="M3 7h5l2-3h4l2 3h5v14H3z"></path><circle cx="12" cy="14" r="4"></circle></svg></span><small>Capturar distribución actual</small></div></div></div><div class="group"><h3>Textos y flechas 3D</h3><div class="items"><div class="item"><small>Texto (opcional para flechas)</small><span class="field">Ej.: Bifurcación portal</span></div><div class="item"><small>Color</small><span class="swatch"></span></div><div class="item"><span class="realbutton">Añadir etiqueta de texto</span></div><div class="item"><span class="realbutton">Añadir flecha</span></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Mide una distancia</h3><p>Pulsa Medir en 2D y selecciona dos puntos del mismo corte. En Medir en 3D, elige dos puntos sobre superficies visibles del modelo.</p></li>
+<li><h3>Ajusta y anota</h3><p>Usa Editar extremos para mover un punto de una medición. En Textos y flechas 3D, elige color y ancla la anotación en el modelo.</p></li>
+<li><h3>Exporta una imagen</h3><p>Abre ⋯ en una vista y despliega Capturas. Selecciona una vista o Las cuatro ventanas y pulsa Descargar captura. El icono de cámara captura la distribución actual. Guarda una vista para conservar medidas y anotaciones.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Mide dos puntos en un corte, ajusta un extremo y guarda una vista con una anotación que explique qué se midió.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="vistas-titulo" id="vistas">
+<p class="kicker">07 / Vistas</p>
+<h2 id="vistas-titulo">Guarda vistas y presenta el caso</h2>
+<p>Una vista guarda un estado recuperable del visor. Una captura PNG es una imagen del estado visible.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Mis vistas</h3><div class="items"><div class="item"><span class="realbutton">Añadir vista</span></div><div class="item"><small>Nombre de la vista</small><span class="field">Ej.: Vista portal</span></div><div class="item"><small>Anotación de la vista</small><span class="field">Ej.: Lesión próxima a la bifurcación portal</span></div><div class="item"><span class="realbutton">Guardar</span></div><div class="item"><span class="realbutton">Exportar lista de vistas</span></div><div class="item"><span class="realbutton">Importar lista de vistas</span></div></div></div><div class="group"><h3>Presentación</h3><div class="items"><div class="item"><span class="realbutton">Presentar caso</span></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Crea y recupera</h3><p>Abre Añadir vista, escribe nombre y anotación y pulsa Guardar. Pulsa el nombre en la lista para recuperarla.</p></li>
+<li><h3>Ordena y edita</h3><p>Arrastra el asa de la fila para reordenarla. Abre Ajustes para actualizar o eliminar la vista y decidir si se incluye en la presentación.</p></li>
+<li><h3>Transfiere la lista</h3><p>Usa Exportar lista de vistas e Importar lista de vistas para llevarla a otro navegador con los mismos archivos del caso.</p></li>
+<li><h3>Presenta o exporta</h3><p>En Presentación, elige la vista inicial y pulsa Presentar caso. Usa las flechas para avanzar y Descargar informe para exportar el informe HTML.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Prepara una vista general y dos vistas de detalle. Ordénalas según el recorrido que quieras enseñar.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="crear-titulo" id="crear">
+<p class="kicker">08 / Trayectoria 3D</p>
+<h2 id="crear-titulo">Define una trayectoria</h2>
+<p>El orden de selección empieza por el objetivo. El trayecto terminado une la entrada verde con el destino rosa.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Trayectoria 3D</h3><div class="items"><div class="item"><span class="realbutton">Nueva trayectoria</span></div><div class="item"><span class="realbutton">Editar extremos</span></div><div class="item"><span class="realbutton">Guardar como vista</span></div><div class="item"><span class="realbutton">Borrar trayectoria</span></div><div class="item"><span class="realbutton">Abrir US con trayectoria</span></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Activa Nueva trayectoria</h3><p>Abre Trayectoria 3D y pulsa Nueva trayectoria. Puedes trabajar sobre los cortes y, con un GLB visible, sobre el modelo.</p></li>
+<li><h3>Marca el objetivo</h3><p>El primer clic fija el destino. Aparece un punto rosa. Puedes cambiar de corte antes de elegir el segundo extremo.</p></li>
+<li><h3>Marca la entrada</h3><p>El segundo clic fija el punto verde y crea el trayecto. El panel muestra su longitud y, con volumen, los ángulos respecto a los planos.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Marca primero el centro de una lesión en el corte donde mejor se vea. Luego recorre los cortes hasta localizar la entrada que quieres representar.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="editar-titulo" id="editar">
+<p class="kicker">09 / Trayectoria 3D</p>
+<h2 id="editar-titulo">Edita extremos y lee los ángulos</h2>
+<p>La reconstrucción longitudinal ocupa la ventana 3D durante la edición. Los controles también están en las cabeceras MPR.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Edición de extremos</h3><div class="items"><div class="item"><span class="realbutton"><span style="color:#61e4d0">●</span>  Ir a entrada</span></div><div class="item"><span class="realbutton"><span style="color:#f9a1cb">●</span>  Ir a destino</span></div><div class="item"><span class="realbutton">Terminar edición</span></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Salta y arrastra</h3><p>Pulsa Editar extremos y usa Ir a entrada o Ir a destino. Arrastra el marcador en un corte para ajustar su posición.</p></li>
+<li><h3>Distingue la proyección</h3><p>Un círculo hueco marca un extremo proyectado sobre el corte más cercano. Al arrastrarlo conserva su profundidad respecto a ese plano.</p></li>
+<li><h3>Lee los arcos</h3><p>Axial indica Dch/Izq, sagital Sup/Inf y coronal H/V. Son ángulos proyectados. El panel Trayectoria 3D muestra los ángulos espaciales respecto a los planos.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Salta a la entrada, ajusta el punto desde el plano más cómodo y pulsa Terminar edición. Usa Guardar como vista para recuperar el trayecto más tarde.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="us-titulo" id="us">
+<p class="kicker">10 / Modo US</p>
+<h2 id="us-titulo">Explora el corte simulado</h2>
+<p>El Modo US representa cortes de TC o RM desde una entrada y un enfoque, con una lámina alineada del modelo 3D.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Acciones del modo US</h3><div class="items"><div class="item"><small>Mantén pulsado y arrastra: horizontal para girar, vertical para inclinar</small><span class="iconbutton"><svg aria-hidden="true" fill="none" height="25" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 32 32" width="25"><path d="M10 4q8-6 16 0M13 7q5-4 10 0M16 10q2-2 4 0"></path><path d="M11 14q7-6 14 0v4q0 3-3 5-1 1-1 3v2a3 3 0 0 1-6 0v-2q0-2-1-3-3-2-3-5zM11 17q7-5 14 0M18 25v3M18 31C12 34 12 23 7 24c-3 0-4 3-4 5"></path></svg></span></div><div class="item"><span class="realbutton">Cambiar enfoque</span></div><div class="item"><span class="realbutton">Cambiar punto de entrada</span></div></div></div><div class="group"><h3>Opciones de imagen</h3><div class="items"><div class="item"><span class="check">☑</span> Máscara en abanico</div><div class="item"><span class="check">☑</span> Mostrar información en la imagen</div></div></div><div class="group"><h3>Movimiento de la sonda</h3><div class="items"><div class="motion"><div class="focus"><b>Enfoque</b><small>Sup</small><svg height="132" viewbox="0 0 32 132" width="32"><path d="m12 11 4-4 4 4" fill="none" stroke="#d9edf5"></path><rect fill="#427f71" height="44" rx="3" width="6" x="13" y="24"></rect><rect fill="#387db0" height="44" rx="3" width="6" x="13" y="68"></rect><circle cx="16" cy="68" fill="#e5faff" r="8"></circle><path d="m12 121 4 4 4-4" fill="none" stroke="#d9edf5"></path></svg><small>Inf · 0 mm</small></div><div class="turn"><b>Giro del plano <em>180°</em></b><svg height="28" viewbox="0 0 245 28" width="245"><rect fill="#193c53" height="24" rx="5" stroke="#31566e" width="24" x="1" y="2"></rect><path d="m15 8-5 6 5 6" fill="none" stroke="#d9edf5"></path><rect fill="#387db0" height="6" rx="3" width="91" x="31" y="11"></rect><rect fill="#427f71" height="6" rx="3" width="91" x="122" y="11"></rect><circle cx="122" cy="14" fill="#e5faff" r="8"></circle><rect fill="#193c53" height="24" rx="5" stroke="#31566e" width="24" x="220" y="2"></rect><path d="m230 8 5 6-5 6" fill="none" stroke="#d9edf5"></path></svg><small>0° · Dch　　　　　　180°　　　　Izq · 0°</small><div class=""><b>Inclinación en el plano <em>0°</em></b><svg height="28" viewbox="0 0 245 28" width="245"><rect fill="#193c53" height="24" rx="5" stroke="#31566e" width="24" x="1" y="2"></rect><path d="m15 8-5 6 5 6" fill="none" stroke="#d9edf5"></path><rect fill="#387db0" height="6" rx="3" width="91" x="31" y="11"></rect><rect fill="#427f71" height="6" rx="3" width="91" x="122" y="11"></rect><circle cx="122" cy="14" fill="#e5faff" r="8"></circle><rect fill="#193c53" height="24" rx="5" stroke="#31566e" width="24" x="220" y="2"></rect><path d="m230 8 5 6-5 6" fill="none" stroke="#d9edf5"></path></svg><small>−15° · Izq　　　　　　　　　+15° · Dch</small></div></div></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Abre el Modo US</h3><p>Carga volumen y GLB. Pulsa el icono de sonda en la cabecera y marca la entrada sobre un corte.</p></li>
+<li><h3>Lee la pantalla</h3><p>La miniatura muestra la entrada. El esquema 3D sitúa la sonda y el plano. Los paneles grandes muestran el corte del volumen y la lámina de modelo.</p></li>
+<li><h3>Orienta el plano</h3><p>Ajusta Giro del plano, Inclinación en el plano y Enfoque. El botón de sonda permite arrastrar para controlar el giro y la inclinación.</p></li>
+<li><h3>Amplía y ajusta las ayudas</h3><p>Haz doble clic en una miniatura para ampliarla. Usa Mostrar información en la imagen para alternar los datos sobre el corte.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Activa y desactiva Máscara en abanico para comparar el encuadre del mismo corte con y sin máscara.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="enfoque-titulo" id="enfoque">
+<p class="kicker">11 / Modo US</p>
+<h2 id="enfoque-titulo">Cambia la entrada y el enfoque</h2>
+<p>En el Modo US manual puedes elegir dónde se apoya la sonda y hacia qué punto se dirige el eje.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Elegir y conservar la posición</h3><div class="items"><div class="item"><span class="realbutton">Cambiar enfoque</span></div><div class="item"><span class="realbutton">Cambiar punto de entrada</span></div><div class="item"><small>Nombre de la posición de la sonda</small><span class="field">Nombre de la posición</span></div><div class="item"><span class="realbutton">Guardar posición</span></div><div class="item"><small>Anotación de la vista seleccionada</small><span class="field"></span></div><div class="item"><span class="realbutton">Guardar anotación</span></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Mueve la entrada</h3><p>Arrastra la cruz de la miniatura o usa las flechas del teclado. Para volver a elegir la entrada en el visor principal, pulsa Cambiar punto de entrada.</p></li>
+<li><h3>Elige el enfoque</h3><p>Pulsa Cambiar enfoque y haz clic en la miniatura, el corte TAC/RM o la lámina 3D. Se conserva la entrada. Esc cancela la selección.</p></li>
+<li><h3>Guarda la posición</h3><p>Escribe un nombre y pulsa Guardar posición. Selecciona una fila para recuperar la posición de la sonda y su enfoque, y añade una anotación si la necesitas.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>En la miniatura, pulsa Cambiar enfoque en la cabecera y elige el punto del corte hacia el que quieras orientar el eje.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="us-eje-titulo" id="us-eje">
+<p class="kicker">12 / Modo US</p>
+<h2 id="us-eje-titulo">Trabaja con la trayectoria como eje</h2>
+<p>Al abrir el Modo US desde un trayecto, la entrada y el enfoque se toman de sus extremos.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Acceso</h3><div class="items"><div class="item"><span class="realbutton">Abrir US con trayectoria</span></div></div></div><div class="group"><h3>Controles bloqueados al usar una trayectoria</h3><div class="items"><div class="item dim"><span class="realbutton">Cambiar enfoque</span></div><div class="item dim"><span class="realbutton">Cambiar punto de entrada</span></div></div></div><div class="group"><h3>Movimiento</h3><div class="items"><div class="motion"><div class="focus dim"><b>Enfoque</b><small>Sup</small><svg height="132" viewbox="0 0 32 132" width="32"><path d="m12 11 4-4 4 4" fill="none" stroke="#d9edf5"></path><rect fill="#427f71" height="44" rx="3" width="6" x="13" y="24"></rect><rect fill="#387db0" height="44" rx="3" width="6" x="13" y="68"></rect><circle cx="16" cy="68" fill="#e5faff" r="8"></circle><path d="m12 121 4 4 4-4" fill="none" stroke="#d9edf5"></path></svg><small>Inf · 0 mm</small></div><div class="turn"><b>Giro del plano <em>180°</em></b><svg height="28" viewbox="0 0 245 28" width="245"><rect fill="#193c53" height="24" rx="5" stroke="#31566e" width="24" x="1" y="2"></rect><path d="m15 8-5 6 5 6" fill="none" stroke="#d9edf5"></path><rect fill="#387db0" height="6" rx="3" width="91" x="31" y="11"></rect><rect fill="#427f71" height="6" rx="3" width="91" x="122" y="11"></rect><circle cx="122" cy="14" fill="#e5faff" r="8"></circle><rect fill="#193c53" height="24" rx="5" stroke="#31566e" width="24" x="220" y="2"></rect><path d="m230 8 5 6-5 6" fill="none" stroke="#d9edf5"></path></svg><small>0° · Dch　　　　　　180°　　　　Izq · 0°</small><div class="dim"><b>Inclinación en el plano <em>0°</em></b><svg height="28" viewbox="0 0 245 28" width="245"><rect fill="#193c53" height="24" rx="5" stroke="#31566e" width="24" x="1" y="2"></rect><path d="m15 8-5 6 5 6" fill="none" stroke="#d9edf5"></path><rect fill="#387db0" height="6" rx="3" width="91" x="31" y="11"></rect><rect fill="#427f71" height="6" rx="3" width="91" x="122" y="11"></rect><circle cx="122" cy="14" fill="#e5faff" r="8"></circle><rect fill="#193c53" height="24" rx="5" stroke="#31566e" width="24" x="220" y="2"></rect><path d="m230 8 5 6-5 6" fill="none" stroke="#d9edf5"></path></svg><small>−15° · Izq　　　　　　　　　+15° · Dch</small></div></div></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Abre desde la trayectoria</h3><p>Con el volumen, el GLB y el trayecto cargados, pulsa Abrir US con trayectoria. También puedes activar Modo US y pulsar el trayecto.</p></li>
+<li><h3>Gira sobre el eje</h3><p>Giro del plano sigue activo. Cambiar punto de entrada, Cambiar enfoque, Enfoque e Inclinación en el plano quedan bloqueados.</p></li>
+<li><h3>Revisa el objetivo US</h3><p>El marcador de objetivo tiene su propio control en la cabecera. En Modo US, el texto indica distancia al plano y profundidad. Usa Quitar objetivo para eliminarlo.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Gira el plano alrededor del trayecto para ver cómo cambia el corte manteniendo fijos la entrada y el destino.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+<article aria-labelledby="solucion-titulo" id="solucion">
+<p class="kicker">13 / Referencia rápida</p>
+<h2 id="solucion-titulo">Resuelve los problemas habituales</h2>
+<p>Empieza por identificar si el problema viene de la carga, la visibilidad o la herramienta activa.</p>
+<div class="columns">
+<figure>
+<div class="samples"><div class="group"><h3>Recuperación y visibilidad</h3><div class="items"><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="M4 10a8 8 0 1 1 1 8M4 4v6h6"></path></svg></span><small>Restablecer vista</small></div><div class="item"><span class="realbutton">Mostrar todas las estructuras</span></div><div class="item"><span class="realbutton">Restaurar visibilidad anterior</span></div><div class="item"><span class="iconbutton"><svg fill="none" height="17" stroke="#d9edf5" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" viewbox="0 0 24 24" width="17"><path d="M12 2v7m0 6v7M2 12h7m6 0h7"></path><circle cx="12" cy="12" r="2"></circle></svg></span><small>Mostrar cruces de referencia</small></div><div class="item"><span class="realbutton">Quitar objetivo</span></div></div></div></div>
+<figcaption>Iconos y etiquetas extraídos de mpr.html. Controles aislados para identificarlos; los valores mostrados son ejemplos.</figcaption>
+</figure>
+<div>
+<ol class="steps">
+<li><h3>Falta una imagen o un modelo</h3><p>Revisa el estado en Caso y la visibilidad de las estructuras. Para cargar archivos locales, abre mpr.html sin el parámetro modelo del enlace automático.</p></li>
+<li><h3>No ves un extremo</h3><p>Activa Editar extremos y pulsa Ir a entrada o Ir a destino. Busca el círculo hueco si el punto está entre cortes.</p></li>
+<li><h3>Un control aparece atenuado</h3><p>Comprueba si el Modo US se abrió con trayectoria. Para elegir una entrada y un enfoque manuales, cierra el modo y ábrelo desde un punto fuera de la trayectoria.</p></li>
+</ol>
+<aside class="example"><h3>Ejemplo práctico</h3><p>Si el contorno se ve desplazado en varios planos, vuelve a comprobar que el NRRD y el GLB correspondan a la misma exploración y al mismo espacio.</p></aside>
+</div>
+</div>
+<a class="back" href="#indice">Volver al índice ↑</a>
+</article>
+</main>
+<footer class="wrap">Manual contrastado con el código de mpr.html, revisión 258. Abre el visor para usar las herramientas. Los controles de esta guía son muestras explicativas.</footer>
 </body>
 </html>
