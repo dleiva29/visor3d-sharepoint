@@ -3996,6 +3996,17 @@
         treeCaseKey = null;
       const treeRows = [];
       let structureNameRoot = null;
+      const structureLabelView = {
+        position: new THREE.Vector3(),
+        rotation: new THREE.Quaternion(),
+        projection: new THREE.Matrix4(),
+        changedAt: -Infinity,
+        width: 0,
+        height: 0,
+        layoutDirty: true,
+        meshData: null,
+      };
+      const structureLabelSettleMs = 140;
       const selectedStructures = new Set();
       const modelAnnotations = [];
       let annotationRoot = null,
@@ -4131,6 +4142,11 @@
         camera.updateProjectionMatrix();
         renderer.setSize(width, height);
         controls.handleResize();
+        if (width !== structureLabelView.width || height !== structureLabelView.height) {
+          structureLabelView.width = width;
+          structureLabelView.height = height;
+          invalidateStructureNames();
+        }
       }
       const ro = new ResizeObserver(resize3D);
       ro.observe($("view3d"));
@@ -5132,6 +5148,7 @@
         const lps = $("space").value === "LPS";
         model.scale.set(lps ? -units : units, lps ? -units : units, units);
         model.updateWorldMatrix(true, true);
+        invalidateStructureNames(true);
         refreshStructureVolumes();
         fit();
         if (volume) ["x", "y", "z"].forEach(paint);
@@ -5237,6 +5254,7 @@
           visibilityLabel.append(visible, document.createTextNode("Ver"));
           visible.addEventListener("change", () => {
             items.forEach((item) => (item.mesh.visible = visible.checked));
+            invalidateStructureNames(true);
             if (!batchRestore) setSynchronizedVisibility([name], visible.checked);
           });
 
@@ -5296,6 +5314,7 @@
           nameCheck.setAttribute("aria-label", "Mostrar nombre de " + name + " en 3D");
           nameCheck.addEventListener("change", () => {
             if (nameCheck.checked) $("showStructureNames").checked = true;
+            invalidateStructureNames();
             updateStructureNames();
           });
           nameRow.append(nameLabel, nameCheck);
@@ -5324,6 +5343,7 @@
                 mat.depthWrite = value >= 1;
                 mat.needsUpdate = true;
               }
+            invalidateStructureNames(true);
             ["x", "y", "z"].forEach((a) => paint(a));
           });
           opacityRow.append(opacityLabel, slider, percent);
@@ -5352,6 +5372,7 @@
             visible.checked = items.every((item) => item.mesh.visible);
             contourCheck.checked = true;
             nameCheck.checked = true;
+            invalidateStructureNames(true);
             selectionCheck.disabled = !visible.checked;
             if (!batchRestore) updateStructureSelection();
             picker.value = defaultColor;
@@ -6192,6 +6213,7 @@
       scene.add(clipGuide);
 
       function updateClip() {
+        const previousClip = clipPlane;
         clipPlane = null;
         clipGuide.visible = false;
         if (model && $("clipEnabled").checked) {
@@ -6219,6 +6241,7 @@
           clipGuide.scale.setScalar(box.getSize(new THREE.Vector3()).length());
           clipGuide.visible = activeTool === "rotateClip";
         }
+        if (clipPlane ? !previousClip?.equals(clipPlane) : previousClip) invalidateStructureNames();
         model?.traverse((o) => {
           if (o.isMesh)
             for (const mat of Array.isArray(o.material) ? o.material : [o.material]) {
@@ -7974,7 +7997,7 @@
       scene.add(structureNameRoot);
       function rebuildStructureNames() {
         if (!structureNameRoot) return;
-        delete structureNameRoot.userData.layoutKey;
+        invalidateStructureNames(true);
         while (structureNameRoot.children.length) {
           const o = structureNameRoot.children[0];
           structureNameRoot.remove(o);
@@ -7995,15 +8018,11 @@
           structureNameRoot.add(sprite);
         }
       }
-      const structureLabelView = {
-        position: new THREE.Vector3(),
-        rotation: new THREE.Quaternion(),
-        projection: new THREE.Matrix4(),
-        changedAt: -Infinity,
-        checkedAt: -Infinity,
-      };
-      const structureLabelSettleMs = 140;
-      const structureLabelCheckMs = 180;
+      function invalidateStructureNames(meshesChanged = false) {
+        structureLabelView.layoutDirty = true;
+        // El encuadre, el recorte y los nombres no cambian las cajas de las mallas.
+        if (meshesChanged) structureLabelView.meshData = null;
+      }
 
       function updateStructureNames(immediate = false) {
         if (!structureNameRoot) return;
@@ -8023,6 +8042,7 @@
           view.rotation.copy(camera.quaternion);
           view.projection.copy(camera.projectionMatrix);
           view.changedAt = now;
+          view.layoutDirty = true;
         }
 
         // No probar oclusiones en cada fotograma de giro, desplazamiento o zoom.
@@ -8031,12 +8051,10 @@
           return;
         }
 
-        const refresh =
-          immediate || !structureNameRoot.visible || now - view.checkedAt >= structureLabelCheckMs;
         structureNameRoot.visible = true;
-        if (refresh) {
+        if (view.layoutDirty) {
           layoutStructureNames();
-          view.checkedAt = now;
+          view.layoutDirty = false;
         }
       }
       annotationRoot = new THREE.Group();
@@ -8156,7 +8174,7 @@
         return entries;
       }
       // Una etiqueta sólo tiene anclaje si una superficie de su capa se ve desde la cámara.
-      function visibleStructureAnchor(items, blockers, viewRay) {
+      function visibleStructureAnchor(items, blockers, viewRay, forward) {
         const intersection = new THREE.Vector3();
         const coordinates = new THREE.Vector2();
         const hits = [];
@@ -8166,7 +8184,7 @@
         function surfaceAt(x, y) {
           coordinates.set(x, y);
           viewRay.setFromCamera(coordinates, camera);
-          const cosine = viewRay.ray.direction.dot(camera.getWorldDirection(intersection));
+          const cosine = viewRay.ray.direction.dot(forward);
           viewRay.near = camera.near / cosine;
           viewRay.far = camera.far / cosine;
           hits.length = 0;
@@ -8264,44 +8282,27 @@
         return bounds.isEmpty() ? null : bounds;
       }
 
-      function layoutStructureNames() {
-        if (!structureNameRoot?.visible) return;
-        const width = $("view3d").clientWidth;
-        const height = $("view3d").clientHeight;
-        if (width <= 40 || height <= 60) return;
-
-        camera.updateMatrixWorld();
+      function collectStructureLabelMeshes() {
         modelRoot.updateWorldMatrix(true, true);
         const sprites = structureNameRoot.children.filter((object) => object.isSprite);
-        const state = [
-          width,
-          height,
-          ...camera.matrixWorld.elements,
-          ...camera.projectionMatrix.elements,
-          clipPlane?.constant,
-          ...(clipPlane?.normal.toArray() ?? []),
-        ];
         const meshesBySprite = new Map();
         const blockers = [];
         const modelBounds = new THREE.Box3();
         for (const sprite of sprites) {
           const { layer } = sprite.userData;
-          state.push(layer.nameCheck.checked);
           const items = [];
           for (const { mesh } of layer.items) {
             let visible = true;
             for (let node = mesh; node; node = node.parent) {
-              if (!node.visible) visible = false;
+              if (!node.visible) {
+                visible = false;
+                break;
+              }
             }
-            state.push(visible);
             if (!visible) continue;
             const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-            for (const m of materials) {
-              state.push(m.visible, m.colorWrite, m.opacity, m.transparent, m.depthWrite, m.side);
-            }
             const drawn = materials.filter((m) => m.visible && m.colorWrite && m.opacity > 0);
             if (!drawn.length) continue;
-            state.push(...mesh.matrixWorld.elements);
             if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
             const box = mesh.geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld);
             const item = { mesh, box };
@@ -8313,16 +8314,25 @@
           }
           meshesBySprite.set(sprite, items);
         }
-        const stateKey = state.join(",");
-        if (structureNameRoot.userData.layoutKey === stateKey) return;
-        structureNameRoot.userData.layoutKey = stateKey;
+        return { sprites, meshesBySprite, blockers, modelBounds };
+      }
 
+      function layoutStructureNames() {
+        const host = $("view3d");
+        const width = host.clientWidth;
+        const height = host.clientHeight;
+        if (width <= 40 || height <= 60) return;
+
+        const { sprites, meshesBySprite, blockers, modelBounds } =
+          (structureLabelView.meshData ??= collectStructureLabelMeshes());
+        camera.updateMatrixWorld();
+        const forward = camera.getWorldDirection(new THREE.Vector3());
         const ray = new THREE.Raycaster();
         const entries = [];
         for (const sprite of sprites) {
           const { leader, labelPixels, layer } = sprite.userData;
           const anchor = layer.nameCheck.checked
-            ? visibleStructureAnchor(meshesBySprite.get(sprite), blockers, ray)
+            ? visibleStructureAnchor(meshesBySprite.get(sprite), blockers, ray, forward)
             : null;
           sprite.visible = leader.visible = !!anchor;
           if (!anchor) continue;

@@ -15,7 +15,7 @@ function suite(html){
  async function test(name,fn){try{await fn();tested++;}catch(e){errors.push({name,message:e.message.slice(0,500)});}}
  return {run,test,errors,code,ast};
 }
-async function check(html){const s=suite(html);const {run,test}=s;
+async function check(html, labelTests = false){const s=suite(html);const {run,test}=s;
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
@@ -39,6 +39,167 @@ async function check(html){const s=suite(html);const {run,test}=s;
  await test('Flechas horizontal, vertical y estado disabled',async()=>{const dom=new JSDOM('<label for="r">Posición</label><input id="r" type="range" min="0" max="10" value="5" step="1"><input id="v" type="range" min="-10" max="10" value="0" aria-orientation="vertical">');const d=dom.window.document;const f=run('addRangeStepper',{document:d,MutationObserver:dom.window.MutationObserver,Event:dom.window.Event}).fn;const r=d.getElementById('r'),v=d.getElementById('v');f(r);f(v);f(r);assert.equal(d.querySelectorAll('.range-stepper').length,2);let inputEvents=0;r.addEventListener('input',()=>inputEvents++);const buttons=r.parentElement.querySelectorAll('button');buttons[1].click();assert.equal(r.value,'6');buttons[0].click();assert.equal(r.value,'5');assert.equal(inputEvents,2);v.parentElement.querySelector('button').click();assert.equal(v.value,'1');r.disabled=true;await new Promise(resolve=>setTimeout(resolve,0));assert.ok([...buttons].every(b=>b.disabled));r.disabled=false;await new Promise(resolve=>setTimeout(resolve,0));assert.ok([...buttons].every(b=>!b.disabled));dom.window.close();});
  await test('Volumen de un solo corte no ofrece índices inexistentes',()=>{const dom=new JSDOM('<input id="rx" type="range"><input id="ry" type="range"><input id="rz" type="range">');const d=dom.window.document;const {fn}=run('initSlices',{document:d,$:id=>d.getElementById(id),obliqueRotation:new THREE.Quaternion(),obliqueShift:new THREE.Vector3(),clearRoot:()=>{},planesRoot:{add:()=>{}},volume:{RASDimensions:[1,2,3],extractSlice:()=>({mesh:{}})},paint:()=>{},updatePlaneVisibility:()=>{},fit:()=>{}});fn();assert.equal(d.getElementById('rx').max,'0');assert.equal(d.getElementById('rx').value,'0');dom.window.close();});
  await test('Configuración válida y rechazo de capas duplicadas/cortes fraccionarios',()=>{const signature={sizes:[2,2,2],origin:[0,0,0],structures:['A','B']};const config={format:'mpr-viewer',version:1,caseSignature:signature,window:[70,350],camera:{position:[1,2,3],target:[0,0,0],up:[0,0,1],near:.1,far:100},views:Object.fromEntries(['x','y','z'].map(a=>[a,{zoom:1,x:0,y:0}])),slices:{x:0,y:0,z:0},flags:Object.fromEntries(['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'].map(k=>[k,true])),fillOpacity:20,clipPosition:100,clipAxis:'z',layers:['A','B'].map(key=>({key,color:'#ffffff',opacity:100,visible:true,contour:true})),referencePoint:null};const f=run('validateConfig',{volume:{},model:{},validateMeasurements:()=>{},configData:()=>({caseSignature:signature}),$:()=>({max:1}),layerControls:new Map([['A',{}],['B',{}]])}).fn;assert.doesNotThrow(()=>f(config));let invalid=structuredClone(config);invalid.layers[1]=invalid.layers[0];assert.throws(()=>f(invalid));invalid=structuredClone(config);invalid.slices.x=.5;assert.throws(()=>f(invalid));invalid=structuredClone(config);invalid.maximizedPane='bad';assert.throws(()=>f(invalid));});
+ if (labelTests) await checkStructureLabels(s);
  return s;
 }
-(async()=>{const before=original?await check(original):{errors:[]},after=await check(updated);const lint=new ESLint({overrideConfigFile:true,overrideConfig:{languageOptions:{ecmaVersion:'latest',sourceType:'module',globals:globals.browser},rules:{'no-undef':'error','no-unreachable':'error','no-dupe-args':'error','no-dupe-keys':'error','no-func-assign':'error','no-unsafe-optional-chaining':'error','valid-typeof':'error','no-unused-vars':['error',{args:'none',caughtErrors:'none'}]}}});const [result]=await lint.lintText(after.code,{filePath:'mpr.js'});const report={beforeFailures:before.errors,afterFailures:after.errors,lint:result.messages,totalExecutions:tested+before.errors.length+after.errors.length};fs.writeFileSync(path.join(__dirname,'resultado_pruebas.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({pruebas:original?24:24,fallos:after.errors,lint:result.messages,comparacionOriginal:original?before.errors.length:null},null,2));if(after.errors.length||result.errorCount)process.exitCode=1;})();
+
+async function checkStructureLabels({run, test}) {
+  await test('Etiquetas: recalcula sólo tras cambios y respeta la pausa de cámara', () => {
+    const camera = new THREE.PerspectiveCamera();
+    const structureNameRoot = { visible: true };
+    const structureLabelView = {
+      position: camera.position.clone(),
+      rotation: camera.quaternion.clone(),
+      projection: camera.projectionMatrix.clone(),
+      changedAt: -Infinity,
+      layoutDirty: true,
+      meshData: {},
+    };
+    const cachedMeshes = structureLabelView.meshData;
+    const toggle = { checked: true };
+    let now = 0;
+    let layouts = 0;
+    const {fn: invalidate} = run('invalidateStructureNames', { structureLabelView });
+    const {fn: update, context} = run('updateStructureNames', {
+      $: () => toggle,
+      camera,
+      structureNameRoot,
+      modelRoot: { visible: true },
+      structureLabelView,
+      structureLabelSettleMs: 140,
+      presentationCameraFlight: null,
+      performance: { now: () => now },
+      layoutStructureNames: () => layouts++,
+    });
+    update();
+    now = 1000;
+    update();
+    update(true);
+    assert.equal(layouts, 1);
+
+    camera.position.x = 2;
+    update();
+    assert.equal(structureNameRoot.visible, false);
+    now += 139;
+    update();
+    assert.equal(layouts, 1);
+    now++;
+    update();
+    assert.equal(structureNameRoot.visible, true);
+    assert.equal(layouts, 2);
+    assert.equal(structureLabelView.meshData, cachedMeshes);
+
+    invalidate();
+    update();
+    assert.equal(layouts, 3);
+    assert.equal(structureLabelView.meshData, cachedMeshes);
+    toggle.checked = false;
+    update();
+    assert.equal(structureNameRoot.visible, false);
+    invalidate(true);
+    assert.equal(structureLabelView.meshData, null);
+    update();
+    assert.equal(layouts, 3);
+    toggle.checked = true;
+    context.presentationCameraFlight = {};
+    update();
+    assert.equal(layouts, 3);
+    update(true);
+    assert.equal(structureNameRoot.visible, true);
+    assert.equal(layouts, 4);
+  });
+
+  await test('Etiquetas: oclusión, recorte, opacidad y líneas con mallas sintéticas', () => {
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+    camera.position.z = 10;
+    const modelRoot = new THREE.Group();
+    const structureNameRoot = new THREE.Group();
+    function layer(size, z) {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(size, size, 1), new THREE.MeshBasicMaterial());
+      mesh.position.z = z;
+      modelRoot.add(mesh);
+      const sprite = new THREE.Sprite();
+      const leader = new THREE.Line(
+        new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()])
+      );
+      sprite.userData = {
+        leader,
+        labelPixels: [100, 30],
+        layer: { items: [{ mesh }], nameCheck: { checked: true } },
+      };
+      structureNameRoot.add(sprite, leader);
+      return { mesh, sprite, leader };
+    }
+    const front = layer(4, 2);
+    const rear = layer(1, 0);
+    const structureLabelView = { meshData: null };
+    const {fn: collect} = run('collectStructureLabelMeshes', { modelRoot, structureNameRoot });
+    const {fn: hitMaterial, context: hitContext} = run('structureHitMaterial', { clipPlane: null });
+    const {fn: projectBounds} = run('projectStructureBounds', { camera });
+    const {fn: anchor} = run('visibleStructureAnchor', {
+      camera, structureHitMaterial: hitMaterial, projectStructureBounds: projectBounds,
+    });
+    let meshCollections = 0;
+    const {fn: layout} = run('layoutStructureNames', {
+      $: () => ({ clientWidth: 500, clientHeight: 500 }),
+      camera,
+      structureLabelView,
+      collectStructureLabelMeshes: () => {
+        meshCollections++;
+        return collect();
+      },
+      visibleStructureAnchor: anchor,
+      projectStructureBounds: projectBounds,
+      packNameColumn: run('packNameColumn').fn,
+    });
+    const {fn: invalidate} = run('invalidateStructureNames', { structureLabelView });
+    layout();
+    assert.equal(front.sprite.visible, true);
+    assert.equal(front.leader.visible, true);
+    assert.equal(rear.sprite.visible, false);
+    assert.equal(rear.leader.visible, false);
+    camera.position.x = 0.2;
+    layout();
+    assert.equal(meshCollections, 1);
+    assert.equal(rear.sprite.visible, false);
+
+    hitContext.clipPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 1);
+    layout();
+    assert.equal(meshCollections, 1);
+    assert.equal(front.sprite.visible, false);
+    assert.equal(rear.sprite.visible, true);
+    assert.equal(rear.leader.visible, true);
+    const line = rear.leader.geometry.getAttribute('position');
+    assert.ok(Math.abs(line.getZ(0) - 0.5) < 1e-6);
+    assert.notEqual(line.getX(0), line.getX(1));
+
+    hitContext.clipPlane = null;
+    Object.assign(front.mesh.material, { opacity: 0.5, transparent: true, depthWrite: false });
+    invalidate(true);
+    layout();
+    assert.equal(meshCollections, 2);
+    assert.equal(front.sprite.visible, true);
+    assert.equal(rear.sprite.visible, true);
+    function screenBounds(sprite) {
+      // Las etiquetas son sprites orientados hacia una cámara sin rotación en esta escena.
+      const start = sprite.position.clone().project(camera);
+      const end = sprite.position
+        .clone()
+        .add(new THREE.Vector3(sprite.scale.x, sprite.scale.y, 0))
+        .project(camera);
+      return new THREE.Box2(
+        new THREE.Vector2(start.x, start.y),
+        new THREE.Vector2(end.x, end.y)
+      );
+    }
+    assert.equal(screenBounds(front.sprite).intersectsBox(screenBounds(rear.sprite)), false);
+    front.mesh.visible = false;
+    invalidate(true);
+    layout();
+    assert.equal(meshCollections, 3);
+    assert.equal(front.leader.visible, false);
+    assert.equal(rear.leader.visible, true);
+  });
+}
+
+(async()=>{const before=original?await check(original):{errors:[]},previousTotal=tested,after=await check(updated,true);const lint=new ESLint({overrideConfigFile:true,overrideConfig:{languageOptions:{ecmaVersion:'latest',sourceType:'module',globals:globals.browser},rules:{'no-undef':'error','no-unreachable':'error','no-dupe-args':'error','no-dupe-keys':'error','no-func-assign':'error','no-unsafe-optional-chaining':'error','valid-typeof':'error','no-unused-vars':['error',{args:'none',caughtErrors:'none'}]}}});const [result]=await lint.lintText(after.code,{filePath:'mpr.js'});const report={beforeFailures:before.errors,afterFailures:after.errors,lint:result.messages,totalExecutions:tested+before.errors.length+after.errors.length};fs.writeFileSync(path.join(__dirname,'resultado_pruebas.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({pruebas:tested-previousTotal+after.errors.length,fallos:after.errors,lint:result.messages,comparacionOriginal:original?before.errors.length:null},null,2));if(after.errors.length||result.errorCount)process.exitCode=1;})();
