@@ -6429,8 +6429,9 @@
       }
       $("capture").onclick = () => {
         try {
-          renderer.render(scene, camera);
           const selection = $("captureView").value;
+          if (selection === "all" || selection === "3d") updateStructureNames(true);
+          renderer.render(scene, camera);
           let result;
           if (selection === "all") {
             result = document.createElement("canvas");
@@ -7973,6 +7974,7 @@
       scene.add(structureNameRoot);
       function rebuildStructureNames() {
         if (!structureNameRoot) return;
+        delete structureNameRoot.userData.layoutKey;
         while (structureNameRoot.children.length) {
           const o = structureNameRoot.children[0];
           structureNameRoot.remove(o);
@@ -7993,27 +7995,48 @@
           structureNameRoot.add(sprite);
         }
       }
-      function updateStructureNames() {
+      const structureLabelView = {
+        position: new THREE.Vector3(),
+        rotation: new THREE.Quaternion(),
+        projection: new THREE.Matrix4(),
+        changedAt: -Infinity,
+        checkedAt: -Infinity,
+      };
+      const structureLabelSettleMs = 140;
+      const structureLabelCheckMs = 180;
+
+      function updateStructureNames(immediate = false) {
         if (!structureNameRoot) return;
-        structureNameRoot.visible = $("showStructureNames").checked && modelRoot.visible;
-        if (!structureNameRoot.visible) return;
-        modelRoot.updateWorldMatrix(true, true);
-        for (const sprite of structureNameRoot.children) {
-          if (!sprite.isSprite) continue;
-          const layer = sprite.userData.layer,
-            box = new THREE.Box3();
-          for (const { mesh } of layer.items) {
-            let visible = true;
-            for (let n = mesh; n; n = n.parent) if (!n.visible) visible = false;
-            if (!visible) continue;
-            if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
-            box.union(mesh.geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld));
-          }
-          sprite.userData.structureVisible =
-            layer.nameCheck.checked && !box.isEmpty() && Number(layer.slider.value) > 0;
-          sprite.visible = sprite.userData.structureVisible;
-          if (sprite.userData.structureVisible) box.getCenter(sprite.userData.anchor);
-          sprite.userData.leader.visible = sprite.visible;
+        if (!$("showStructureNames").checked || !modelRoot.visible) {
+          structureNameRoot.visible = false;
+          return;
+        }
+
+        const now = performance.now();
+        const view = structureLabelView;
+        if (
+          !view.position.equals(camera.position) ||
+          1 - Math.abs(view.rotation.dot(camera.quaternion)) > 1e-12 ||
+          !view.projection.equals(camera.projectionMatrix)
+        ) {
+          view.position.copy(camera.position);
+          view.rotation.copy(camera.quaternion);
+          view.projection.copy(camera.projectionMatrix);
+          view.changedAt = now;
+        }
+
+        // No probar oclusiones en cada fotograma de giro, desplazamiento o zoom.
+        if (!immediate && (presentationCameraFlight || now - view.changedAt < structureLabelSettleMs)) {
+          structureNameRoot.visible = false;
+          return;
+        }
+
+        const refresh =
+          immediate || !structureNameRoot.visible || now - view.checkedAt >= structureLabelCheckMs;
+        structureNameRoot.visible = true;
+        if (refresh) {
+          layoutStructureNames();
+          view.checkedAt = now;
         }
       }
       annotationRoot = new THREE.Group();
@@ -8104,7 +8127,6 @@
             }
           });
         }
-        layoutStructureNames();
       }
       // Empaqueta cada columna en orden anatómico proyectado, sin ciclos de colisión.
       function packNameColumn(entries, height) {
@@ -8133,136 +8155,279 @@
         }
         return entries;
       }
+      // Una etiqueta sólo tiene anclaje si una superficie de su capa se ve desde la cámara.
+      function visibleStructureAnchor(items, blockers, viewRay) {
+        const intersection = new THREE.Vector3();
+        const coordinates = new THREE.Vector2();
+        const hits = [];
+        const meshes = items.map(({ mesh }) => mesh);
+        const ownMeshes = new Set(meshes);
+
+        function surfaceAt(x, y) {
+          coordinates.set(x, y);
+          viewRay.setFromCamera(coordinates, camera);
+          const cosine = viewRay.ray.direction.dot(camera.getWorldDirection(intersection));
+          viewRay.near = camera.near / cosine;
+          viewRay.far = camera.far / cosine;
+          hits.length = 0;
+          viewRay.intersectObjects(meshes, false, hits);
+          const surface = hits.find((hit) => structureHitMaterial(hit));
+          if (!surface) return null;
+
+          viewRay.far = surface.distance - 1e-5;
+          for (const { mesh, box } of blockers) {
+            if (ownMeshes.has(mesh)) continue;
+            const boxHit = viewRay.ray.intersectBox(box, intersection);
+            if (!boxHit) continue;
+            if (
+              !box.containsPoint(viewRay.ray.origin) &&
+              boxHit.distanceTo(viewRay.ray.origin) > viewRay.far
+            )
+              continue;
+            hits.length = 0;
+            viewRay.intersectObject(mesh, false, hits);
+            if (
+              hits.some((hit) => {
+                const material = structureHitMaterial(hit);
+                return (
+                  material &&
+                  material.depthWrite &&
+                  (!material.transparent || material.opacity >= 1)
+                );
+              })
+            )
+              return null;
+          }
+          return surface.point;
+        }
+
+        for (const { box } of items) {
+          const bounds = projectStructureBounds(box);
+          if (!bounds) continue;
+          for (const v of [0.5, 0.18, 0.82]) {
+            for (const u of [0.5, 0.18, 0.82]) {
+              const anchor = surfaceAt(
+                THREE.MathUtils.lerp(bounds.min.x, bounds.max.x, u),
+                THREE.MathUtils.lerp(bounds.min.y, bounds.max.y, v)
+              );
+              if (anchor) return anchor;
+            }
+          }
+        }
+        // Una malla fina o curva puede quedar entre las muestras del rectángulo.
+        for (const { mesh } of items) {
+          const position = mesh.geometry.getAttribute("position");
+          const index = mesh.geometry.index;
+          const faceCount = Math.floor((index?.count ?? position.count) / 3);
+          const point = new THREE.Vector3();
+          const vertex = new THREE.Vector3();
+          const samples = Math.min(8, faceCount);
+          for (let sample = 0; sample < samples; sample++) {
+            const first = 3 * Math.floor(((sample + 0.5) * faceCount) / samples);
+            point.set(0, 0, 0);
+            for (let j = first; j < first + 3; j++) {
+              point.add(vertex.fromBufferAttribute(position, index ? index.getX(j) : j));
+            }
+            point
+              .multiplyScalar(1 / 3)
+              .applyMatrix4(mesh.matrixWorld)
+              .project(camera);
+            if (Math.abs(point.x) > 1 || Math.abs(point.y) > 1 || Math.abs(point.z) > 1) continue;
+            const anchor = surfaceAt(point.x, point.y);
+            if (anchor) return anchor;
+          }
+        }
+        return null;
+      }
+
+      function structureHitMaterial(hit) {
+        if (clipPlane && clipPlane.distanceToPoint(hit.point) < -1e-5) return null;
+        const source = hit.object.material;
+        const material = Array.isArray(source) ? source[hit.face.materialIndex] : source;
+        return material?.visible && material.colorWrite && material.opacity > 0 ? material : null;
+      }
+
+      function projectStructureBounds(box) {
+        const bounds = new THREE.Box2();
+        const point = new THREE.Vector3();
+        for (const x of [box.min.x, box.max.x]) {
+          for (const y of [box.min.y, box.max.y]) {
+            for (const z of [box.min.z, box.max.z]) {
+              point.set(x, y, z).applyMatrix4(camera.matrixWorldInverse);
+              if (point.z >= -camera.near) continue;
+              point.applyMatrix4(camera.projectionMatrix);
+              bounds.expandByPoint(point);
+            }
+          }
+        }
+        bounds.intersect(new THREE.Box2(new THREE.Vector2(-1, -1), new THREE.Vector2(1, 1)));
+        return bounds.isEmpty() ? null : bounds;
+      }
+
       function layoutStructureNames() {
         if (!structureNameRoot?.visible) return;
-        const width = Math.max(1, $("view3d").clientWidth),
-          height = Math.max(1, $("view3d").clientHeight),
-          forward = camera.getWorldDirection(new THREE.Vector3()),
-          right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion),
-          up = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion),
-          entries = [];
-        for (const o of structureNameRoot.children) {
-          if (!o.isSprite) continue;
-          const anchor = o.userData.anchor,
-            depth = anchor.clone().sub(camera.position).dot(forward);
-          o.visible = o.userData.structureVisible && depth > camera.near && depth < camera.far;
-          o.userData.leader.visible = o.visible;
-          if (!o.visible) continue;
-          const p = anchor.clone().project(camera),
-            factor = Math.min(1, Math.max(1, width * 0.42 - 20) / o.userData.labelPixels[0]);
+        const width = $("view3d").clientWidth;
+        const height = $("view3d").clientHeight;
+        if (width <= 40 || height <= 60) return;
+
+        camera.updateMatrixWorld();
+        modelRoot.updateWorldMatrix(true, true);
+        const sprites = structureNameRoot.children.filter((object) => object.isSprite);
+        const state = [
+          width,
+          height,
+          ...camera.matrixWorld.elements,
+          ...camera.projectionMatrix.elements,
+          clipPlane?.constant,
+          ...(clipPlane?.normal.toArray() ?? []),
+        ];
+        const meshesBySprite = new Map();
+        const blockers = [];
+        const modelBounds = new THREE.Box3();
+        for (const sprite of sprites) {
+          const { layer } = sprite.userData;
+          state.push(layer.nameCheck.checked);
+          const items = [];
+          for (const { mesh } of layer.items) {
+            let visible = true;
+            for (let node = mesh; node; node = node.parent) {
+              if (!node.visible) visible = false;
+            }
+            state.push(visible);
+            if (!visible) continue;
+            const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+            for (const m of materials) {
+              state.push(m.visible, m.colorWrite, m.opacity, m.transparent, m.depthWrite, m.side);
+            }
+            const drawn = materials.filter((m) => m.visible && m.colorWrite && m.opacity > 0);
+            if (!drawn.length) continue;
+            state.push(...mesh.matrixWorld.elements);
+            if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+            const box = mesh.geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld);
+            const item = { mesh, box };
+            items.push(item);
+            modelBounds.union(box);
+            if (drawn.some((m) => m.depthWrite && (!m.transparent || m.opacity >= 1))) {
+              blockers.push(item);
+            }
+          }
+          meshesBySprite.set(sprite, items);
+        }
+        const stateKey = state.join(",");
+        if (structureNameRoot.userData.layoutKey === stateKey) return;
+        structureNameRoot.userData.layoutKey = stateKey;
+
+        const ray = new THREE.Raycaster();
+        const entries = [];
+        for (const sprite of sprites) {
+          const { leader, labelPixels, layer } = sprite.userData;
+          const anchor = layer.nameCheck.checked
+            ? visibleStructureAnchor(meshesBySprite.get(sprite), blockers, ray)
+            : null;
+          sprite.visible = leader.visible = !!anchor;
+          if (!anchor) continue;
+          const p = anchor.clone().project(camera);
+          const depth = -anchor.clone().applyMatrix4(camera.matrixWorldInverse).z;
+          const scale = Math.min(
+            1,
+            (width * 0.42 - 10) / labelPixels[0],
+            (height * 0.2) / labelPixels[1]
+          );
           entries.push({
-            o,
+            sprite,
             anchor,
+            p,
             depth,
+            order: entries.length,
             ax: ((p.x + 1) * width) / 2,
             ay: ((1 - p.y) * height) / 2,
-            w: o.userData.labelPixels[0] * factor,
-            h: o.userData.labelPixels[1] * factor,
-            order: entries.length,
+            w: labelPixels[0] * scale,
+            h: labelPixels[1] * scale,
           });
         }
+        if (!entries.length) return;
+
+        const bounds = projectStructureBounds(modelBounds);
+        const leftEdge = bounds ? ((bounds.min.x + 1) * width) / 2 : width * 0.35;
+        const rightEdge = bounds ? ((bounds.max.x + 1) * width) / 2 : width * 0.65;
+        const topEdge = bounds ? ((1 - bounds.max.y) * height) / 2 : height * 0.35;
+        const bottomEdge = bounds ? ((1 - bounds.min.y) * height) / 2 : height * 0.65;
         const sides = { left: [], right: [], top: [], bottom: [] };
+        const used = { left: 0, right: 0, top: 0, bottom: 0 };
         for (const e of entries) {
-          const dx = (e.ax - width / 2) / (width / 2),
-            dy = (e.ay - height / 2) / (height / 2);
-          const side =
-            Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? "left" : "right") : dy < 0 ? "top" : "bottom";
-          sides[side].push(e);
-        }
-        const box = new THREE.Box3().setFromObject(model || modelRoot);
-        const projected = [];
-        if (!box.isEmpty())
-          for (const x of [box.min.x, box.max.x])
-            for (const y of [box.min.y, box.max.y])
-              for (const z of [box.min.z, box.max.z]) {
-                const point = new THREE.Vector3(x, y, z).project(camera);
-                if (point.z >= -1 && point.z <= 1)
-                  projected.push({
-                    x: ((point.x + 1) * width) / 2,
-                    y: ((1 - point.y) * height) / 2,
-                  });
-              }
-        const bounds = projected.length
-          ? {
-              left: Math.min(...projected.map((p) => p.x)),
-              right: Math.max(...projected.map((p) => p.x)),
-              top: Math.min(...projected.map((p) => p.y)),
-              bottom: Math.max(...projected.map((p) => p.y)),
+          const dx = (2 * e.ax - leftEdge - rightEdge) / Math.max(1, rightEdge - leftEdge);
+          const dy = (2 * e.ay - topEdge - bottomEdge) / Math.max(1, bottomEdge - topEdge);
+          const scores = { left: -dx, right: dx, top: -dy, bottom: dy };
+          let best = "left";
+          let bestScore = -Infinity;
+          for (const side of Object.keys(sides)) {
+            const score = scores[side] - 2 * used[side];
+            if (score > bestScore) {
+              best = side;
+              bestScore = score;
             }
-          : { left: width * 0.35, right: width * 0.65, top: height * 0.35, bottom: height * 0.65 };
-        const band = Math.min(height * 0.25, Math.max(0, ...entries.map((e) => e.h)) + 20);
+          }
+          sides[best].push(e);
+          used[best] +=
+            best === "left" || best === "right" ? (e.h + 10) / (height * 0.55) : (e.w + 10) / width;
+        }
+
+        const topHeight = Math.max(0, ...sides.top.map((e) => e.h));
+        const bottomHeight = Math.max(0, ...sides.bottom.map((e) => e.h));
+        const topEnd = topHeight
+          ? THREE.MathUtils.clamp(topEdge - 12, 10 + topHeight, height * 0.36)
+          : 0;
+        const bottomStart = bottomHeight
+          ? THREE.MathUtils.clamp(bottomEdge + 12, height * 0.64, height - 10 - bottomHeight)
+          : height;
+
+        function onScreen(x, y, z) {
+          return new THREE.Vector3((2 * x) / width - 1, 1 - (2 * y) / height, z).unproject(camera);
+        }
+
         for (const [side, items] of Object.entries(sides)) {
           const horizontal = side === "top" || side === "bottom";
-          let packed;
-          if (horizontal) {
-            const rotated = items.map((e) => ({ ...e, source: e, ay: e.ax, w: e.h, h: e.w }));
-            packed = packNameColumn(rotated, width).map((e) => ({
-              ...e.source,
-              w: e.h,
-              h: e.w,
-              left: e.top,
-              top: side === "top" ? 10 : height - 10 - e.w,
-            }));
-          } else {
-            packed = packNameColumn(
-              items.map((e) => ({ ...e, ay: e.ay - band })),
-              Math.max(1, height - 2 * band)
-            ).map((e) => ({
-              ...e,
-              left: side === "left" ? 10 : width - 10 - e.w,
-              top: e.top + band,
-            }));
-          }
+          const packed = horizontal
+            ? packNameColumn(
+                items.map((e) => ({ ...e, ay: e.ax, w: e.h, h: e.w })),
+                width
+              )
+            : packNameColumn(
+                items.map((e) => ({ ...e, ay: e.ay - topEnd })),
+                bottomStart - topEnd
+              );
+
           for (const e of packed) {
-            if (horizontal)
-              e.top =
-                side === "top"
-                  ? Math.max(10, Math.min(height - e.h - 10, bounds.top - e.h - 12))
-                  : Math.max(10, Math.min(height - e.h - 10, bounds.bottom + 12));
-            else
-              e.left =
-                side === "left"
-                  ? Math.max(10, Math.min(width - e.w - 10, bounds.left - e.w - 12))
-                  : Math.max(10, Math.min(width - e.w - 10, bounds.right + 12));
-            const { o, anchor, depth, ax, ay, w, h, top, left } = e,
-              perPixel = (2 * depth * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) / height;
-            o.position
-              .copy(anchor)
-              .addScaledVector(right, (left - ax) * perPixel)
-              .addScaledVector(up, (ay - top - h) * perPixel);
-            o.scale.set(w * perPixel, h * perPixel, 1);
+            const { sprite, anchor, depth, p, ax, ay } = e;
+            const w = horizontal ? e.h : e.w;
+            const h = horizontal ? e.w : e.h;
+            const left = horizontal
+              ? e.top
+              : side === "left"
+                ? Math.max(10, Math.min(width / 2 - w - 5, leftEdge - w - 12))
+                : Math.min(width - w - 10, Math.max(width / 2 + 5, rightEdge + 12));
+            const top = horizontal ? (side === "top" ? topEnd - h : bottomStart) : e.top + topEnd;
+            const perPixel = (2 * depth) / (camera.projectionMatrix.elements[5] * height);
+            sprite.position.copy(onScreen(left, top + h, p.z));
+            sprite.scale.set(w * perPixel, h * perPixel, 1);
+
             const ex = horizontal
-              ? Math.max(left, Math.min(left + w, ax))
+              ? THREE.MathUtils.clamp(ax, left, left + w)
               : side === "left"
                 ? left + w
                 : left;
-            const ey = horizontal ? (side === "top" ? top + h : top) : top + h / 2;
-            const endpoint = anchor
-                .clone()
-                .addScaledVector(right, (ex - ax) * perPixel)
-                .addScaledVector(up, (ay - ey) * perPixel),
-              attr = o.userData.leader.geometry.getAttribute("position");
-            const direction = anchor.clone().sub(endpoint),
-              distance = direction.length();
-            const surfaceRay = new THREE.Raycaster(endpoint, direction.normalize(), 0, distance);
-            const hit = surfaceRay
-              .intersectObjects(
-                o.userData.layer.items.map((item) => item.mesh),
-                false
-              )
-              .find(
-                (hit) =>
-                  hit.object.visible &&
-                  (!clipPlane || clipPlane.distanceToPoint(hit.point) >= -1e-5)
-              );
-            o.userData.leader.visible = !!hit;
-            o.visible = !!hit;
-            if (hit) {
-              attr.setXYZ(0, hit.point.x, hit.point.y, hit.point.z);
-              attr.setXYZ(1, endpoint.x, endpoint.y, endpoint.z);
-              attr.needsUpdate = true;
-              o.userData.leader.geometry.computeBoundingSphere();
-            }
+            const ey = horizontal
+              ? side === "top"
+                ? top + h
+                : top
+              : THREE.MathUtils.clamp(ay, top, top + h);
+            const end = onScreen(ex, ey, p.z);
+            const leader = sprite.userData.leader;
+            const attr = leader.geometry.getAttribute("position");
+            attr.setXYZ(0, anchor.x, anchor.y, anchor.z);
+            attr.setXYZ(1, end.x, end.y, end.z);
+            attr.needsUpdate = true;
+            leader.geometry.computeBoundingSphere();
           }
         }
       }
@@ -10801,7 +10966,7 @@
           restoreConfig(view.config, { applyTree: false });
           resize3D();
           repaintAll();
-          updateStructureNames();
+          updateStructureNames(true);
           updateAnnotationScale();
           renderer.render(scene, camera);
           const maximized = document.querySelector(".pane.maximized");
