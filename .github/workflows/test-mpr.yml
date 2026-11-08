@@ -1,0 +1,40 @@
+name: Pruebas MPR
+
+on:
+  pull_request:
+    branches: [v2]
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  test-mpr:
+    name: MPR con Node.js 24
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: Pruebas
+    steps:
+      - name: Descargar los archivos de prueba
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /mpr.html
+            /Pruebas/package.json
+            /Pruebas/pruebas_mpr.cjs
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Instalar dependencias
+        run: npm install --ignore-scripts --no-package-lock --no-audit --no-fund
+
+      - name: Ejecutar las pruebas y ESLint
+        run: npm test
