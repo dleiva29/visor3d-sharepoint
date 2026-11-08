@@ -3959,9 +3959,10 @@
         progressPanel.setAttribute("aria-busy", "false");
         progressTrack.classList.remove("indeterminate");
       }
+      // same-origin permite puertos privados de Codespaces sin credenciales en otros orígenes.
       // Descarga progresiva que notifica bytes reales incluso dentro de cada fragmento.
       async function downloadWithProgress(url, onBytes, options = {}) {
-        const response = await fetch(url, { credentials: "omit", ...options });
+        const response = await fetch(url, { credentials: "same-origin", ...options });
         if (!response.ok)
           throw new Error(
             "HTTP " + response.status + " al descargar " + new URL(url, location.href).pathname
@@ -8880,7 +8881,7 @@
       // 14 · Carga publicada: fragmentos, árboles y vistas
       // =============================================================================
       async function loadNrrdParts(manifestUrl, label) {
-        const res = await fetch(manifestUrl, { credentials: "omit" });
+        const res = await fetch(manifestUrl, { credentials: "same-origin" });
         if (!res.ok) throw new Error("Manifiesto NRRD no disponible (HTTP " + res.status + ")");
         const manifest = await res.json();
         if (
@@ -8951,7 +8952,7 @@
             root
           );
         try {
-          const response = await fetch(url, { credentials: "omit", cache: "no-cache" });
+          const response = await fetch(url, { credentials: "same-origin", cache: "no-cache" });
           if (response.status === 404) {
             $("treeMessage").textContent =
               "No hay árbol publicado para " + basename + ". Se conserva la organización local.";
@@ -8988,7 +8989,7 @@
         const url = new URL("vistas/mpr/" + encodeURIComponent(basename + "_vista.json"), root);
         let response;
         try {
-          response = await fetch(url, { credentials: "omit", cache: "no-cache" });
+          response = await fetch(url, { credentials: "same-origin", cache: "no-cache" });
         } catch (err) {
           $("namedViewMessage").textContent =
             "No se pudieron consultar las vistas publicadas: " + err.message;
@@ -9477,7 +9478,7 @@
           await loadPublishedStructureTree(basename, root);
           status.textContent = "Buscando NRRD de " + basename + "…";
           // El manifiesto tiene prioridad. Si no existe (404), conservar compatibilidad con .nrrd normal.
-          const probe = await fetch(manifestURL, { method: "HEAD", credentials: "omit" });
+          const probe = await fetch(manifestURL, { method: "HEAD", credentials: "same-origin" });
           if (probe.ok) {
             await loadNrrdParts(manifestURL, basename + ".nrrd");
           } else if (probe.status === 404) {
