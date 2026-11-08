@@ -10,12 +10,16 @@ let tested=0;
 function suite(html){
  const code=moduleOf(html),ast=espree.parse(code,{ecmaVersion:'latest',sourceType:'module',range:true});
  const funcs=new Map(ast.body.filter(n=>n.type==='FunctionDeclaration').map(n=>[n.id.name,code.slice(...n.range)]));
- function run(name,globals={}){const c=vm.createContext({THREE,TextDecoder,Uint8Array,ArrayBuffer,Set,Map,Number,Math,structuredClone,...globals});vm.runInContext(funcs.get(name),c);return {fn:c[name],context:c};}
+ function run(name, globals = {}, dependencies = []) {
+   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, ...globals});
+   vm.runInContext([...dependencies, name].map((key) => funcs.get(key)).join("\n"), context);
+   return {fn: context[name], context};
+ }
  const errors=[];
  async function test(name,fn){try{await fn();tested++;}catch(e){errors.push({name,message:e.message.slice(0,500)});}}
  return {run,test,errors,code,ast};
 }
-async function check(html, labelTests = false){const s=suite(html);const {run,test}=s;
+async function check(html, additionalTests = false){const s=suite(html);const {run,test}=s;
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
@@ -24,7 +28,19 @@ async function check(html, labelTests = false){const s=suite(html);const {run,te
  }
  await test('NRRD inválido no borra el trabajo actual',async()=>{let changes=0;const {fn}=run('loadNrrdData',{contentHash:async()=> 'new',volumeContentHash:'old',lastUsEntryPoint:{},usTargetPoint:{},resetTrajectory:()=>{changes++},clearModelAnnotations:()=>{changes++},clearMeasurements:()=>{changes++},navMarker:{visible:true},$:()=>({textContent:''}),parseNrrdGeometry:()=>{throw Error('Geometría inválida')},NRRDLoader:class {}});await assert.rejects(fn(new ArrayBuffer(0),'broken'));assert.equal(changes,0);});
  await test('Recursos gráficos anidados y compartidos liberados una sola vez',()=>{const root=new THREE.Group(),nested=new THREE.Group();root.add(nested);const geo=new THREE.BoxGeometry(),tex=new THREE.Texture(),mat=new THREE.MeshBasicMaterial({map:tex});nested.add(new THREE.Mesh(geo,mat),new THREE.Mesh(geo,mat));let a=0,b=0,c=0;geo.addEventListener('dispose',()=>a++);mat.addEventListener('dispose',()=>b++);tex.addEventListener('dispose',()=>c++);run('clearRoot').fn(root);assert.equal(root.children.length,0);assert.deepEqual([a,b,c],[1,1,1]);});
- await test('La selección de rama sólo cuenta descendientes visibles',()=>{const row={keys:()=>['A','B'],selection:{},visibility:{}};const layers=new Map([['A',{visible:{checked:true}}],['B',{visible:{checked:false}}]]);run('syncTreeRows',{treeRows:[row],layerControls:layers,selectedStructures:new Set(['A'])}).fn();assert.equal(row.selection.checked,true);assert.equal(row.selection.indeterminate,false);assert.equal(row.visibility.indeterminate,true);});
+ await test('La selección de rama sólo cuenta descendientes visibles', () => {
+   const row = (id, parent, keys, key) => ({node: {id, parent, key}, keys: () => keys, selection: {}, visibility: {}});
+   const branch = row('branch', null, ['A', 'B']);
+   const layers = new Map([['A', {visible: {checked: true}}], ['B', {visible: {checked: false}}]]);
+   run('syncTreeRows', {
+     treeRows: [branch, row('a', 'branch', ['A'], 'A'), row('b', 'branch', ['B'], 'B')],
+     layerControls: layers,
+     selectedStructures: new Set(['A']),
+   }).fn();
+   assert.equal(branch.selection.checked, true);
+   assert.equal(branch.selection.indeterminate, false);
+   assert.equal(branch.visibility.indeterminate, true);
+ });
  await test('No se duplica una pareja de flechas ya instalada',()=>{run('addRangeStepper').fn({parentElement:{classList:{contains:()=>true}}});});
  await test('Configuración nula produce error controlado',()=>{assert.throws(()=>run('validateConfig').fn(null),e=>e.message==='Configuración inválida.');});
  await test('Validador común rechaza vistas nulas y flags incorrectos',()=>{const {fn}=run('validateSavedView',{validateConfig:()=>{}});assert.throws(()=>fn(null));assert.throws(()=>fn({name:'Test',config:{},includeInPresentation:'no'}));assert.doesNotThrow(()=>fn({name:'Test',config:{}}));});
@@ -57,7 +73,10 @@ async function check(html, labelTests = false){const s=suite(html);const {run,te
  await test('Flechas horizontal, vertical y estado disabled',async()=>{const dom=new JSDOM('<label for="r">Posición</label><input id="r" type="range" min="0" max="10" value="5" step="1"><input id="v" type="range" min="-10" max="10" value="0" aria-orientation="vertical">');const d=dom.window.document;const f=run('addRangeStepper',{document:d,MutationObserver:dom.window.MutationObserver,Event:dom.window.Event}).fn;const r=d.getElementById('r'),v=d.getElementById('v');f(r);f(v);f(r);assert.equal(d.querySelectorAll('.range-stepper').length,2);let inputEvents=0;r.addEventListener('input',()=>inputEvents++);const buttons=r.parentElement.querySelectorAll('button');buttons[1].click();assert.equal(r.value,'6');buttons[0].click();assert.equal(r.value,'5');assert.equal(inputEvents,2);v.parentElement.querySelector('button').click();assert.equal(v.value,'1');r.disabled=true;await new Promise(resolve=>setTimeout(resolve,0));assert.ok([...buttons].every(b=>b.disabled));r.disabled=false;await new Promise(resolve=>setTimeout(resolve,0));assert.ok([...buttons].every(b=>!b.disabled));dom.window.close();});
  await test('Volumen de un solo corte no ofrece índices inexistentes',()=>{const dom=new JSDOM('<input id="rx" type="range"><input id="ry" type="range"><input id="rz" type="range">');const d=dom.window.document;const {fn}=run('initSlices',{document:d,$:id=>d.getElementById(id),obliqueRotation:new THREE.Quaternion(),obliqueShift:new THREE.Vector3(),clearRoot:()=>{},planesRoot:{add:()=>{}},volume:{RASDimensions:[1,2,3],extractSlice:()=>({mesh:{}})},paint:()=>{},updatePlaneVisibility:()=>{},fit:()=>{}});fn();assert.equal(d.getElementById('rx').max,'0');assert.equal(d.getElementById('rx').value,'0');dom.window.close();});
  await test('Configuración válida y rechazo de capas duplicadas/cortes fraccionarios',()=>{const signature={sizes:[2,2,2],origin:[0,0,0],structures:['A','B']};const config={format:'mpr-viewer',version:1,caseSignature:signature,window:[70,350],camera:{position:[1,2,3],target:[0,0,0],up:[0,0,1],near:.1,far:100},views:Object.fromEntries(['x','y','z'].map(a=>[a,{zoom:1,x:0,y:0}])),slices:{x:0,y:0,z:0},flags:Object.fromEntries(['planes','planeX','planeY','planeZ','showmodel','syncNav','showCross','show3DMarker','fillSegments','clipEnabled','clipReverse'].map(k=>[k,true])),fillOpacity:20,clipPosition:100,clipAxis:'z',layers:['A','B'].map(key=>({key,color:'#ffffff',opacity:100,visible:true,contour:true})),referencePoint:null};const f=run('validateConfig',{volume:{},model:{},validateMeasurements:()=>{},configData:()=>({caseSignature:signature}),$:()=>({max:1}),layerControls:new Map([['A',{}],['B',{}]])}).fn;assert.doesNotThrow(()=>f(config));let invalid=structuredClone(config);invalid.layers[1]=invalid.layers[0];assert.throws(()=>f(invalid));invalid=structuredClone(config);invalid.slices.x=.5;assert.throws(()=>f(invalid));invalid=structuredClone(config);invalid.maximizedPane='bad';assert.throws(()=>f(invalid));});
- if (labelTests) await checkStructureLabels(s);
+ if (additionalTests) {
+   await checkStructureLabels(s);
+   await checkStructureTree(s);
+ }
  return s;
 }
 
@@ -218,6 +237,148 @@ async function checkStructureLabels({run, test}) {
     assert.equal(front.leader.visible, false);
     assert.equal(rear.leader.visible, true);
   });
+}
+
+async function checkStructureTree({run, test}) {
+  const group = (id, parent = null) => ({id, type: 'group', name: id, parent});
+  const segment = (id, key, parent = null) => ({id, type: 'segment', key, parent});
+  const nodes = [
+    segment('child', 'B', 'reference-1'),
+    group('left'),
+    segment('reference-1', 'A', 'left'),
+    group('right'),
+    segment('reference-2', 'A', 'right'),
+    segment('extra', 'C', 'reference-2'),
+  ];
+
+  function withTree(check) {
+    return async () => {
+      const dom = new JSDOM(`
+        <div id="structureTree"></div><input id="structureSearch">
+        <p id="structureSearchEmpty"></p><p id="treeMessage"></p>
+        <button id="treeMode"></button><button id="createGroup"></button>
+        <div id="treeRootDrop"></div><div id="groupEditor"></div>
+        <section id="independentStructures"><p id="catalogEditHint"></p><div id="modelLayers"></div></section>
+      `, {url: 'http://localhost/'});
+      const { document, Event, localStorage } = dom.window;
+      const $ = (id) => document.getElementById(id);
+      const layerControls = new Map();
+      const selectedStructures = new Set();
+      const focusCalls = [];
+      const changes = [];
+      for (const key of ['A', 'B', 'C']) {
+        const card = document.createElement('div');
+        card.innerHTML = '<div class="layer-header"></div>';
+        $('modelLayers').append(card);
+        const visible = document.createElement('input');
+        visible.type = 'checkbox';
+        visible.checked = true;
+        visible.addEventListener('change', () => changes.push(key));
+        layerControls.set(key, {card, visible, picker: {value: '#123456'}});
+      }
+      let id = 0;
+      const {context} = run('applyNodes', {
+        $, document, Event, localStorage, layerControls, selectedStructures,
+        URL, modelContentHash: 'synthetic-model', treeCaseKey: null, treeLocalOverride: false,
+        treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
+        treeEditing: false, batchRestore: false, uid: () => 'new-' + ++id,
+        updateStructureSelection: () => context.syncTreeRows(),
+        focusStructure: (...args) => focusCalls.push(args),
+      }, [
+        'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
+        'applyHierarchy', 'loadTree', 'saveTree', 'exportStructureTree', 'importStructureTree',
+        'loadPublishedStructureTree', 'nodeKeys', 'visibilityClosure', 'setSynchronizedVisibility',
+        'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop',
+        'addStructureReference', 'removeTreeReference', 'renderStructureCatalog', 'filterTree',
+      ]);
+      try {
+        context.loadTree();
+        await check({context, $, changes, layerControls, selectedStructures, focusCalls});
+      } finally {
+        dom.window.close();
+      }
+    };
+  }
+
+  await test('Árbol: admite gran profundidad y rechaza padres ausentes y ciclos físicos o compartidos', withTree(({context}) => {
+    const deep = Array.from({length: 3000}, (_, i) => group('g' + i, i ? 'g' + (i - 1) : null));
+    assert.equal(context.validateNodes(deep.reverse()).length, 3000);
+    assert.throws(() => context.validateNodes([group('g', 'missing')]), /padre inexistente/);
+    assert.throws(() => context.validateNodes([group('a', 'b'), group('b', 'a')]), /Ciclo/);
+    assert.throws(() => context.validateNodes([segment('a', 'A'), group('g', 'a'), segment('aa', 'A', 'g')]), /sí misma/);
+    assert.throws(() => context.validateNodes([...nodes, segment('b', 'B'), segment('a', 'A', 'b')]), /ciclo entre segmentaciones/);
+    assert.equal(context.validateNodes(nodes).length, nodes.length);
+  }));
+
+  await test('Árbol: referencias comparten selección y visibilidad de sus ramas', withTree(({context, changes, selectedStructures, layerControls, focusCalls}) => {
+    context.applyNodes(nodes);
+    const row = (id) => context.treeRows.find(({node}) => node.id === id);
+    row('reference-1').selection.click();
+    assert.deepEqual([...selectedStructures].sort(), ['A', 'B']);
+    assert.equal(row('reference-2').selection.indeterminate, true);
+    row('left').visibility.click();
+    assert.deepEqual([...changes].sort(), ['A', 'B', 'C']);
+    assert.equal(selectedStructures.size, 0);
+    assert.equal(row('reference-2').selection.disabled, true);
+    assert.equal(row('reference-2').visibility.checked, false);
+    row('reference-2').title.click();
+    assert.deepEqual(focusCalls, [['A', false, false]]);
+    assert.equal(layerControls.get('A').visible.checked, false);
+    row('right').visibility.click();
+    assert.equal(row('reference-1').visibility.checked, true);
+    assert.equal(row('reference-1').selection.disabled, false);
+  }));
+
+  await test('Árbol: arrastra desde el catálogo, mueve a la raíz y retira solo la referencia', withTree(({context, $, layerControls}) => {
+    context.applyNodes(nodes);
+    context.treeEditing = true;
+    context.renderTree();
+    const details = (id) => $('structureTree').querySelector('[data-node="' + id + '"]');
+    const row = (id) => details(id).firstElementChild;
+    const drag = (from, to) => {
+      const data = new Map();
+      const event = {
+        preventDefault() {}, stopPropagation() {},
+        dataTransfer: {setData: (key, value) => data.set(key, value), getData: (key) => data.get(key) || ''},
+      };
+      from.ondragstart(event);
+      to.ondrop(event);
+    };
+    drag(layerControls.get('B').card.firstElementChild, row('right'));
+    assert.equal(context.treeIndex.references.get('B').length, 2);
+    assert.equal(details('right').open, true);
+    drag(row('reference-1'), $('treeRootDrop'));
+    assert.equal(context.treeIndex.byId.get('reference-1').parent, null);
+    assert.equal(details('left').open, true);
+    drag(row('reference-1'), $('independentStructures'));
+    assert.equal(context.treeIndex.byId.has('reference-1'), false);
+    assert.equal(context.treeIndex.byId.get('child').parent, null);
+    assert.equal(context.treeIndex.byId.has('reference-2'), true);
+    assert.equal(layerControls.get('A').card.parentElement, $('modelLayers'));
+  }));
+
+  await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {
+    context.applyNodes(nodes);
+    const exported = JSON.parse(JSON.stringify(context.exportStructureTree()));
+    assert.equal(exported.version, 2);
+    assert.equal(exported.format, 'mpr-structure-tree');
+    context.treeCaseKey = null;
+    context.loadTree();
+    assert.equal(JSON.stringify(context.structureNodes), JSON.stringify(exported.nodes));
+    context.fetch = async () => ({ok: true, text: async () => JSON.stringify({...exported, nodes: []})});
+    await context.loadPublishedStructureTree('synthetic', 'http://localhost/');
+    assert.equal(context.structureNodes.length, nodes.length);
+    delete exported.groups;
+    delete exported.relations;
+    context.importStructureTree(exported);
+    assert.equal(context.treeIndex.byId.get('child').parent, 'reference-1');
+    context.importStructureTree({
+      format: exported.format, version: 1, modelHash: exported.modelHash,
+      groups: [{...group('legacy'), members: ['A']}],
+      relations: [{parent: 'A', child: 'B'}],
+    });
+    assert.deepEqual(Array.from(context.nodeKeys('legacy')).sort(), ['A', 'B']);
+  }));
 }
 
 (async()=>{const before=original?await check(original):{errors:[]},previousTotal=tested,after=await check(updated,true);const lint=new ESLint({overrideConfigFile:true,overrideConfig:{languageOptions:{ecmaVersion:'latest',sourceType:'module',globals:globals.browser},rules:{'no-undef':'error','no-unreachable':'error','no-dupe-args':'error','no-dupe-keys':'error','no-func-assign':'error','no-unsafe-optional-chaining':'error','valid-typeof':'error','no-unused-vars':['error',{args:'none',caughtErrors:'none'}]}}});const [result]=await lint.lintText(after.code,{filePath:'mpr.js'});const report={beforeFailures:before.errors,afterFailures:after.errors,lint:result.messages,totalExecutions:tested+before.errors.length+after.errors.length};fs.writeFileSync(path.join(__dirname,'resultado_pruebas.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({pruebas:tested-previousTotal+after.errors.length,fallos:after.errors,lint:result.messages,comparacionOriginal:original?before.errors.length:null},null,2));if(after.errors.length||result.errorCount)process.exitCode=1;})();
