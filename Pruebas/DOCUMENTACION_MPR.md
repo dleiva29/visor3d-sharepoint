@@ -175,3 +175,51 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - Las cargas de volumen y modelo tienen bloqueos por selector, no un coordinador global de tareas con cancelación. Deben probarse los cambios de caso durante descargas lentas antes de ampliar la carga online.
 - El historial captura configuraciones completas con frecuencia. Puede resultar costoso con numerosas vistas y estructuras.
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
+
+
+## Distribución de herramientas e iconos (v2.11.1)
+
+La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras MPR conservan solo maximizar; la vista 3D conserva además un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
+
+Los nodos de segmentación de `mpr-structure-tree` v2 admiten el campo opcional `icon`: `generic`, `vein`, `artery`, `lesion`, `liver`, `kidney`, `lung` o `bone`. Sin ese campo se sugiere un icono por la clave original, con prioridad de lesión/tumor sobre vasos; no se deducen diagnósticos. El nombre visible no cambia la sugerencia. Los archivos v1 y v2 anteriores siguen siendo válidos. Los valores ajenos a la lista se rechazan antes de aplicar el árbol.
+
+«Acciones → Cambiar icono» permite elegir la categoría para esa referencia o volver a Automático. La elección se conserva en almacenamiento local, exportación, configuración del caso y Deshacer/Rehacer. El icono es neutro e independiente del punto de color real de la estructura. Los grupos muestran una carpeta.
+
+Verificación de esta revisión: pruebas unitarias y de DOM con ESLint, más una prueba integral en Chromium cargando GLB y NRRD del caso 10. No sustituye la validación visual final en Codespaces ni las comprobaciones de US, presentaciones e informes de la lista anterior.
+
+El botón de plegado de la cabecera muestra u oculta exclusivamente la barra común; mantiene las cabeceras de las vistas y la herramienta activa. Al plegar cierra los desplegables abiertos y actualiza su etiqueta accesible.
+
+El apartado Caso ya no ocupa el panel lateral: los selectores NRRD/GLB y sus mensajes están en Abrir, en la cabecera. La importación y exportación de configuración permanecen junto a ese menú.
+
+Más se organiza con títulos y separadores en Planos y orientación, Apariencia, Referencias, Trayectoria y ecografía, y Capturas e informe.
+
+El panel lateral agrupa Apariencia y referencia, Mediciones y anotaciones y Trayectoria 3D dentro de Herramientas. Los accesos desde la barra y la activación de mediciones o trayectoria abren el contenedor para mantener visibles los ajustes correspondientes.
+
+Herramientas usa un icono SVG de llave; sus tres subsecciones comparten marco, espaciado, flechas de despliegue e iconos de apariencia, medición y trayectoria.
+
+El aviso de carga completada se oculta diez segundos después del éxito; una nueva carga cancela ese temporizador y los errores permanecen visibles.
+
+La distribución inicial está definida en el HTML (barra común, Abrir y Herramientas). Un script breve establece escritorio/tableta/móvil antes de pintar; la barra se presenta desactivada mientras se cargan los módulos y se enlazan sus acciones. Se verificó el arranque en Chromium con módulos retardados, sin mostrar la disposición heredada.
+
+Posición → Centrar todo elimina el desplazamiento de las tres vistas MPR y centra el encuadre 3D, conservando zoom, cortes y orientación. Más → Apariencia reúne los ajustes MPR, los ajustes 3D y la información del modelo. Se retiran los menús «…» de las ventanas; orientación anatómica y planos siguen disponibles en los ajustes 3D.
+
+Los accesos que abren ajustes laterales resaltan la sección de destino durante cuatro segundos con contorno y cabecera de acento. Medir, anotar y trayectoria también abren y señalan sus ajustes. Una nueva apertura retira el resaltado anterior y reinicia el temporizador.
+
+Los botones de Herramientas comparten fuente de 12 px, altura mínima de 28 px, espaciado, bordes y colores del visor. Las etiquetas largas pueden ocupar varias líneas; se mantienen estados activos/deshabilitados, flechas de rangos compactas y altura táctil de 44 px.
+
+Se recupera el menú «…» solo en 3D, con centrar modelo, restablecer vistas, ajustes 3D, orientaciones anatómicas, visibilidad de planos e información del modelo. Las vistas MPR permanecen sin ese menú.
+
+
+### Recorte sincronizado con el TC
+
+La casilla «Sincronizar recorte con el TC» se habilita cuando hay modelo y volumen cargados. Al marcarla activa el recorte del GLB y utiliza la posición y orientación física del corte indicado en Eje de recorte, incluidos cortes oblicuos. Recorrer cortes o cambiar de eje actualiza el plano; Invertir lado conservado sigue disponible.
+
+La posición porcentual y los controles de giro manual quedan bloqueados mientras se sincroniza. Al desmarcar la casilla se recuperan esos controles y los parámetros manuales anteriores. La opción se conserva en el campo opcional booleano `clipSyncTc` de la configuración; los archivos anteriores se recuperan con sincronización desactivada. La cámara y el árbol no cambian.
+
+El recorte sincronizado se desplaza 5 mm respecto del plano del TC hacia el lado descartado para ampliar la franja visible del modelo. El desplazamiento sigue la normal física (también en oblicuo) y se invierte con Invertir lado conservado. No modifica el recorte manual.
+
+### Desplazamiento de planos desde 3D (v2.12.1)
+
+El menú «…» de 3D incluye deslizadores axial, coronal y sagital, utilizables con la vista maximizada. Reflejan límites, disponibilidad e índice de los controles MPR originales. Ambos controles actualizan el mismo corte; el recorte sincronizado continúa siguiendo el eje elegido. Los deslizadores quedan desactivados cuando no hay volumen.
+
+Los botones de visibilidad Axial, Coronal y Sagital sirven como títulos de sus respectivos deslizadores en el menú 3D; su estado activo indica si el plano está visible. Se elimina la fila duplicada, conservando los botones de orientación anatómica.

@@ -11,8 +11,9 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.9.1 · Menús de exploración</title>
+    /><title>MPR · v2.12.1 · Menús de exploración</title>
     <style>
+      .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
       .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
       .tree-icon[hidden] { display: none; }
@@ -1831,6 +1832,33 @@
         padding: 4px 8px;
         font-size: 12px;
       }
+      #viewerTools[hidden], #mprNavigation[hidden] { display: none; }
+      #viewerTools .toolbar-placeholder { font-size: 12px; padding: 4px 7px; border: 1px solid #456078; border-radius: 5px; min-height: 28px; box-sizing: border-box; }
+      #viewerStartupStatus { margin-left: auto; font-size: 11px; color: #a6c9dd; }
+      #viewerTools { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 7px; padding-top: 6px; border-top: 1px solid #30495c; }
+      #viewerTools .shared-explore { display: flex; align-items: center; flex-wrap: wrap; gap: 3px; }
+      #viewerTools button, #viewerTools summary { width: auto; min-height: 28px; padding: 4px 7px; margin: 0; font-size: 12px; }
+      #viewerTools svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+      #viewerTools .shared-tool { display: inline-flex; align-items: center; gap: 5px; }
+      #viewerTools [aria-pressed="true"] { background: #13788e; outline: 1px solid #65ddeb; }
+      #viewerTools .shared-dropdown { position: relative; margin: 0; padding: 0; border: 0; }
+      #viewerTools .shared-dropdown > summary { border: 1px solid #456078; border-radius: 5px; list-style: none; cursor: pointer; }
+      #viewerTools .shared-dropdown-content { position: absolute; z-index: 300; top: 100%; left: 0; background: #102534; border: 1px solid #456078; border-radius: 6px; padding: 7px; min-width: 210px; max-height: min(420px, 65dvh); overflow: auto; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 4px 15px #0008; }
+      #viewerTools .shared-tool-family { display: flex; flex-direction: column; gap: 4px; margin-top: 5px; padding-top: 9px; border-top: 1px solid #385166; }
+      #viewerTools .shared-tool-family:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+      #viewerTools .shared-tool-family h3 { margin: 1px 2px 4px; font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #8fd8e6; }
+      #viewerTools .shared-dropdown:not([open]) > .shared-dropdown-content { display: none; }
+      #viewerTools .shared-dropdown-content button { width: 100%; text-align: left; justify-content: flex-start; flex-shrink: 0; }
+      #viewerTools button.tree-icon { height: auto; }
+      #viewerTools .shared-dropdown-content button.tree-icon::after { content: attr(aria-label); font-size: 11px; }
+      #viewerTools [hidden], #tools, #section-tools [data-tool][hidden] { display: none !important; }
+      #activeToolLabel { font-size: 11px; color: #7ce0ed; margin-left: auto; }
+      #headerCaseActions { display: inline-flex; gap: 4px; vertical-align: middle; }
+      #headerCaseActions > button { width: 28px; height: 28px; min-height: 28px; margin: 0; padding: 4px; }
+      .pane .pane-maximize { position: absolute; top: 2px; right: 5px; z-index: 12; width: 25px; height: 25px; padding: 3px; margin: 0; }
+      .pane:has(#view3d) h2, .pane h2 { padding-right: 40px; }
+      .pane-menu .pane-plane-tools { display: flex; flex-wrap: wrap; padding: 0; justify-content: flex-start; margin-top: 8px; }
+      .pane-menu svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
       .case-session p {
         margin: 6px 0 0;
         font-size: 12px;
@@ -3048,8 +3076,56 @@
         object-fit: contain;
         touch-action: none;
       }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout { grid-template-columns: minmax(0, 1fr) 340px; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout > .views { grid-column: 1; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout > aside { grid-column: 2; border-left: 1px solid var(--edge); border-right: 0; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .pane.maximized { left: 6px; right: 346px; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded):has(.pane.maximized) aside { left: auto; right: 0; width: 340px; }
+      header .viewer-header-main { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 70px; }
+      #headerCaseActions { margin-left: auto; }
+      #headerCaseActions .header-file-menu { position: relative; margin: 0; padding: 0; border: 0; }
+      #headerCaseActions .header-file-menu > summary { font-size: 12px; padding: 5px 8px; border: 1px solid #456078; border-radius: 5px; cursor: pointer; list-style: none; }
+      #headerCaseActions .header-file-menu > .sidebar-body { position: absolute; right: 0; top: 100%; z-index: 300; width: min(300px, 80vw); max-height: 70dvh; overflow: auto; padding: 8px; background: #102534; border: 1px solid #456078; border-radius: 6px; box-shadow: 0 4px 15px #0008; }
+      #headerCaseActions .header-file-menu:not([open]) > .sidebar-body { display: none; }
+      #section-toolbox > summary svg, #section-toolbox > .sidebar-body > details > summary svg { width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      #section-toolbox > .sidebar-body > details { margin: 6px 0; padding: 0; border: 1px solid var(--edge); border-radius: 6px; background: #102232; }
+      #section-toolbox > .sidebar-body > details > summary { list-style: none; padding: 10px 8px; font-size: 12px; color: #c5deee; }
+      #section-toolbox > .sidebar-body > details > summary::after { content: "⌄"; float: right; color: #89bed4; }
+      #section-toolbox > .sidebar-body > details[open] > summary { background: #173347; border-radius: 5px 5px 0 0; border-bottom: 1px solid var(--edge); }
+      #section-toolbox > .sidebar-body > details[open] > summary::after { content: "⌃"; }
+      #generalPanel .sidebar-highlight { outline: 2px solid #56d8eb; outline-offset: 2px; box-shadow: inset 3px 0 #56d8eb; border-radius: 6px; }
+      #generalPanel .sidebar-highlight > summary { background: #174557; color: #b4f6ff; }
+      #section-toolbox button:not(.range-stepper-button) {
+        box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+        min-height: 28px; height: auto; max-width: 100%; gap: 4px;
+        padding: 4px 8px; margin: 3px 0; border: 1px solid #31566e; border-radius: 6px;
+        font: 12px/16px system-ui, Arial; color: #e2eff9; background: #193c53;
+        white-space: normal;
+      }
+      #section-toolbox button:not(.range-stepper-button):hover:enabled { background: #23536c; border-color: #44b2cb; }
+      #section-toolbox button[aria-pressed="true"] { background: #13788e; border-color: #65ddeb; color: #e5faff; }
+      @media (pointer: coarse) { #section-toolbox button:not(.range-stepper-button) { min-height: 44px; } }
+      .pane:has(#view3d) > .pane-maximize { right: 5px; }
+      .pane:has(#view3d) > .pane-menu-trigger { right: 35px; }
+      .pane:has(#view3d) > h2 { padding-right: 80px; }
+      .scene-slice-controls { border-top: 1px solid #385166; margin-top: 8px; padding-top: 8px; }
+      .scene-slice-controls h3 { font-size: 11px; margin: 0 0 6px; color: #8fd8e6; }
+      .scene-slice-controls > div { display: grid; grid-template-columns: 60px minmax(0, 1fr) 28px; align-items: center; gap: 5px; margin: 8px 0; }
+      .scene-slice-controls button, .scene-slice-controls output { font-size: 11px; margin: 0; }
+      .pane-menu .scene-slice-controls button { padding: 3px 4px; }
+      .scene-slice-controls button[aria-pressed="true"] { background: #13788e; border-color: #65ddeb; }
+      .scene-slice-controls output { text-align: right; }
+      .scene-slice-controls input[type="range"] { width: 100%; min-width: 0; margin: 0; }
+      #headerUsTools[hidden] { display: none !important; }
+      header .viewer-header-main > small { order: 10; flex-basis: 100%; margin: 0; }
+      #viewerTools { padding-right: 0; }
     </style></head
   ><body>
+<script>
+  // Establece la distribución antes de pintar, sin esperar a los módulos 3D.
+  document.body.dataset.viewerLayout = matchMedia("(max-width:700px), (pointer:coarse) and (max-height:500px) and (max-width:950px)").matches ? "phone" : matchMedia("(max-width:1100px), (pointer:coarse) and (max-width:1366px)").matches ? "tablet" : "desktop";
+</script>
+
     <header id="viewerHeader"
       ><a
         class="manual-link"
@@ -3059,13 +3135,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.9.1</strong
-        ><div id="mprNavigation" role="group" aria-label="Navegación MPR">
-          <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
-          <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
-          <button id="centerMprSelection" type="button" disabled>Centrar cortes en la estructura activa</button>
-          <button id="resetMprViews" type="button" disabled>Restablecer las cuatro vistas</button>
-        </div
+        ><strong>Visor MPR · v2.12.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3080,9 +3150,10 @@
         <button
           type="button"
           id="togglePaneHeaders"
+          aria-controls="viewerTools"
           aria-expanded="true"
-          aria-label="Contraer cabeceros de las vistas"
-          title="Contraer cabeceros de las vistas"
+          aria-label="Ocultar barra de herramientas"
+          title="Ocultar barra de herramientas"
           ><svg viewBox="0 0 20 20" aria-hidden="true">
             <rect x="2" y="3" width="16" height="14" rx="2" />
             <path d="M2 8h16m-11 5 3-2 3 2" /></svg
@@ -3145,7 +3216,25 @@
             ><svg viewBox="0 0 16 16" aria-hidden="true">
               <rect x="4" y="4" width="8" height="8" rx="1" /></svg
           ></button> </span
-        ><small
+        ><div id="headerCaseActions" role="group" aria-label="Configuración del caso"><details id="section-case" class="header-file-menu"><summary>Abrir</summary
+          ><div class="sidebar-body"
+            ><div class="sidebar-body" id="caseLocalFiles"
+              ><p class="note"
+                >Enlace automático: <code>?modelo=modelos/1.glb</code> busca
+                <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También
+                puedes cargar archivos locales usando los controles siguientes.</p
+              ><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p
+              ><div class="case-session-actions case-file-actions"
+                ><button type="button" data-case-file="nrrd">Cargar imagen NRRD</button
+                ><button type="button" data-case-file="glb">Cargar modelo GLB</button></div
+              ><input accept=".nrrd" id="nrrd" type="file" hidden /><input
+                accept=".glb"
+                id="glb"
+                type="file"
+                hidden
+              /> </div
+            ><div id="caseSessionControls"></div></div></details
+        ></div><small
           >Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub
           Pages</small
         ></div
@@ -3158,7 +3247,13 @@
           aria-label="Anotación de la vista"
           hidden
         ></div> </div
-    ></header>
+    ><nav id="viewerTools" aria-label="Herramientas comunes del visor" aria-busy="true" inert><div hidden id="mprNavigation" role="group" aria-label="Navegación MPR">
+          <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
+          <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
+          <button id="centerMprSelection" type="button" disabled>Centrar cortes en la estructura activa</button>
+          <button id="resetMprViews" type="button" disabled>Restablecer las cuatro vistas</button>
+        </div
+        ><div class="shared-explore"><button type="button" class="shared-tool" disabled>Navegar</button><button type="button" class="shared-tool" disabled>Seleccionar</button><button type="button" class="shared-tool" disabled>Desplazar</button><button type="button" class="shared-tool" disabled>Zoom</button><button type="button" class="shared-tool" disabled>Ventana</button></div><span class="toolbar-placeholder">Medir ▾</span><span class="toolbar-placeholder">Anotar ▾</span><span class="toolbar-placeholder">Posición ▾</span><span class="toolbar-placeholder">Más ▾</span><span id="viewerStartupStatus" role="status">Preparando herramientas…</span></nav></header>
     <div class="layout"
       ><div class="views">
         <section class="pane" data-view-pane="axial"
@@ -3254,30 +3349,93 @@
         ><input id="unit" type="hidden" value="1000" /><input
           id="space"
           type="hidden"
-          value="RAS" /><details class="sidebar-group" id="section-case" open=""
-          ><summary>▣ Caso</summary
+          value="RAS" /><details class="sidebar-group" id="section-structures" open=""
+          ><summary>◈ Estructuras</summary
           ><div class="sidebar-body"
-            ><div class="sidebar-body" id="caseLocalFiles"
+            ><div class="sidebar-body"
+              ><label for="structureSearch">Buscar estructura</label
+              ><input
+                id="structureSearch"
+                placeholder="Nombre de lesión, vaso u órgano…"
+                type="search" /><p class="note" hidden="" id="structureSearchEmpty"
+                >No hay coincidencias.</p
+              ><p id="treeMessage" class="note" aria-live="polite"></p
+              ><div id="childrenEditor" hidden
+                ><strong id="childrenTitle"></strong><input id="childrenParent" type="hidden" /><p
+                  class="note"
+                  >Marca las hijas directas. Una segmentación puede tener varios padres. No se
+                  permiten ciclos.</p
+                ><div id="childrenOptions"></div
+                ><button id="saveChildren" type="button">Guardar relaciones</button
+                ><button id="cancelChildren" type="button">Cancelar</button></div
+              ><div class="hierarchy-display"
+                ><label
+                  ><input id="simpleHierarchy" type="checkbox" checked /> Árbol simplificado</label
+                ><div
+                  ><button id="expandHierarchy" type="button">Expandir árbol</button
+                  ><button id="collapseHierarchy" type="button">Contraer árbol</button></div
+                ><p class="note"
+                  >Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida.
+                  Desactiva esta opción para ver los controles.</p
+                ></div
+              ><h4>Árbol de estructuras</h4
+              ><div class="tree-toolbar"
+                ><button id="createGroup" type="button">+ Grupo / subgrupo</button
+                ><button id="exportTree" type="button">Exportar árbol</button
+                ><button id="importTreeButton" type="button">Importar árbol</button
+                ><input id="importTree" type="file" accept=".json" hidden /></div
+              ><div id="groupEditor" hidden
+                ><input id="groupEditId" type="hidden" /><label for="groupName"
+                  >Nombre del grupo</label
+                ><input id="groupName" type="text" maxlength="100" /><label for="groupParent"
+                  >Grupo superior</label
+                ><select id="groupParent"></select
+                ><p class="note">Estructuras que pertenecen directamente a este grupo:</p
+                ><div id="groupMembers"></div
+                ><button id="saveGroup" type="button">Guardar grupo</button
+                ><button id="cancelGroup" type="button">Cancelar</button
+                ><button id="deleteGroup" type="button">Eliminar grupo</button></div
+              ><div id="treeRootDrop" class="note" hidden>Suelta aquí para colocar en la raíz. En una fila: borde superior/inferior para ordenar; centro para anidar. También puedes usar Acciones…</div
+              ><div id="structureTree"></div
+              ><section id="independentStructures"
+                ><h4>Todas las estructuras</h4
+                ><p id="catalogEditHint" class="note" hidden
+                  >Arrastra una fila al árbol para añadir una referencia. Suelta un nodo aquí para
+                  quitarlo del árbol y conservar sus hijos.</p
+                ><div id="modelLayers"></div
+                ><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p
+                ></section
               ><p class="note"
-                >Enlace automático: <code>?modelo=modelos/1.glb</code> busca
-                <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También
-                puedes cargar archivos locales usando los controles siguientes.</p
-              ><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p
-              ><div class="case-session-actions case-file-actions"
-                ><button type="button" data-case-file="nrrd">Cargar imagen NRRD</button
-                ><button type="button" data-case-file="glb">Cargar modelo GLB</button></div
-              ><input accept=".nrrd" id="nrrd" type="file" hidden /><input
-                accept=".glb"
-                id="glb"
-                type="file"
-                hidden
-              /> </div
-            ><div id="caseSessionControls"></div></div></details
-        ><details hidden id="section-visual"
-          ><summary>▤ Visualización</summary
+                >Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad compartida: ocultar una estructura afecta a sus referencias y descendientes en otras ramas. «↗ N» indica cuántas referencias tiene. Pulsa el
+                nombre de una segmentación para centrarla, o abre «Ajustes» en el catálogo para
+                cambiar su apariencia.</p
+              ><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p
+              ><div class="structure-actions"
+                ><button id="clearSelection" type="button">Quitar selección</button
+                ><button disabled="" id="isolateStructures" type="button"
+                  >Aislar seleccionadas</button
+                ><button disabled="" id="restoreVisibility" type="button"
+                  >Restaurar visibilidad anterior</button
+                ><button id="showAllStructures" type="button"
+                  >Mostrar todas las estructuras</button
+                ></div
+              ><div class="volume-summary"
+                ><strong id="selectedVolume">Volumen total seleccionado: 0,00 mL</strong
+                ><p class="note" id="selectedVolumeDetail"
+                  >Selecciona estructuras para sumar sus volúmenes.</p
+                ><p class="note"
+                  >Suma de volúmenes individuales; no descuenta solapamientos. 1 mL = 1 cm³.</p
+                ></div
+              ><button disabled="" id="resetLayers" type="button">Restablecer</button>
+              <div hidden="True" id="legacyStructureControls"
+                ><select id="focusStructure"></select
+                ><button disabled="" id="centerStructure" type="button"
+                  >Centrar en las cuatro ventanas</button
+                ><div id="structureSelection"></div></div></div></div></details
+        ><details id="section-toolbox" class="sidebar-group"><summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M14 6a5 5 0 0 0-6 6L3 17a2 2 0 0 0 4 4l5-5a5 5 0 0 0 6-6l-3 3-4-4z"/></svg>Herramientas</summary><div class="sidebar-body"><details id="section-visual" class="sidebar-subgroup"><summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M4 3v18 M12 3v18 M20 3v18 M1 8h6 M9 16h6 M17 7h6"/></svg>Apariencia y referencia</summary
           ><div class="sidebar-body"
             ><details class="sidebar-subgroup" id="menu-navigation"
-              ><summary>Navegación y herramientas</summary
+              ><summary>Cruces y sincronización</summary
               ><div class="sidebar-body"
                 ><div class="tool-grid" id="tools">
                   <button aria-pressed="true" data-tool="navigate" type="button">Navegar</button
@@ -3383,6 +3541,8 @@
                   type="range"
                   value="100"
                 /><label><input id="clipEnabled" type="checkbox" /> Activar recorte del GLB</label
+                ><label><input id="clipSyncTc" type="checkbox" disabled /> Sincronizar recorte con el TC</label
+                ><p class="note">Sigue la posición y orientación del plano elegido en «Eje de recorte», dejando 5 mm de modelo más allá del plano. Desactiva la sincronización para ajustar el recorte manualmente.</p
                 ><label for="clipAxis">Eje de recorte</label
                 ><select id="clipAxis"
                   ><option value="x">Sagital (X)</option
@@ -3413,91 +3573,7 @@
               ></details
             ></div
           ></details
-        ><details class="sidebar-group" id="section-structures" open=""
-          ><summary>◈ Estructuras</summary
-          ><div class="sidebar-body"
-            ><div class="sidebar-body"
-              ><label for="structureSearch">Buscar estructura</label
-              ><input
-                id="structureSearch"
-                placeholder="Nombre de lesión, vaso u órgano…"
-                type="search" /><p class="note" hidden="" id="structureSearchEmpty"
-                >No hay coincidencias.</p
-              ><p id="treeMessage" class="note" aria-live="polite"></p
-              ><div id="childrenEditor" hidden
-                ><strong id="childrenTitle"></strong><input id="childrenParent" type="hidden" /><p
-                  class="note"
-                  >Marca las hijas directas. Una segmentación puede tener varios padres. No se
-                  permiten ciclos.</p
-                ><div id="childrenOptions"></div
-                ><button id="saveChildren" type="button">Guardar relaciones</button
-                ><button id="cancelChildren" type="button">Cancelar</button></div
-              ><div class="hierarchy-display"
-                ><label
-                  ><input id="simpleHierarchy" type="checkbox" checked /> Árbol simplificado</label
-                ><div
-                  ><button id="expandHierarchy" type="button">Expandir árbol</button
-                  ><button id="collapseHierarchy" type="button">Contraer árbol</button></div
-                ><p class="note"
-                  >Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida.
-                  Desactiva esta opción para ver los controles.</p
-                ></div
-              ><h4>Árbol de estructuras</h4
-              ><div class="tree-toolbar"
-                ><button id="createGroup" type="button">+ Grupo / subgrupo</button
-                ><button id="exportTree" type="button">Exportar árbol</button
-                ><button id="importTreeButton" type="button">Importar árbol</button
-                ><input id="importTree" type="file" accept=".json" hidden /></div
-              ><div id="groupEditor" hidden
-                ><input id="groupEditId" type="hidden" /><label for="groupName"
-                  >Nombre del grupo</label
-                ><input id="groupName" type="text" maxlength="100" /><label for="groupParent"
-                  >Grupo superior</label
-                ><select id="groupParent"></select
-                ><p class="note">Estructuras que pertenecen directamente a este grupo:</p
-                ><div id="groupMembers"></div
-                ><button id="saveGroup" type="button">Guardar grupo</button
-                ><button id="cancelGroup" type="button">Cancelar</button
-                ><button id="deleteGroup" type="button">Eliminar grupo</button></div
-              ><div id="treeRootDrop" class="note" hidden>Suelta aquí para colocar en la raíz. En una fila: borde superior/inferior para ordenar; centro para anidar. También puedes usar Acciones…</div
-              ><div id="structureTree"></div
-              ><section id="independentStructures"
-                ><h4>Todas las estructuras</h4
-                ><p id="catalogEditHint" class="note" hidden
-                  >Arrastra una fila al árbol para añadir una referencia. Suelta un nodo aquí para
-                  quitarlo del árbol y conservar sus hijos.</p
-                ><div id="modelLayers"></div
-                ><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p
-                ></section
-              ><p class="note"
-                >Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad compartida: ocultar una estructura afecta a sus referencias y descendientes en otras ramas. «↗ N» indica cuántas referencias tiene. Pulsa el
-                nombre de una segmentación para centrarla, o abre «Ajustes» en el catálogo para
-                cambiar su apariencia.</p
-              ><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p
-              ><div class="structure-actions"
-                ><button id="clearSelection" type="button">Quitar selección</button
-                ><button disabled="" id="isolateStructures" type="button"
-                  >Aislar seleccionadas</button
-                ><button disabled="" id="restoreVisibility" type="button"
-                  >Restaurar visibilidad anterior</button
-                ><button id="showAllStructures" type="button"
-                  >Mostrar todas las estructuras</button
-                ></div
-              ><div class="volume-summary"
-                ><strong id="selectedVolume">Volumen total seleccionado: 0,00 mL</strong
-                ><p class="note" id="selectedVolumeDetail"
-                  >Selecciona estructuras para sumar sus volúmenes.</p
-                ><p class="note"
-                  >Suma de volúmenes individuales; no descuenta solapamientos. 1 mL = 1 cm³.</p
-                ></div
-              ><button disabled="" id="resetLayers" type="button">Restablecer</button>
-              <div hidden="True" id="legacyStructureControls"
-                ><select id="focusStructure"></select
-                ><button disabled="" id="centerStructure" type="button"
-                  >Centrar en las cuatro ventanas</button
-                ><div id="structureSelection"></div></div></div></div></details
-        ><details hidden id="section-tools"
-          ><summary>⚒ Herramientas</summary
+        ><details id="section-tools" class="sidebar-subgroup"><summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M3 16L16 3l5 5L8 21z M7 12l3 3 M10 9l3 3 M13 6l3 3"/></svg>Mediciones y anotaciones</summary
           ><div class="sidebar-body"
             ><details class="sidebar-subgroup" id="menu-measurements"
               ><summary>Mediciones</summary
@@ -3579,7 +3655,7 @@
               ></details
             ></div
           ></details
-        ><details class="sidebar-group" id="section-trajectory">
+        ><details id="section-trajectory" class="sidebar-subgroup">
           <summary
             ><svg
               width="14"
@@ -3631,7 +3707,7 @@
               >
             </div>
           </div> </details
-        ><details class="sidebar-group" id="section-saved"
+        ></div></details><details class="sidebar-group" id="section-saved"
           ><summary>▧ Mis vistas</summary
           ><div class="sidebar-body"
             ><div class="sidebar-body"
@@ -3975,7 +4051,7 @@
       // Un enlace de caso ya identifica el modelo; la carga manual se ofrece al entrar sin él.
       const linkedCase = !!new URLSearchParams(location.search).get("modelo")?.trim();
       $("caseLocalFiles").hidden = linkedCase;
-      $("section-case").open = !linkedCase;
+      $("section-case").open = false;
       for (const button of document.querySelectorAll("[data-case-file]")) {
         button.addEventListener("click", () => $(button.dataset.caseFile).click());
       }
@@ -3999,7 +4075,10 @@
         progressTrack = $("loadingTrack"),
         progressFill = $("loadingFill");
       const formatMB = (n) => (n / 1000000).toFixed(1) + " MB";
+      let progressDismissTimer = null;
       function showProgress(title, fraction = null, detail = "") {
+        clearTimeout(progressDismissTimer);
+        progressDismissTimer = null;
         progressPanel.hidden = false;
         progressPanel.setAttribute("aria-busy", fraction === null ? "true" : "false");
         $("loadingTitle").textContent = title;
@@ -4012,6 +4091,10 @@
         showProgress(ok ? "Carga completada" : "Error de carga", ok ? 1 : 0, message);
         progressPanel.setAttribute("aria-busy", "false");
         progressTrack.classList.remove("indeterminate");
+        if (ok) progressDismissTimer = setTimeout(() => {
+          progressPanel.hidden = true;
+          progressDismissTimer = null;
+        }, 10000);
       }
       // same-origin permite puertos privados de Codespaces sin credenciales en otros orígenes.
       // Descarga progresiva que notifica bytes reales incluso dentro de cada fragmento.
@@ -4448,6 +4531,7 @@
         if (batchRestore) return;
         const s = slices[axis];
         if (!s) return;
+        if ($("clipSyncTc")?.checked && model && volumeInfo) updateClip({ repaint: false });
         const i = Number($("r" + axis).value);
         if (s.obliqueBase) {
           s.mesh.position.copy(s.obliqueBase.position);
@@ -4491,6 +4575,7 @@
         drawMeasurements(axis, ctx, dest);
         drawTrajectorySlice(axis, ctx, dest);
         $("o" + axis).textContent = String(i);
+        sync3DSliceControl(axis);
       }
       // VolumeSlice de Three.js centra los planos 3D alrededor de (0,0,0).
       // Este centro físico en RAS, calculado desde el encabezado NRRD, debe añadirse
@@ -5123,7 +5208,7 @@
           const slice = volume.extractSlice(axis, +slider.value);
           slices[axis] = slice;
           planesRoot.add(slice.mesh);
-          slider.oninput = () => paint(axis);
+          slider.oninput = () => $("clipSyncTc")?.checked ? updateClip() : paint(axis);
           paint(axis);
         }
         updatePlaneVisibility();
@@ -5159,6 +5244,7 @@
         volume.windowHigh = Number($("wl").value) + Number($("ww").value) / 2;
         initSlices();
         volumeContentHash = hash;
+        updateClip();
         syncMprNavigation();
         syncNamedViews();
         status.textContent = `Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;
@@ -5761,7 +5847,7 @@
         };
         const svg =
           icons[activeTool] &&
-          document.querySelector('.pane-quick-tools [data-tool="' + activeTool + '"] svg');
+          document.querySelector('#viewerTools [data-tool="' + activeTool + '"] svg');
         let cursor = "crosshair";
         if (svg) {
           const markup =
@@ -5803,8 +5889,13 @@
           }
         }
         activeTool = tool;
+        if (tool === "trajectory" || tool.startsWith("measure") || tool === "editMeasure") {
+          const toolbox = $("section-toolbox");
+          if (toolbox) toolbox.open = true;
+        }
         if (typeof clipGuide !== "undefined") updateClip();
         updateToolCursor();
+        syncActiveToolLabel();
         pendingMeasure = null;
         document
           .querySelectorAll("[data-tool]")
@@ -5812,11 +5903,11 @@
         $("toolHint").textContent = toolHints[tool];
         updateMeasurementHint();
         if (tool === "trajectory") {
-          $("section-trajectory").open = true;
+          openSidebarSection("section-trajectory");
           updateTrajectoryPanel();
         }
-        if (tool.startsWith("measure") || tool === "editMeasure")
-          (($("section-tools").open = true), ($("measurementList").closest("details").open = true));
+        if (tool.startsWith("measure") || tool === "editMeasure") openSidebarSection("menu-measurements");
+        if (["annotation", "arrow"].includes(tool)) openSidebarSection("menu-annotations");
         repaintAll();
         renderMeasure3D();
       }
@@ -6268,48 +6359,85 @@
       clipGuide.renderOrder = 250;
       scene.add(clipGuide);
 
-      function updateClip() {
+      function tcClipGeometry(axis) {
+        const plane = volume.extractPerpendicularPlane(axis, Number($("r" + axis).value));
+        const pointAt = (i, j) => {
+          const ijk = volume.reverseAccess(plane.sliceAccess(i, j));
+          const point = new THREE.Vector3(...volumeInfo.originRAS);
+          for (let a = 0; a < 3; a++) point.addScaledVector(new THREE.Vector3(...volumeInfo.directionsRAS[a]), ijk[a]);
+          return point;
+        };
+        const point = pointAt(0, 0);
+        const normal = pointAt(1, 0).sub(point).cross(pointAt(0, 1).sub(point)).normalize();
+        const positive = new THREE.Vector3();
+        positive[axis] = 1;
+        if (normal.lengthSq() < 1e-12) normal.copy(positive);
+        if (normal.dot(positive) < 0) normal.negate();
+        if (obliqueActive()) {
+          point.sub(obliquePivot).applyQuaternion(obliqueRotation).add(obliquePivot).add(obliqueShift);
+          normal.applyQuaternion(obliqueRotation).normalize();
+        }
+        return { point, normal };
+      }
+      function updateClip({ repaint = true } = {}) {
+        const sync = $("clipSyncTc").checked && !!volume && !!volumeInfo;
+        $("clipSyncTc").disabled = !volume || !volumeInfo || !model;
+        for (const id of ["clipPosition", "rotateClip", "clipRotationConstraint", "clipLeft", "clipRight", "clipUp", "clipDown", "alignClip", "resetClipRotation"])
+          $(id).disabled = sync;
         const previousClip = clipPlane;
         clipPlane = null;
         clipGuide.visible = false;
         if (model && $("clipEnabled").checked) {
           model.updateWorldMatrix(true, true);
-          const box = new THREE.Box3().setFromObject(model),
+          const box = new THREE.Box3().setFromObject(model);
+          let normal, point;
+          if (sync) ({ normal, point } = tcClipGeometry($("clipAxis").value));
+          else {
             normal = new THREE.Vector3();
-          normal[$("clipAxis").value] = 1;
-          normal.applyQuaternion(clipRotation);
-          const projections = [];
-          for (const x of [box.min.x, box.max.x])
-            for (const y of [box.min.y, box.max.y])
-              for (const z of [box.min.z, box.max.z])
-                projections.push(normal.dot(new THREE.Vector3(x, y, z)));
-          const level = THREE.MathUtils.lerp(
-            Math.min(...projections),
-            Math.max(...projections),
-            Number($("clipPosition").value) / 100
-          );
-          const point = box.getCenter(new THREE.Vector3());
-          point.addScaledVector(normal, level - normal.dot(point));
+            normal[$("clipAxis").value] = 1;
+            normal.applyQuaternion(clipRotation);
+            const projections = [];
+            for (const x of [box.min.x, box.max.x])
+              for (const y of [box.min.y, box.max.y])
+                for (const z of [box.min.z, box.max.z])
+                  projections.push(normal.dot(new THREE.Vector3(x, y, z)));
+            const level = THREE.MathUtils.lerp(
+              Math.min(...projections),
+              Math.max(...projections),
+              Number($("clipPosition").value) / 100
+            );
+            point = box.getCenter(new THREE.Vector3());
+            point.addScaledVector(normal, level - normal.dot(point));
+          }
           if ($("clipReverse").checked) normal.negate();
+          // Amplía el lado conservado 5 mm para dejar una franja visible junto al TC.
+          if (sync) point.addScaledVector(normal, -5);
           clipPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(normal, point);
           clipGuide.position.copy(point);
           clipGuide.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
           clipGuide.scale.setScalar(box.getSize(new THREE.Vector3()).length());
-          clipGuide.visible = activeTool === "rotateClip";
+          clipGuide.visible = activeTool === "rotateClip" && !sync;
         }
-        if (clipPlane ? !previousClip?.equals(clipPlane) : previousClip) invalidateStructureNames();
+        if (clipPlane && previousClip?.equals(clipPlane)) clipPlane = previousClip;
+        if (clipPlane !== previousClip) invalidateStructureNames();
         model?.traverse((o) => {
           if (o.isMesh)
             for (const mat of Array.isArray(o.material) ? o.material : [o.material]) {
+              if ((clipPlane && mat.clippingPlanes?.[0] === clipPlane) || (!clipPlane && mat.clippingPlanes?.length === 0)) continue;
               mat.clippingPlanes = clipPlane ? [clipPlane] : [];
               mat.clipShadows = true;
               mat.needsUpdate = true;
             }
         });
-        if (volume && !batchRestore) ["x", "y", "z"].forEach(paint);
+        if (repaint && volume && !batchRestore) ["x", "y", "z"].forEach(paint);
       }
-      for (const id of ["clipEnabled", "clipAxis", "clipPosition", "clipReverse"])
+      for (const id of ["clipEnabled", "clipAxis", "clipPosition", "clipReverse", "clipSyncTc"])
         $(id).oninput = updateClip;
+      $("clipSyncTc").oninput = () => {
+        if ($("clipSyncTc").checked) $("clipEnabled").checked = true;
+        updateClip();
+        syncPaneToggles();
+      };
       $("rotateClip").onclick = () => {
         if (!model) return;
         $("clipEnabled").checked = true;
@@ -6376,7 +6504,7 @@
       renderer.domElement.addEventListener(
         "pointerdown",
         (event) => {
-          if (activeTool !== "rotateClip" || event.button !== 0 || !model) return;
+          if (activeTool !== "rotateClip" || $("clipSyncTc").checked || event.button !== 0 || !model) return;
           event.preventDefault();
           event.stopImmediatePropagation();
           clipDrag = {
@@ -7106,6 +7234,7 @@
           clipRotation: clipRotation.toArray(),
           clipAxis: $("clipAxis").value,
           clipPosition: Number($("clipPosition").value),
+          clipSyncTc: $("clipSyncTc").checked,
           layers: [...layerControls].map(([key, l]) => ({
             key,
             visible: l.visible.checked,
@@ -7120,6 +7249,7 @@
       function validateConfig(data) {
         if (!data || typeof data !== "object" || Array.isArray(data))
           throw new Error("Configuración inválida.");
+        if (data.clipSyncTc !== undefined && typeof data.clipSyncTc !== "boolean") throw new Error("Sincronización de recorte inválida.");
         if (data.structureNodes !== undefined) validateNodes(data.structureNodes);
         if (data.structureGroups !== undefined) validateTree(data.structureGroups);
         if (data.structureRelations !== undefined)
@@ -7346,6 +7476,7 @@
           $("fillOpacity").value = data.fillOpacity;
           $("clipPosition").value = data.clipPosition;
           $("clipAxis").value = data.clipAxis;
+          $("clipSyncTc").checked = data.clipSyncTc ?? false;
           for (const l of data.layers) {
             const c = layerControls.get(l.key);
             c.nameCheck.checked = l.nameVisible ?? true;
@@ -7926,6 +8057,8 @@
         $("restoreMprPosition").disabled = !ready || !savedMprPosition;
         $("centerMprSelection").disabled = !ready || !selectedStructures.has(selectedStructure) || !layerControls.has(selectedStructure);
         $("resetMprViews").disabled = !ready;
+        const centerAll = $("centerAllViews");
+        if (centerAll) centerAll.disabled = !volume && !model;
       }
       function saveMprPosition() {
         syncMprNavigation();
@@ -7961,6 +8094,23 @@
         }
         document.dispatchEvent(new Event("case-state-change"));
         status.textContent = "Posición MPR recuperada. Cámara 3D conservada.";
+      }
+      function centerAllViews() {
+        for (const axis of ["x", "y", "z"]) {
+          Object.assign(viewStates[axis], { x: 0, y: 0 });
+          viewAppliers[axis]();
+        }
+        if (model || planesRoot.children.length) {
+          const box = new THREE.Box3().setFromObject(model || planesRoot);
+          if (!box.isEmpty()) {
+            const target = box.getCenter(new THREE.Vector3());
+            camera.position.add(target.clone().sub(controls.target));
+            controls.target.copy(target);
+            controls.update();
+          }
+        }
+        document.dispatchEvent(new Event("case-state-change"));
+        status.textContent = "Las cuatro vistas están centradas. Zoom, cortes y orientación conservados.";
       }
       function resetMprViews() {
         if (!volume || !volumeInfo) {
@@ -9778,6 +9928,49 @@
         }
         return { byId, children, references };
       }
+      function structureIconOptions() {
+        return [["generic", "Estructura"], ["vein", "Vena"], ["artery", "Arteria"],
+          ["lesion", "Lesión / tumor"], ["liver", "Hígado"], ["kidney", "Riñón"],
+          ["lung", "Pulmón"], ["bone", "Hueso"]];
+      }
+      function suggestedStructureIcon(name) {
+        const text = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[_-]/g, " ");
+        if (/tumou?r|lesi[oó]n|lesion|nodul|nodule|metasta|neoplas|\badk\b/.test(text)) return "lesion";
+        if (/arter|aorta/.test(text)) return "artery";
+        if (/vena|venos|vein|venous|portal|\bporta\b/.test(text)) return "vein";
+        if (/higado|liver|hepatic parenchyma/.test(text)) return "liver";
+        if (/rinon|renal|kidney/.test(text)) return "kidney";
+        if (/pulmon|lung/.test(text)) return "lung";
+        if (/hueso|bone|vertebr|costill|\bribs?\b/.test(text)) return "bone";
+        return "generic";
+      }
+      function structureCategoryIcon(node) {
+        const category = node.type === "group" ? "folder" : node.icon || suggestedStructureIcon(node.key);
+        const paths = {
+          folder: "M2 6V3h5l2 3h7v10H2z",
+          generic: "M9 2l7 4v8l-7 3-7-3V6z M2 6l7 4 7-4 M9 10v7",
+          vein: "M7 17V9L3 3 M11 17V8l4-5 M7 9l4-1 M4 6l3-2 M12 6l3 1",
+          artery: "M7 17V9L3 3 M11 17V8l4-5 M9 14v-4 M7 12l2-2 2 2",
+          lesion: "M6 3l3 1 4-1 1 4 3 3-3 3-1 4-4-1-4 1-1-4-2-3 2-3z M7 8l4 4 M11 8l-4 4",
+          liver: "M2 7Q4 2 12 4l4 3-2 6-7 2-5-2z M10 5l-3 9",
+          kidney: "M11 3Q3 0 3 9t8 6q4-3-1-5 4-3 1-7z M10 8l4 1v7",
+          lung: "M9 2v6 M9 6l-3 3 M9 6l3 3 M7 4Q2 7 2 14q1 4 5 1V4 M11 4q5 3 5 10-1 4-5 1V4",
+          bone: "M5 6Q0 5 3 2q3-2 4 2l7 7q4 0 3 4-3 4-5 0L5 8q-3 2-3-1z",
+        };
+        const label = category === "folder" ? "Grupo" : structureIconOptions().find(([id]) => id === category)?.[1] || "Estructura";
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        icon.setAttribute("viewBox", "0 0 18 18");
+        icon.setAttribute("class", "structure-category-icon");
+        icon.setAttribute("role", "img");
+        icon.setAttribute("aria-label", label);
+        icon.dataset.category = category;
+        const title = document.createElementNS(icon.namespaceURI, "title");
+        title.textContent = label + (node.type === "group" ? "" : node.icon ? " · elección manual" : " · sugerido por el nombre original");
+        const path = document.createElementNS(icon.namespaceURI, "path");
+        path.setAttribute("d", paths[category] || paths.generic);
+        icon.append(title, path);
+        return icon;
+      }
       function validateNodes(nodes) {
         if (!Array.isArray(nodes) || nodes.length > 10000)
           throw new Error("Árbol inválido o demasiado grande.");
@@ -9792,7 +9985,8 @@
             !(n.parent === null || typeof n.parent === "string") ||
             (n.type === "segment"
               ? !layerControls.has(n.key) ||
-                (n.name !== undefined && (typeof n.name !== "string" || n.name.length > 100))
+                (n.name !== undefined && (typeof n.name !== "string" || n.name.length > 100)) ||
+                (n.icon !== undefined && !structureIconOptions().some(([id]) => id === n.icon))
               : typeof n.name !== "string" || !n.name.trim() || n.name.length > 100)
           )
             throw new Error("Nodo inválido.");
@@ -9818,7 +10012,7 @@
         return nodes.map((n) =>
           n.type === "group"
             ? { id: n.id, type: n.type, name: n.name.trim(), parent: n.parent }
-            : { id: n.id, type: n.type, key: n.key, name: n.name?.trim() || "", parent: n.parent }
+            : { id: n.id, type: n.type, key: n.key, name: n.name?.trim() || "", parent: n.parent, ...(n.icon ? { icon: n.icon } : {}) }
         );
       }
       function nodeKeys(id) {
@@ -10127,6 +10321,15 @@
             dest.add(new Option(path.reverse().join(" / "), a.id));
           }
         dest.value = n?.parent || parent || "";
+        const iconSelect = document.createElement("select");
+        iconSelect.id = "nodeCategoryIcon";
+        const iconLabel = document.createElement("label");
+        iconLabel.htmlFor = iconSelect.id;
+        iconLabel.textContent = "Icono de la referencia (no cambia el color ni interpreta diagnósticos)";
+        iconSelect.add(new Option("Automático según nombre original", ""));
+        for (const [value, label] of structureIconOptions()) iconSelect.add(new Option(label, value));
+        iconSelect.value = n?.icon || "";
+        if (nodeType === "segment") panel.append(iconLabel, iconSelect);
         panel.append(
           nameLabel,
           name,
@@ -10137,7 +10340,7 @@
               id: id || uid(),
               type: nodeType,
               parent: dest.value || null,
-              ...(nodeType === "group" ? { name: name.value } : { key: n.key, name: name.value }),
+              ...(nodeType === "group" ? { name: name.value } : { key: n.key, name: name.value, ...(iconSelect.value ? { icon: iconSelect.value } : {}) }),
             };
             applyNodes(n ? structureNodes.map((x) => (x.id === id ? node : x)) : [...structureNodes, node], {
               reveal: [node.parent],
@@ -10195,7 +10398,7 @@
             if (modelContentHash === caseHash && host.contains(details)) saveTreeExpansion();
           });
           const row = document.createElement("summary");
-          const name = (n.type === "group" ? "▱ " : "") + (n.name || n.key);
+          const name = n.name || n.key;
           const title = treeEditing
             ? button(name, () => editNode(n.id))
             : n.type === "segment"
@@ -10214,7 +10417,7 @@
             c.dot = dot;
             row.append(dot);
           }
-          row.append(title);
+          row.append(structureCategoryIcon(n), title);
           const referenceCount = n.type === "segment" ? treeIndex.references.get(n.key)?.length || 0 : 0;
           if (referenceCount > 1) {
             const shared = document.createElement("span");
@@ -10271,6 +10474,7 @@
         const paths = {
           edit: "M12 3l3 3-9 9H3v-3z M10 5l3 3",
           done: "M3 9l4 4 8-9",
+          maximize: "M2 6V2h4 M12 2h4v4 M2 12v4h4 M12 16h4v-4",
           undo: "M6 3L2 7l4 4 M2 7h8a5 5 0 0 1 0 10",
           redo: "M12 3l4 4-4 4 M16 7H8a5 5 0 0 0 0 10",
           expand: "M4 6l5-4 5 4 M4 12l5 4 5-4",
@@ -10278,6 +10482,7 @@
           group: "M2 6V4h5l2 2h7v10H2z M9 8v6 M6 11h6",
           more: "M4 9h.01 M9 9h.01 M14 9h.01",
           bookmark: "M4 2h10v14l-5-3-5 3z",
+          pan: "M9 1v16 M1 9h16 M6 4l3-3 3 3 M6 14l3 3 3-3 M4 6L1 9l3 3 M14 6l3 3-3 3",
           target: "M9 1v4 M9 13v4 M1 9h4 M13 9h4 M9 5a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
           reset: "M3 7a6 6 0 1 1 0 5 M3 2v5h5",
           export: "M9 2v10 M5 8l4 4 4-4 M3 12v4h12v-4",
@@ -10302,6 +10507,7 @@
         for (const [value, label] of [
           ["", "Acciones…"], ["rename", "Renombrar"], ["move", "Mover a otra rama…"],
           ["up", "Subir"], ["down", "Bajar"], ["remove", "Quitar solo este nodo"],
+          ...(node.type === "segment" ? [["icon", "Cambiar icono…"]] : []),
         ]) {
           const option = document.createElement("option");
           option.value = value;
@@ -10319,9 +10525,9 @@
           const action = actions.value;
           actions.value = "";
           try {
-            if (action === "rename" || action === "move") {
+            if (["rename", "move", "icon"].includes(action)) {
               editNode(node.id);
-              $(action === "rename" ? "nodeDisplayName" : "nodeParent").focus();
+              $(action === "rename" ? "nodeDisplayName" : action === "icon" ? "nodeCategoryIcon" : "nodeParent").focus();
             } else if (action === "up" && index > 0) moveTreeNode(node.id, siblings[index - 1].id, "before");
             else if (action === "down" && index < siblings.length - 1) moveTreeNode(node.id, siblings[index + 1].id, "after");
             else if (action === "remove") removeTreeReference(node.id);
@@ -10599,19 +10805,263 @@
           timer = setTimeout(hide, 4000);
         };
       }
+      function highlightSidebarSection(section) {
+        clearTimeout(highlightSidebarSection.timer);
+        for (const previous of document.querySelectorAll(".sidebar-highlight")) previous.classList.remove("sidebar-highlight");
+        section.classList.add("sidebar-highlight");
+        highlightSidebarSection.timer = setTimeout(() => section.classList.remove("sidebar-highlight"), 4000);
+      }
+      function openSidebarSection(id) {
+        const section = $(id);
+        for (let node = section; node; node = node.parentElement) {
+          if (node.tagName === "DETAILS") { node.hidden = false; node.open = true; }
+        }
+        if (document.body.classList.contains("panel-folded")) $("toggleGeneralPanel").click();
+        section.scrollIntoView({ block: "nearest" });
+        highlightSidebarSection(section);
+      }
+      function sync3DSliceControl(axis) {
+        const input = $("sceneSlice" + axis), source = $("r" + axis);
+        if (!input || !source) return;
+        for (const attribute of ["min", "max", "step"]) input[attribute] = source[attribute];
+        input.disabled = source.disabled;
+        input.value = source.value;
+        $("sceneSliceValue" + axis).textContent = source.disabled ? "—" : source.value;
+      }
+      function create3DSliceControls() {
+        const group = document.createElement("section");
+        group.className = "scene-slice-controls";
+        group.setAttribute("aria-label", "Desplazar planos del TC");
+        const heading = document.createElement("h3");
+        heading.textContent = "Desplazar planos del TC";
+        group.append(heading);
+        for (const [axis, name] of [["z", "Axial"], ["y", "Coronal"], ["x", "Sagital"]]) {
+          const row = document.createElement("div"), label = document.createElement("button");
+          label.type = "button";
+          const planeId = "plane" + axis.toUpperCase();
+          label.dataset.paneToggle = planeId;
+          label.title = "Mostrar u ocultar plano " + name.toLowerCase();
+          label.setAttribute("aria-label", label.title);
+          label.setAttribute("aria-pressed", String($("planes").checked && $(planeId).checked));
+          label.onclick = () => {
+            const plane = $(planeId), visible = $("planes").checked && plane.checked;
+            plane.checked = !visible;
+            if (!visible) $("planes").checked = true;
+            plane.dispatchEvent(new Event("change"));
+            syncPaneToggles();
+          };
+          const input = document.createElement("input"), output = document.createElement("output");
+          input.type = "range";
+          input.id = "sceneSlice" + axis;
+          input.setAttribute("aria-label", "Corte " + name.toLowerCase());
+          label.textContent = name;
+          output.id = "sceneSliceValue" + axis;
+          output.htmlFor = input.id;
+          row.append(label, input, output);
+          group.append(row);
+          const source = $("r" + axis);
+          const sync = () => {
+            for (const attribute of ["min", "max", "step"]) input[attribute] = source[attribute];
+            input.disabled = source.disabled;
+            input.value = source.value;
+            output.textContent = source.disabled ? "—" : source.value;
+          };
+          sync();
+          new MutationObserver(sync).observe(source, { attributes: true, attributeFilter: ["min", "max", "step", "disabled"] });
+          input.oninput = () => {
+            if (source.disabled) return;
+            source.value = input.value;
+            source.dispatchEvent(new Event("input", { bubbles: true }));
+            sync();
+          };
+        }
+        return group;
+      }
+      function organizeViewerTools(menus) {
+        const header = document.querySelector("header");
+        const bar = $("viewerTools");
+        // La estructura inicial ya está en el HTML; se enlazan las acciones sin mostrar controles heredados.
+        const positionControls = [...$("mprNavigation").children];
+        bar.replaceChildren();
+        const explore = document.createElement("div");
+        explore.className = "shared-explore";
+        explore.setAttribute("role", "group");
+        explore.setAttribute("aria-label", "Explorar");
+        const pools = menus.flatMap(({ toolbar }) => [...toolbar.querySelectorAll("button")]);
+        const takeTool = (tool) => pools.find((b) => b.dataset.tool === tool) || document.querySelector('[data-tool="' + tool + '"]');
+        const takeLabel = (label) => pools.find((b) => b.getAttribute("aria-label") === label);
+        const labelButton = (b, label) => {
+          if (!b) return;
+          if (!b.querySelector("svg")) setTreeIcon(b, "pan", label);
+          const svg = b.querySelector("svg");
+          b.replaceChildren(svg);
+          b.classList.remove("tree-icon");
+          b.classList.add("shared-tool");
+          const text = document.createElement("span");
+          text.textContent = label;
+          b.append(text);
+          b.title = label;
+          b.setAttribute("aria-label", label);
+          return b;
+        };
+        for (const [tool, label] of [["navigate", "Navegar"], ["select", "Seleccionar"], ["pan", "Desplazar"], ["zoom", "Zoom"], ["window", "Ventana"]]) {
+          const b = takeTool(tool);
+          labelButton(b, label);
+          b.title = label + (["pan", "zoom", "window"].includes(tool) ? " · vistas MPR" : " · MPR y 3D");
+          explore.append(b);
+        }
+        bar.append(explore);
+        const dropdown = (label, elements) => {
+          const details = document.createElement("details");
+          details.className = "shared-dropdown";
+          const summary = document.createElement("summary");
+          summary.textContent = label + " ▾";
+          const content = document.createElement("div");
+          content.className = "shared-dropdown-content";
+          for (const element of elements) if (element) content.append(element);
+          details.append(summary, content);
+          details.addEventListener("toggle", () => {
+            if (details.open) {
+              for (const other of bar.querySelectorAll(".shared-dropdown")) if (other !== details) other.open = false;
+              content.style.left = "0px";
+              const width = document.documentElement.clientWidth;
+              const right = content.getBoundingClientRect().right;
+              if (width && right > width - 8) content.style.left = (width - 8 - right) + "px";
+            }
+          });
+          content.addEventListener("click", (e) => { if (e.target.closest("button")) details.open = false; });
+          bar.append(details);
+          return content;
+        };
+        dropdown("Medir", [
+          labelButton(takeTool("measure2d"), "Medir en MPR"), labelButton(takeTool("measure3d"), "Medir en 3D"),
+          labelButton(takeTool("editMeasure"), "Editar medidas"), labelButton(takeTool("deleteMeasure"), "Borrar medida o anotación"),
+          button("Lista y ajustes de mediciones", () => openSidebarSection("menu-measurements")),
+        ]);
+        dropdown("Anotar", [$("addModelLabel"), $("addModelArrow"), button("Textos y ajustes", () => openSidebarSection("menu-annotations"))]);
+        const centerAll = button("Centrar todo", centerAllViews);
+        centerAll.id = "centerAllViews";
+        centerAll.disabled = true;
+        centerAll.title = "Centrar las cuatro vistas sin cambiar zoom, cortes ni orientación";
+        dropdown("Posición", [centerAll, ...positionControls]);
+        const more = dropdown("Más", []);
+        const family = (label, controls) => {
+          const group = document.createElement("section");
+          group.className = "shared-tool-family";
+          group.setAttribute("role", "group");
+          group.setAttribute("aria-label", label);
+          const heading = document.createElement("h3");
+          heading.textContent = label;
+          group.append(heading);
+          for (const control of controls) if (control) group.append(control);
+          more.append(group);
+        };
+        family("Planos y orientación", [
+          labelButton(takeTool("threePoints"), "Plano por tres puntos"),
+          labelButton(takeTool("oblique"), "Cortes oblicuos"),
+        ]);
+        const info = menus.find((item) => item.sceneView)?.toolbar.querySelector('[aria-controls="modelInfoPanel"]');
+        if (info) info.removeAttribute("style");
+        family("Apariencia", [
+          button("Ajustes de imagen MPR", () => openSidebarSection("menu-image")),
+          button("Ajustes de la vista 3D", () => openSidebarSection("menu-scene")),
+          labelButton(info, "Información del modelo"),
+          labelButton(takeTool("cut"), "Ocultar estructura"),
+          labelButton(takeLabel("Mostrar nombres de estructuras"), "Mostrar nombres de estructuras"),
+          labelButton(takeLabel("Activar / desactivar recorte del modelo"), "Recorte del modelo"),
+          labelButton(takeLabel("Rellenar contornos 2D cerrados"), "Rellenar contornos 2D"),
+        ]);
+        family("Referencias", [
+          labelButton(takeLabel("Mostrar cruces de referencia"), "Cruces de referencia MPR"),
+          labelButton(takeLabel("Mostrar cruce de referencia en 3D"), "Referencia en 3D"),
+        ]);
+        family("Trayectoria y ecografía", [
+          labelButton(takeTool("trajectory"), "Trayectoria 3D"),
+          labelButton($("headerUsMode"), "Modo US"), labelButton($("headerUsTarget"), "Objetivo US"),
+        ]);
+        family("Capturas e informe", [
+          labelButton(takeLabel("Capturar distribución actual"), "Capturar distribución actual"),
+          button("Capturas e informe", () => openSidebarSection("menu-captures")),
+        ]);
+        const active = document.createElement("span");
+        active.id = "activeToolLabel";
+        active.setAttribute("aria-live", "polite");
+        bar.append(active);
+        header.append(bar);
+        const files = $("headerCaseActions"), fileMenu = $("section-case");
+        $("headerUsTools").hidden = true;
+        $("caseLocalFiles").hidden = false;
+        const appearance = $("section-visual");
+        appearance.hidden = false;
+        appearance.open = false;
+        $("tools").hidden = true;
+        $("section-tools").hidden = false;
+        // Los ajustes permanecen en su sección; ya no se trasladan de una ventana a otra.
+        for (const section of [$("menu-measurements"), $("menu-navigation")])
+          for (const b of section.querySelectorAll("[data-tool]")) if (!bar.contains(b)) b.hidden = true;
+        for (const { pane, toolbar, panel, trigger, maximize, sceneView } of menus) {
+          panel.hidden = true;
+          if (sceneView) {
+            panel.replaceChildren();
+            const center = [...toolbar.children].find((b) => b.getAttribute("aria-label") === "Centrar");
+            if (center) panel.append(labelButton(center, "Centrar modelo"));
+            panel.append(button("Restablecer las cuatro vistas", resetMprViews));
+            panel.append(button("Ajustes de la vista 3D", () => openSidebarSection("menu-scene")));
+            panel.append(create3DSliceControls());
+            const orientations = toolbar.querySelector(".pane-plane-tools");
+            if (orientations) panel.append(orientations);
+            if (info) panel.append(button("Información del modelo", () => info.click()));
+            trigger.classList.add("pane-menu-trigger");
+            trigger.onclick = () => {
+              panel.hidden = !panel.hidden;
+              trigger.setAttribute("aria-expanded", String(!panel.hidden));
+            };
+          } else {
+            panel.remove();
+            trigger.remove();
+          }
+          setTreeIcon(maximize, "maximize", "Maximizar o restaurar esta vista");
+          maximize.classList.add("pane-maximize");
+          pane.append(maximize);
+          toolbar.remove();
+        }
+        document.addEventListener("pointerdown", (e) => {
+          if (!bar.contains(e.target)) for (const d of bar.querySelectorAll("details")) d.open = false;
+          if (!files.contains(e.target)) fileMenu.open = false;
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            for (const d of bar.querySelectorAll("details[open]")) { d.open = false; d.querySelector("summary").focus(); }
+            if (fileMenu.open) { fileMenu.open = false; fileMenu.querySelector("summary").focus(); }
+          }
+        });
+        bar.inert = false;
+        bar.setAttribute("aria-busy", "false");
+        syncActiveToolLabel();
+      }
+      function syncActiveToolLabel() {
+        const label = $("activeToolLabel");
+        if (!label) return;
+        const active = document.querySelector('#viewerTools [data-tool="' + activeTool + '"]');
+        label.textContent = "Activa: " + (active?.getAttribute("aria-label") || activeTool);
+      }
+      function toggleViewerTools() {
+        const bar = $("viewerTools"), toggle = $("togglePaneHeaders");
+        bar.hidden = !bar.hidden;
+        if (bar.hidden) {
+          for (const menu of bar.querySelectorAll("details")) menu.open = false;
+          if (bar.contains(document.activeElement)) toggle.focus();
+        }
+        const label = bar.hidden ? "Mostrar barra de herramientas" : "Ocultar barra de herramientas";
+        toggle.setAttribute("aria-expanded", String(!bar.hidden));
+        toggle.setAttribute("aria-label", label);
+        toggle.title = label;
+        resize3D();
+        repaintAll();
+      }
       function installPaneMenus() {
         const panes = [...document.querySelectorAll(".pane")];
         const menus = [];
-        const sectionsById = new Map(
-          [
-            "menu-scene",
-            "menu-navigation",
-            "menu-measurements",
-            "menu-annotations",
-            "menu-captures",
-            "menu-image",
-          ].map((id) => [id, $(id)])
-        );
         function closeMenus(restoreFocus = false) {
           for (const { panel, trigger } of menus) {
             if (!panel.hidden && restoreFocus) trigger.focus();
@@ -10637,48 +11087,10 @@
           const indicator = document.createElement("span");
           indicator.className = "pane-tool-status";
           indicator.hidden = true;
-          const reset = pane._resetView;
           const maximize = button("Maximizar / restaurar", () => {
             closeMenus(true);
             togglePane(pane);
           });
-          const sections = sceneView
-            ? [
-                "menu-scene",
-                "menu-navigation",
-                "menu-measurements",
-                "menu-annotations",
-                "menu-captures",
-              ]
-            : ["menu-image", "menu-navigation", "menu-measurements", "menu-captures"];
-          trigger.onclick = () => {
-            const opening = panel.hidden;
-            closeMenus();
-            if (!opening) return;
-            panel.replaceChildren();
-            if (!sceneView) {
-              const note = document.createElement("p");
-              note.className = "note";
-              note.textContent = "Ventana, nivel y relleno se aplican a los tres planos.";
-              panel.append(note);
-            }
-            for (const id of sections) {
-              const section = sectionsById.get(id);
-              section.open = false;
-              panel.append(section);
-            }
-            if (reset) panel.append(reset);
-            if (!sceneView)
-              panel.append(
-                button("Modo US", () => {
-                  closeMenus(true);
-                  toggleUsTool();
-                })
-              );
-            panel.append(maximize);
-            panel.hidden = false;
-            trigger.setAttribute("aria-expanded", "true");
-          };
           panel.addEventListener("click", (event) => {
             if (event.target.closest("[data-tool],#addModelLabel,#addModelArrow")) closeMenus(true);
           });
@@ -10732,16 +11144,8 @@
             return b;
           };
           const showSection = (id, headingId) => {
-            if (panel.hidden) trigger.click();
-            for (const section of panel.querySelectorAll("details"))
-              section.open = section.id === id;
-            if (headingId)
-              requestAnimationFrame(() => {
-                const heading = $(headingId);
-                panel.scrollTop +=
-                  heading.getBoundingClientRect().top - panel.getBoundingClientRect().top - 8;
-              });
-            else $(id).scrollIntoView({ block: "nearest" });
+            openSidebarSection(id);
+            if (headingId) $(headingId).scrollIntoView({ block: "nearest" });
           };
           quick("navigate", "Navegar", null, "navigate");
           const three = quick("threePoints", "Plano por tres puntos", () => {
@@ -10938,47 +11342,15 @@
               };
               row.append(b);
             }
-            for (const [label, id] of [
-              ["Axial", "planeZ"],
-              ["Coronal", "planeY"],
-              ["Sagital", "planeX"],
-            ]) {
-              const b = document.createElement("button");
-              b.type = "button";
-              b.textContent = label;
-              b.title = "Mostrar / ocultar plano " + label.toLowerCase();
-              b.setAttribute("aria-label", b.title);
-              b.dataset.paneToggle = id;
-              b.onclick = () => {
-                const input = $(id),
-                  visible = $("planes").checked && input.checked;
-                input.checked = !visible;
-                if (!visible) $("planes").checked = true;
-                input.dispatchEvent(new Event("change"));
-                syncPaneToggles();
-              };
-              row.append(b);
-            }
             toolbar.append(row);
           }
           pane.append(toolbar);
-          menus.push({ panel, trigger, indicator });
+          menus.push({ panel, trigger, indicator, pane, toolbar, maximize, sceneView });
           pane.append(trigger, panel, indicator);
         }
+        organizeViewerTools(menus);
         const refresh = createPaneHintController(menus);
-        const headersToggle = $("togglePaneHeaders");
-        headersToggle.onclick = () => {
-          const collapsed = document.body.classList.toggle("pane-headers-collapsed");
-          if (collapsed) closeMenus();
-          const label = collapsed
-            ? "Desplegar cabeceros de las vistas"
-            : "Contraer cabeceros de las vistas";
-          headersToggle.setAttribute("aria-expanded", String(!collapsed));
-          headersToggle.setAttribute("aria-label", label);
-          headersToggle.title = label;
-          resize3D();
-          repaintAll();
-        };
+        $("togglePaneHeaders").onclick = toggleViewerTools;
         new MutationObserver(refresh).observe($("toolHint"), {
           childList: true,
           characterData: true,
@@ -11142,6 +11514,7 @@
       }
       syncMprNavigation();
       installPaneMenus();
+      syncMprNavigation();
       updateToolCursor();
       syncPaneToggles();
       updateVisibleModelInfo();
@@ -11178,6 +11551,7 @@
           input = box.querySelector("input");
         setTreeIcon(button("load"), "import", "Importar configuración del caso");
         setTreeIcon(button("save"), "export", "Exportar configuración del caso");
+        $("headerCaseActions").append(button("load"), button("save"));
         const historyActions = $("historyActions");
         historyActions.append(button("undo"), button("redo"));
         let entries = [],

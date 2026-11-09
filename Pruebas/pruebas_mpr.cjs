@@ -69,6 +69,118 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   const {fn}=run('focusStructure',{$:id=>elements[id],volume:{},volumeInfo:{},layerControls:new Map([['A',{items:[{mesh}]}]]),model:{updateWorldMatrix:()=>{}},physicalCoordinateAt:(a,i)=>i===0?-10:10,selectedStructures:new Set(['A']),viewStates:Object.fromEntries(['x','y','z'].map(a=>[a,{x:0,y:0}])),viewAppliers:{x:()=>{},y:()=>{},z:()=>{}},applyReferencePoint:()=>focused++,worldToPixel:()=>({x:50,y:50}),slicePixelBasis:()=>({}),camera:new Proxy({},{get(){throw Error('Camera touched')}}),status:message,document:{dispatchEvent:()=>{}},Event:class{}});
   fn('A',false,false,true);assert.equal(focused,1);assert.match(message.textContent,/Cámara 3D conservada/);
  });
+ await test('Iconos: categorías por nombre original, acentos, inglés y prioridades',()=>{
+  const classify=run('suggestedStructureIcon').fn;
+  for(const [name,icon] of [['Vena porta','vein'],['portal_vein','vein'],['renal artery','artery'],['lesión junto a vena porta','lesion'],['Tumour','lesion'],['metástasis','lesion'],['HÍGADO','liver'],['Riñón izquierdo','kidney'],['lung_right','lung'],['vértebra L3','bone'],['RIB_02','bone'],['Segmento 7','generic']]) assert.equal(classify(name),icon,name);
+ });
+ await test('Barra común: conserva controles, acciones, opciones locales y acceso por teclado',()=>{
+  const dom=new JSDOM(html);const document=dom.window.document,$=id=>document.getElementById(id);dom.window.HTMLElement.prototype.scrollIntoView=()=>{};let action=0;
+  const position=$('saveMprPosition');position.onclick=()=>action++;
+  const menus=[...document.querySelectorAll('.views > .pane')].map((pane,i)=>{
+    const toolbar=document.createElement('div');toolbar.className='pane-quick-tools';
+    for(const tool of ['navigate','select','zoom','window','measure2d','measure3d','editMeasure','deleteMeasure','threePoints','oblique','trajectory','cut']){const b=document.createElement('button');b.dataset.tool=tool;b.onclick=()=>action++;toolbar.append(b);}
+    const center=document.createElement('button');center.setAttribute('aria-label','Centrar');toolbar.append(center);
+    const panel=document.createElement('div'),trigger=document.createElement('button'),maximize=document.createElement('button');panel.className='pane-menu';panel.hidden=true;pane.append(toolbar,panel,trigger);
+    return {pane,toolbar,panel,trigger,maximize,sceneView:i===3};
+  });
+  const {fn,context}=run('organizeViewerTools',{document,$,activeTool:'navigate',centerAllViews:()=>{},resetMprViews:()=>{},create3DSliceControls:()=>document.createElement("section"),highlightSidebarSection:()=>{},button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
+  fn(menus);
+  assert.equal(document.querySelectorAll('.pane-quick-tools').length,0);
+  assert.equal(document.querySelectorAll('.pane-maximize').length,4);
+  assert.equal(document.querySelectorAll('#viewerTools [data-tool="select"]').length,1);
+  assert.ok($('section-case').closest('#headerCaseActions'));assert.equal($('section-case').closest('#generalPanel'),null);assert.equal($('section-case').querySelector('summary').textContent,'Abrir');assert.equal($('caseLocalFiles').hidden,false);
+  assert.equal($('saveMprPosition'),position);position.disabled=false;position.click();assert.equal(action,1);
+  assert.ok($('menu-scene').closest('#section-visual'));
+  assert.deepEqual([...$('section-toolbox').querySelector('.sidebar-body').children].map(el=>el.id),['section-visual','section-tools','section-trajectory']);
+  assert.ok($('section-toolbox').querySelector(':scope > summary svg[aria-hidden="true"]'));
+  for(const id of ['section-visual','section-tools','section-trajectory']){assert.equal($(id).className,'sidebar-subgroup');assert.ok($(id).querySelector(':scope > summary svg'));}
+  assert.equal($('section-toolbox').open,false);context.openSidebarSection('menu-annotations');assert.equal($('section-toolbox').open,true);
+  assert.ok($('addModelLabel').closest('#viewerTools'));
+  assert.deepEqual([...document.querySelectorAll('.shared-tool-family')].map(el=>el.getAttribute('aria-label')),['Planos y orientación','Apariencia','Referencias','Trayectoria y ecografía','Capturas e informe']);
+  assert.equal(document.querySelector('#viewerTools [data-tool="trajectory"]').closest('section').getAttribute('aria-label'),'Trayectoria y ecografía');
+  assert.equal(document.querySelectorAll('.pane-menu').length,1);assert.equal(document.querySelectorAll('.pane-menu-trigger').length,1);menus[3].trigger.click();assert.equal(menus[3].panel.hidden,false);menus[3].trigger.click();assert.equal(menus[3].panel.hidden,true);assert.ok($('centerAllViews').closest('#viewerTools'));
+  assert.equal([...document.querySelectorAll('.shared-tool-family')].find(el=>el.getAttribute('aria-label')==='Apariencia').querySelector('button').textContent,'Ajustes de imagen MPR');
+  const drop=document.querySelector('#viewerTools .shared-dropdown');drop.open=true;
+  document.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape'}));assert.equal(drop.open,false);
+  dom.window.close();
+ });
+ await test('Barra común: plegar no oculta cabeceras ni cambia la herramienta activa',()=>{
+  const dom=new JSDOM('<button id="togglePaneHeaders"></button><nav id="viewerTools"><details open><summary>Medir</summary></details></nav><section class="pane"><h2>Axial</h2></section>');
+  const document=dom.window.document,$=id=>document.getElementById(id);let resized=0;
+  const {fn}=run('toggleViewerTools',{document,$,resize3D:()=>resized++,repaintAll:()=>{}});
+  fn();assert.equal($('viewerTools').hidden,true);assert.equal($('togglePaneHeaders').getAttribute('aria-expanded'),'false');assert.equal($('viewerTools').querySelector('details').open,false);
+  assert.equal(document.body.classList.contains('pane-headers-collapsed'),false);assert.equal(document.querySelector('.pane h2').hidden,false);
+  fn();assert.equal($('viewerTools').hidden,false);assert.equal($('togglePaneHeaders').getAttribute('aria-label'),'Ocultar barra de herramientas');assert.equal(resized,2);dom.window.close();
+ });
+ await test('Carga: oculta el éxito tras diez segundos, conserva errores y cancela al empezar otra carga',()=>{
+  const dom=new JSDOM('<div id="loadingPanel"><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingTitle"></span><span id="loadingDetail"></span></div>');
+  const $=id=>dom.window.document.getElementById(id), timers=new Map();let id=0;
+  const {fn,context}=run('finishProgress',{$,progressPanel:$('loadingPanel'),progressTrack:$('loadingTrack'),progressFill:$('loadingFill'),progressDismissTimer:null,setTimeout:(fn,ms)=>{assert.equal(ms,10000);timers.set(++id,fn);return id;},clearTimeout:key=>timers.delete(key)},['showProgress']);
+  fn(true,'Preparado');assert.equal(timers.size,1);assert.equal($('loadingPanel').hidden,false);
+  [...timers.values()][0]();assert.equal($('loadingPanel').hidden,true);timers.clear();
+  fn(true);context.showProgress('Nueva carga',.2);assert.equal(timers.size,0);assert.equal($('loadingPanel').hidden,false);
+  fn(true);fn(false,'Error');assert.equal(timers.size,0);assert.equal($('loadingPanel').hidden,false);assert.equal($('loadingTitle').textContent,'Error de carga');
+  dom.window.close();
+ });
+ await test('Distribución inicial: nueva cabecera y grupos están en HTML antes de ejecutar módulos',()=>{
+  const dom=new JSDOM(html),document=dom.window.document;
+  assert.ok(document.querySelector('#viewerTools[aria-busy="true"][inert]'));
+  assert.ok(document.querySelector('#headerCaseActions #section-case'));
+  assert.equal(document.querySelector('#generalPanel #section-case'),null);
+  assert.deepEqual([...document.querySelector('#section-toolbox > .sidebar-body').children].map(n=>n.id),['section-visual','section-tools','section-trajectory']);
+  assert.equal(document.querySelector('#section-visual > summary').textContent,'Apariencia y referencia');
+  assert.equal(document.querySelector('#section-tools > summary').textContent,'Mediciones y anotaciones');
+  assert.ok(document.querySelector('#mprNavigation[hidden]'));dom.window.close();
+ });
+ await test('Centrar todo conserva zoom, orientación y cortes, desplazando solo el encuadre',()=>{
+  const states=Object.fromEntries(['x','y','z'].map(a=>[a,{zoom:2,x:40,y:-20}]));
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(2,2,2));mesh.position.set(10,20,30);
+  const camera={position:new THREE.Vector3(50,60,70),up:new THREE.Vector3(0,0,1),zoom:3};
+  const controls={target:new THREE.Vector3(0,0,0),update:()=>{}};
+  const {fn}=run('centerAllViews',{viewStates:states,viewAppliers:{x:()=>{},y:()=>{},z:()=>{}},model:mesh,planesRoot:{children:[]},camera,controls,status:{},document:{dispatchEvent:()=>{}},Event:class{}});
+  fn();assert.deepEqual(camera.position.toArray(),[60,80,100]);assert.deepEqual(controls.target.toArray(),[10,20,30]);assert.equal(camera.zoom,3);assert.deepEqual(camera.up.toArray(),[0,0,1]);
+  for(const a of ['x','y','z'])assert.deepEqual(states[a],{zoom:2,x:0,y:0});
+ });
+ await test('Panel lateral: resalta cuatro segundos solo la sección abierta y reinicia el aviso',()=>{
+  const dom=new JSDOM('<details id="a"><summary>A</summary></details><details id="b"><summary>B</summary></details>');
+  const document=dom.window.document,timers=new Map();let id=0;
+  const {fn}=run('highlightSidebarSection',{document,setTimeout:(fn,ms)=>{assert.equal(ms,4000);timers.set(++id,fn);return id;},clearTimeout:key=>timers.delete(key)});
+  const a=document.getElementById('a'),b=document.getElementById('b');
+  fn(a);assert.equal(a.classList.contains('sidebar-highlight'),true);
+  fn(b);assert.equal(a.classList.contains('sidebar-highlight'),false);assert.equal(b.classList.contains('sidebar-highlight'),true);assert.equal(timers.size,1);
+  fn(b);assert.equal(timers.size,1);[...timers.values()][0]();assert.equal(b.classList.contains('sidebar-highlight'),false);dom.window.close();
+ });
+ await test('Recorte TC: sigue los tres ejes con coordenadas RAS anisótropas y orientación oblicua',()=>{
+  const elements={rx:{value:2},ry:{value:3},rz:{value:4}};
+  const volume={extractPerpendicularPlane:(axis,index)=>({sliceAccess:(i,j)=>axis==='x'?[index,i,j]:axis==='y'?[i,index,j]:[i,j,index]}),reverseAccess:v=>v};
+  const {fn,context}=run('tcClipGeometry',{$:id=>elements[id],volume,volumeInfo:{originRAS:[10,20,30],directionsRAS:[[2,0,0],[0,-3,0],[0,0,4]]},obliqueActive:()=>false,obliquePivot:new THREE.Vector3(1,2,3),obliqueRotation:new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.4),obliqueShift:new THREE.Vector3(5,6,7)});
+  for(const [axis,value] of [['x',14],['y',11],['z',46]]){const g=fn(axis);assert.ok(Math.abs(g.normal[axis]-1)<1e-10);assert.equal(g.point[axis],value);}
+  const base=fn('z');context.obliqueActive=()=>true;const tilted=fn('z');
+  const expected=base.point.clone().sub(context.obliquePivot).applyQuaternion(context.obliqueRotation).add(context.obliquePivot).add(context.obliqueShift);
+  assert.ok(tilted.point.distanceTo(expected)<1e-10);assert.ok(tilted.normal.distanceTo(base.normal.applyQuaternion(context.obliqueRotation))<1e-10);
+  elements.rz.value=6;assert.ok(Math.abs(fn('z').point.distanceTo(tilted.point)-8)<1e-10);
+ });
+ await test('Recorte TC: inversión de lado, bloqueo manual y retorno al recorte independiente',()=>{
+  const ids=['clipSyncTc','clipPosition','rotateClip','clipRotationConstraint','clipLeft','clipRight','clipUp','clipDown','alignClip','resetClipRotation','clipEnabled','clipAxis','clipReverse'];
+  const elements=Object.fromEntries(ids.map(id=>[id,{checked:false,value:50,disabled:false}]));elements.clipSyncTc.checked=true;elements.clipEnabled.checked=true;elements.clipAxis.value='z';
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(10,10,10),new THREE.MeshStandardMaterial());let paints=0;
+  const {fn,context}=run('updateClip',{$:id=>elements[id],model:mesh,volume:{},volumeInfo:{},clipPlane:null,clipRotation:new THREE.Quaternion(),clipGuide:new THREE.Object3D(),activeTool:'rotateClip',batchRestore:false,invalidateStructureNames:()=>{},paint:()=>paints++,tcClipGeometry:()=>({point:new THREE.Vector3(0,0,2),normal:new THREE.Vector3(0,0,1)})});
+  fn({repaint:false});assert.equal(paints,0);assert.equal(elements.clipPosition.disabled,true);assert.equal(context.clipGuide.visible,false);assert.equal(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,2)),5);assert.equal(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,-3)),0);assert.ok(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,-4))<0);
+  elements.clipReverse.checked=true;fn({repaint:false});assert.equal(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,2)),5);assert.equal(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,7)),0);assert.ok(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,8))<0);
+  elements.clipSyncTc.checked=false;elements.clipReverse.checked=false;fn();assert.equal(elements.clipPosition.disabled,false);assert.equal(elements.rotateClip.disabled,false);assert.equal(paints,3);assert.ok(Math.abs(context.clipPlane.constant)<1e-10);
+ });
+ await test('Planos TC en 3D: controles reflejan cortes MPR, límites y disponibilidad',async()=>{
+  const dom=new JSDOM('<input type="range" id="rx" min="0" max="10" value="3"><input type="range" id="ry" min="0" max="20" value="4"><input type="range" id="rz" min="0" max="30" value="5"><input type="checkbox" id="planes" checked><input type="checkbox" id="planeX" checked><input type="checkbox" id="planeY" checked><input type="checkbox" id="planeZ" checked>');
+  const document=dom.window.document,$=id=>document.getElementById(id);let inputs=0;
+  $('rz').oninput=()=>inputs++;
+  const {fn,context}=run('create3DSliceControls',{document,$,MutationObserver:dom.window.MutationObserver,Event:dom.window.Event},['sync3DSliceControl','syncPaneToggles']);
+  document.body.append(fn());
+  const axial=document.querySelector('.scene-slice-controls button[data-pane-toggle="planeZ"]');assert.equal(axial.textContent,'Axial');assert.equal(axial.getAttribute('aria-pressed'),'true');axial.click();assert.equal($('planeZ').checked,false);assert.equal(axial.getAttribute('aria-pressed'),'false');axial.click();assert.equal($('planeZ').checked,true);assert.equal(document.querySelectorAll('.scene-slice-controls button').length,3);
+  assert.equal($('sceneSlicez').max,'30');assert.equal($('sceneSlicez').value,'5');
+  $('sceneSlicez').value='12';$('sceneSlicez').dispatchEvent(new dom.window.Event('input'));assert.equal($('rz').value,'12');assert.equal(inputs,1);assert.equal($('sceneSliceValuez').textContent,'12');
+  $('rz').value='8';context.sync3DSliceControl('z');assert.equal($('sceneSlicez').value,'8');
+  $('rx').disabled=true;$('ry').max='40';await new Promise(r=>setTimeout(r,0));assert.equal($('sceneSlicex').disabled,true);assert.equal($('sceneSliceValuex').textContent,'—');assert.equal($('sceneSlicey').max,'40');dom.window.close();
+ });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){
@@ -335,7 +447,7 @@ async function checkStructureTree({run, test}) {
         updateStructureSelection: () => context.syncTreeRows(),
         focusStructure: (...args) => focusCalls.push(args),
       }, [
-        'redoTreeChange', 'undoTreeChange', 'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
+        'structureIconOptions', 'suggestedStructureIcon', 'structureCategoryIcon', 'redoTreeChange', 'undoTreeChange', 'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
         'loadTreeExpansion', 'saveTreeExpansion', 'applyHierarchy', 'loadTree', 'saveTree', 'exportStructureTree', 'importStructureTree',
         'loadPublishedStructureTree', 'nodeKeys', 'visibilityClosure', 'setSynchronizedVisibility',
         'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop', 'moveTreeNode', 'treeNodeActions', 'setTreeIcon', 'editNode',
@@ -635,6 +747,25 @@ async function checkStructureTree({run, test}) {
     context.applyNodes(nodes,{persist:false});
     assert.doesNotThrow(()=>context.setTreeExpanded(true));
     assert.ok(context.treeRows.every(r => r.details.open));
+  }));
+
+  await test('Árbol: iconos editables conservan color, JSON, deshacer y compatibilidad anterior', withTree(({context, $, layerControls}) => {
+    context.applyNodes([group('g'),{...segment('a','A','g'),name:'Alias'}],{persist:false});
+    const icon=()=> $('structureTree').querySelector('[data-node="a"] .structure-category-icon');
+    assert.equal(icon().dataset.category,'generic');
+    const color=layerControls.get('A').picker.value;
+    context.treeEditing=true;context.renderTree();
+    const actions=$('structureTree').querySelector('[data-node="a"] select');actions.value='icon';actions.onchange();
+    $('nodeCategoryIcon').value='vein';
+    [...$('groupEditor').querySelectorAll('button')].find(b=>b.textContent==='Guardar').click();
+    assert.equal(icon().dataset.category,'vein');assert.equal(layerControls.get('A').picker.value,color);
+    const exported=JSON.parse(JSON.stringify(context.exportStructureTree()));
+    context.importStructureTree(exported);assert.equal(context.treeIndex.byId.get('a').icon,'vein');
+    assert.throws(()=>context.applyNodes([{...segment('bad','B'),icon:'<script>'}]),/Nodo inválido/);
+    context.applyNodes(context.structureNodes.map(n=>n.id==='a'?{...n,icon:'lesion'}:n));
+    context.undoTreeChange();assert.equal(icon().dataset.category,'vein');
+    delete exported.nodes.find(n=>n.id==='a').icon;
+    context.importStructureTree(exported);assert.equal(icon().dataset.category,'generic');
   }));
 
   await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {
