@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.10.7 · Menús de exploración</title>
+    /><title>MPR · v2.10.8 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -1855,8 +1855,8 @@
       #activeToolLabel { font-size: 11px; color: #7ce0ed; margin-left: auto; }
       #headerCaseActions { display: inline-flex; gap: 4px; vertical-align: middle; }
       #headerCaseActions > button { width: 28px; height: 28px; min-height: 28px; margin: 0; padding: 4px; }
-      .pane .pane-maximize { position: absolute; top: 2px; right: 42px; z-index: 12; width: 25px; height: 25px; padding: 3px; margin: 0; }
-      .pane:has(#view3d) h2, .pane h2 { padding-right: 80px; }
+      .pane .pane-maximize { position: absolute; top: 2px; right: 5px; z-index: 12; width: 25px; height: 25px; padding: 3px; margin: 0; }
+      .pane:has(#view3d) h2, .pane h2 { padding-right: 40px; }
       .pane-menu .pane-plane-tools { display: flex; flex-wrap: wrap; padding: 0; justify-content: flex-start; margin-top: 8px; }
       .pane-menu svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
       .case-session p {
@@ -3112,7 +3112,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.10.7</strong
+        ><strong>Visor MPR · v2.10.8</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -7989,6 +7989,8 @@
         $("restoreMprPosition").disabled = !ready || !savedMprPosition;
         $("centerMprSelection").disabled = !ready || !selectedStructures.has(selectedStructure) || !layerControls.has(selectedStructure);
         $("resetMprViews").disabled = !ready;
+        const centerAll = $("centerAllViews");
+        if (centerAll) centerAll.disabled = !volume && !model;
       }
       function saveMprPosition() {
         syncMprNavigation();
@@ -8024,6 +8026,23 @@
         }
         document.dispatchEvent(new Event("case-state-change"));
         status.textContent = "Posición MPR recuperada. Cámara 3D conservada.";
+      }
+      function centerAllViews() {
+        for (const axis of ["x", "y", "z"]) {
+          Object.assign(viewStates[axis], { x: 0, y: 0 });
+          viewAppliers[axis]();
+        }
+        if (model || planesRoot.children.length) {
+          const box = new THREE.Box3().setFromObject(model || planesRoot);
+          if (!box.isEmpty()) {
+            const target = box.getCenter(new THREE.Vector3());
+            camera.position.add(target.clone().sub(controls.target));
+            controls.target.copy(target);
+            controls.update();
+          }
+        }
+        document.dispatchEvent(new Event("case-state-change"));
+        status.textContent = "Las cuatro vistas están centradas. Zoom, cortes y orientación conservados.";
       }
       function resetMprViews() {
         if (!volume || !volumeInfo) {
@@ -10788,7 +10807,11 @@
           button("Lista y ajustes de mediciones", () => openSidebarSection("menu-measurements")),
         ]);
         dropdown("Anotar", [$("addModelLabel"), $("addModelArrow"), button("Textos y ajustes", () => openSidebarSection("menu-annotations"))]);
-        dropdown("Posición", positionControls);
+        const centerAll = button("Centrar todo", centerAllViews);
+        centerAll.id = "centerAllViews";
+        centerAll.disabled = true;
+        centerAll.title = "Centrar las cuatro vistas sin cambiar zoom, cortes ni orientación";
+        dropdown("Posición", [centerAll, ...positionControls]);
         const more = dropdown("Más", []);
         const family = (label, controls) => {
           const group = document.createElement("section");
@@ -10805,7 +10828,12 @@
           labelButton(takeTool("threePoints"), "Plano por tres puntos"),
           labelButton(takeTool("oblique"), "Cortes oblicuos"),
         ]);
-        family("Estructuras y apariencia", [
+        const info = menus.find((item) => item.sceneView)?.toolbar.querySelector('[aria-controls="modelInfoPanel"]');
+        if (info) info.removeAttribute("style");
+        family("Apariencia", [
+          button("Ajustes de imagen MPR", () => openSidebarSection("menu-image")),
+          button("Ajustes de la vista 3D", () => openSidebarSection("menu-scene")),
+          labelButton(info, "Información del modelo"),
           labelButton(takeTool("cut"), "Ocultar estructura"),
           labelButton(takeLabel("Mostrar nombres de estructuras"), "Mostrar nombres de estructuras"),
           labelButton(takeLabel("Activar / desactivar recorte del modelo"), "Recorte del modelo"),
@@ -10839,27 +10867,14 @@
         // Los ajustes permanecen en su sección; ya no se trasladan de una ventana a otra.
         for (const section of [$("menu-measurements"), $("menu-navigation")])
           for (const b of section.querySelectorAll("[data-tool]")) if (!bar.contains(b)) b.hidden = true;
-        for (const { pane, toolbar, panel, trigger, maximize, sceneView } of menus) {
-          const center = [...toolbar.children].find((b) => b.getAttribute("aria-label") === "Centrar");
-          panel.replaceChildren();
-          if (center) { labelButton(center, "Centrar esta vista"); panel.append(center); }
-          panel.append(button(sceneView ? "Ajustes de la vista 3D" : "Ajustes de imagen MPR", () => openSidebarSection(sceneView ? "menu-scene" : "menu-image")));
-          if (sceneView) {
-            const planes = toolbar.querySelector(".pane-plane-tools");
-            if (planes) panel.append(planes);
-            const info = toolbar.querySelector('[aria-controls="modelInfoPanel"]');
-            if (info) { info.removeAttribute("style"); panel.append(info); }
-          }
+        for (const { pane, toolbar, panel, trigger, maximize } of menus) {
+          panel.hidden = true;
+          panel.remove();
+          trigger.remove();
           setTreeIcon(maximize, "maximize", "Maximizar o restaurar esta vista");
           maximize.classList.add("pane-maximize");
           pane.append(maximize);
           toolbar.remove();
-          trigger.onclick = () => {
-            const opening = panel.hidden;
-            for (const item of menus) { item.panel.hidden = true; item.trigger.setAttribute("aria-expanded", "false"); }
-            panel.hidden = !opening;
-            trigger.setAttribute("aria-expanded", String(opening));
-          };
         }
         document.addEventListener("pointerdown", (e) => {
           if (!bar.contains(e.target)) for (const d of bar.querySelectorAll("details")) d.open = false;
@@ -11371,6 +11386,7 @@
       }
       syncMprNavigation();
       installPaneMenus();
+      syncMprNavigation();
       updateToolCursor();
       syncPaneToggles();
       updateVisibleModelInfo();

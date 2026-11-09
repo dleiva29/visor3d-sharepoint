@@ -177,9 +177,9 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
 
 
-## Distribución de herramientas e iconos (v2.10.7)
+## Distribución de herramientas e iconos (v2.10.8)
 
-La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras de las cuatro vistas conservan maximizar y un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
+La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras de las cuatro vistas conservan solo maximizar. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
 
 Los nodos de segmentación de `mpr-structure-tree` v2 admiten el campo opcional `icon`: `generic`, `vein`, `artery`, `lesion`, `liver`, `kidney`, `lung` o `bone`. Sin ese campo se sugiere un icono por la clave original, con prioridad de lesión/tumor sobre vasos; no se deducen diagnósticos. El nombre visible no cambia la sugerencia. Los archivos v1 y v2 anteriores siguen siendo válidos. Los valores ajenos a la lista se rechazan antes de aplicar el árbol.
 
@@ -191,7 +191,7 @@ El botón de plegado de la cabecera muestra u oculta exclusivamente la barra com
 
 El apartado Caso ya no ocupa el panel lateral: los selectores NRRD/GLB y sus mensajes están en Abrir, en la cabecera. La importación y exportación de configuración permanecen junto a ese menú.
 
-Más se organiza con títulos y separadores en Planos y orientación, Estructuras y apariencia, Referencias, Trayectoria y ecografía, y Capturas e informe.
+Más se organiza con títulos y separadores en Planos y orientación, Apariencia, Referencias, Trayectoria y ecografía, y Capturas e informe.
 
 El panel lateral agrupa Apariencia y referencia, Mediciones y anotaciones y Trayectoria 3D dentro de Herramientas. Los accesos desde la barra y la activación de mediciones o trayectoria abren el contenedor para mantener visibles los ajustes correspondientes.
 
@@ -200,3 +200,5 @@ Herramientas usa un icono SVG de llave; sus tres subsecciones comparten marco, e
 El aviso de carga completada se oculta diez segundos después del éxito; una nueva carga cancela ese temporizador y los errores permanecen visibles.
 
 La distribución inicial está definida en el HTML (barra común, Abrir y Herramientas). Un script breve establece escritorio/tableta/móvil antes de pintar; la barra se presenta desactivada mientras se cargan los módulos y se enlazan sus acciones. Se verificó el arranque en Chromium con módulos retardados, sin mostrar la disposición heredada.
+
+Posición → Centrar todo elimina el desplazamiento de las tres vistas MPR y centra el encuadre 3D, conservando zoom, cortes y orientación. Más → Apariencia reúne los ajustes MPR, los ajustes 3D y la información del modelo. Se retiran los menús «…» de las ventanas; orientación anatómica y planos siguen disponibles en los ajustes 3D.

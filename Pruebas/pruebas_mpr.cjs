@@ -83,7 +83,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
     const panel=document.createElement('div'),trigger=document.createElement('button'),maximize=document.createElement('button');panel.className='pane-menu';panel.hidden=true;pane.append(toolbar,panel,trigger);
     return {pane,toolbar,panel,trigger,maximize,sceneView:i===3};
   });
-  const {fn,context}=run('organizeViewerTools',{document,$,activeTool:'navigate',button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
+  const {fn,context}=run('organizeViewerTools',{document,$,activeTool:'navigate',centerAllViews:()=>{},button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
   fn(menus);
   assert.equal(document.querySelectorAll('.pane-quick-tools').length,0);
   assert.equal(document.querySelectorAll('.pane-maximize').length,4);
@@ -96,9 +96,10 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   for(const id of ['section-visual','section-tools','section-trajectory']){assert.equal($(id).className,'sidebar-subgroup');assert.ok($(id).querySelector(':scope > summary svg'));}
   assert.equal($('section-toolbox').open,false);context.openSidebarSection('menu-annotations');assert.equal($('section-toolbox').open,true);
   assert.ok($('addModelLabel').closest('#viewerTools'));
-  assert.deepEqual([...document.querySelectorAll('.shared-tool-family')].map(el=>el.getAttribute('aria-label')),['Planos y orientación','Estructuras y apariencia','Referencias','Trayectoria y ecografía','Capturas e informe']);
+  assert.deepEqual([...document.querySelectorAll('.shared-tool-family')].map(el=>el.getAttribute('aria-label')),['Planos y orientación','Apariencia','Referencias','Trayectoria y ecografía','Capturas e informe']);
   assert.equal(document.querySelector('#viewerTools [data-tool="trajectory"]').closest('section').getAttribute('aria-label'),'Trayectoria y ecografía');
-  menus[3].trigger.click();assert.equal(menus[3].panel.hidden,false);menus[0].trigger.click();assert.equal(menus[3].panel.hidden,true);
+  assert.equal(document.querySelectorAll('.pane-menu').length,0);assert.equal(document.querySelectorAll('.pane-menu-trigger').length,0);assert.ok($('centerAllViews').closest('#viewerTools'));
+  assert.equal([...document.querySelectorAll('.shared-tool-family')].find(el=>el.getAttribute('aria-label')==='Apariencia').querySelector('button').textContent,'Ajustes de imagen MPR');
   const drop=document.querySelector('#viewerTools .shared-dropdown');drop.open=true;
   document.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape'}));assert.equal(drop.open,false);
   dom.window.close();
@@ -130,6 +131,15 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   assert.equal(document.querySelector('#section-visual > summary').textContent,'Apariencia y referencia');
   assert.equal(document.querySelector('#section-tools > summary').textContent,'Mediciones y anotaciones');
   assert.ok(document.querySelector('#mprNavigation[hidden]'));dom.window.close();
+ });
+ await test('Centrar todo conserva zoom, orientación y cortes, desplazando solo el encuadre',()=>{
+  const states=Object.fromEntries(['x','y','z'].map(a=>[a,{zoom:2,x:40,y:-20}]));
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(2,2,2));mesh.position.set(10,20,30);
+  const camera={position:new THREE.Vector3(50,60,70),up:new THREE.Vector3(0,0,1),zoom:3};
+  const controls={target:new THREE.Vector3(0,0,0),update:()=>{}};
+  const {fn}=run('centerAllViews',{viewStates:states,viewAppliers:{x:()=>{},y:()=>{},z:()=>{}},model:mesh,planesRoot:{children:[]},camera,controls,status:{},document:{dispatchEvent:()=>{}},Event:class{}});
+  fn();assert.deepEqual(camera.position.toArray(),[60,80,100]);assert.deepEqual(controls.target.toArray(),[10,20,30]);assert.equal(camera.zoom,3);assert.deepEqual(camera.up.toArray(),[0,0,1]);
+  for(const a of ['x','y','z'])assert.deepEqual(states[a],{zoom:2,x:0,y:0});
  });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
