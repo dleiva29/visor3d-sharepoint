@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.10.9 · Menús de exploración</title>
+    /><title>MPR · v2.10.10 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3095,6 +3095,16 @@
       #section-toolbox > .sidebar-body > details[open] > summary::after { content: "⌃"; }
       #generalPanel .sidebar-highlight { outline: 2px solid #56d8eb; outline-offset: 2px; box-shadow: inset 3px 0 #56d8eb; border-radius: 6px; }
       #generalPanel .sidebar-highlight > summary { background: #174557; color: #b4f6ff; }
+      #section-toolbox button:not(.range-stepper-button) {
+        box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+        min-height: 28px; height: auto; max-width: 100%; gap: 4px;
+        padding: 4px 8px; margin: 3px 0; border: 1px solid #31566e; border-radius: 6px;
+        font: 12px/16px system-ui, Arial; color: #e2eff9; background: #193c53;
+        white-space: normal;
+      }
+      #section-toolbox button:not(.range-stepper-button):hover:enabled { background: #23536c; border-color: #44b2cb; }
+      #section-toolbox button[aria-pressed="true"] { background: #13788e; border-color: #65ddeb; color: #e5faff; }
+      @media (pointer: coarse) { #section-toolbox button:not(.range-stepper-button) { min-height: 44px; } }
       #headerUsTools[hidden] { display: none !important; }
       header .viewer-header-main > small { order: 10; flex-basis: 100%; margin: 0; }
       #viewerTools { padding-right: 0; }
@@ -3114,7 +3124,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.10.9</strong
+        ><strong>Visor MPR · v2.10.10</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
