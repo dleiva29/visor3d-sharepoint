@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.13.1 · Menús de exploración</title>
+    /><title>MPR · v2.13.2 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3141,7 +3141,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.13.1</strong
+        ><strong>Visor MPR · v2.13.2</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -10565,6 +10565,12 @@
       }
       function setTreeIcon(control, icon, label) {
         const paths = {
+          settings: "M3 2v14 M9 2v14 M15 2v14 M1 6h4 M7 12h4 M13 7h4",
+          text: "M3 4h12 M9 4v11 M6 15h6",
+          arrow: "M3 15L15 3 M6 3h9v9",
+          image: "M2 2h14v14H2z M2 13l4-5 4 4 3-3 3 4 M11 5h1",
+          cube: "M9 1l7 4v8l-7 4-7-4V5z M2 5l7 4 7-4 M9 9v8",
+          report: "M4 1h7l4 4v12H4z M11 1v4h4 M7 8h5 M7 11h5 M7 14h3",
           edit: "M12 3l3 3-9 9H3v-3z M10 5l3 3",
           done: "M3 9l4 4 8-9",
           maximize: "M2 6V2h4 M12 2h4v4 M2 12v4h4 M12 16h4v-4",
@@ -11076,6 +11082,18 @@
           labelButton(takeLabel("Capturar distribución actual"), "Capturar distribución actual"),
           button("Capturas e informe", () => openSidebarSection("menu-captures")),
         ]);
+        const menuIcons = {
+          "Lista y ajustes de mediciones": "settings", "Añadir etiqueta de texto": "text", "Añadir flecha": "arrow",
+          "Textos y ajustes": "settings", "Centrar todo": "target",
+          "Ajustes de imagen MPR": "image", "Ajustes de la vista 3D": "cube", "Capturas e informe": "report",
+        };
+        for (const control of bar.querySelectorAll(".shared-dropdown-content button")) {
+          const label = control.getAttribute("aria-label") || control.textContent.trim();
+          const title = control.title;
+          if (!control.querySelector("svg")) setTreeIcon(control, menuIcons[label] || "text", label);
+          labelButton(control, label);
+          if (title) control.title = title;
+        }
         const active = document.createElement("span");
         active.id = "activeToolLabel";
         active.setAttribute("aria-live", "polite");
