@@ -256,7 +256,7 @@ async function checkStructureTree({run, test}) {
       const dom = new JSDOM(`
         <div id="structureTree"></div><input id="structureSearch">
         <p id="structureSearchEmpty"></p><p id="treeMessage"></p>
-        <button id="treeMode"></button><button id="createGroup"></button>
+        <button id="undoTree"></button><button id="treeMode"></button><button id="createGroup"></button>
         <div id="treeRootDrop"></div><div id="groupEditor"></div>
         <section id="independentStructures"><p id="catalogEditHint"></p><div id="modelLayers"></div></section>
       `, {url: 'http://localhost/'});
@@ -281,12 +281,12 @@ async function checkStructureTree({run, test}) {
       const {context} = run('applyNodes', {
         $, document, Event, localStorage, Option: dom.window.Option, layerControls, selectedStructures,
         URL, modelContentHash: 'synthetic-model', treeCaseKey: null, treeLocalOverride: false,
-        treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
+        treeUndoHistory: [], treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
         treeEditing: false, batchRestore: false, uid: () => 'new-' + ++id,
         updateStructureSelection: () => context.syncTreeRows(),
         focusStructure: (...args) => focusCalls.push(args),
       }, [
-        'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
+        'undoTreeChange', 'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
         'applyHierarchy', 'loadTree', 'saveTree', 'exportStructureTree', 'importStructureTree',
         'loadPublishedStructureTree', 'nodeKeys', 'visibilityClosure', 'setSynchronizedVisibility',
         'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop', 'moveTreeNode', 'treeNodeActions', 'editNode',
@@ -400,6 +400,42 @@ async function checkStructureTree({run, test}) {
     target.getBoundingClientRect = () => ({top: 100, height: 40});
     target.ondrop({clientY: 101, preventDefault(){}, stopPropagation(){}, dataTransfer:{types:['application/x-mpr-tree-node'],getData: type => type === 'application/x-mpr-tree-node' ? 'c' : ''}});
     assert.deepEqual(Array.from(context.treeIndex.children.get(null), n => n.id), ['c','a','b']);
+  }));
+
+  await test('Árbol: deshacer recupera eliminación, orden y nombres sin cambiar visibilidad', withTree(({context, $, layerControls}) => {
+    context.applyNodes(nodes, {persist:false});
+    context.removeTreeReference('reference-1');
+    assert.equal(context.treeIndex.byId.get('child').parent, 'left');
+    context.undoTreeChange();
+    assert.equal(context.treeIndex.byId.get('child').parent, 'reference-1');
+    assert.equal(JSON.stringify(context.structureNodes), JSON.stringify(context.validateNodes(nodes)));
+    const before = JSON.stringify(context.structureNodes);
+    context.moveTreeNode('right','left','before');
+    context.applyNodes(context.structureNodes.map(n => n.id === 'right' ? {...n,name:'Nuevo'} : n));
+    layerControls.get('A').visible.checked = false;
+    context.undoTreeChange();
+    assert.equal(context.treeIndex.byId.get('right').name, 'right');
+    context.undoTreeChange();
+    assert.equal(JSON.stringify(context.structureNodes), before);
+    assert.equal(layerControls.get('A').visible.checked, false);
+    assert.equal($('undoTree').disabled, true);
+    const saved = JSON.parse(context.localStorage.getItem(context.treeCaseKey));
+    assert.equal(JSON.stringify(saved.nodes), before);
+  }));
+  await test('Árbol: historial limitado, operaciones inválidas y cambio de modelo', withTree(({context, $}) => {
+    context.applyNodes([group('a')], {persist:false});
+    for(let i=0;i<25;i++) context.applyNodes([{...group('a'),name:'Nombre '+i}]);
+    assert.equal(context.treeUndoHistory.length,20);
+    assert.throws(() => context.applyNodes([group('bad','missing')]));
+    assert.equal(context.treeUndoHistory.length,20);
+    for(let i=0;i<20;i++) context.undoTreeChange();
+    assert.equal(context.treeIndex.byId.get('a').name,'Nombre 4');
+    context.applyNodes([group('b')]);
+    context.modelContentHash = 'otro-modelo'; context.loadTree();
+    assert.equal(context.treeUndoHistory.length,0);
+    assert.equal($('undoTree').disabled,true);
+    context.undoTreeChange();
+    assert.equal(context.structureNodes.length,0);
   }));
 
   await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {
