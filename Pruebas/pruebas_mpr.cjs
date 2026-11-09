@@ -256,7 +256,7 @@ async function checkStructureTree({run, test}) {
       const dom = new JSDOM(`
         <div id="structureTree"></div><input id="structureSearch">
         <p id="structureSearchEmpty"></p><p id="treeMessage"></p>
-        <button id="undoTree"></button><button id="treeMode"></button><button id="createGroup"></button>
+        <button id="redoTree"></button><button id="undoTree"></button><button id="treeMode"></button><button id="createGroup"></button>
         <div id="treeRootDrop"></div><div id="groupEditor"></div>
         <section id="independentStructures"><p id="catalogEditHint"></p><div id="modelLayers"></div></section>
       `, {url: 'http://localhost/'});
@@ -281,12 +281,12 @@ async function checkStructureTree({run, test}) {
       const {context} = run('applyNodes', {
         $, document, Event, localStorage, Option: dom.window.Option, layerControls, selectedStructures,
         URL, modelContentHash: 'synthetic-model', treeCaseKey: null, treeLocalOverride: false,
-        treeUndoHistory: [], treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
+        treeRedoHistory: [], treeUndoHistory: [], treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
         treeEditing: false, batchRestore: false, uid: () => 'new-' + ++id,
         updateStructureSelection: () => context.syncTreeRows(),
         focusStructure: (...args) => focusCalls.push(args),
       }, [
-        'undoTreeChange', 'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
+        'redoTreeChange', 'undoTreeChange', 'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
         'applyHierarchy', 'loadTree', 'saveTree', 'exportStructureTree', 'importStructureTree',
         'loadPublishedStructureTree', 'nodeKeys', 'visibilityClosure', 'setSynchronizedVisibility',
         'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop', 'moveTreeNode', 'treeNodeActions', 'editNode',
@@ -436,6 +436,41 @@ async function checkStructureTree({run, test}) {
     assert.equal($('undoTree').disabled,true);
     context.undoTreeChange();
     assert.equal(context.structureNodes.length,0);
+  }));
+
+  await test('Árbol: rehacer recupera varios cambios, persiste y conserva visibilidad', withTree(({context, $, layerControls}) => {
+    context.applyNodes(nodes, {persist:false});
+    context.moveTreeNode('right','left','before');
+    const moved = JSON.stringify(context.structureNodes);
+    context.removeTreeReference('reference-1');
+    const removed = JSON.stringify(context.structureNodes);
+    context.undoTreeChange(); context.undoTreeChange();
+    assert.equal($('redoTree').disabled,false);
+    layerControls.get('A').visible.checked = false;
+    context.redoTreeChange();
+    assert.equal(JSON.stringify(context.structureNodes),moved);
+    context.redoTreeChange();
+    assert.equal(JSON.stringify(context.structureNodes),removed);
+    assert.equal($('redoTree').disabled,true);
+    assert.equal(layerControls.get('A').visible.checked,false);
+    assert.equal(JSON.stringify(JSON.parse(context.localStorage.getItem(context.treeCaseKey)).nodes),removed);
+    context.undoTreeChange();
+    assert.equal(JSON.stringify(context.structureNodes),moved);
+  }));
+  await test('Árbol: edición nueva borra rehacer; error y operación idéntica lo conservan', withTree(({context, $}) => {
+    context.applyNodes([group('a')],{persist:false});
+    context.applyNodes([group('b')]); context.undoTreeChange();
+    assert.throws(()=>context.applyNodes([group('bad','missing')]));
+    context.applyNodes(context.structureNodes);
+    assert.equal(context.treeRedoHistory.length,1);
+    context.applyNodes([group('c')]);
+    assert.equal(context.treeRedoHistory.length,0);
+    context.redoTreeChange(); assert.equal(context.structureNodes[0].id,'c');
+    context.undoTreeChange();
+    context.modelContentHash = 'otro'; context.loadTree();
+    assert.equal(context.treeRedoHistory.length,0);
+    assert.equal($('redoTree').disabled,true);
+    context.redoTreeChange(); assert.equal(context.structureNodes.length,0);
   }));
 
   await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {

@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.3.0 · Menús de exploración</title>
+    /><title>MPR · v2.4.0 · Menús de exploración</title>
     <style>
       .tree-actions { max-width: 10rem; font-size: 0.85em; }
       #structureTree summary.drop-before { box-shadow: inset 0 3px #38bdf8; }
@@ -3027,7 +3027,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.3.0</strong
+        ><strong>Visor MPR · v2.4.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -9690,19 +9690,35 @@
           }
       }
       // Historial de la organización de este modelo, limitado a 20 cambios por sesión.
-      const treeUndoHistory = [];
+      const treeUndoHistory = [], treeRedoHistory = [];
       function undoTreeChange() {
         const previous = treeUndoHistory.at(-1);
         if (!previous) return;
+        const current = structuredClone(structureNodes);
         applyNodes(previous, { recordHistory: false });
         treeUndoHistory.pop();
+        treeRedoHistory.push(current);
+        $("redoTree").disabled = false;
         $("undoTree").disabled = treeUndoHistory.length === 0;
         $("treeMessage").textContent = "Cambio del árbol deshecho.";
       }
+      function redoTreeChange() {
+        const next = treeRedoHistory.at(-1);
+        if (!next) return;
+        const current = structuredClone(structureNodes);
+        applyNodes(next, { recordHistory: false });
+        treeRedoHistory.pop();
+        treeUndoHistory.push(current);
+        if (treeUndoHistory.length > 20) treeUndoHistory.shift();
+        $("undoTree").disabled = false;
+        $("redoTree").disabled = treeRedoHistory.length === 0;
+        $("treeMessage").textContent = "Cambio del árbol rehecho.";
+      }
       function applyNodes(nodes, { reveal = [], persist = true, recordHistory = true } = {}) {
         const valid = validateNodes(nodes);
-        if (!persist) treeUndoHistory.length = 0;
+        if (!persist) { treeUndoHistory.length = 0; treeRedoHistory.length = 0; }
         else if (recordHistory && JSON.stringify(valid) !== JSON.stringify(structureNodes)) {
+          treeRedoHistory.length = 0;
           treeUndoHistory.push(structuredClone(structureNodes));
           if (treeUndoHistory.length > 20) treeUndoHistory.shift();
         }
@@ -9764,6 +9780,7 @@
         if (key === treeCaseKey) return;
         treeCaseKey = key;
         treeUndoHistory.length = 0;
+        treeRedoHistory.length = 0;
         structureNodes = [];
         treeIndex = indexStructureNodes(structureNodes);
         structureGroups = [];
@@ -9970,6 +9987,7 @@
         $("treeMode").textContent = treeEditing ? "✓ Terminar edición" : "Editar árbol";
         $("treeMode").setAttribute("aria-pressed", String(treeEditing));
         $("undoTree").disabled = treeUndoHistory.length === 0;
+        $("redoTree").disabled = treeRedoHistory.length === 0;
         $("createGroup").hidden = !treeEditing;
         $("treeRootDrop").hidden = !treeEditing;
         bindTreeDrop($("treeRootDrop"), null);
@@ -10223,7 +10241,11 @@
       undo.id = "undoTree";
       undo.disabled = true;
       undo.title = "Deshacer el último cambio de organización (hasta 20 cambios por sesión). No cambia selección ni visibilidad.";
-      toolbar.prepend(mode, undo);
+      const redo = button("Rehacer", redoTreeChange);
+      redo.id = "redoTree";
+      redo.disabled = true;
+      redo.title = "Recuperar el último cambio deshecho. Una edición nueva descarta los cambios pendientes de rehacer.";
+      toolbar.prepend(mode, undo, redo);
       $("createGroup").textContent = "+ Crear grupo";
       $("createGroup").onclick = () => editNode();
       $("childrenEditor").hidden = true;
