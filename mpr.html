@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.6.0 · Menús de exploración</title>
+    /><title>MPR · v2.7.0 · Menús de exploración</title>
     <style>
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
       .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
@@ -3045,7 +3045,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.6.0</strong
+        ><strong>Visor MPR · v2.7.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4019,7 +4019,7 @@
         structureRelations = [],
         treeCaseKey = null;
       const treeRows = [];
-      let treeSearchOpen = null;
+      let treeSearchOpen = null, treeOpenNodes = new Set();
       let structureNameRoot = null;
       const structureLabelView = {
         position: new THREE.Vector3(),
@@ -9794,11 +9794,31 @@
         if ("nodes" in data) applyNodes(data.nodes, { persist });
         else applyHierarchy(data.groups, data.relations || [], { persist });
       }
+      function loadTreeExpansion() {
+        treeOpenNodes = new Set();
+        if (!modelContentHash) return;
+        try {
+          const ids = JSON.parse(localStorage.getItem("mpr-tree-open-v1:" + modelContentHash) || "[]");
+          if (Array.isArray(ids) && ids.length <= 10000 && ids.every((id) => typeof id === "string"))
+            treeOpenNodes = new Set(ids);
+        } catch { /* Un estado de expansión inválido no impide cargar el caso. */ }
+      }
+      function saveTreeExpansion() {
+        if (!modelContentHash) return;
+        const ids = treeSearchOpen || new Set(treeRows.filter((r) => r.details.open).map((r) => r.node.id));
+        treeOpenNodes = new Set(ids);
+        try {
+          localStorage.setItem("mpr-tree-open-v1:" + modelContentHash, JSON.stringify([...ids]));
+        } catch { /* La expansión sigue funcionando si el navegador no permite guardarla. */ }
+      }
       function loadTree() {
         const key = modelContentHash ? "mpr-tree-v1:" + modelContentHash : null;
         if (key === treeCaseKey) return;
         treeCaseKey = key;
         treeSearchOpen = null;
+        treeRows.length = 0;
+        $("structureTree").replaceChildren();
+        loadTreeExpansion();
         $("structureSearch").value = "";
         treeUndoHistory.length = 0;
         treeRedoHistory.length = 0;
@@ -9994,7 +10014,9 @@
       function renderTree(reveal = []) {
         const host = $("structureTree"),
           canonical = $("modelLayers"),
-          open = new Set([...host.querySelectorAll("details[open]")].map((d) => d.dataset.node));
+          open = new Set(treeSearchOpen || (treeRows.length
+            ? treeRows.filter((r) => r.details.open).map((r) => r.node.id)
+            : treeOpenNodes));
         for (const id of reveal)
           for (let n = treeIndex.byId.get(id); n; n = treeIndex.byId.get(n.parent)) open.add(n.id);
         for (const l of layerControls.values()) {
@@ -10026,6 +10048,10 @@
           details.classList.toggle("has-children", !!children?.length);
           details.dataset.node = n.id;
           details.open = open.has(n.id);
+          const caseHash = modelContentHash;
+          details.addEventListener("toggle", () => {
+            if (modelContentHash === caseHash && host.contains(details)) saveTreeExpansion();
+          });
           const row = document.createElement("summary");
           const name = (n.type === "group" ? "▱ " : "") + (n.name || n.key);
           const title = treeEditing
@@ -10308,6 +10334,7 @@
         $("structureSearch").value = "";
         filterTree();
         for (const { details } of treeRows) details.open = expanded;
+        saveTreeExpansion();
       }
       const toolbar = $("createGroup").parentElement;
       const mode = button("Editar árbol", () => {
