@@ -37,6 +37,20 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   context.selectedStructure='B';fn();assert.match(elements.selectionCardDetail.textContent,/no disponible/);
   selected.clear();fn();assert.equal(elements.selectionCard.hidden,true);assert.equal(elements.selectionCardCenter.disabled,true);assert.equal(elements.selectionCardName.textContent,'');
  });
+ await test('Avisos de ventanas: cuatro segundos, reinicio y ocultación al seleccionar herramienta',()=>{
+  const dom=new JSDOM('<p id="toolHint">Selecciona una estructura</p>');
+  const indicators=[{indicator:{hidden:true}},{indicator:{hidden:true}}];
+  const timers=new Map();let id=0;
+  const {fn,context}=run('createPaneHintController',{document:dom.window.document,$:key=>dom.window.document.getElementById(key),activeTool:'select',hideStructureHover:()=>{},setTimeout:(f,ms)=>{assert.equal(ms,4000);timers.set(++id,f);return id;},clearTimeout:key=>timers.delete(key)});
+  const refresh=fn(indicators);refresh();assert.ok(indicators.every(r=>!r.indicator.hidden));
+  refresh();assert.equal(timers.size,1);
+  [...timers.values()][0]();assert.ok(indicators.every(r=>r.indicator.hidden));
+  refresh();dom.window.document.dispatchEvent(new dom.window.Event('mpr-tool-change'));
+  assert.ok(indicators.every(r=>r.indicator.hidden));assert.equal(timers.size,0);
+  context.activeTool='navigate';refresh();assert.equal(timers.size,0);
+  context.activeTool='select';dom.window.document.getElementById('toolHint').textContent=' ';refresh();assert.equal(timers.size,0);
+  dom.window.close();
+ });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){
