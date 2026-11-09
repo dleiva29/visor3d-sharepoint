@@ -175,3 +175,14 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - Las cargas de volumen y modelo tienen bloqueos por selector, no un coordinador global de tareas con cancelación. Deben probarse los cambios de caso durante descargas lentas antes de ampliar la carga online.
 - El historial captura configuraciones completas con frecuencia. Puede resultar costoso con numerosas vistas y estructuras.
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
+
+
+## Distribución de herramientas e iconos (v2.10.0)
+
+La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras de las cuatro vistas conservan maximizar y un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
+
+Los nodos de segmentación de `mpr-structure-tree` v2 admiten el campo opcional `icon`: `generic`, `vein`, `artery`, `lesion`, `liver`, `kidney`, `lung` o `bone`. Sin ese campo se sugiere un icono por la clave original, con prioridad de lesión/tumor sobre vasos; no se deducen diagnósticos. El nombre visible no cambia la sugerencia. Los archivos v1 y v2 anteriores siguen siendo válidos. Los valores ajenos a la lista se rechazan antes de aplicar el árbol.
+
+«Acciones → Cambiar icono» permite elegir la categoría para esa referencia o volver a Automático. La elección se conserva en almacenamiento local, exportación, configuración del caso y Deshacer/Rehacer. El icono es neutro e independiente del punto de color real de la estructura. Los grupos muestran una carpeta.
+
+Verificación de esta revisión: pruebas unitarias y de DOM con ESLint, más una prueba integral en Chromium cargando GLB y NRRD del caso 10. No sustituye la validación visual final en Codespaces ni las comprobaciones de US, presentaciones e informes de la lista anterior.

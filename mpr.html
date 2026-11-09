@@ -11,8 +11,9 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.9.1 · Menús de exploración</title>
+    /><title>MPR · v2.10.0 · Menús de exploración</title>
     <style>
+      .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
       .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
       .tree-icon[hidden] { display: none; }
@@ -1831,6 +1832,27 @@
         padding: 4px 8px;
         font-size: 12px;
       }
+      #viewerTools { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 7px; padding-top: 6px; border-top: 1px solid #30495c; }
+      #viewerTools .shared-explore { display: flex; align-items: center; flex-wrap: wrap; gap: 3px; }
+      #viewerTools button, #viewerTools summary { width: auto; min-height: 28px; padding: 4px 7px; margin: 0; font-size: 12px; }
+      #viewerTools svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+      #viewerTools .shared-tool { display: inline-flex; align-items: center; gap: 5px; }
+      #viewerTools [aria-pressed="true"] { background: #13788e; outline: 1px solid #65ddeb; }
+      #viewerTools .shared-dropdown { position: relative; margin: 0; padding: 0; border: 0; }
+      #viewerTools .shared-dropdown > summary { border: 1px solid #456078; border-radius: 5px; list-style: none; cursor: pointer; }
+      #viewerTools .shared-dropdown-content { position: absolute; z-index: 300; top: 100%; left: 0; background: #102534; border: 1px solid #456078; border-radius: 6px; padding: 7px; min-width: 210px; max-height: min(420px, 65dvh); overflow: auto; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 4px 15px #0008; }
+      #viewerTools .shared-dropdown:not([open]) > .shared-dropdown-content { display: none; }
+      #viewerTools .shared-dropdown-content button { width: 100%; text-align: left; justify-content: flex-start; flex-shrink: 0; }
+      #viewerTools button.tree-icon { height: auto; }
+      #viewerTools .shared-dropdown-content button.tree-icon::after { content: attr(aria-label); font-size: 11px; }
+      #viewerTools [hidden], #tools, #section-tools [data-tool][hidden] { display: none !important; }
+      #activeToolLabel { font-size: 11px; color: #7ce0ed; margin-left: auto; }
+      #headerCaseActions { display: inline-flex; gap: 4px; vertical-align: middle; }
+      #headerCaseActions button { width: 28px; height: 28px; min-height: 28px; margin: 0; padding: 4px; }
+      .pane .pane-maximize { position: absolute; top: 2px; right: 42px; z-index: 12; width: 25px; height: 25px; padding: 3px; margin: 0; }
+      .pane:has(#view3d) h2, .pane h2 { padding-right: 80px; }
+      .pane-menu .pane-plane-tools { display: flex; flex-wrap: wrap; padding: 0; justify-content: flex-start; margin-top: 8px; }
+      .pane-menu svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
       .case-session p {
         margin: 6px 0 0;
         font-size: 12px;
@@ -3048,6 +3070,16 @@
         object-fit: contain;
         touch-action: none;
       }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout { grid-template-columns: minmax(0, 1fr) 340px; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout > .views { grid-column: 1; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout > aside { grid-column: 2; border-left: 1px solid var(--edge); border-right: 0; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .pane.maximized { left: 6px; right: 346px; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded):has(.pane.maximized) aside { left: auto; right: 0; width: 340px; }
+      header .viewer-header-main { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 70px; }
+      #headerCaseActions { margin-left: auto; }
+      #headerUsTools[hidden] { display: none !important; }
+      header .viewer-header-main > small { order: 10; flex-basis: 100%; margin: 0; }
+      #viewerTools { padding-right: 0; }
     </style></head
   ><body>
     <header id="viewerHeader"
@@ -3059,7 +3091,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.9.1</strong
+        ><strong>Visor MPR · v2.10.0</strong
         ><div id="mprNavigation" role="group" aria-label="Navegación MPR">
           <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
           <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
@@ -5761,7 +5793,7 @@
         };
         const svg =
           icons[activeTool] &&
-          document.querySelector('.pane-quick-tools [data-tool="' + activeTool + '"] svg');
+          document.querySelector('#viewerTools [data-tool="' + activeTool + '"] svg');
         let cursor = "crosshair";
         if (svg) {
           const markup =
@@ -5805,6 +5837,7 @@
         activeTool = tool;
         if (typeof clipGuide !== "undefined") updateClip();
         updateToolCursor();
+        syncActiveToolLabel();
         pendingMeasure = null;
         document
           .querySelectorAll("[data-tool]")
@@ -9778,6 +9811,49 @@
         }
         return { byId, children, references };
       }
+      function structureIconOptions() {
+        return [["generic", "Estructura"], ["vein", "Vena"], ["artery", "Arteria"],
+          ["lesion", "Lesión / tumor"], ["liver", "Hígado"], ["kidney", "Riñón"],
+          ["lung", "Pulmón"], ["bone", "Hueso"]];
+      }
+      function suggestedStructureIcon(name) {
+        const text = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[_-]/g, " ");
+        if (/tumou?r|lesi[oó]n|lesion|nodul|nodule|metasta|neoplas|\badk\b/.test(text)) return "lesion";
+        if (/arter|aorta/.test(text)) return "artery";
+        if (/vena|venos|vein|venous|portal|\bporta\b/.test(text)) return "vein";
+        if (/higado|liver|hepatic parenchyma/.test(text)) return "liver";
+        if (/rinon|renal|kidney/.test(text)) return "kidney";
+        if (/pulmon|lung/.test(text)) return "lung";
+        if (/hueso|bone|vertebr|costill|\bribs?\b/.test(text)) return "bone";
+        return "generic";
+      }
+      function structureCategoryIcon(node) {
+        const category = node.type === "group" ? "folder" : node.icon || suggestedStructureIcon(node.key);
+        const paths = {
+          folder: "M2 6V3h5l2 3h7v10H2z",
+          generic: "M9 2l7 4v8l-7 3-7-3V6z M2 6l7 4 7-4 M9 10v7",
+          vein: "M7 17V9L3 3 M11 17V8l4-5 M7 9l4-1 M4 6l3-2 M12 6l3 1",
+          artery: "M7 17V9L3 3 M11 17V8l4-5 M9 14v-4 M7 12l2-2 2 2",
+          lesion: "M6 3l3 1 4-1 1 4 3 3-3 3-1 4-4-1-4 1-1-4-2-3 2-3z M7 8l4 4 M11 8l-4 4",
+          liver: "M2 7Q4 2 12 4l4 3-2 6-7 2-5-2z M10 5l-3 9",
+          kidney: "M11 3Q3 0 3 9t8 6q4-3-1-5 4-3 1-7z M10 8l4 1v7",
+          lung: "M9 2v6 M9 6l-3 3 M9 6l3 3 M7 4Q2 7 2 14q1 4 5 1V4 M11 4q5 3 5 10-1 4-5 1V4",
+          bone: "M5 6Q0 5 3 2q3-2 4 2l7 7q4 0 3 4-3 4-5 0L5 8q-3 2-3-1z",
+        };
+        const label = category === "folder" ? "Grupo" : structureIconOptions().find(([id]) => id === category)?.[1] || "Estructura";
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        icon.setAttribute("viewBox", "0 0 18 18");
+        icon.setAttribute("class", "structure-category-icon");
+        icon.setAttribute("role", "img");
+        icon.setAttribute("aria-label", label);
+        icon.dataset.category = category;
+        const title = document.createElementNS(icon.namespaceURI, "title");
+        title.textContent = label + (node.type === "group" ? "" : node.icon ? " · elección manual" : " · sugerido por el nombre original");
+        const path = document.createElementNS(icon.namespaceURI, "path");
+        path.setAttribute("d", paths[category] || paths.generic);
+        icon.append(title, path);
+        return icon;
+      }
       function validateNodes(nodes) {
         if (!Array.isArray(nodes) || nodes.length > 10000)
           throw new Error("Árbol inválido o demasiado grande.");
@@ -9792,7 +9868,8 @@
             !(n.parent === null || typeof n.parent === "string") ||
             (n.type === "segment"
               ? !layerControls.has(n.key) ||
-                (n.name !== undefined && (typeof n.name !== "string" || n.name.length > 100))
+                (n.name !== undefined && (typeof n.name !== "string" || n.name.length > 100)) ||
+                (n.icon !== undefined && !structureIconOptions().some(([id]) => id === n.icon))
               : typeof n.name !== "string" || !n.name.trim() || n.name.length > 100)
           )
             throw new Error("Nodo inválido.");
@@ -9818,7 +9895,7 @@
         return nodes.map((n) =>
           n.type === "group"
             ? { id: n.id, type: n.type, name: n.name.trim(), parent: n.parent }
-            : { id: n.id, type: n.type, key: n.key, name: n.name?.trim() || "", parent: n.parent }
+            : { id: n.id, type: n.type, key: n.key, name: n.name?.trim() || "", parent: n.parent, ...(n.icon ? { icon: n.icon } : {}) }
         );
       }
       function nodeKeys(id) {
@@ -10127,6 +10204,15 @@
             dest.add(new Option(path.reverse().join(" / "), a.id));
           }
         dest.value = n?.parent || parent || "";
+        const iconSelect = document.createElement("select");
+        iconSelect.id = "nodeCategoryIcon";
+        const iconLabel = document.createElement("label");
+        iconLabel.htmlFor = iconSelect.id;
+        iconLabel.textContent = "Icono de la referencia (no cambia el color ni interpreta diagnósticos)";
+        iconSelect.add(new Option("Automático según nombre original", ""));
+        for (const [value, label] of structureIconOptions()) iconSelect.add(new Option(label, value));
+        iconSelect.value = n?.icon || "";
+        if (nodeType === "segment") panel.append(iconLabel, iconSelect);
         panel.append(
           nameLabel,
           name,
@@ -10137,7 +10223,7 @@
               id: id || uid(),
               type: nodeType,
               parent: dest.value || null,
-              ...(nodeType === "group" ? { name: name.value } : { key: n.key, name: name.value }),
+              ...(nodeType === "group" ? { name: name.value } : { key: n.key, name: name.value, ...(iconSelect.value ? { icon: iconSelect.value } : {}) }),
             };
             applyNodes(n ? structureNodes.map((x) => (x.id === id ? node : x)) : [...structureNodes, node], {
               reveal: [node.parent],
@@ -10195,7 +10281,7 @@
             if (modelContentHash === caseHash && host.contains(details)) saveTreeExpansion();
           });
           const row = document.createElement("summary");
-          const name = (n.type === "group" ? "▱ " : "") + (n.name || n.key);
+          const name = n.name || n.key;
           const title = treeEditing
             ? button(name, () => editNode(n.id))
             : n.type === "segment"
@@ -10214,7 +10300,7 @@
             c.dot = dot;
             row.append(dot);
           }
-          row.append(title);
+          row.append(structureCategoryIcon(n), title);
           const referenceCount = n.type === "segment" ? treeIndex.references.get(n.key)?.length || 0 : 0;
           if (referenceCount > 1) {
             const shared = document.createElement("span");
@@ -10271,6 +10357,7 @@
         const paths = {
           edit: "M12 3l3 3-9 9H3v-3z M10 5l3 3",
           done: "M3 9l4 4 8-9",
+          maximize: "M2 6V2h4 M12 2h4v4 M2 12v4h4 M12 16h4v-4",
           undo: "M6 3L2 7l4 4 M2 7h8a5 5 0 0 1 0 10",
           redo: "M12 3l4 4-4 4 M16 7H8a5 5 0 0 0 0 10",
           expand: "M4 6l5-4 5 4 M4 12l5 4 5-4",
@@ -10278,6 +10365,7 @@
           group: "M2 6V4h5l2 2h7v10H2z M9 8v6 M6 11h6",
           more: "M4 9h.01 M9 9h.01 M14 9h.01",
           bookmark: "M4 2h10v14l-5-3-5 3z",
+          pan: "M9 1v16 M1 9h16 M6 4l3-3 3 3 M6 14l3 3 3-3 M4 6L1 9l3 3 M14 6l3 3-3 3",
           target: "M9 1v4 M9 13v4 M1 9h4 M13 9h4 M9 5a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
           reset: "M3 7a6 6 0 1 1 0 5 M3 2v5h5",
           export: "M9 2v10 M5 8l4 4 4-4 M3 12v4h12v-4",
@@ -10302,6 +10390,7 @@
         for (const [value, label] of [
           ["", "Acciones…"], ["rename", "Renombrar"], ["move", "Mover a otra rama…"],
           ["up", "Subir"], ["down", "Bajar"], ["remove", "Quitar solo este nodo"],
+          ...(node.type === "segment" ? [["icon", "Cambiar icono…"]] : []),
         ]) {
           const option = document.createElement("option");
           option.value = value;
@@ -10319,9 +10408,9 @@
           const action = actions.value;
           actions.value = "";
           try {
-            if (action === "rename" || action === "move") {
+            if (["rename", "move", "icon"].includes(action)) {
               editNode(node.id);
-              $(action === "rename" ? "nodeDisplayName" : "nodeParent").focus();
+              $(action === "rename" ? "nodeDisplayName" : action === "icon" ? "nodeCategoryIcon" : "nodeParent").focus();
             } else if (action === "up" && index > 0) moveTreeNode(node.id, siblings[index - 1].id, "before");
             else if (action === "down" && index < siblings.length - 1) moveTreeNode(node.id, siblings[index + 1].id, "after");
             else if (action === "remove") removeTreeReference(node.id);
@@ -10599,19 +10688,152 @@
           timer = setTimeout(hide, 4000);
         };
       }
+      function openSidebarSection(id) {
+        const section = $(id);
+        for (let node = section; node; node = node.parentElement) {
+          if (node.tagName === "DETAILS") { node.hidden = false; node.open = true; }
+        }
+        if (document.body.classList.contains("panel-folded")) $("toggleGeneralPanel").click();
+        section.scrollIntoView({ block: "nearest" });
+      }
+      function organizeViewerTools(menus) {
+        const header = document.querySelector("header");
+        const bar = document.createElement("nav");
+        bar.id = "viewerTools";
+        bar.setAttribute("aria-label", "Herramientas comunes del visor");
+        const explore = document.createElement("div");
+        explore.className = "shared-explore";
+        explore.setAttribute("role", "group");
+        explore.setAttribute("aria-label", "Explorar");
+        const pools = menus.flatMap(({ toolbar }) => [...toolbar.querySelectorAll("button")]);
+        const takeTool = (tool) => pools.find((b) => b.dataset.tool === tool) || document.querySelector('[data-tool="' + tool + '"]');
+        const takeLabel = (label) => pools.find((b) => b.getAttribute("aria-label") === label);
+        const labelButton = (b, label) => {
+          if (!b) return;
+          if (!b.querySelector("svg")) setTreeIcon(b, "pan", label);
+          const svg = b.querySelector("svg");
+          b.replaceChildren(svg);
+          b.classList.remove("tree-icon");
+          b.classList.add("shared-tool");
+          const text = document.createElement("span");
+          text.textContent = label;
+          b.append(text);
+          b.title = label;
+          b.setAttribute("aria-label", label);
+          return b;
+        };
+        for (const [tool, label] of [["navigate", "Navegar"], ["select", "Seleccionar"], ["pan", "Desplazar"], ["zoom", "Zoom"], ["window", "Ventana"]]) {
+          const b = takeTool(tool);
+          labelButton(b, label);
+          b.title = label + (["pan", "zoom", "window"].includes(tool) ? " · vistas MPR" : " · MPR y 3D");
+          explore.append(b);
+        }
+        bar.append(explore);
+        const dropdown = (label, elements) => {
+          const details = document.createElement("details");
+          details.className = "shared-dropdown";
+          const summary = document.createElement("summary");
+          summary.textContent = label + " ▾";
+          const content = document.createElement("div");
+          content.className = "shared-dropdown-content";
+          for (const element of elements) if (element) content.append(element);
+          details.append(summary, content);
+          details.addEventListener("toggle", () => {
+            if (details.open) {
+              for (const other of bar.querySelectorAll(".shared-dropdown")) if (other !== details) other.open = false;
+              content.style.left = "0px";
+              const width = document.documentElement.clientWidth;
+              const right = content.getBoundingClientRect().right;
+              if (width && right > width - 8) content.style.left = (width - 8 - right) + "px";
+            }
+          });
+          content.addEventListener("click", (e) => { if (e.target.closest("button")) details.open = false; });
+          bar.append(details);
+          return content;
+        };
+        dropdown("Medir", [
+          labelButton(takeTool("measure2d"), "Medir en MPR"), labelButton(takeTool("measure3d"), "Medir en 3D"),
+          labelButton(takeTool("editMeasure"), "Editar medidas"), labelButton(takeTool("deleteMeasure"), "Borrar medida o anotación"),
+          button("Lista y ajustes de mediciones", () => openSidebarSection("menu-measurements")),
+        ]);
+        dropdown("Anotar", [$("addModelLabel"), $("addModelArrow"), button("Textos y ajustes", () => openSidebarSection("menu-annotations"))]);
+        dropdown("Posición", [...$("mprNavigation").children]);
+        $("mprNavigation").remove();
+        dropdown("Más", [
+          labelButton(takeTool("threePoints"), "Plano por tres puntos"), labelButton(takeTool("oblique"), "Cortes oblicuos"),
+          labelButton(takeTool("trajectory"), "Trayectoria 3D"), labelButton(takeTool("cut"), "Ocultar estructura"),
+          labelButton(takeLabel("Capturar distribución actual"), "Capturar distribución actual"),
+          labelButton(takeLabel("Mostrar nombres de estructuras"), "Mostrar nombres de estructuras"),
+          labelButton(takeLabel("Activar / desactivar recorte del modelo"), "Recorte del modelo"),
+          labelButton(takeLabel("Rellenar contornos 2D cerrados"), "Rellenar contornos 2D"),
+          labelButton(takeLabel("Mostrar cruces de referencia"), "Cruces de referencia MPR"),
+          labelButton(takeLabel("Mostrar cruce de referencia en 3D"), "Referencia en 3D"),
+          labelButton($("headerUsMode"), "Modo US"), labelButton($("headerUsTarget"), "Objetivo US"),
+          button("Capturas e informe", () => openSidebarSection("menu-captures")),
+        ]);
+        const active = document.createElement("span");
+        active.id = "activeToolLabel";
+        active.setAttribute("aria-live", "polite");
+        bar.append(active);
+        header.append(bar);
+        const files = document.createElement("div");
+        files.id = "headerCaseActions";
+        files.setAttribute("role", "group");
+        files.setAttribute("aria-label", "Configuración del caso");
+        const mainHeader = header.querySelector(".viewer-header-main");
+        mainHeader.insertBefore(files, mainHeader.querySelector("small"));
+        $("headerUsTools").hidden = true;
+        const appearance = $("section-visual");
+        appearance.hidden = false;
+        appearance.open = false;
+        appearance.querySelector("summary").textContent = "Apariencia y referencia";
+        $("section-structures").after(appearance);
+        $("menu-navigation").querySelector("summary").textContent = "Cruces y sincronización";
+        $("tools").hidden = true;
+        $("section-tools").hidden = false;
+        $("section-tools").querySelector("summary").textContent = "Mediciones y anotaciones";
+        // Los ajustes permanecen en su sección; ya no se trasladan de una ventana a otra.
+        for (const section of [$("menu-measurements"), $("menu-navigation")])
+          for (const b of section.querySelectorAll("[data-tool]")) if (!bar.contains(b)) b.hidden = true;
+        for (const { pane, toolbar, panel, trigger, maximize, sceneView } of menus) {
+          const center = [...toolbar.children].find((b) => b.getAttribute("aria-label") === "Centrar");
+          panel.replaceChildren();
+          if (center) { labelButton(center, "Centrar esta vista"); panel.append(center); }
+          panel.append(button(sceneView ? "Ajustes de la vista 3D" : "Ajustes de imagen MPR", () => openSidebarSection(sceneView ? "menu-scene" : "menu-image")));
+          if (sceneView) {
+            const planes = toolbar.querySelector(".pane-plane-tools");
+            if (planes) panel.append(planes);
+            const info = toolbar.querySelector('[aria-controls="modelInfoPanel"]');
+            if (info) { info.removeAttribute("style"); panel.append(info); }
+          }
+          setTreeIcon(maximize, "maximize", "Maximizar o restaurar esta vista");
+          maximize.classList.add("pane-maximize");
+          pane.append(maximize);
+          toolbar.remove();
+          trigger.onclick = () => {
+            const opening = panel.hidden;
+            for (const item of menus) { item.panel.hidden = true; item.trigger.setAttribute("aria-expanded", "false"); }
+            panel.hidden = !opening;
+            trigger.setAttribute("aria-expanded", String(opening));
+          };
+        }
+        document.addEventListener("pointerdown", (e) => {
+          if (!bar.contains(e.target)) for (const d of bar.querySelectorAll("details")) d.open = false;
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") for (const d of bar.querySelectorAll("details[open]")) { d.open = false; d.querySelector("summary").focus(); }
+        });
+        syncActiveToolLabel();
+      }
+      function syncActiveToolLabel() {
+        const label = $("activeToolLabel");
+        if (!label) return;
+        const active = document.querySelector('#viewerTools [data-tool="' + activeTool + '"]');
+        label.textContent = "Activa: " + (active?.getAttribute("aria-label") || activeTool);
+      }
       function installPaneMenus() {
         const panes = [...document.querySelectorAll(".pane")];
         const menus = [];
-        const sectionsById = new Map(
-          [
-            "menu-scene",
-            "menu-navigation",
-            "menu-measurements",
-            "menu-annotations",
-            "menu-captures",
-            "menu-image",
-          ].map((id) => [id, $(id)])
-        );
         function closeMenus(restoreFocus = false) {
           for (const { panel, trigger } of menus) {
             if (!panel.hidden && restoreFocus) trigger.focus();
@@ -10637,48 +10859,10 @@
           const indicator = document.createElement("span");
           indicator.className = "pane-tool-status";
           indicator.hidden = true;
-          const reset = pane._resetView;
           const maximize = button("Maximizar / restaurar", () => {
             closeMenus(true);
             togglePane(pane);
           });
-          const sections = sceneView
-            ? [
-                "menu-scene",
-                "menu-navigation",
-                "menu-measurements",
-                "menu-annotations",
-                "menu-captures",
-              ]
-            : ["menu-image", "menu-navigation", "menu-measurements", "menu-captures"];
-          trigger.onclick = () => {
-            const opening = panel.hidden;
-            closeMenus();
-            if (!opening) return;
-            panel.replaceChildren();
-            if (!sceneView) {
-              const note = document.createElement("p");
-              note.className = "note";
-              note.textContent = "Ventana, nivel y relleno se aplican a los tres planos.";
-              panel.append(note);
-            }
-            for (const id of sections) {
-              const section = sectionsById.get(id);
-              section.open = false;
-              panel.append(section);
-            }
-            if (reset) panel.append(reset);
-            if (!sceneView)
-              panel.append(
-                button("Modo US", () => {
-                  closeMenus(true);
-                  toggleUsTool();
-                })
-              );
-            panel.append(maximize);
-            panel.hidden = false;
-            trigger.setAttribute("aria-expanded", "true");
-          };
           panel.addEventListener("click", (event) => {
             if (event.target.closest("[data-tool],#addModelLabel,#addModelArrow")) closeMenus(true);
           });
@@ -10732,16 +10916,8 @@
             return b;
           };
           const showSection = (id, headingId) => {
-            if (panel.hidden) trigger.click();
-            for (const section of panel.querySelectorAll("details"))
-              section.open = section.id === id;
-            if (headingId)
-              requestAnimationFrame(() => {
-                const heading = $(headingId);
-                panel.scrollTop +=
-                  heading.getBoundingClientRect().top - panel.getBoundingClientRect().top - 8;
-              });
-            else $(id).scrollIntoView({ block: "nearest" });
+            openSidebarSection(id);
+            if (headingId) $(headingId).scrollIntoView({ block: "nearest" });
           };
           quick("navigate", "Navegar", null, "navigate");
           const three = quick("threePoints", "Plano por tres puntos", () => {
@@ -10962,9 +11138,10 @@
             toolbar.append(row);
           }
           pane.append(toolbar);
-          menus.push({ panel, trigger, indicator });
+          menus.push({ panel, trigger, indicator, pane, toolbar, maximize, sceneView });
           pane.append(trigger, panel, indicator);
         }
+        organizeViewerTools(menus);
         const refresh = createPaneHintController(menus);
         const headersToggle = $("togglePaneHeaders");
         headersToggle.onclick = () => {
@@ -11178,6 +11355,7 @@
           input = box.querySelector("input");
         setTreeIcon(button("load"), "import", "Importar configuración del caso");
         setTreeIcon(button("save"), "export", "Exportar configuración del caso");
+        $("headerCaseActions").append(button("load"), button("save"));
         const historyActions = $("historyActions");
         historyActions.append(button("undo"), button("redo"));
         let entries = [],

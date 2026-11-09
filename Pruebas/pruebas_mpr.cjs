@@ -69,6 +69,33 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   const {fn}=run('focusStructure',{$:id=>elements[id],volume:{},volumeInfo:{},layerControls:new Map([['A',{items:[{mesh}]}]]),model:{updateWorldMatrix:()=>{}},physicalCoordinateAt:(a,i)=>i===0?-10:10,selectedStructures:new Set(['A']),viewStates:Object.fromEntries(['x','y','z'].map(a=>[a,{x:0,y:0}])),viewAppliers:{x:()=>{},y:()=>{},z:()=>{}},applyReferencePoint:()=>focused++,worldToPixel:()=>({x:50,y:50}),slicePixelBasis:()=>({}),camera:new Proxy({},{get(){throw Error('Camera touched')}}),status:message,document:{dispatchEvent:()=>{}},Event:class{}});
   fn('A',false,false,true);assert.equal(focused,1);assert.match(message.textContent,/Cámara 3D conservada/);
  });
+ await test('Iconos: categorías por nombre original, acentos, inglés y prioridades',()=>{
+  const classify=run('suggestedStructureIcon').fn;
+  for(const [name,icon] of [['Vena porta','vein'],['portal_vein','vein'],['renal artery','artery'],['lesión junto a vena porta','lesion'],['Tumour','lesion'],['metástasis','lesion'],['HÍGADO','liver'],['Riñón izquierdo','kidney'],['lung_right','lung'],['vértebra L3','bone'],['RIB_02','bone'],['Segmento 7','generic']]) assert.equal(classify(name),icon,name);
+ });
+ await test('Barra común: conserva controles, acciones, opciones locales y acceso por teclado',()=>{
+  const dom=new JSDOM(html);const document=dom.window.document,$=id=>document.getElementById(id);let action=0;
+  const position=$('saveMprPosition');position.onclick=()=>action++;
+  const menus=[...document.querySelectorAll('.views > .pane')].map((pane,i)=>{
+    const toolbar=document.createElement('div');toolbar.className='pane-quick-tools';
+    for(const tool of ['navigate','select','zoom','window','measure2d','measure3d','editMeasure','deleteMeasure','threePoints','oblique','trajectory','cut']){const b=document.createElement('button');b.dataset.tool=tool;b.onclick=()=>action++;toolbar.append(b);}
+    const center=document.createElement('button');center.setAttribute('aria-label','Centrar');toolbar.append(center);
+    const panel=document.createElement('div'),trigger=document.createElement('button'),maximize=document.createElement('button');panel.className='pane-menu';panel.hidden=true;pane.append(toolbar,panel,trigger);
+    return {pane,toolbar,panel,trigger,maximize,sceneView:i===3};
+  });
+  const {fn}=run('organizeViewerTools',{document,$,activeTool:'navigate',button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
+  fn(menus);
+  assert.equal(document.querySelectorAll('.pane-quick-tools').length,0);
+  assert.equal(document.querySelectorAll('.pane-maximize').length,4);
+  assert.equal(document.querySelectorAll('#viewerTools [data-tool="select"]').length,1);
+  assert.equal($('saveMprPosition'),position);position.disabled=false;position.click();assert.equal(action,1);
+  assert.ok($('menu-scene').closest('#section-visual'));
+  assert.ok($('addModelLabel').closest('#viewerTools'));
+  menus[3].trigger.click();assert.equal(menus[3].panel.hidden,false);menus[0].trigger.click();assert.equal(menus[3].panel.hidden,true);
+  const drop=document.querySelector('#viewerTools .shared-dropdown');drop.open=true;
+  document.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape'}));assert.equal(drop.open,false);
+  dom.window.close();
+ });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){
@@ -335,7 +362,7 @@ async function checkStructureTree({run, test}) {
         updateStructureSelection: () => context.syncTreeRows(),
         focusStructure: (...args) => focusCalls.push(args),
       }, [
-        'redoTreeChange', 'undoTreeChange', 'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
+        'structureIconOptions', 'suggestedStructureIcon', 'structureCategoryIcon', 'redoTreeChange', 'undoTreeChange', 'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
         'loadTreeExpansion', 'saveTreeExpansion', 'applyHierarchy', 'loadTree', 'saveTree', 'exportStructureTree', 'importStructureTree',
         'loadPublishedStructureTree', 'nodeKeys', 'visibilityClosure', 'setSynchronizedVisibility',
         'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop', 'moveTreeNode', 'treeNodeActions', 'setTreeIcon', 'editNode',
@@ -635,6 +662,25 @@ async function checkStructureTree({run, test}) {
     context.applyNodes(nodes,{persist:false});
     assert.doesNotThrow(()=>context.setTreeExpanded(true));
     assert.ok(context.treeRows.every(r => r.details.open));
+  }));
+
+  await test('Árbol: iconos editables conservan color, JSON, deshacer y compatibilidad anterior', withTree(({context, $, layerControls}) => {
+    context.applyNodes([group('g'),{...segment('a','A','g'),name:'Alias'}],{persist:false});
+    const icon=()=> $('structureTree').querySelector('[data-node="a"] .structure-category-icon');
+    assert.equal(icon().dataset.category,'generic');
+    const color=layerControls.get('A').picker.value;
+    context.treeEditing=true;context.renderTree();
+    const actions=$('structureTree').querySelector('[data-node="a"] select');actions.value='icon';actions.onchange();
+    $('nodeCategoryIcon').value='vein';
+    [...$('groupEditor').querySelectorAll('button')].find(b=>b.textContent==='Guardar').click();
+    assert.equal(icon().dataset.category,'vein');assert.equal(layerControls.get('A').picker.value,color);
+    const exported=JSON.parse(JSON.stringify(context.exportStructureTree()));
+    context.importStructureTree(exported);assert.equal(context.treeIndex.byId.get('a').icon,'vein');
+    assert.throws(()=>context.applyNodes([{...segment('bad','B'),icon:'<script>'}]),/Nodo inválido/);
+    context.applyNodes(context.structureNodes.map(n=>n.id==='a'?{...n,icon:'lesion'}:n));
+    context.undoTreeChange();assert.equal(icon().dataset.category,'vein');
+    delete exported.nodes.find(n=>n.id==='a').icon;
+    context.importStructureTree(exported);assert.equal(icon().dataset.category,'generic');
   }));
 
   await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {
