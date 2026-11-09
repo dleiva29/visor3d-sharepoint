@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.12.2 · Menús de exploración</title>
+    /><title>MPR · v2.12.3 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3135,7 +3135,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.12.2</strong
+        ><strong>Visor MPR · v2.12.3</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4164,6 +4164,8 @@
         },
         viewAppliers = {};
       let savedMprPosition = null;
+      let sceneRenderDirty = true;
+      const resampleBuffers = new WeakMap(), meshVertexBuffers = new WeakMap();
       let pendingSliceFrame = null, pendingSliceTarget = null;
       const pendingSliceAxes = new Set();
       const contourPaths = { x: [], y: [], z: [] },
@@ -4277,6 +4279,7 @@
         tmpV2 = new THREE.Vector3(),
         tmpV3 = new THREE.Vector3();
       function resize3D() {
+        requestSceneRender();
         const host = $("view3d"),
           width = Math.max(1, host.clientWidth),
           height = Math.max(1, host.clientHeight);
@@ -4293,15 +4296,31 @@
       const ro = new ResizeObserver(resize3D);
       ro.observe($("view3d"));
       let presentationCameraFlight = null;
-      function animate() {
-        requestAnimationFrame(animate);
+      function requestSceneRender() {
+        sceneRenderDirty = true;
+      }
+      function renderSceneFrame() {
         if (!presentationCameraFlight) controls.update();
+        const labelsPending = $("showStructureNames").checked && modelRoot.visible && structureLabelView.layoutDirty;
+        if (!sceneRenderDirty && !presentationCameraFlight && !labelsPending) return false;
+        sceneRenderDirty = false;
         updateStructureNames();
         updateAnnotationScale();
         renderer.render(scene, camera);
+        return true;
       }
+      function animate() {
+        requestAnimationFrame(animate);
+        renderSceneFrame();
+      }
+      controls.addEventListener("change", requestSceneRender);
+      for (const event of ["input", "change", "click", "pointerdown", "pointerup", "wheel", "keydown", "visibilitychange"])
+        document.addEventListener(event, requestSceneRender, { capture: true, passive: true });
+      document.addEventListener("pointermove", (event) => { if (event.buttons) requestSceneRender(); }, { capture: true, passive: true });
+      renderer.domElement.addEventListener("webglcontextrestored", requestSceneRender);
       animate();
       function fit() {
+        requestSceneRender();
         camera.up.set(0, 0, 1);
         const bbox = new THREE.Box3();
         let has = false;
@@ -4326,6 +4345,7 @@
        * No usar sobre la copia US: comparte geometrías/texturas con el modelo principal.
        */
       function clearRoot(root) {
+        requestSceneRender();
         const geometries = new Set(),
           materials = new Set(),
           textures = new Set();
@@ -4367,11 +4387,19 @@
       // =============================================================================
       // 04 · Remuestreo, orientación y coordenadas RAS (mm)
       // =============================================================================
+      function resampleImageData(canvas, ctx) {
+        let image = resampleBuffers.get(canvas);
+        if (!image || image.width !== canvas.width || image.height !== canvas.height) {
+          image = ctx.createImageData(canvas.width, canvas.height);
+          resampleBuffers.set(canvas, image);
+        }
+        return image;
+      }
       function resampleVolume(canvas, basis) {
         const ctx = canvas.getContext("2d"),
           w = canvas.width,
           h = canvas.height,
-          image = ctx.createImageData(w, h);
+          image = resampleImageData(canvas, ctx);
         const d = volumeInfo.directionsRAS,
           origin = new THREE.Vector3(...volumeInfo.originRAS);
         const inverse = new THREE.Matrix4()
@@ -4412,7 +4440,10 @@
               start.z + (x + 0.5 - basis.sx * 0.5) * du.z + (y + 0.5 - basis.sy * 0.5) * dv.z;
             const offset = 4 * (x + w * y);
             image.data[offset + 3] = 255;
-            if (px < 0 || py < 0 || pz < 0 || px > nx - 1 || py > ny - 1 || pz > nz - 1) continue;
+            if (px < 0 || py < 0 || pz < 0 || px > nx - 1 || py > ny - 1 || pz > nz - 1) {
+              image.data[offset] = image.data[offset + 1] = image.data[offset + 2] = 0;
+              continue;
+            }
             const ix = Math.floor(px),
               iy = Math.floor(py),
               iz = Math.floor(pz),
@@ -4572,6 +4603,7 @@
       }
       function paint(axis, { reuseImage = false, updateClipping = true } = {}) {
         if (batchRestore) return;
+        requestSceneRender();
         const s = slices[axis];
         if (!s) return;
         if (updateClipping && $("clipSyncTc")?.checked && model && volumeInfo) updateClip({ repaint: false });
@@ -5084,11 +5116,26 @@
       // =============================================================================
       // 06 · Intersecciones de malla y contornos MPR
       // =============================================================================
+      function meshPlaneVertices(obj) {
+        const positions = obj.geometry.getAttribute("position");
+        let cached = meshVertexBuffers.get(obj);
+        if (!cached || cached.attribute !== positions || cached.version !== positions.version || cached.count !== positions.count || !cached.matrix.equals(obj.matrixWorld)) {
+          const data = new Float64Array(positions.count * 3), point = new THREE.Vector3();
+          for (let i = 0; i < positions.count; i++) {
+            point.fromBufferAttribute(positions, i).applyMatrix4(obj.matrixWorld);
+            point.toArray(data, i * 3);
+          }
+          cached = { attribute: positions, version: positions.version, count: positions.count, matrix: obj.matrixWorld.clone(), data };
+          meshVertexBuffers.set(obj, cached);
+        }
+        return cached.data;
+      }
       function meshPlaneSegments(obj, plane, project) {
         const geometry = obj.geometry;
         const pos = geometry.getAttribute("position");
         if (!pos) return [];
         const idx = geometry.index;
+        const worldVertices = meshPlaneVertices(obj);
         const segments = [];
         const edgePairs = [
           [0, 1],
@@ -5100,12 +5147,9 @@
           const ids = idx
             ? [idx.getX(t * 3), idx.getX(t * 3 + 1), idx.getX(t * 3 + 2)]
             : [t * 3, t * 3 + 1, t * 3 + 2];
-          tmpV1.fromBufferAttribute(pos, ids[0]);
-          tmpV1.applyMatrix4(obj.matrixWorld);
-          tmpV2.fromBufferAttribute(pos, ids[1]);
-          tmpV2.applyMatrix4(obj.matrixWorld);
-          tmpV3.fromBufferAttribute(pos, ids[2]);
-          tmpV3.applyMatrix4(obj.matrixWorld);
+          tmpV1.fromArray(worldVertices, ids[0] * 3);
+          tmpV2.fromArray(worldVertices, ids[1] * 3);
+          tmpV3.fromArray(worldVertices, ids[2] * 3);
           const verts = [tmpV1, tmpV2, tmpV3];
           const pts = [];
           for (const [a, b] of edgePairs) {
@@ -6022,6 +6066,7 @@
         ctx.restore();
       }
       function renderMeasure3D() {
+        requestSceneRender();
         while (measurementRoot.children.length) {
           const o = measurementRoot.children[0];
           measurementRoot.remove(o);
@@ -6412,6 +6457,7 @@
         return { point, normal };
       }
       function updateClip({ repaint = true } = {}) {
+        requestSceneRender();
         const sync = $("clipSyncTc").checked && !!volume && !!volumeInfo;
         $("clipSyncTc").disabled = !volume || !volumeInfo || !model;
         for (const id of ["clipPosition", "rotateClip", "clipRotationConstraint", "clipLeft", "clipRight", "clipUp", "clipDown", "alignClip", "resetClipRotation"])
@@ -7041,6 +7087,7 @@
       }
 
       function renderTrajectory() {
+        requestSceneRender();
         if (usTargetPath?.trajectory === trajectory && trajectory) {
           usTargetPoint.copy(trajectory.a).lerp(trajectory.b, usTargetPath.fraction);
         }
@@ -8369,6 +8416,7 @@
         }
       }
       function invalidateStructureNames(meshesChanged = false) {
+        requestSceneRender();
         structureLabelView.layoutDirty = true;
         // El encuadre, el recorte y los nombres no cambian las cajas de las mallas.
         if (meshesChanged) structureLabelView.meshData = null;
@@ -8840,6 +8888,7 @@
         return sprite;
       }
       function renderAnnotations() {
+        requestSceneRender();
         if (!annotationRoot) return;
         while (annotationRoot.children.length) {
           const o = annotationRoot.children[0];
