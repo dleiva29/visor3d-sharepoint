@@ -11,11 +11,11 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.5.1 · Menús de exploración</title>
+    /><title>MPR · v2.5.2 · Menús de exploración</title>
     <style>
-      .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 5px; flex-shrink: 0; }
+      .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
       .tree-icon[hidden] { display: none; }
-      .tree-icon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+      .tree-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
       .tree-actions-wrap { position: relative; border: 1px solid currentColor; border-radius: 5px; }
       .tree-actions-wrap:focus-within { outline: 2px solid #38bdf8; outline-offset: 2px; }
       .tree-actions-wrap select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
@@ -1150,6 +1150,15 @@
       .tree-toolbar button {
         font-size: 10px;
         padding: 6px;
+      }
+      .structure-tools .tree-toolbar button.tree-icon {
+        width: 24px;
+        min-width: 24px;
+        height: 24px;
+        min-height: 24px;
+        padding: 3px;
+        margin: 0;
+        flex: 0 0 24px;
       }
       #structureTree {
         overflow-x: auto;
@@ -3033,7 +3042,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.5.1</strong
+        ><strong>Visor MPR · v2.5.2</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
