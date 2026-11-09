@@ -223,3 +223,20 @@ El recorte sincronizado se desplaza 5 mm respecto del plano del TC hacia el lado
 El menú «…» de 3D incluye deslizadores axial, coronal y sagital, utilizables con la vista maximizada. Reflejan límites, disponibilidad e índice de los controles MPR originales. Ambos controles actualizan el mismo corte; el recorte sincronizado continúa siguiendo el eje elegido. Los deslizadores quedan desactivados cuando no hay volumen.
 
 Los botones de visibilidad Axial, Coronal y Sagital sirven como títulos de sus respectivos deslizadores en el menú 3D; su estado activo indica si el plano está visible. Se elimina la fila duplicada, conservando los botones de orientación anatómica.
+
+
+## Optimización de repintados MPR (v2.12.2)
+
+Los eventos de deslizadores (MPR y 3D) y rueda de cortes se agrupan mediante requestAnimationFrame: se procesa el último valor de cada eje una vez por fotograma. Una tarea pendiente de otro conjunto de slices se descarta al cambiar de caso y se libera su referencia tras ejecutarse.
+
+Con el recorte sincronizado se calcula el plano una vez y se vuelven a dibujar las vistas usando, cuando sea válido, el último raster del TC. Se evita reconstruir la imagen de los otros ejes que no han cambiado; contornos, referencias, mediciones y trayectoria se dibujan nuevamente. Solo se conserva una clave de estado por slice, sin copiar el volumen ni acumular imágenes. La reutilización se invalida por volumen/datos, geometría del volumen, índice, ventana/nivel, umbrales u orientación/desplazamiento oblicuos. Los repintados generales conservan la ruta completa.
+
+Comparación instrumental en Chromium Cloud con renderizado por software, GLB/NRRD del caso 10 y ocho movimientos por escenario (medianas de CPU dedicada a paint; orientativo, no FPS del equipo del usuario):
+
+| Escenario | v2.12.1 | v2.12.2 |
+| --- | ---: | ---: |
+| Axial sin sincronización | 25,4 ms | 27,9 ms |
+| Axial con recorte sincronizado | 57,9 ms | 16,9 ms |
+| Oblicuo con recorte sincronizado | 73,0 ms | 54,7 ms |
+
+En una ráfaga de 25 eventos sincronizados antes del siguiente fotograma, los repintados pasan de 75 a 3 y los cálculos raster de 75 a 1; el índice final coincide con el solicitado. Las huellas de píxeles RGBA de las tres vistas coinciden entre ambas versiones en los cuatro escenarios probados. La navegación axial individual no muestra mejora en esta medición; la optimización se concentra en sincronización y ráfagas. Pruebas de regresión: 67 correctas y ESLint limpio.
