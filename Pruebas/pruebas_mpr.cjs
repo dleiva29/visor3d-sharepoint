@@ -21,6 +21,16 @@ function suite(html){
 }
 async function check(html, additionalTests = false){const s=suite(html);const {run,test}=s;
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
+ await test('Ficha 3D: selección activa, múltiple, vacía y volumen no disponible',()=>{
+  const elements=Object.fromEntries(['selectionCard','selectionCardCenter','selectionCardClear','selectionCardName','selectionCardDetail'].map(id=>[id,{}]));
+  const selected=new Set(['A']);
+  const layers=new Map([['A',{volumeML:12}],['B',{volumeML:null}]]);
+  const {fn,context}=run('updateSelectionCard',{$:id=>elements[id],layerControls:layers,selectedStructures:selected,selectedStructure:'A',formatVolume:n=>n+' mL'});
+  fn(); assert.equal(elements.selectionCard.hidden,false);assert.equal(elements.selectionCardName.textContent,'A');assert.match(elements.selectionCardDetail.textContent,/12 mL/);
+  selected.add('B');fn();assert.match(elements.selectionCardDetail.textContent,/2 estructuras/);
+  context.selectedStructure='B';fn();assert.match(elements.selectionCardDetail.textContent,/no disponible/);
+  selected.clear();fn();assert.equal(elements.selectionCard.hidden,true);assert.equal(elements.selectionCardCenter.disabled,true);assert.equal(elements.selectionCardName.textContent,'');
+ });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){

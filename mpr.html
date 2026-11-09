@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.7.0 · Menús de exploración</title>
+    /><title>MPR · v2.8.0 · Menús de exploración</title>
     <style>
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
       .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
@@ -1718,6 +1718,17 @@
       #view3d {
         position: relative;
       }
+      #selectionCard {
+        position: absolute; top: 8px; left: 8px; z-index: 5;
+        max-width: min(300px, calc(100% - 16px)); box-sizing: border-box;
+        padding: 7px 9px; border: 1px solid #42778b; border-radius: 6px;
+        background: #102534ed; color: #e5faff; font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+      #selectionCard[hidden] { display: none; }
+      #selectionCard p { margin: 4px 0; }
+      .selection-card-actions { display: flex; flex-wrap: wrap; gap: 4px; }
+      #selectionCard button { padding: 4px 6px; margin: 0; font-size: 11px; }
       #modelInfoPanel {
         position: absolute !important;
         inset: auto 10px 10px auto !important;
@@ -3045,7 +3056,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.7.0</strong
+        ><strong>Visor MPR · v2.8.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3160,7 +3171,18 @@
           ></section
         >
         <section class="pane" data-view-pane="3d"
-          ><h2>Vista 3D</h2><div class="stage" id="view3d"></div>
+          ><h2>Vista 3D</h2><div class="stage" id="view3d">
+            <section id="selectionCard" aria-label="Selección 3D" hidden>
+              <div aria-live="polite" aria-atomic="true">
+                <strong id="selectionCardName"></strong>
+                <p id="selectionCardDetail"></p>
+              </div>
+              <div class="selection-card-actions">
+                <button id="selectionCardCenter" type="button">Centrar en las cuatro vistas</button>
+                <button id="selectionCardClear" type="button">Quitar selección</button>
+              </div>
+            </section>
+          </div>
           <figure id="trajectoryPreview" aria-labelledby="trajectoryPreviewTitle" hidden>
             <figcaption>
               <h2 id="trajectoryPreviewTitle">Reconstrucción longitudinal</h2>
@@ -7881,9 +7903,26 @@
         $("centerStructure").disabled = !layerControls.size;
         $("restoreVisibility").disabled = !isolationSnapshot;
         updateSelectedVolume();
+        updateSelectionCard();
         syncTreeRows();
         repaintAll();
       }
+      function updateSelectionCard() {
+        const layer = layerControls.get(selectedStructure);
+        const active = !!layer && selectedStructures.has(selectedStructure);
+        $("selectionCard").hidden = !active;
+        $("selectionCardCenter").disabled = !active;
+        $("selectionCardClear").disabled = !selectedStructures.size;
+        $("selectionCardName").textContent = active ? selectedStructure : "";
+        $("selectionCardDetail").textContent = active
+          ? (Number.isFinite(layer.volumeML) ? "Volumen: " + formatVolume(layer.volumeML) : "Volumen no disponible") +
+            (selectedStructures.size > 1 ? " · " + selectedStructures.size + " estructuras seleccionadas" : "")
+          : "";
+      }
+      $("selectionCardCenter").onclick = () => {
+        if (selectedStructure && selectedStructures.has(selectedStructure)) focusStructure(selectedStructure, false);
+      };
+      $("selectionCardClear").onclick = () => selectStructure(null);
       function buildStructureSelection() {
         isolationSnapshot = null;
         selectedStructures.clear();
@@ -8847,6 +8886,7 @@
             reason || "Calculado sobre la superficie cerrada del modelo.";
         }
         updateSelectedVolume();
+        updateSelectionCard();
         syncTreeRows();
       }
       function updateVisibleModelInfo() {
