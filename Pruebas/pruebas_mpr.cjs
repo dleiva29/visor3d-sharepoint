@@ -21,6 +21,44 @@ function suite(html){
 }
 async function check(html, additionalTests = false){const s=suite(html);const {run,test}=s;
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
+ function workHarness(storage = new Map()) {
+  const dom = new JSDOM('<div id="host"></div>', {url:'https://viewer.test/mpr.html'});
+  const timers = new Map(); let timerId=0, key='volume-A:model-A', state={slice:4,camera:[1,2,3]}, blocked=false, writes=0;
+  const adapter={key:()=>key,capture:()=>structuredClone(state),validate:value=>{if(!value||!Number.isInteger(value.slice))throw Error('Estado inválido');},restore:value=>{state=structuredClone(value);},blocked:()=>blocked,onChange:()=>{}};
+  const localStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>{writes++;storage.set(k,v);},removeItem:k=>storage.delete(k)};
+  const controller=run('installLocalWorkState',{document:dom.window.document,window:dom.window,localStorage,setTimeout:f=>{timers.set(++timerId,f);return timerId;},clearTimeout:id=>timers.delete(id)}).fn(adapter,dom.window.document.getElementById('host'));
+  const document=dom.window.document;
+  return {dom,document,controller,storage,localStorage,get state(){return state;},set state(v){state=v;},set key(v){key=v;},set blocked(v){blocked=v;},get writes(){return writes;},buttons:Object.fromEntries([...document.querySelectorAll('[data-work]')].map(b=>[b.dataset.work,b])),auto:document.querySelector('input'),message:document.querySelector('[aria-live]'),event:()=>document.dispatchEvent(new dom.window.Event('case-state-change')),flush:()=>{const callbacks=[...timers.values()];timers.clear();callbacks.forEach(f=>f());}};
+ }
+ await test('Trabajo local: guardado, recuperación tras recarga y protección frente a sobrescritura automática',()=>{
+  const a=workHarness();a.controller.save(true);assert.equal(a.writes,1);
+  const b=workHarness(a.storage);assert.equal(b.buttons.restore.disabled,false);assert.match(b.message.textContent,/disponible/);
+  b.state={slice:9,camera:[9,9,9]};b.event();b.flush();assert.equal(b.writes,0);
+  b.controller.restore();assert.equal(b.state.slice,4);
+  b.state={slice:6,camera:[3,2,1]};b.event();b.flush();assert.equal(b.writes,1);
+  assert.equal(JSON.parse([...b.storage.values()][0]).state.slice,6);
+  b.event();b.flush();assert.equal(b.writes,1);a.dom.window.close();b.dom.window.close();
+ });
+ await test('Trabajo local: aísla casos, pausa antes de reemplazar archivos y conserva el caso anterior',()=>{
+  const h=workHarness();h.controller.save(true);h.state={slice:7};h.controller.pause();
+  assert.equal(JSON.parse([...h.storage.values()][0]).state.slice,7);
+  h.key='volume-B:model-A';h.state={slice:1};h.controller.sync();assert.equal(h.buttons.restore.disabled,true);
+  h.event();h.flush();assert.equal(h.storage.size,1);h.controller.save(true);assert.equal(h.storage.size,2);
+  h.key='volume-A:model-A';h.controller.sync();h.controller.restore();assert.equal(h.state.slice,7);h.dom.window.close();
+ });
+ await test('Trabajo local: errores de cuota y JSON inválido no alteran el trabajo abierto',()=>{
+  const h=workHarness();h.localStorage.setItem=()=>{throw Error('QuotaExceeded');};h.controller.save(true);
+  assert.match(h.message.textContent,/No se pudo guardar/);assert.equal(h.state.slice,4);assert.equal(h.buttons.restore.disabled,true);
+  h.event();h.flush();assert.equal(h.storage.size,0);h.dom.window.close();
+  const bad=workHarness(new Map([['mpr-work-state-v1:volume-A:model-A','{"version":1}']]));
+  assert.match(bad.message.textContent,/No se pudo leer/);assert.equal(bad.buttons.restore.disabled,true);assert.equal(bad.state.slice,4);bad.buttons.delete.click();assert.equal(bad.storage.size,0);bad.dom.window.close();
+ });
+ await test('Trabajo local: exclusión de presentación, desactivación, borrado y guardado al salir',()=>{
+  const h=workHarness();h.controller.save(true);h.state={slice:8};h.blocked=true;h.event();h.flush();h.controller.save();assert.equal(h.writes,1);
+  h.blocked=false;h.auto.checked=false;h.auto.onchange();assert.equal(h.writes,2);h.state={slice:9};h.event();h.flush();assert.equal(h.writes,2);
+  h.auto.checked=true;h.auto.onchange();h.state={slice:10};h.dom.window.dispatchEvent(new h.dom.window.Event('pagehide'));assert.equal(JSON.parse([...h.storage.values()][0]).state.slice,10);
+  h.buttons.delete.click();assert.equal(h.storage.size,0);assert.equal(h.buttons.restore.disabled,true);assert.equal(h.state.slice,10);h.event();h.flush();assert.equal(h.storage.size,0);h.dom.window.close();
+ });
  await test('Ficha 3D: selección activa, múltiple, vacía y volumen no disponible',()=>{
   const elements=Object.fromEntries(['selectionCard','selectionCardCenter','selectionCardClear','selectionCardName','selectionCardDetail'].map(id=>[id,{}]));
   const selected=new Set(['A']);

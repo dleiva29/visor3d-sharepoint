@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.12.3 · Menús de exploración</title>
+    /><title>MPR · v2.13.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3135,7 +3135,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.12.3</strong
+        ><strong>Visor MPR · v2.13.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4164,6 +4164,7 @@
         },
         viewAppliers = {};
       let savedMprPosition = null;
+      let localWorkState = null;
       let sceneRenderDirty = true;
       const resampleBuffers = new WeakMap(), meshVertexBuffers = new WeakMap();
       let pendingSliceFrame = null, pendingSliceTarget = null;
@@ -5302,6 +5303,7 @@
         if (!Number.isFinite(nextVolume.windowLow) || !Number.isFinite(nextVolume.windowHigh)) {
           throw new Error("Ventana no disponible");
         }
+        localWorkState?.pause();
         if (volumeContentHash !== hash) {
           lastUsEntryPoint = null;
           usTargetPoint = null;
@@ -5323,6 +5325,7 @@
         updateClip();
         syncMprNavigation();
         syncNamedViews();
+        localWorkState?.sync();
         status.textContent = `Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;
       }
       bindLocalFile(
@@ -5670,6 +5673,7 @@
           buffer,
           url.startsWith("blob:") ? new URL("./", location.href).href : new URL("./", url).href
         );
+        localWorkState?.pause();
         clearRoot(modelRoot);
         model = result.scene;
         modelRoot.add(model);
@@ -5694,6 +5698,7 @@
         loadTree();
         syncNamedViews();
         if (volume) ["x", "y", "z"].forEach(paint);
+        localWorkState?.sync();
         status.textContent = `GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
       }
       bindLocalFile(
@@ -11792,12 +11797,129 @@
         return { checkpoint, schedule, reset };
       }
 
+      /** Un estado local por pareja de archivos; nunca almacena los datos GLB/NRRD. */
+      function installLocalWorkState(adapter, host) {
+        const box = document.createElement("section");
+        box.className = "case-session";
+        box.innerHTML = '<strong>Estado de trabajo</strong><div class="case-session-actions"><button type="button" data-work="save">Guardar estado actual</button><button type="button" data-work="restore">Recuperar trabajo</button><button type="button" data-work="delete">Eliminar guardado</button></div><label><input type="checkbox" checked> Guardar automáticamente después de guardar o recuperar</label><p class="note" aria-live="polite"></p><p class="note hint">Solo en este navegador y dirección. Vuelve a cargar el mismo GLB y NRRD para recuperar cortes, cámara, estructuras, mediciones y vistas. No guarda los archivos originales; usa Exportar para llevar el trabajo a otro equipo.</p>';
+        host.prepend(box);
+        const buttons = Object.fromEntries([...box.querySelectorAll("[data-work]")].map(b => [b.dataset.work, b]));
+        const auto = box.querySelector("input"), message = box.querySelector('[aria-live]');
+        let key = null, record = null, armed = false, busy = false, timer = null, lastState = null;
+        function storageKey() { return "mpr-work-state-v1:" + key; }
+        function refresh() {
+          buttons.save.disabled = !key;
+          buttons.restore.disabled = !record;
+          buttons.delete.disabled = !key;
+          auto.disabled = !key;
+          buttons.save.title = record ? "Sustituir el estado guardado por el estado actual" : "Guardar el estado actual en este navegador";
+          const entry = document.getElementById("section-case")?.querySelector("summary");
+          if (entry) entry.textContent = record && !armed ? "Abrir · trabajo guardado" : "Abrir";
+        }
+        function validateRecord(data) {
+          if (data?.format !== "mpr-work-state" || data.version !== 1 || data.caseKey !== key ||
+              typeof data.autoSave !== "boolean" || typeof data.savedAt !== "string" || !Number.isFinite(Date.parse(data.savedAt)))
+            throw new Error("El estado guardado no corresponde a este caso o no es válido.");
+          adapter.validate(data.state);
+        }
+        function sync() {
+          const next = adapter.key();
+          if (next === key) return;
+          clearTimeout(timer);
+          key = next; record = null; armed = false; lastState = null; auto.checked = true;
+          message.textContent = key ? "Sin estado guardado. Pulsa Guardar estado actual para empezar." : "Carga el GLB y el NRRD para guardar o recuperar el trabajo.";
+          if (key) try {
+            const text = localStorage.getItem(storageKey());
+            if (text) {
+              if (text.length > 2500000) throw new Error("El estado guardado supera el tamaño permitido.");
+              const data = JSON.parse(text);
+              validateRecord(data);
+              record = data;
+              auto.checked = data.autoSave;
+              message.textContent = "Trabajo disponible del " + new Date(data.savedAt).toLocaleString() + ". Pulsa Recuperar trabajo o guarda el estado actual para sustituirlo. El guardado automático está en pausa hasta que elijas.";
+            }
+          } catch (error) { message.textContent = "No se pudo leer el estado local: " + error.message + " Puedes importar una copia JSON o guardar de nuevo."; }
+          refresh();
+        }
+        function save(manual = false) {
+          clearTimeout(timer);
+          sync();
+          if (!key || busy || adapter.blocked() || (!manual && (!armed || !auto.checked))) return;
+          try {
+            const state = adapter.capture();
+            adapter.validate(state);
+            const serialized = JSON.stringify(state);
+            if (!manual && serialized === lastState && record?.autoSave === auto.checked) return;
+            const data = { format: "mpr-work-state", version: 1, caseKey: key, savedAt: new Date().toISOString(), autoSave: auto.checked, state };
+            const text = JSON.stringify(data);
+            if (text.length > 2500000) throw new Error("El estado supera el tamaño permitido; exporta una copia JSON.");
+            localStorage.setItem(storageKey(), text);
+            record = data; lastState = serialized; armed = true;
+            message.textContent = "Guardado en este navegador: " + new Date(data.savedAt).toLocaleString() + (auto.checked ? ". Guardado automático activo." : ". Guardado automático desactivado.");
+          } catch (error) {
+            armed = false;
+            message.textContent = "No se pudo guardar el trabajo: " + error.message + " Exporta una copia JSON antes de cerrar.";
+          }
+          refresh();
+        }
+        function restore() {
+          sync();
+          if (!record || adapter.blocked()) return;
+          clearTimeout(timer); busy = true;
+          try {
+            validateRecord(record);
+            adapter.restore(structuredClone(record.state));
+            armed = true; lastState = JSON.stringify(adapter.capture());
+            message.textContent = "Trabajo recuperado." + (auto.checked ? " Guardado automático activo." : " Guardado automático desactivado.");
+          } catch (error) {
+            armed = false;
+            message.textContent = "No se pudo recuperar el trabajo: " + error.message;
+          } finally { busy = false; refresh(); }
+        }
+        function schedule(event) {
+          if (busy || (event?.target && box.contains(event.target))) return;
+          sync();
+          clearTimeout(timer);
+          if (armed && auto.checked && !adapter.blocked()) timer = setTimeout(() => save(), 1000);
+        }
+        function pause() {
+          save();
+          clearTimeout(timer);
+          key = null; record = null; armed = false; lastState = null;
+          refresh();
+        }
+        buttons.save.onclick = () => save(true);
+        buttons.restore.onclick = restore;
+        buttons.delete.onclick = () => {
+          sync();
+          if (!key) return;
+          try {
+            localStorage.removeItem(storageKey());
+            clearTimeout(timer); record = null; armed = false; lastState = null; auto.checked = false;
+            message.textContent = "Estado local eliminado. El trabajo abierto no cambia.";
+          } catch (error) { message.textContent = "No se pudo eliminar el estado local: " + error.message; }
+          refresh();
+        };
+        auto.onchange = () => {
+          if (armed) save(true);
+          else message.textContent = "Guarda o recupera primero el trabajo para activar esta opción sin sobrescribir el estado anterior.";
+        };
+        for (const type of ["click", "input", "change", "pointerup", "pointercancel", "wheel", "drop", "case-state-change"])
+          document.addEventListener(type, schedule);
+        adapter.onChange(schedule);
+        window.addEventListener("pagehide", () => save());
+        document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") save(); });
+        sync(); refresh();
+        return { sync, pause, save, restore };
+      }
+
       function caseSessionState() {
         return structuredClone({
           config: configData(),
           views: namedViews.map((v) => ({ ...v, notes: v.notes || "" })),
           active: activeNamedView?.name ?? null,
           selected: [...selectedStructures],
+          primary: selectedStructure,
         });
       }
       function validateCaseSession(state) {
@@ -11821,6 +11943,8 @@
         }
         if (!Array.isArray(state.selected) || state.selected.some((k) => !layerControls.has(k)))
           throw new Error("Selección inválida.");
+        if (state.primary != null && !state.selected.includes(state.primary))
+          throw new Error("Estructura activa inválida.");
       }
       function restoreCaseSession(state) {
         validateCaseSession(state);
@@ -11830,6 +11954,7 @@
         deletedView = null;
         selectedStructures.clear();
         for (const k of state.selected) selectedStructures.add(k);
+        selectedStructure = state.primary ?? state.selected.at(-1) ?? null;
         updateStructureSelection();
         persistNamedViews();
       }
@@ -11845,6 +11970,14 @@
         },
         $("caseSessionControls")
       );
+      localWorkState = installLocalWorkState({
+        key: currentViewCase,
+        capture: caseSessionState,
+        validate: validateCaseSession,
+        restore: restoreCaseSession,
+        onChange: fn => controls.addEventListener("end", fn),
+        blocked: () => batchRestore || presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open,
+      }, $("caseSessionControls"));
       // =============================================================================
       // 20 · Capturas y presentación
       // =============================================================================
