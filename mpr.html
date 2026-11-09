@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.12.1 · Menús de exploración</title>
+    /><title>MPR · v2.12.2 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3135,7 +3135,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.12.1</strong
+        ><strong>Visor MPR · v2.12.2</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4164,6 +4164,8 @@
         },
         viewAppliers = {};
       let savedMprPosition = null;
+      let pendingSliceFrame = null, pendingSliceTarget = null;
+      const pendingSliceAxes = new Set();
       const contourPaths = { x: [], y: [], z: [] },
         layerControls = new Map(),
         measurements = [];
@@ -4527,12 +4529,36 @@
         setTool("navigate");
         ["x", "y", "z"].forEach(paint);
       }
-      function paint(axis) {
-        if (batchRestore) return;
-        const s = slices[axis];
-        if (!s) return;
-        if ($("clipSyncTc")?.checked && model && volumeInfo) updateClip({ repaint: false });
-        const i = Number($("r" + axis).value);
+      function scheduleSlicePaint(axis) {
+        if (pendingSliceFrame !== null && pendingSliceTarget !== slices) {
+          cancelAnimationFrame(pendingSliceFrame);
+          pendingSliceFrame = null;
+          pendingSliceAxes.clear();
+        }
+        pendingSliceAxes.add(axis);
+        pendingSliceTarget = slices;
+        if (pendingSliceFrame !== null) return;
+        const target = slices;
+        pendingSliceFrame = requestAnimationFrame(() => {
+          pendingSliceFrame = null;
+          pendingSliceTarget = null;
+          const axes = [...pendingSliceAxes];
+          pendingSliceAxes.clear();
+          if (target !== slices || batchRestore) return;
+          const sync = $("clipSyncTc")?.checked && model && volumeInfo;
+          if (sync) updateClip({ repaint: false });
+          for (const a of sync ? ["x", "y", "z"] : axes)
+            paint(a, { reuseImage: true, updateClipping: false });
+        });
+      }
+      function updateSliceRaster(axis, reuseImage = false) {
+        const s = slices[axis], i = Number($("r" + axis).value);
+        const oblique = obliqueActive();
+        // Solo se reutiliza el último raster; no se duplican los datos del volumen.
+        const key = [volume, volume.data, volumeInfo, i, volume.windowLow, volume.windowHigh,
+          volume.lowerThreshold, volume.upperThreshold, oblique,
+          ...(oblique ? [...obliquePivot.toArray(), ...obliqueRotation.toArray(), ...obliqueShift.toArray()] : [])];
+        if (reuseImage && s.mprRasterKey?.length === key.length && key.every((value, index) => Object.is(value, s.mprRasterKey[index]))) return;
         if (s.obliqueBase) {
           s.mesh.position.copy(s.obliqueBase.position);
           s.mesh.quaternion.copy(s.obliqueBase.quaternion);
@@ -4540,11 +4566,17 @@
         }
         s.index = i;
         s.repaint();
-        s.obliqueBase = {
-          position: s.mesh.position.clone(),
-          quaternion: s.mesh.quaternion.clone(),
-        };
-        if (obliqueActive()) resampleOblique(s, slicePixelBasis(axis));
+        s.obliqueBase = { position: s.mesh.position.clone(), quaternion: s.mesh.quaternion.clone() };
+        if (oblique) resampleOblique(s, slicePixelBasis(axis));
+        s.mprRasterKey = key;
+      }
+      function paint(axis, { reuseImage = false, updateClipping = true } = {}) {
+        if (batchRestore) return;
+        const s = slices[axis];
+        if (!s) return;
+        if (updateClipping && $("clipSyncTc")?.checked && model && volumeInfo) updateClip({ repaint: false });
+        const i = Number($("r" + axis).value);
+        updateSliceRaster(axis, reuseImage);
         const source = s.canvas,
           dest = $("ct" + axis),
           o = orientation[axis];
@@ -5208,7 +5240,7 @@
           const slice = volume.extractSlice(axis, +slider.value);
           slices[axis] = slice;
           planesRoot.add(slice.mesh);
-          slider.oninput = () => $("clipSyncTc")?.checked ? updateClip() : paint(axis);
+          slider.oninput = () => scheduleSlicePaint(axis);
           paint(axis);
         }
         updatePlaneVisibility();
@@ -5671,7 +5703,7 @@
                   Math.max(Number(slider.min), Number(slider.value) + Math.sign(event.deltaY))
                 )
               );
-              paint(axis);
+              scheduleSlicePaint(axis);
             }
           },
           { passive: false }
@@ -6429,7 +6461,8 @@
               mat.needsUpdate = true;
             }
         });
-        if (repaint && volume && !batchRestore) ["x", "y", "z"].forEach(paint);
+        if (repaint && volume && !batchRestore)
+          for (const axis of ["x", "y", "z"]) paint(axis, { reuseImage: true, updateClipping: false });
       }
       for (const id of ["clipEnabled", "clipAxis", "clipPosition", "clipReverse", "clipSyncTc"])
         $(id).oninput = updateClip;

@@ -181,6 +181,27 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   $('rz').value='8';context.sync3DSliceControl('z');assert.equal($('sceneSlicez').value,'8');
   $('rx').disabled=true;$('ry').max='40';await new Promise(r=>setTimeout(r,0));assert.equal($('sceneSlicex').disabled,true);assert.equal($('sceneSliceValuex').textContent,'—');assert.equal($('sceneSlicey').max,'40');dom.window.close();
  });
+ await test('Repintado MPR: agrupa entradas por fotograma, conserva el último valor y descarta otro caso',()=>{
+  const frames=new Map(),painted=[];let id=0,clips=0;const inputs={z:3,x:1};
+  const {fn,context}=run('scheduleSlicePaint',{slices:{},pendingSliceFrame:null,pendingSliceTarget:null,pendingSliceAxes:new Set(),batchRestore:false,$:()=>({checked:false}),model:{},volumeInfo:{},requestAnimationFrame:f=>{frames.set(++id,f);return id;},cancelAnimationFrame:key=>frames.delete(key),updateClip:()=>clips++,paint:(axis,options)=>painted.push({axis,value:inputs[axis],options})});
+  const flush=()=>{const [key,callback]=frames.entries().next().value;frames.delete(key);callback();};
+  fn('z');inputs.z=9;fn('z');fn('x');assert.equal(frames.size,1);flush();assert.deepEqual(painted.map(p=>[p.axis,p.value]),[['z',9],['x',1]]);assert.equal(painted[0].options.reuseImage,true);assert.equal(context.pendingSliceTarget,null);
+  painted.length=0;context.$=()=>({checked:true});fn('z');flush();assert.equal(clips,1);assert.deepEqual(painted.map(p=>p.axis),['x','y','z']);
+  painted.length=0;fn('z');context.slices={};fn('x');assert.equal(frames.size,1);context.$=()=>({checked:false});flush();assert.deepEqual(painted.map(p=>p.axis),['x']);
+  painted.length=0;fn('z');context.slices={};flush();assert.equal(painted.length,0);
+ });
+ await test('Raster MPR: reutiliza solo imágenes válidas e invalida corte, ventana, umbral, volumen y oblicuidad',()=>{
+  let count=0,resamples=0;const slider={value:1},volume={data:new Uint8Array(8),windowLow:0,windowHigh:100,lowerThreshold:0,upperThreshold:100};
+  const slice={mesh:new THREE.Object3D(),repaint:()=>count++};
+  const {fn,context}=run('updateSliceRaster',{$:()=>slider,slices:{z:slice},volume,volumeInfo:{},obliqueActive:()=>false,obliquePivot:new THREE.Vector3(),obliqueRotation:new THREE.Quaternion(),obliqueShift:new THREE.Vector3(),slicePixelBasis:()=>({}),resampleOblique:()=>resamples++});
+  fn('z');fn('z',true);assert.equal(count,1);slider.value=2;fn('z',true);assert.equal(count,2);
+  volume.windowHigh=200;fn('z',true);volume.lowerThreshold=10;fn('z',true);volume.data=new Uint8Array(8);fn('z',true);context.volumeInfo={};fn('z',true);assert.equal(count,6);
+  context.obliqueActive=()=>true;fn('z',true);fn('z',true);assert.equal(resamples,1);
+  context.obliqueRotation.setFromAxisAngle(new THREE.Vector3(0,1,0),.2);fn('z',true);assert.equal(resamples,2);
+  context.obliqueShift.x=4;fn('z',true);assert.equal(resamples,3);
+  context.obliqueActive=()=>false;fn('z',true);assert.equal(count,10);
+  fn('z');assert.equal(count,11);
+ });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){
