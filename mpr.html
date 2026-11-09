@@ -11,9 +11,15 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.4.1 · Menús de exploración</title>
+    /><title>MPR · v2.5.4 · Menús de exploración</title>
     <style>
-      .tree-actions { max-width: 10rem; font-size: 0.85em; }
+      .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
+      .tree-icon[hidden] { display: none; }
+      .tree-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+      .tree-actions-wrap { position: relative; border: 1px solid currentColor; border-radius: 5px; }
+      .tree-actions-wrap:focus-within { outline: 2px solid #38bdf8; outline-offset: 2px; }
+      .tree-actions-wrap select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
       #structureTree summary.drop-before { box-shadow: inset 0 3px #38bdf8; }
       #structureTree summary.drop-after { box-shadow: inset 0 -3px #38bdf8; }
 
@@ -1144,6 +1150,17 @@
       .tree-toolbar button {
         font-size: 10px;
         padding: 6px;
+      }
+      .sidebar-body button.tree-icon,
+      .case-session-actions button.tree-icon,
+      .structure-tools .tree-toolbar button.tree-icon {
+        width: 24px;
+        min-width: 24px;
+        height: 24px;
+        min-height: 24px;
+        padding: 3px;
+        margin: 0;
+        flex: 0 0 24px;
       }
       #structureTree {
         overflow-x: auto;
@@ -3027,7 +3044,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.4.1</strong
+        ><strong>Visor MPR · v2.5.4</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4001,6 +4018,7 @@
         structureRelations = [],
         treeCaseKey = null;
       const treeRows = [];
+      let treeSearchOpen = null;
       let structureNameRoot = null;
       const structureLabelView = {
         position: new THREE.Vector3(),
@@ -9779,6 +9797,8 @@
         const key = modelContentHash ? "mpr-tree-v1:" + modelContentHash : null;
         if (key === treeCaseKey) return;
         treeCaseKey = key;
+        treeSearchOpen = null;
+        $("structureSearch").value = "";
         treeUndoHistory.length = 0;
         treeRedoHistory.length = 0;
         structureNodes = [];
@@ -9984,7 +10004,7 @@
         host.replaceChildren();
         host.className = "";
         treeRows.length = 0;
-        $("treeMode").textContent = treeEditing ? "✓ Terminar edición" : "Editar árbol";
+        setTreeIcon($("treeMode"), treeEditing ? "done" : "edit", treeEditing ? "Terminar edición" : "Editar árbol");
         $("treeMode").setAttribute("aria-pressed", String(treeEditing));
         $("undoTree").hidden = !treeEditing;
         $("redoTree").hidden = !treeEditing;
@@ -10065,6 +10085,31 @@
         next.splice(index, 0, { ...node, parent });
         applyNodes(next, { reveal: [node.parent, parent] });
       }
+      function setTreeIcon(control, icon, label) {
+        const paths = {
+          edit: "M12 3l3 3-9 9H3v-3z M10 5l3 3",
+          done: "M3 9l4 4 8-9",
+          undo: "M6 3L2 7l4 4 M2 7h8a5 5 0 0 1 0 10",
+          redo: "M12 3l4 4-4 4 M16 7H8a5 5 0 0 0 0 10",
+          expand: "M4 6l5-4 5 4 M4 12l5 4 5-4",
+          collapse: "M4 2l5 4 5-4 M4 16l5-4 5 4",
+          group: "M2 6V4h5l2 2h7v10H2z M9 8v6 M6 11h6",
+          more: "M4 9h.01 M9 9h.01 M14 9h.01",
+          export: "M9 2v10 M5 8l4 4 4-4 M3 12v4h12v-4",
+          import: "M9 12V2 M5 6l4-4 4 4 M3 12v4h12v-4",
+        };
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 18 18");
+        svg.setAttribute("aria-hidden", "true");
+        svg.setAttribute("focusable", "false");
+        const path = document.createElementNS(svg.namespaceURI, "path");
+        path.setAttribute("d", paths[icon]);
+        svg.append(path);
+        control.replaceChildren(svg);
+        control.classList.add("tree-icon");
+        control.setAttribute("aria-label", label);
+        control.title = label;
+      }
       function treeNodeActions(node) {
         const actions = document.createElement("select");
         actions.className = "tree-actions";
@@ -10097,7 +10142,12 @@
             else if (action === "remove") removeTreeReference(node.id);
           } catch (error) { $("treeMessage").textContent = error.message; }
         };
-        return actions;
+        const wrapper = document.createElement("span");
+        setTreeIcon(wrapper, "more", "Acciones de " + (node.name || node.key));
+        wrapper.classList.add("tree-actions-wrap");
+        wrapper.removeAttribute("aria-label");
+        wrapper.append(actions);
+        return wrapper;
       }
       function bindTreeDrop(target, parent) {
         const dropPosition = (e) => {
@@ -10213,6 +10263,9 @@
       }
       function filterTree() {
         const q = $("structureSearch").value.trim().toLocaleLowerCase("es");
+        if (q && treeSearchOpen === null)
+          treeSearchOpen = new Set(treeRows.filter((r) => r.details.open).map((r) => r.node.id));
+        const restoreOpen = !q && treeSearchOpen !== null;
         let count = 0;
         for (const [key, l] of layerControls) {
           l.card.hidden = !!q && !key.toLocaleLowerCase("es").includes(q);
@@ -10221,7 +10274,9 @@
         const matchingParents = new Set();
         for (let i = treeRows.length - 1; i >= 0; i--) {
           const { node, details, title } = treeRows[i];
-          const own = title.textContent.toLocaleLowerCase("es").includes(q);
+          const own = title.textContent.toLocaleLowerCase("es").includes(q) ||
+            (node.type === "segment" && node.key.toLocaleLowerCase("es").includes(q));
+          if (restoreOpen) details.open = treeSearchOpen.has(node.id);
           details.hidden = !!q && !own && !matchingParents.has(node.id);
           if (!details.hidden) {
             count++;
@@ -10231,7 +10286,14 @@
             }
           }
         }
+        if (restoreOpen) treeSearchOpen = null;
         $("structureSearchEmpty").hidden = !q || count > 0;
+      }
+      function setTreeExpanded(expanded) {
+        // Una acción global termina la búsqueda para mostrar su resultado en todo el árbol.
+        $("structureSearch").value = "";
+        filterTree();
+        for (const { details } of treeRows) details.open = expanded;
       }
       const toolbar = $("createGroup").parentElement;
       const mode = button("Editar árbol", () => {
@@ -10249,8 +10311,22 @@
       redo.disabled = true;
       redo.hidden = true;
       redo.title = "Recuperar el último cambio deshecho. Una edición nueva descarta los cambios pendientes de rehacer.";
-      toolbar.prepend(mode, undo, redo);
-      $("createGroup").textContent = "+ Crear grupo";
+      const expand = button("Expandir todo", () => setTreeExpanded(true));
+      const collapse = button("Contraer todo", () => setTreeExpanded(false));
+      expand.title = collapse.title = "Limpia la búsqueda y actúa sobre todo el árbol.";
+      setTreeIcon(mode, "edit", "Editar árbol");
+      setTreeIcon(undo, "undo", "Deshacer");
+      setTreeIcon(redo, "redo", "Rehacer");
+      setTreeIcon(expand, "expand", "Expandir todo");
+      setTreeIcon(collapse, "collapse", "Contraer todo");
+      expand.title = "Expandir todo · limpia la búsqueda";
+      collapse.title = "Contraer todo · limpia la búsqueda";
+      toolbar.prepend(mode, undo, redo, expand, collapse);
+      setTreeIcon($("createGroup"), "group", "Crear grupo");
+      setTreeIcon($("exportTree"), "export", "Exportar árbol");
+      setTreeIcon($("importTreeButton"), "import", "Importar árbol");
+      setTreeIcon($("exportNamedViews"), "export", "Exportar lista de vistas");
+      setTreeIcon($("importNamedViewsButton"), "import", "Importar lista de vistas");
       $("createGroup").onclick = () => editNode();
       $("childrenEditor").hidden = true;
       document.querySelector(".hierarchy-display").remove();
@@ -10893,6 +10969,8 @@
           button = (k) => buttons[k],
           message = box.querySelector("p"),
           input = box.querySelector("input");
+        setTreeIcon(button("load"), "import", "Importar configuración del caso");
+        setTreeIcon(button("save"), "export", "Exportar configuración del caso");
         const historyActions = $("historyActions");
         historyActions.append(button("undo"), button("redo"));
         let entries = [],
