@@ -261,6 +261,7 @@ async function checkStructureTree({run, test}) {
         <section id="independentStructures"><p id="catalogEditHint"></p><div id="modelLayers"></div></section>
       `, {url: 'http://localhost/'});
       const { document, Event, localStorage } = dom.window;
+      dom.window.HTMLElement.prototype.scrollIntoView = () => {};
       const $ = (id) => document.getElementById(id);
       const layerControls = new Map();
       const selectedStructures = new Set();
@@ -278,7 +279,7 @@ async function checkStructureTree({run, test}) {
       }
       let id = 0;
       const {context} = run('applyNodes', {
-        $, document, Event, localStorage, layerControls, selectedStructures,
+        $, document, Event, localStorage, Option: dom.window.Option, layerControls, selectedStructures,
         URL, modelContentHash: 'synthetic-model', treeCaseKey: null, treeLocalOverride: false,
         treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
         treeEditing: false, batchRestore: false, uid: () => 'new-' + ++id,
@@ -288,7 +289,7 @@ async function checkStructureTree({run, test}) {
         'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
         'applyHierarchy', 'loadTree', 'saveTree', 'exportStructureTree', 'importStructureTree',
         'loadPublishedStructureTree', 'nodeKeys', 'visibilityClosure', 'setSynchronizedVisibility',
-        'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop',
+        'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop', 'moveTreeNode', 'treeNodeActions', 'editNode',
         'addStructureReference', 'removeTreeReference', 'renderStructureCatalog', 'filterTree',
       ]);
       try {
@@ -355,6 +356,50 @@ async function checkStructureTree({run, test}) {
     assert.equal(context.treeIndex.byId.get('child').parent, null);
     assert.equal(context.treeIndex.byId.has('reference-2'), true);
     assert.equal(layerControls.get('A').card.parentElement, $('modelLayers'));
+  }));
+
+  await test('Árbol: ordenar, mover ramas y rechazar ciclos sin mutación parcial', withTree(({context}) => {
+    context.applyNodes([group('a'), group('b'), group('c'), group('child', 'a')]);
+    context.moveTreeNode('c', 'a', 'before');
+    assert.deepEqual(Array.from(context.treeIndex.children.get(null), n => n.id), ['c','a','b']);
+    context.moveTreeNode('c', 'b', 'after');
+    assert.deepEqual(Array.from(context.treeIndex.children.get(null), n => n.id), ['a','b','c']);
+    const before = JSON.stringify(context.structureNodes);
+    assert.throws(() => context.moveTreeNode('a', 'child', 'inside'), /Ciclo/);
+    assert.equal(JSON.stringify(context.structureNodes), before);
+    context.moveTreeNode('a', 'b', 'inside');
+    assert.equal(context.treeIndex.byId.get('child').parent, 'a');
+    const exported = context.exportStructureTree();
+    context.importStructureTree(JSON.parse(JSON.stringify(exported)));
+    assert.equal(context.treeIndex.byId.get('a').parent, 'b');
+  }));
+
+  await test('Árbol: acciones permiten ordenar y quitar conservando hijos', withTree(({context, $}) => {
+    context.applyNodes([group('a'), group('b'), group('child','a')]);
+    context.treeEditing = true;
+    context.renderTree();
+    const actions = id => $('structureTree').querySelector('[data-node="'+id+'"] > summary select');
+    const select = actions('b');
+    select.value = 'up'; select.onchange();
+    assert.deepEqual(Array.from(context.treeIndex.children.get(null), n => n.id), ['b','a']);
+    const remove = actions('a'); remove.value = 'remove'; remove.onchange();
+    assert.equal(context.treeIndex.byId.has('a'), false);
+    assert.equal(context.treeIndex.byId.get('child').parent, null);
+  }));
+
+  await test('Árbol: renombrar conserva orden y soltar en bordes reordena', withTree(({context, $}) => {
+    context.applyNodes([group('a'), group('b'), group('c')]);
+    context.treeEditing = true; context.renderTree();
+    const actions = $('structureTree').querySelector('[data-node="b"] > summary select');
+    actions.value = 'rename'; actions.onchange();
+    $('nodeDisplayName').value = 'Nuevo nombre';
+    Array.from($('groupEditor').querySelectorAll('button')).find(b => b.textContent === 'Guardar').click();
+    assert.equal(context.treeIndex.byId.get('b').name, 'Nuevo nombre');
+    assert.deepEqual(Array.from(context.treeIndex.children.get(null), n => n.id), ['a','b','c']);
+    const target = $('structureTree').querySelector('[data-node="a"] > summary');
+    target.getBoundingClientRect = () => ({top: 100, height: 40});
+    target.ondrop({clientY: 101, preventDefault(){}, stopPropagation(){}, dataTransfer:{types:['application/x-mpr-tree-node'],getData: type => type === 'application/x-mpr-tree-node' ? 'c' : ''}});
+    assert.deepEqual(Array.from(context.treeIndex.children.get(null), n => n.id), ['c','a','b']);
   }));
 
   await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {

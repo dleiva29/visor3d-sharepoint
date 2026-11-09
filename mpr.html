@@ -11,8 +11,12 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2 · Menús de exploración</title>
+    /><title>MPR · v2.2.0 · Menús de exploración</title>
     <style>
+      .tree-actions { max-width: 10rem; font-size: 0.85em; }
+      #structureTree summary.drop-before { box-shadow: inset 0 3px #38bdf8; }
+      #structureTree summary.drop-after { box-shadow: inset 0 -3px #38bdf8; }
+
       * {
         box-sizing: border-box;
       }
@@ -3023,7 +3027,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2</strong
+        ><strong>Visor MPR · v2.2.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3406,7 +3410,7 @@
                 ><button id="saveGroup" type="button">Guardar grupo</button
                 ><button id="cancelGroup" type="button">Cancelar</button
                 ><button id="deleteGroup" type="button">Eliminar grupo</button></div
-              ><div id="treeRootDrop" class="note" hidden>Suelta aquí para colocar en la raíz</div
+              ><div id="treeRootDrop" class="note" hidden>Suelta aquí para colocar en la raíz. En una fila: borde superior/inferior para ordenar; centro para anidar. También puedes usar Acciones…</div
               ><div id="structureTree"></div
               ><section id="independentStructures"
                 ><h4>Todas las estructuras</h4
@@ -9986,6 +9990,7 @@
           }
           row.append(title);
           if (!treeEditing) row.append(c.label);
+          else row.append(treeNodeActions(n));
           treeRows.push(c);
           if (treeEditing) {
             row.draggable = true;
@@ -10007,7 +10012,67 @@
         syncTreeRows();
         filterTree();
       }
+      // El orden del array se conserva en el JSON y determina el orden entre hermanos.
+      function moveTreeNode(id, targetId, position = "inside") {
+        const node = treeIndex.byId.get(id), target = treeIndex.byId.get(targetId);
+        if (!node || id === targetId) return;
+        if (!["inside", "before", "after"].includes(position)) throw new Error("Posición inválida.");
+        if (targetId !== null && !target) throw new Error("Destino inexistente.");
+        const parent = position === "inside" ? targetId : target?.parent;
+        if (parent === undefined) throw new Error("Destino inexistente.");
+        const next = structureNodes.filter((n) => n.id !== id);
+        let index = next.length;
+        if (position !== "inside") {
+          index = next.findIndex((n) => n.id === targetId) + (position === "after" ? 1 : 0);
+        }
+        next.splice(index, 0, { ...node, parent });
+        applyNodes(next, { reveal: [node.parent, parent] });
+      }
+      function treeNodeActions(node) {
+        const actions = document.createElement("select");
+        actions.className = "tree-actions";
+        actions.setAttribute("aria-label", "Acciones de " + (node.name || node.key));
+        for (const [value, label] of [
+          ["", "Acciones…"], ["rename", "Renombrar"], ["move", "Mover a otra rama…"],
+          ["up", "Subir"], ["down", "Bajar"], ["remove", "Quitar solo este nodo"],
+        ]) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = label;
+          actions.append(option);
+        }
+        const siblings = treeIndex.children.get(node.parent) || [];
+        const index = siblings.findIndex((n) => n.id === node.id);
+        actions.options[3].disabled = index <= 0;
+        actions.options[4].disabled = index >= siblings.length - 1;
+        actions.onclick = (e) => e.stopPropagation();
+        actions.onkeydown = (e) => e.stopPropagation();
+        actions.ondragstart = (e) => { e.preventDefault(); e.stopPropagation(); };
+        actions.onchange = () => {
+          const action = actions.value;
+          actions.value = "";
+          try {
+            if (action === "rename" || action === "move") {
+              editNode(node.id);
+              $(action === "rename" ? "nodeDisplayName" : "nodeParent").focus();
+            } else if (action === "up" && index > 0) moveTreeNode(node.id, siblings[index - 1].id, "before");
+            else if (action === "down" && index < siblings.length - 1) moveTreeNode(node.id, siblings[index + 1].id, "after");
+            else if (action === "remove") removeTreeReference(node.id);
+          } catch (error) { $("treeMessage").textContent = error.message; }
+        };
+        return actions;
+      }
       function bindTreeDrop(target, parent) {
+        const dropPosition = (e) => {
+          if (parent === null || Array.from(e.dataTransfer.types || []).includes("application/x-mpr-structure")) return "inside";
+          const rect = target.getBoundingClientRect();
+          if (!rect.height || !Number.isFinite(e.clientY)) return "inside";
+          const fraction = (e.clientY - rect.top) / rect.height;
+          return fraction < 0.25 ? "before" : fraction > 0.75 ? "after" : "inside";
+        };
+        const clear = () => {
+          target.classList.remove("drop-target", "drop-before", "drop-after");
+        };
         target.ondragover = (e) => {
           const types = e.dataTransfer.types;
           const copy = types.includes("application/x-mpr-structure");
@@ -10015,13 +10080,15 @@
           e.preventDefault();
           e.stopPropagation();
           e.dataTransfer.dropEffect = copy ? "copy" : "move";
-          target.classList.add("drop-target");
+          clear();
+          const position = dropPosition(e);
+          target.classList.add(position === "inside" ? "drop-target" : "drop-" + position);
         };
         target.ondragleave = (e) => {
-          if (!target.contains(e.relatedTarget)) target.classList.remove("drop-target");
+          if (!target.contains(e.relatedTarget)) clear();
         };
         target.ondrop = (e) => {
-          target.classList.remove("drop-target");
+          clear();
           if (!treeEditing) return;
           const key = e.dataTransfer.getData("application/x-mpr-structure");
           const node = treeIndex.byId.get(e.dataTransfer.getData("application/x-mpr-tree-node"));
@@ -10030,10 +10097,7 @@
           e.stopPropagation();
           try {
             if (key) addStructureReference(key, parent);
-            else applyNodes(
-              structureNodes.map((n) => (n.id === node.id ? { ...n, parent } : n)),
-              { reveal: [node.parent, parent] }
-            );
+            else moveTreeNode(node.id, parent, dropPosition(e));
             $("treeMessage").textContent = "";
           } catch (err) {
             $("treeMessage").textContent = err.message;
