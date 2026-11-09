@@ -240,3 +240,26 @@ Comparación instrumental en Chromium Cloud con renderizado por software, GLB/NR
 | Oblicuo con recorte sincronizado | 73,0 ms | 54,7 ms |
 
 En una ráfaga de 25 eventos sincronizados antes del siguiente fotograma, los repintados pasan de 75 a 3 y los cálculos raster de 75 a 1; el índice final coincide con el solicitado. Las huellas de píxeles RGBA de las tres vistas coinciden entre ambas versiones en los cuatro escenarios probados. La navegación axial individual no muestra mejora en esta medición; la optimización se concentra en sincronización y ráfagas. Pruebas de regresión: 67 correctas y ESLint limpio.
+
+
+## Renderizado en reposo y reutilización de buffers (v2.12.3)
+
+La escena 3D se redibuja cuando cambia la cámara, el contenido o los controles. Continúa dibujándose durante vuelos de presentación y mientras se estabilizan las etiquetas. El bucle requestAnimationFrame y la actualización de controles permanecen activos; se evita el renderizado GPU y la actualización de anotaciones cuando la escena está estable. Las cargas, cambios de tamaño y restauración del contexto WebGL también solicitan redibujado.
+
+El remuestreo oblicuo reutiliza un ImageData por canvas y tamaño. Se sobrescriben todos los píxeles, incluidos los que quedan fuera del volumen, para evitar restos de imágenes anteriores. Las intersecciones reutilizan coordenadas mundiales de los vértices en Float64Array por malla; la caché se invalida al cambiar el atributo de posiciones, su versión, su tamaño o la matriz mundial. Las cachés usan WeakMap y no acumulan estados de transformación.
+
+Comparación con v2.12.2 en Chromium Cloud con renderizado por software, GLB/NRRD del caso 10, ocho movimientos por escenario e imágenes RGBA idénticas comprobadas mediante SHA-256:
+
+| Medición | v2.12.2 | v2.12.3 |
+| --- | ---: | ---: |
+| Mediana de CPU de paint axial | 28,2 ms | 28,0 ms |
+| Mediana de CPU de paint oblicuo | 50,2 ms | 46,4 ms |
+| CPU acumulada de intersecciones, axial | 193,1 ms | 92,0 ms |
+| CPU acumulada de intersecciones, oblicuo | 144,9 ms | 109,2 ms |
+| Nuevos ImageData en ocho remuestreos oblicuos | 8 | 0 |
+| Renderizados en 1,5 segundos de reposo | 8 | 0 |
+| Renderizados en un segundo de reposo con etiquetas estabilizadas | 5 | 0 |
+
+La cámara volvió a renderizar al moverla. Estas cifras son orientativas y no representan FPS en el equipo del usuario. La navegación axial total no muestra mejora apreciable y la mejora oblicua total es moderada. La caché de coordenadas añade 15.756.912 bytes (aproximadamente 15 MiB) en este modelo, a cambio de reducir el cálculo repetido de intersecciones.
+
+Pruebas de regresión: 70 correctas y ESLint limpio. Se comprueban la reactivación del renderizado, las etiquetas y vuelos activos, la reutilización y limpieza de píxeles fuera del volumen, y la invalidación de coordenadas por transformaciones y edición de geometría. La prueba visual en Codespaces queda pendiente.

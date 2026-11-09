@@ -11,7 +11,7 @@ function suite(html){
  const code=moduleOf(html),ast=espree.parse(code,{ecmaVersion:'latest',sourceType:'module',range:true});
  const funcs=new Map(ast.body.filter(n=>n.type==='FunctionDeclaration').map(n=>[n.id.name,code.slice(...n.range)]));
  function run(name, globals = {}, dependencies = []) {
-   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, ...globals});
+   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, ...globals});
    vm.runInContext([...dependencies, name].map((key) => funcs.get(key)).join("\n"), context);
    return {fn: context[name], context};
  }
@@ -201,6 +201,36 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   context.obliqueShift.x=4;fn('z',true);assert.equal(resamples,3);
   context.obliqueActive=()=>false;fn('z',true);assert.equal(count,10);
   fn('z');assert.equal(count,11);
+ });
+ await test('Escena 3D: no renderiza en reposo, reacciona a cambios y mantiene animaciones y etiquetas pendientes',()=>{
+  let renders=0,updates=0,labels=0;
+  const {fn,context}=run('renderSceneFrame',{sceneRenderDirty:true,presentationCameraFlight:null,controls:{update:()=>updates++},$:()=>({checked:false}),modelRoot:{visible:true},structureLabelView:{layoutDirty:false},updateStructureNames:()=>labels++,updateAnnotationScale:()=>{},renderer:{render:()=>renders++},scene:{},camera:{}},['requestSceneRender']);
+  assert.equal(fn(),true);assert.equal(fn(),false);assert.equal(renders,1);assert.equal(updates,2);
+  context.requestSceneRender();assert.equal(fn(),true);assert.equal(renders,2);
+  context.presentationCameraFlight={};assert.equal(fn(),true);assert.equal(fn(),true);assert.equal(renders,4);
+  context.presentationCameraFlight=null;context.$=()=>({checked:true});context.structureLabelView.layoutDirty=true;assert.equal(fn(),true);assert.equal(labels,5);
+  context.structureLabelView.layoutDirty=false;assert.equal(fn(),false);
+ });
+ await test('Remuestreo oblicuo: reutiliza el buffer, limpia píxeles exteriores y cambia al redimensionar',()=>{
+  let allocations=0,last;
+  const ctx={createImageData:(width,height)=>{allocations++;return {width,height,data:new Uint8ClampedArray(width*height*4)};},putImageData:image=>last=image};
+  const canvas={width:1,height:1,getContext:()=>ctx};
+  const {fn}=run('resampleVolume',{resampleBuffers:new WeakMap(),volumeInfo:{directionsRAS:[[1,0,0],[0,1,0],[0,0,1]],originRAS:[0,0,0],sizes:[2,2,2]},volume:{windowLow:0,windowHigh:100,data:new Uint8Array(8).fill(100)}},['resampleImageData']);
+  const basis={origin:new THREE.Vector3(0,0,0),u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0),sx:1,sy:1};
+  fn(canvas,basis);const first=last;assert.deepEqual([...last.data],[255,255,255,255]);
+  basis.origin.x=-2;fn(canvas,basis);assert.equal(allocations,1);assert.equal(last,first);assert.deepEqual([...last.data],[0,0,0,255]);
+  canvas.width=2;fn(canvas,basis);assert.equal(allocations,2);assert.notEqual(last,first);
+ });
+ await test('Contornos: reutiliza vértices mundiales y conserva intersecciones al transformar o editar geometría',()=>{
+  const geometry=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(2,0,0),new THREE.Vector3(0,2,0)]);geometry.setIndex([0,1,2]);
+  const mesh=new THREE.Mesh(geometry);mesh.position.set(10,20,30);mesh.updateWorldMatrix(true,true);
+  const {fn,context}=run('meshPlaneSegments',{meshVertexBuffers:new WeakMap(),tmpV1:new THREE.Vector3(),tmpV2:new THREE.Vector3(),tmpV3:new THREE.Vector3()},['meshPlaneVertices']);
+  const project=p=>({x:p.x,y:p.y});let segments=fn(mesh,new THREE.Plane(new THREE.Vector3(1,0,0),-10.5),project);
+  assert.equal(segments.length,1);assert.deepEqual(Array.from(segments[0],p=>[p.x,p.y]),[[10.5,20],[10.5,21.5]]);
+  const first=context.meshPlaneVertices(mesh);assert.equal(context.meshPlaneVertices(mesh),first);
+  mesh.position.x=11;mesh.updateWorldMatrix(true,true);assert.notEqual(context.meshPlaneVertices(mesh),first);
+  mesh.position.x=10;geometry.attributes.position.setXYZ(1,4,0,0);geometry.attributes.position.needsUpdate=true;mesh.updateWorldMatrix(true,true);
+  segments=fn(mesh,new THREE.Plane(new THREE.Vector3(1,0,0),-10.5),project);assert.deepEqual(Array.from(segments[0],p=>[p.x,p.y]),[[10.5,20],[10.5,21.75]]);
  });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
