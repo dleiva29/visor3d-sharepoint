@@ -21,6 +21,36 @@ function suite(html){
 }
 async function check(html, additionalTests = false){const s=suite(html);const {run,test}=s;
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
+ await test('Ficha 3D: selección activa, múltiple, vacía y volumen no disponible',()=>{
+  const elements=Object.fromEntries(['selectionCard','selectionCardCenter','selectionCardClear','selectionCardName','selectionCardDetail'].map(id=>[id,{}]));
+  const selected=new Set(['A']);
+  const layers=new Map([['A',{volumeML:12}],['B',{volumeML:null}]]);
+  const {fn,context}=run('updateSelectionCard',{$:id=>elements[id],layerControls:layers,selectedStructures:selected,selectedStructure:'A',formatVolume:n=>n+' mL'});
+  fn(); assert.equal(elements.selectionCard.hidden,false);assert.equal(elements.selectionCardName.textContent,'A');assert.match(elements.selectionCardDetail.textContent,/12 mL/);
+  selected.add('B');fn();assert.match(elements.selectionCardName.textContent,/2 estructuras/);
+  assert.match(elements.selectionCardDetail.textContent,/A \(activa\): 12 mL/);
+  assert.match(elements.selectionCardDetail.textContent,/B: Volumen no disponible/);
+  assert.match(elements.selectionCardDetail.textContent,/Subtotal calculable: 12 mL/);
+  layers.get('B').volumeML=8;fn();assert.match(elements.selectionCardDetail.textContent,/Volumen total: 20 mL/);
+  selected.delete('A');context.selectedStructure='B';fn();assert.equal(elements.selectionCardName.textContent,'B');assert.doesNotMatch(elements.selectionCardDetail.textContent,/A:/);
+  layers.get('B').volumeML=null;
+  context.selectedStructure='B';fn();assert.match(elements.selectionCardDetail.textContent,/no disponible/);
+  selected.clear();fn();assert.equal(elements.selectionCard.hidden,true);assert.equal(elements.selectionCardCenter.disabled,true);assert.equal(elements.selectionCardName.textContent,'');
+ });
+ await test('Avisos de ventanas: cuatro segundos, reinicio y ocultación al seleccionar herramienta',()=>{
+  const dom=new JSDOM('<p id="toolHint">Selecciona una estructura</p>');
+  const indicators=[{indicator:{hidden:true}},{indicator:{hidden:true}}];
+  const timers=new Map();let id=0;
+  const {fn,context}=run('createPaneHintController',{document:dom.window.document,$:key=>dom.window.document.getElementById(key),activeTool:'select',hideStructureHover:()=>{},setTimeout:(f,ms)=>{assert.equal(ms,4000);timers.set(++id,f);return id;},clearTimeout:key=>timers.delete(key)});
+  const refresh=fn(indicators);refresh();assert.ok(indicators.every(r=>!r.indicator.hidden));
+  refresh();assert.equal(timers.size,1);
+  [...timers.values()][0]();assert.ok(indicators.every(r=>r.indicator.hidden));
+  refresh();dom.window.document.dispatchEvent(new dom.window.Event('mpr-tool-change'));
+  assert.ok(indicators.every(r=>r.indicator.hidden));assert.equal(timers.size,0);
+  context.activeTool='navigate';refresh();assert.equal(timers.size,0);
+  context.activeTool='select';dom.window.document.getElementById('toolHint').textContent=' ';refresh();assert.equal(timers.size,0);
+  dom.window.close();
+ });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){

@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.7.0 · Menús de exploración</title>
+    /><title>MPR · v2.8.2 · Menús de exploración</title>
     <style>
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
       .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
@@ -1718,6 +1718,18 @@
       #view3d {
         position: relative;
       }
+      #selectionCard {
+        position: absolute; top: 8px; left: 8px; z-index: 5;
+        max-width: min(300px, calc(100% - 16px)); box-sizing: border-box;
+        padding: 7px 9px; border: 1px solid #42778b; border-radius: 6px;
+        background: #102534ed; color: #e5faff; font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+      #selectionCard[hidden] { display: none; }
+      #selectionCard p { margin: 4px 0; }
+      #selectionCardDetail { white-space: pre-line; max-height: 130px; overflow-y: auto; }
+      .selection-card-actions { display: flex; flex-wrap: wrap; gap: 4px; }
+      #selectionCard button { padding: 4px 6px; margin: 0; font-size: 11px; }
       #modelInfoPanel {
         position: absolute !important;
         inset: auto 10px 10px auto !important;
@@ -3045,7 +3057,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.7.0</strong
+        ><strong>Visor MPR · v2.8.2</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3160,7 +3172,18 @@
           ></section
         >
         <section class="pane" data-view-pane="3d"
-          ><h2>Vista 3D</h2><div class="stage" id="view3d"></div>
+          ><h2>Vista 3D</h2><div class="stage" id="view3d">
+            <section id="selectionCard" aria-label="Selección 3D" hidden>
+              <div aria-live="polite" aria-atomic="true">
+                <strong id="selectionCardName"></strong>
+                <p id="selectionCardDetail" tabindex="0"></p>
+              </div>
+              <div class="selection-card-actions">
+                <button id="selectionCardCenter" type="button">Centrar en las cuatro vistas</button>
+                <button id="selectionCardClear" type="button">Quitar selección</button>
+              </div>
+            </section>
+          </div>
           <figure id="trajectoryPreview" aria-labelledby="trajectoryPreviewTitle" hidden>
             <figcaption>
               <h2 id="trajectoryPreviewTitle">Reconstrucción longitudinal</h2>
@@ -5754,6 +5777,7 @@
         }
       }
       function setTool(tool) {
+        document.dispatchEvent(new Event("mpr-tool-change"));
         if (typeof measurementDrag !== "undefined" && measurementDrag) endMeasurementDrag(true);
         if (activeTool !== tool) {
           pendingArrow = null;
@@ -7881,9 +7905,40 @@
         $("centerStructure").disabled = !layerControls.size;
         $("restoreVisibility").disabled = !isolationSnapshot;
         updateSelectedVolume();
+        updateSelectionCard();
         syncTreeRows();
         repaintAll();
       }
+      function updateSelectionCard() {
+        const keys = [...selectedStructures].filter((key) => layerControls.has(key));
+        const active = keys.includes(selectedStructure);
+        $("selectionCard").hidden = keys.length === 0;
+        $("selectionCardCenter").disabled = !active;
+        $("selectionCardClear").disabled = keys.length === 0;
+        $("selectionCardCenter").title = active ? "Centrar: " + selectedStructure : "Selecciona una estructura activa";
+        $("selectionCardName").textContent = keys.length > 1
+          ? keys.length + " estructuras seleccionadas"
+          : keys[0] || "";
+        let total = 0, missing = 0;
+        const lines = keys.map((key) => {
+          const value = layerControls.get(key).volumeML;
+          if (Number.isFinite(value)) total += value;
+          else missing++;
+          return key + (keys.length > 1 && key === selectedStructure ? " (activa)" : "") + ": " +
+            (Number.isFinite(value) ? formatVolume(value) : "Volumen no disponible");
+        });
+        if (keys.length > 1) {
+          lines.push(missing === keys.length ? "Volumen total no disponible" :
+            (missing ? "Subtotal calculable: " : "Volumen total: ") + formatVolume(total));
+          if (missing) lines.push(missing + " sin volumen disponible.");
+          lines.push("Suma sin descontar solapamientos.");
+        }
+        $("selectionCardDetail").textContent = lines.join("\n");
+      }
+      $("selectionCardCenter").onclick = () => {
+        if (selectedStructure && selectedStructures.has(selectedStructure)) focusStructure(selectedStructure, false);
+      };
+      $("selectionCardClear").onclick = () => selectStructure(null);
       function buildStructureSelection() {
         isolationSnapshot = null;
         selectedStructures.clear();
@@ -8847,6 +8902,7 @@
             reason || "Calculado sobre la superficie cerrada del modelo.";
         }
         updateSelectedVolume();
+        updateSelectionCard();
         syncTreeRows();
       }
       function updateVisibleModelInfo() {
@@ -10434,6 +10490,26 @@
       // =============================================================================
       // 18 · Menús flotantes e iconos
       // =============================================================================
+      function createPaneHintController(menus) {
+        let timer = null;
+        const hide = () => {
+          clearTimeout(timer);
+          timer = null;
+          for (const { indicator } of menus) indicator.hidden = true;
+        };
+        document.addEventListener("mpr-tool-change", hide);
+        return () => {
+          hide();
+          if (!["select", "cut"].includes(activeTool)) hideStructureHover();
+          const text = $("toolHint").textContent;
+          if (activeTool === "navigate" || !text.trim()) return;
+          for (const { indicator } of menus) {
+            indicator.textContent = text;
+            indicator.hidden = false;
+          }
+          timer = setTimeout(hide, 4000);
+        };
+      }
       function installPaneMenus() {
         const panes = [...document.querySelectorAll(".pane")];
         const menus = [];
@@ -10803,13 +10879,7 @@
           menus.push({ panel, trigger, indicator });
           pane.append(trigger, panel, indicator);
         }
-        const refresh = () => {
-          if (!["select", "cut"].includes(activeTool)) hideStructureHover();
-          for (const { indicator } of menus) {
-            indicator.hidden = activeTool === "navigate";
-            indicator.textContent = $("toolHint").textContent;
-          }
-        };
+        const refresh = createPaneHintController(menus);
         const headersToggle = $("togglePaneHeaders");
         headersToggle.onclick = () => {
           const collapsed = document.body.classList.toggle("pane-headers-collapsed");
