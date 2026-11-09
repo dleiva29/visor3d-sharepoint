@@ -27,7 +27,13 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   const layers=new Map([['A',{volumeML:12}],['B',{volumeML:null}]]);
   const {fn,context}=run('updateSelectionCard',{$:id=>elements[id],layerControls:layers,selectedStructures:selected,selectedStructure:'A',formatVolume:n=>n+' mL'});
   fn(); assert.equal(elements.selectionCard.hidden,false);assert.equal(elements.selectionCardName.textContent,'A');assert.match(elements.selectionCardDetail.textContent,/12 mL/);
-  selected.add('B');fn();assert.match(elements.selectionCardDetail.textContent,/2 estructuras/);
+  selected.add('B');fn();assert.match(elements.selectionCardName.textContent,/2 estructuras/);
+  assert.match(elements.selectionCardDetail.textContent,/A \(activa\): 12 mL/);
+  assert.match(elements.selectionCardDetail.textContent,/B: Volumen no disponible/);
+  assert.match(elements.selectionCardDetail.textContent,/Subtotal calculable: 12 mL/);
+  layers.get('B').volumeML=8;fn();assert.match(elements.selectionCardDetail.textContent,/Volumen total: 20 mL/);
+  selected.delete('A');context.selectedStructure='B';fn();assert.equal(elements.selectionCardName.textContent,'B');assert.doesNotMatch(elements.selectionCardDetail.textContent,/A:/);
+  layers.get('B').volumeML=null;
   context.selectedStructure='B';fn();assert.match(elements.selectionCardDetail.textContent,/no disponible/);
   selected.clear();fn();assert.equal(elements.selectionCard.hidden,true);assert.equal(elements.selectionCardCenter.disabled,true);assert.equal(elements.selectionCardName.textContent,'');
  });
