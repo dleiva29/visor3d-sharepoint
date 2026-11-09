@@ -111,6 +111,16 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   assert.equal(document.body.classList.contains('pane-headers-collapsed'),false);assert.equal(document.querySelector('.pane h2').hidden,false);
   fn();assert.equal($('viewerTools').hidden,false);assert.equal($('togglePaneHeaders').getAttribute('aria-label'),'Ocultar barra de herramientas');assert.equal(resized,2);dom.window.close();
  });
+ await test('Carga: oculta el éxito tras diez segundos, conserva errores y cancela al empezar otra carga',()=>{
+  const dom=new JSDOM('<div id="loadingPanel"><div id="loadingTrack"><div id="loadingFill"></div></div><span id="loadingTitle"></span><span id="loadingDetail"></span></div>');
+  const $=id=>dom.window.document.getElementById(id), timers=new Map();let id=0;
+  const {fn,context}=run('finishProgress',{$,progressPanel:$('loadingPanel'),progressTrack:$('loadingTrack'),progressFill:$('loadingFill'),progressDismissTimer:null,setTimeout:(fn,ms)=>{assert.equal(ms,10000);timers.set(++id,fn);return id;},clearTimeout:key=>timers.delete(key)},['showProgress']);
+  fn(true,'Preparado');assert.equal(timers.size,1);assert.equal($('loadingPanel').hidden,false);
+  [...timers.values()][0]();assert.equal($('loadingPanel').hidden,true);timers.clear();
+  fn(true);context.showProgress('Nueva carga',.2);assert.equal(timers.size,0);assert.equal($('loadingPanel').hidden,false);
+  fn(true);fn(false,'Error');assert.equal(timers.size,0);assert.equal($('loadingPanel').hidden,false);assert.equal($('loadingTitle').textContent,'Error de carga');
+  dom.window.close();
+ });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){

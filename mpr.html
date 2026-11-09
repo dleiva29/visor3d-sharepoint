@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.10.5 · Menús de exploración</title>
+    /><title>MPR · v2.10.6 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3105,7 +3105,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.10.5</strong
+        ><strong>Visor MPR · v2.10.6</strong
         ><div id="mprNavigation" role="group" aria-label="Navegación MPR">
           <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
           <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
@@ -4046,7 +4046,10 @@
         progressTrack = $("loadingTrack"),
         progressFill = $("loadingFill");
       const formatMB = (n) => (n / 1000000).toFixed(1) + " MB";
+      let progressDismissTimer = null;
       function showProgress(title, fraction = null, detail = "") {
+        clearTimeout(progressDismissTimer);
+        progressDismissTimer = null;
         progressPanel.hidden = false;
         progressPanel.setAttribute("aria-busy", fraction === null ? "true" : "false");
         $("loadingTitle").textContent = title;
@@ -4059,6 +4062,10 @@
         showProgress(ok ? "Carga completada" : "Error de carga", ok ? 1 : 0, message);
         progressPanel.setAttribute("aria-busy", "false");
         progressTrack.classList.remove("indeterminate");
+        if (ok) progressDismissTimer = setTimeout(() => {
+          progressPanel.hidden = true;
+          progressDismissTimer = null;
+        }, 10000);
       }
       // same-origin permite puertos privados de Codespaces sin credenciales en otros orígenes.
       // Descarga progresiva que notifica bytes reales incluso dentro de cada fragmento.
