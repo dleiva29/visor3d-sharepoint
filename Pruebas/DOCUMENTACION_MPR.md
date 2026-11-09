@@ -175,3 +175,106 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - Las cargas de volumen y modelo tienen bloqueos por selector, no un coordinador global de tareas con cancelación. Deben probarse los cambios de caso durante descargas lentas antes de ampliar la carga online.
 - El historial captura configuraciones completas con frecuencia. Puede resultar costoso con numerosas vistas y estructuras.
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
+
+
+## Distribución de herramientas e iconos (v2.11.1)
+
+La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras MPR conservan solo maximizar; la vista 3D conserva además un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
+
+Los nodos de segmentación de `mpr-structure-tree` v2 admiten el campo opcional `icon`: `generic`, `vein`, `artery`, `lesion`, `liver`, `kidney`, `lung` o `bone`. Sin ese campo se sugiere un icono por la clave original, con prioridad de lesión/tumor sobre vasos; no se deducen diagnósticos. El nombre visible no cambia la sugerencia. Los archivos v1 y v2 anteriores siguen siendo válidos. Los valores ajenos a la lista se rechazan antes de aplicar el árbol.
+
+«Acciones → Cambiar icono» permite elegir la categoría para esa referencia o volver a Automático. La elección se conserva en almacenamiento local, exportación, configuración del caso y Deshacer/Rehacer. El icono es neutro e independiente del punto de color real de la estructura. Los grupos muestran una carpeta.
+
+Verificación de esta revisión: pruebas unitarias y de DOM con ESLint, más una prueba integral en Chromium cargando GLB y NRRD del caso 10. No sustituye la validación visual final en Codespaces ni las comprobaciones de US, presentaciones e informes de la lista anterior.
+
+El botón de plegado de la cabecera muestra u oculta exclusivamente la barra común; mantiene las cabeceras de las vistas y la herramienta activa. Al plegar cierra los desplegables abiertos y actualiza su etiqueta accesible.
+
+El apartado Caso ya no ocupa el panel lateral: los selectores NRRD/GLB y sus mensajes están en Abrir, en la cabecera. La importación y exportación de configuración permanecen junto a ese menú.
+
+Más se organiza con títulos y separadores en Planos y orientación, Apariencia, Referencias, Trayectoria y ecografía, y Capturas e informe.
+
+El panel lateral agrupa Apariencia y referencia, Mediciones y anotaciones y Trayectoria 3D dentro de Herramientas. Los accesos desde la barra y la activación de mediciones o trayectoria abren el contenedor para mantener visibles los ajustes correspondientes.
+
+Herramientas usa un icono SVG de llave; sus tres subsecciones comparten marco, espaciado, flechas de despliegue e iconos de apariencia, medición y trayectoria.
+
+El aviso de carga completada se oculta diez segundos después del éxito; una nueva carga cancela ese temporizador y los errores permanecen visibles.
+
+La distribución inicial está definida en el HTML (barra común, Abrir y Herramientas). Un script breve establece escritorio/tableta/móvil antes de pintar; la barra se presenta desactivada mientras se cargan los módulos y se enlazan sus acciones. Se verificó el arranque en Chromium con módulos retardados, sin mostrar la disposición heredada.
+
+Posición → Centrar todo elimina el desplazamiento de las tres vistas MPR y centra el encuadre 3D, conservando zoom, cortes y orientación. Más → Apariencia reúne los ajustes MPR, los ajustes 3D y la información del modelo. Se retiran los menús «…» de las ventanas; orientación anatómica y planos siguen disponibles en los ajustes 3D.
+
+Los accesos que abren ajustes laterales resaltan la sección de destino durante cuatro segundos con contorno y cabecera de acento. Medir, anotar y trayectoria también abren y señalan sus ajustes. Una nueva apertura retira el resaltado anterior y reinicia el temporizador.
+
+Los botones de Herramientas comparten fuente de 12 px, altura mínima de 28 px, espaciado, bordes y colores del visor. Las etiquetas largas pueden ocupar varias líneas; se mantienen estados activos/deshabilitados, flechas de rangos compactas y altura táctil de 44 px.
+
+Se recupera el menú «…» solo en 3D, con centrar modelo, restablecer vistas, ajustes 3D, orientaciones anatómicas, visibilidad de planos e información del modelo. Las vistas MPR permanecen sin ese menú.
+
+
+### Recorte sincronizado con el TC
+
+La casilla «Sincronizar recorte con el TC» se habilita cuando hay modelo y volumen cargados. Al marcarla activa el recorte del GLB y utiliza la posición y orientación física del corte indicado en Eje de recorte, incluidos cortes oblicuos. Recorrer cortes o cambiar de eje actualiza el plano; Invertir lado conservado sigue disponible.
+
+La posición porcentual y los controles de giro manual quedan bloqueados mientras se sincroniza. Al desmarcar la casilla se recuperan esos controles y los parámetros manuales anteriores. La opción se conserva en el campo opcional booleano `clipSyncTc` de la configuración; los archivos anteriores se recuperan con sincronización desactivada. La cámara y el árbol no cambian.
+
+El recorte sincronizado se desplaza 5 mm respecto del plano del TC hacia el lado descartado para ampliar la franja visible del modelo. El desplazamiento sigue la normal física (también en oblicuo) y se invierte con Invertir lado conservado. No modifica el recorte manual.
+
+### Desplazamiento de planos desde 3D (v2.12.1)
+
+El menú «…» de 3D incluye deslizadores axial, coronal y sagital, utilizables con la vista maximizada. Reflejan límites, disponibilidad e índice de los controles MPR originales. Ambos controles actualizan el mismo corte; el recorte sincronizado continúa siguiendo el eje elegido. Los deslizadores quedan desactivados cuando no hay volumen.
+
+Los botones de visibilidad Axial, Coronal y Sagital sirven como títulos de sus respectivos deslizadores en el menú 3D; su estado activo indica si el plano está visible. Se elimina la fila duplicada, conservando los botones de orientación anatómica.
+
+
+## Optimización de repintados MPR (v2.12.2)
+
+Los eventos de deslizadores (MPR y 3D) y rueda de cortes se agrupan mediante requestAnimationFrame: se procesa el último valor de cada eje una vez por fotograma. Una tarea pendiente de otro conjunto de slices se descarta al cambiar de caso y se libera su referencia tras ejecutarse.
+
+Con el recorte sincronizado se calcula el plano una vez y se vuelven a dibujar las vistas usando, cuando sea válido, el último raster del TC. Se evita reconstruir la imagen de los otros ejes que no han cambiado; contornos, referencias, mediciones y trayectoria se dibujan nuevamente. Solo se conserva una clave de estado por slice, sin copiar el volumen ni acumular imágenes. La reutilización se invalida por volumen/datos, geometría del volumen, índice, ventana/nivel, umbrales u orientación/desplazamiento oblicuos. Los repintados generales conservan la ruta completa.
+
+Comparación instrumental en Chromium Cloud con renderizado por software, GLB/NRRD del caso 10 y ocho movimientos por escenario (medianas de CPU dedicada a paint; orientativo, no FPS del equipo del usuario):
+
+| Escenario | v2.12.1 | v2.12.2 |
+| --- | ---: | ---: |
+| Axial sin sincronización | 25,4 ms | 27,9 ms |
+| Axial con recorte sincronizado | 57,9 ms | 16,9 ms |
+| Oblicuo con recorte sincronizado | 73,0 ms | 54,7 ms |
+
+En una ráfaga de 25 eventos sincronizados antes del siguiente fotograma, los repintados pasan de 75 a 3 y los cálculos raster de 75 a 1; el índice final coincide con el solicitado. Las huellas de píxeles RGBA de las tres vistas coinciden entre ambas versiones en los cuatro escenarios probados. La navegación axial individual no muestra mejora en esta medición; la optimización se concentra en sincronización y ráfagas. Pruebas de regresión: 67 correctas y ESLint limpio.
+
+
+## Renderizado en reposo y reutilización de buffers (v2.12.3)
+
+La escena 3D se redibuja cuando cambia la cámara, el contenido o los controles. Continúa dibujándose durante vuelos de presentación y mientras se estabilizan las etiquetas. El bucle requestAnimationFrame y la actualización de controles permanecen activos; se evita el renderizado GPU y la actualización de anotaciones cuando la escena está estable. Las cargas, cambios de tamaño y restauración del contexto WebGL también solicitan redibujado.
+
+El remuestreo oblicuo reutiliza un ImageData por canvas y tamaño. Se sobrescriben todos los píxeles, incluidos los que quedan fuera del volumen, para evitar restos de imágenes anteriores. Las intersecciones reutilizan coordenadas mundiales de los vértices en Float64Array por malla; la caché se invalida al cambiar el atributo de posiciones, su versión, su tamaño o la matriz mundial. Las cachés usan WeakMap y no acumulan estados de transformación.
+
+Comparación con v2.12.2 en Chromium Cloud con renderizado por software, GLB/NRRD del caso 10, ocho movimientos por escenario e imágenes RGBA idénticas comprobadas mediante SHA-256:
+
+| Medición | v2.12.2 | v2.12.3 |
+| --- | ---: | ---: |
+| Mediana de CPU de paint axial | 28,2 ms | 28,0 ms |
+| Mediana de CPU de paint oblicuo | 50,2 ms | 46,4 ms |
+| CPU acumulada de intersecciones, axial | 193,1 ms | 92,0 ms |
+| CPU acumulada de intersecciones, oblicuo | 144,9 ms | 109,2 ms |
+| Nuevos ImageData en ocho remuestreos oblicuos | 8 | 0 |
+| Renderizados en 1,5 segundos de reposo | 8 | 0 |
+| Renderizados en un segundo de reposo con etiquetas estabilizadas | 5 | 0 |
+
+La cámara volvió a renderizar al moverla. Estas cifras son orientativas y no representan FPS en el equipo del usuario. La navegación axial total no muestra mejora apreciable y la mejora oblicua total es moderada. La caché de coordenadas añade 15.756.912 bytes (aproximadamente 15 MiB) en este modelo, a cambio de reducir el cálculo repetido de intersecciones.
+
+Pruebas de regresión: 70 correctas y ESLint limpio. Se comprueban la reactivación del renderizado, las etiquetas y vuelos activos, la reutilización y limpieza de píxeles fuera del volumen, y la invalidación de coordenadas por transformaciones y edición de geometría. La prueba visual en Codespaces queda pendiente.
+
+
+## Estado de trabajo local (v2.13.0)
+
+Abrir → Estado de trabajo permite guardar, recuperar y eliminar un estado por pareja de archivos GLB/NRRD, identificada por sus hashes SHA-256. Reutiliza el contrato de la exportación completa del caso: cortes, cámara, zoom y desplazamiento MPR, ventana/nivel, orientación oblicua, recorte, visibilidad y apariencia de estructuras, árbol, mediciones, anotaciones, trayectoria, vistas guardadas y selección. El campo opcional `primary` conserva la estructura activa de una selección múltiple; los archivos anteriores siguen siendo válidos.
+
+El guardado automático empieza después de pulsar Guardar estado actual o Recuperar trabajo, si está marcada la casilla correspondiente. Agrupa cambios con un segundo de espera, evita escrituras cuando el estado no cambia y guarda también al ocultarse o abandonar la página. Antes de sustituir archivos se intenta guardar el caso anterior. No guarda posiciones temporales de presentaciones, vuelos de cámara ni del diálogo US. No añade un bucle de trabajo en reposo.
+
+Al cargar de nuevo la misma pareja de archivos, Abrir indica «trabajo guardado». El usuario debe elegir Recuperar trabajo o Guardar estado actual para sustituirlo; hasta entonces el guardado automático queda en pausa. La recuperación valida el formato, la identidad del caso y todos los datos antes de aplicarlos. Eliminar guardado conserva el trabajo abierto y detiene el guardado automático hasta una nueva activación explícita.
+
+El estado se almacena en localStorage, bajo `mpr-work-state-v1:` y la identidad del caso. Solo está disponible en el mismo navegador, perfil y origen (protocolo, dominio y puerto). No almacena los archivos GLB/NRRD, no los vuelve a descargar y no sincroniza entre equipos ni orígenes de Codespaces. Es necesario cargar los mismos archivos antes de recuperar. Importar/Exportar configuración del caso sigue siendo la opción para transportar una copia JSON; no cambia su formato o versión.
+
+El límite de cada estado local es de 2.500.000 caracteres. Los errores de lectura, validación, permisos o cuota se comunican en el apartado; el trabajo abierto permanece disponible y se recomienda exportarlo si no se puede guardar. Después de un fallo de escritura se pausa el guardado automático hasta volver a guardar o recuperar.
+
+Verificación: 74 pruebas correctas y ESLint limpio. Incluye recuperación tras recrear el controlador, protección del estado pendiente, aislamiento entre casos, guardado antes de sustituir archivos, datos inválidos, cuota agotada, exclusión de presentación, casilla automática, eliminación y guardado al salir. Prueba integral adicional en Chromium con un GLB y un NRRD sintéticos: guardar → recargar página → cargar los mismos archivos → recuperar reproduce exactamente el estado completo, incluidas selección activa, árbol, vistas, mediciones, anotaciones y cámara. Un cambio posterior del deslizador se guarda automáticamente y se recupera tras otra recarga; no se observan errores JavaScript. Pendiente validación visual del usuario en Codespaces.

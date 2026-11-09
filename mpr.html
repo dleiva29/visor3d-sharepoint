@@ -11,8 +11,20 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2 · Menús de exploración</title>
+    /><title>MPR · v2.13.2 · Menús de exploración</title>
     <style>
+      .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
+      .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
+      .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
+      .tree-icon[hidden] { display: none; }
+      .tree-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+      .tree-actions-wrap { position: relative; border: 1px solid currentColor; border-radius: 5px; }
+      .tree-actions-wrap:focus-within { outline: 2px solid #38bdf8; outline-offset: 2px; }
+      .tree-actions-wrap select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+
+      #structureTree summary.drop-before { box-shadow: inset 0 3px #38bdf8; }
+      #structureTree summary.drop-after { box-shadow: inset 0 -3px #38bdf8; }
+
       * {
         box-sizing: border-box;
       }
@@ -1141,6 +1153,17 @@
         font-size: 10px;
         padding: 6px;
       }
+      .sidebar-body button.tree-icon,
+      .case-session-actions button.tree-icon,
+      .structure-tools .tree-toolbar button.tree-icon {
+        width: 24px;
+        min-width: 24px;
+        height: 24px;
+        min-height: 24px;
+        padding: 3px;
+        margin: 0;
+        flex: 0 0 24px;
+      }
       #structureTree {
         overflow-x: auto;
         max-width: 100%;
@@ -1343,29 +1366,6 @@
         color: #9de1ef;
         font-weight: 600;
       }
-      #structureCatalog {
-        padding: 10px;
-        border: 1px solid #38758f;
-        border-radius: 7px;
-        margin: 10px 0;
-      }
-      #structureCatalog[hidden],
-      .catalog-item[hidden] {
-        display: none !important;
-      }
-      .catalog-list {
-        max-height: 240px;
-        overflow: auto;
-      }
-      .catalog-item {
-        padding: 8px;
-        border-bottom: 1px solid #294356;
-        cursor: grab;
-      }
-      .catalog-item:hover {
-        background: #153044;
-      }
-
       /* Filas compactas de estructuras y árbol */
       #structureTree .unified-node {
         margin: 2px 0 2px 5px;
@@ -1394,10 +1394,34 @@
       #structureTree input[type="checkbox"] {
         margin: 0 2px;
       }
-      #structureCatalog .catalog-item {
-        padding: 5px 7px;
+      #structureTree summary[draggable="true"] {
+        cursor: grab;
+      }
+      #structureTree .unified-node:not(.has-children) > summary::before {
+        content: "·";
+      }
+      #structureTree button.tree-name {
+        text-align: left;
+        font: inherit;
         font-size: 11px;
-        line-height: 1.35;
+        color: inherit;
+        background: none;
+        border: 0;
+        cursor: pointer;
+      }
+      #treeRootDrop {
+        padding: 5px;
+        border: 1px dashed #38758f;
+        margin: 4px 0;
+      }
+      #structureTree .drop-target,
+      #treeRootDrop.drop-target,
+      #independentStructures.drop-remove {
+        outline: 2px solid #5ed2e8;
+        outline-offset: -2px;
+      }
+      #modelLayers .layer-header[draggable="true"] {
+        cursor: grab;
       }
       #modelLayers .layer-header {
         padding: 6px;
@@ -1432,11 +1456,6 @@
         padding: 6px 8px;
         margin-top: 8px;
       }
-      #structureCatalog.drop-remove {
-        outline: 2px dashed #5ed2e8;
-        background: #153044;
-      }
-
       /* Igualar el ancho exterior de las filas individuales y del árbol. */
       #independentStructures,
       #modelLayers,
@@ -1575,8 +1594,7 @@
       #modelLayers .layer-name:hover {
         text-decoration: underline;
       }
-      #structureSearch,
-      #structureCatalog input[type="search"] {
+      #structureSearch {
         height: 29px;
         min-height: 0;
         padding: 3px 8px;
@@ -1701,6 +1719,20 @@
       #view3d {
         position: relative;
       }
+      #mprNavigation { display: inline-flex; vertical-align: middle; margin: 0 6px; gap: 3px; flex-wrap: wrap; }
+      #mprNavigation button.tree-icon { width: 26px; height: 26px; min-height: 26px; padding: 4px; margin: 0; }
+      #selectionCard {
+        position: absolute; top: 8px; left: 8px; z-index: 5;
+        max-width: min(300px, calc(100% - 16px)); box-sizing: border-box;
+        padding: 7px 9px; border: 1px solid #42778b; border-radius: 6px;
+        background: #102534ed; color: #e5faff; font-size: 12px;
+        overflow-wrap: anywhere;
+      }
+      #selectionCard[hidden] { display: none; }
+      #selectionCard p { margin: 4px 0; }
+      #selectionCardDetail { white-space: pre-line; max-height: 130px; overflow-y: auto; }
+      .selection-card-actions { display: flex; flex-wrap: wrap; gap: 4px; }
+      #selectionCard button { padding: 4px 6px; margin: 0; font-size: 11px; }
       #modelInfoPanel {
         position: absolute !important;
         inset: auto 10px 10px auto !important;
@@ -1800,6 +1832,39 @@
         padding: 4px 8px;
         font-size: 12px;
       }
+      #viewerTools[hidden], #mprNavigation[hidden] { display: none; }
+      #viewerTools .toolbar-placeholder { font-size: 12px; padding: 4px 7px; border: 1px solid #456078; border-radius: 5px; min-height: 28px; box-sizing: border-box; }
+      #viewerStartupStatus { margin-left: auto; font-size: 11px; color: #a6c9dd; }
+      #viewerTools { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 7px; padding-top: 6px; border-top: 1px solid #30495c; }
+      #viewerTools .shared-explore { display: flex; align-items: center; flex-wrap: wrap; gap: 3px; }
+      #viewerTools button, #viewerTools summary { width: auto; min-height: 28px; padding: 4px 7px; margin: 0; font-size: 12px; }
+      #viewerTools svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+      #viewerTools .shared-tool { display: inline-flex; align-items: center; gap: 5px; }
+      #viewerTools .shared-explore > button[aria-pressed="true"], #viewerTools [aria-pressed="true"] { background: #13788e; outline: 1px solid #65ddeb; }
+      #viewerTools .shared-dropdown { position: relative; margin: 0; padding: 0; border: 0; }
+      #viewerTools .shared-explore > button,
+      #viewerTools .shared-dropdown > summary,
+      #viewerTools .toolbar-placeholder { box-sizing: border-box; display: inline-flex; align-items: center; gap: 5px; min-height: 28px; font-family: Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 17px; background: #193c53; color: #e2eff9; border: 1px solid #31566e; border-radius: 6px; }
+      #viewerTools .shared-dropdown > summary { list-style: none; cursor: pointer; }
+      #viewerTools .shared-dropdown > summary::-webkit-details-marker { display: none; }
+      #viewerTools .shared-dropdown > summary:hover,
+      #viewerTools .shared-dropdown[open] > summary { background: #23536c; border-color: #44b2cb; }
+      #viewerTools .shared-dropdown-content { position: absolute; z-index: 300; top: 100%; left: 0; background: #102534; border: 1px solid #456078; border-radius: 6px; padding: 7px; min-width: 210px; max-height: min(420px, 65dvh); overflow: auto; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 4px 15px #0008; }
+      #viewerTools .shared-tool-family { display: flex; flex-direction: column; gap: 4px; margin-top: 5px; padding-top: 9px; border-top: 1px solid #385166; }
+      #viewerTools .shared-tool-family:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+      #viewerTools .shared-tool-family h3 { margin: 1px 2px 4px; font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #8fd8e6; }
+      #viewerTools .shared-dropdown:not([open]) > .shared-dropdown-content { display: none; }
+      #viewerTools .shared-dropdown-content button { width: 100%; text-align: left; justify-content: flex-start; flex-shrink: 0; }
+      #viewerTools button.tree-icon { height: auto; }
+      #viewerTools .shared-dropdown-content button.tree-icon::after { content: attr(aria-label); font-size: 11px; }
+      #viewerTools [hidden], #tools, #section-tools [data-tool][hidden] { display: none !important; }
+      #activeToolLabel { font-size: 11px; color: #7ce0ed; margin-left: auto; }
+      #headerCaseActions { display: inline-flex; gap: 4px; vertical-align: middle; }
+      #headerCaseActions > button { width: 28px; height: 28px; min-height: 28px; margin: 0; padding: 4px; }
+      .pane .pane-maximize { position: absolute; top: 2px; right: 5px; z-index: 12; width: 25px; height: 25px; padding: 3px; margin: 0; }
+      .pane:has(#view3d) h2, .pane h2 { padding-right: 40px; }
+      .pane-menu .pane-plane-tools { display: flex; flex-wrap: wrap; padding: 0; justify-content: flex-start; margin-top: 8px; }
+      .pane-menu svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
       .case-session p {
         margin: 6px 0 0;
         font-size: 12px;
@@ -3017,8 +3082,56 @@
         object-fit: contain;
         touch-action: none;
       }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout { grid-template-columns: minmax(0, 1fr) 340px; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout > .views { grid-column: 1; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout > aside { grid-column: 2; border-left: 1px solid var(--edge); border-right: 0; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .pane.maximized { left: 6px; right: 346px; }
+      body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded):has(.pane.maximized) aside { left: auto; right: 0; width: 340px; }
+      header .viewer-header-main { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 70px; }
+      #headerCaseActions { margin-left: auto; }
+      #headerCaseActions .header-file-menu { position: relative; margin: 0; padding: 0; border: 0; }
+      #headerCaseActions .header-file-menu > summary { font-size: 12px; padding: 5px 8px; border: 1px solid #456078; border-radius: 5px; cursor: pointer; list-style: none; }
+      #headerCaseActions .header-file-menu > .sidebar-body { position: absolute; right: 0; top: 100%; z-index: 300; width: min(300px, 80vw); max-height: 70dvh; overflow: auto; padding: 8px; background: #102534; border: 1px solid #456078; border-radius: 6px; box-shadow: 0 4px 15px #0008; }
+      #headerCaseActions .header-file-menu:not([open]) > .sidebar-body { display: none; }
+      #section-toolbox > summary svg, #section-toolbox > .sidebar-body > details > summary svg { width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      #section-toolbox > .sidebar-body > details { margin: 6px 0; padding: 0; border: 1px solid var(--edge); border-radius: 6px; background: #102232; }
+      #section-toolbox > .sidebar-body > details > summary { list-style: none; padding: 10px 8px; font-size: 12px; color: #c5deee; }
+      #section-toolbox > .sidebar-body > details > summary::after { content: "⌄"; float: right; color: #89bed4; }
+      #section-toolbox > .sidebar-body > details[open] > summary { background: #173347; border-radius: 5px 5px 0 0; border-bottom: 1px solid var(--edge); }
+      #section-toolbox > .sidebar-body > details[open] > summary::after { content: "⌃"; }
+      #generalPanel .sidebar-highlight { outline: 2px solid #56d8eb; outline-offset: 2px; box-shadow: inset 3px 0 #56d8eb; border-radius: 6px; }
+      #generalPanel .sidebar-highlight > summary { background: #174557; color: #b4f6ff; }
+      #section-toolbox button:not(.range-stepper-button) {
+        box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center;
+        min-height: 28px; height: auto; max-width: 100%; gap: 4px;
+        padding: 4px 8px; margin: 3px 0; border: 1px solid #31566e; border-radius: 6px;
+        font: 12px/16px system-ui, Arial; color: #e2eff9; background: #193c53;
+        white-space: normal;
+      }
+      #section-toolbox button:not(.range-stepper-button):hover:enabled { background: #23536c; border-color: #44b2cb; }
+      #section-toolbox button[aria-pressed="true"] { background: #13788e; border-color: #65ddeb; color: #e5faff; }
+      @media (pointer: coarse) { #section-toolbox button:not(.range-stepper-button) { min-height: 44px; } }
+      .pane:has(#view3d) > .pane-maximize { right: 5px; }
+      .pane:has(#view3d) > .pane-menu-trigger { right: 35px; }
+      .pane:has(#view3d) > h2 { padding-right: 80px; }
+      .scene-slice-controls { border-top: 1px solid #385166; margin-top: 8px; padding-top: 8px; }
+      .scene-slice-controls h3 { font-size: 11px; margin: 0 0 6px; color: #8fd8e6; }
+      .scene-slice-controls > div { display: grid; grid-template-columns: 60px minmax(0, 1fr) 28px; align-items: center; gap: 5px; margin: 8px 0; }
+      .scene-slice-controls button, .scene-slice-controls output { font-size: 11px; margin: 0; }
+      .pane-menu .scene-slice-controls button { padding: 3px 4px; }
+      .scene-slice-controls button[aria-pressed="true"] { background: #13788e; border-color: #65ddeb; }
+      .scene-slice-controls output { text-align: right; }
+      .scene-slice-controls input[type="range"] { width: 100%; min-width: 0; margin: 0; }
+      #headerUsTools[hidden] { display: none !important; }
+      header .viewer-header-main > small { order: 10; flex-basis: 100%; margin: 0; }
+      #viewerTools { padding-right: 0; }
     </style></head
   ><body>
+<script>
+  // Establece la distribución antes de pintar, sin esperar a los módulos 3D.
+  document.body.dataset.viewerLayout = matchMedia("(max-width:700px), (pointer:coarse) and (max-height:500px) and (max-width:950px)").matches ? "phone" : matchMedia("(max-width:1100px), (pointer:coarse) and (max-width:1366px)").matches ? "tablet" : "desktop";
+</script>
+
     <header id="viewerHeader"
       ><a
         class="manual-link"
@@ -3028,7 +3141,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2</strong
+        ><strong>Visor MPR · v2.13.2</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3043,9 +3156,10 @@
         <button
           type="button"
           id="togglePaneHeaders"
+          aria-controls="viewerTools"
           aria-expanded="true"
-          aria-label="Contraer cabeceros de las vistas"
-          title="Contraer cabeceros de las vistas"
+          aria-label="Ocultar barra de herramientas"
+          title="Ocultar barra de herramientas"
           ><svg viewBox="0 0 20 20" aria-hidden="true">
             <rect x="2" y="3" width="16" height="14" rx="2" />
             <path d="M2 8h16m-11 5 3-2 3 2" /></svg
@@ -3108,7 +3222,25 @@
             ><svg viewBox="0 0 16 16" aria-hidden="true">
               <rect x="4" y="4" width="8" height="8" rx="1" /></svg
           ></button> </span
-        ><small
+        ><div id="headerCaseActions" role="group" aria-label="Configuración del caso"><details id="section-case" class="header-file-menu"><summary>Abrir</summary
+          ><div class="sidebar-body"
+            ><div class="sidebar-body" id="caseLocalFiles"
+              ><p class="note"
+                >Enlace automático: <code>?modelo=modelos/1.glb</code> busca
+                <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También
+                puedes cargar archivos locales usando los controles siguientes.</p
+              ><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p
+              ><div class="case-session-actions case-file-actions"
+                ><button type="button" data-case-file="nrrd">Cargar imagen NRRD</button
+                ><button type="button" data-case-file="glb">Cargar modelo GLB</button></div
+              ><input accept=".nrrd" id="nrrd" type="file" hidden /><input
+                accept=".glb"
+                id="glb"
+                type="file"
+                hidden
+              /> </div
+            ><div id="caseSessionControls"></div></div></details
+        ></div><small
           >Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub
           Pages</small
         ></div
@@ -3121,7 +3253,13 @@
           aria-label="Anotación de la vista"
           hidden
         ></div> </div
-    ></header>
+    ><nav id="viewerTools" aria-label="Herramientas comunes del visor" aria-busy="true" inert><div hidden id="mprNavigation" role="group" aria-label="Navegación MPR">
+          <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
+          <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
+          <button id="centerMprSelection" type="button" disabled>Centrar cortes en la estructura activa</button>
+          <button id="resetMprViews" type="button" disabled>Restablecer las cuatro vistas</button>
+        </div
+        ><div class="shared-explore"><button type="button" class="shared-tool" disabled>Navegar</button><button type="button" class="shared-tool" disabled>Seleccionar</button><button type="button" class="shared-tool" disabled>Desplazar</button><button type="button" class="shared-tool" disabled>Zoom</button><button type="button" class="shared-tool" disabled>Ventana</button></div><span class="toolbar-placeholder">Medir ▾</span><span class="toolbar-placeholder">Anotar ▾</span><span class="toolbar-placeholder">Posición ▾</span><span class="toolbar-placeholder">Más ▾</span><span id="viewerStartupStatus" role="status">Preparando herramientas…</span></nav></header>
     <div class="layout"
       ><div class="views">
         <section class="pane" data-view-pane="axial"
@@ -3143,7 +3281,18 @@
           ></section
         >
         <section class="pane" data-view-pane="3d"
-          ><h2>Vista 3D</h2><div class="stage" id="view3d"></div>
+          ><h2>Vista 3D</h2><div class="stage" id="view3d">
+            <section id="selectionCard" aria-label="Selección 3D" hidden>
+              <div aria-live="polite" aria-atomic="true">
+                <strong id="selectionCardName"></strong>
+                <p id="selectionCardDetail" tabindex="0"></p>
+              </div>
+              <div class="selection-card-actions">
+                <button id="selectionCardCenter" type="button">Centrar en las cuatro vistas</button>
+                <button id="selectionCardClear" type="button">Quitar selección</button>
+              </div>
+            </section>
+          </div>
           <figure id="trajectoryPreview" aria-labelledby="trajectoryPreviewTitle" hidden>
             <figcaption>
               <h2 id="trajectoryPreviewTitle">Reconstrucción longitudinal</h2>
@@ -3206,30 +3355,93 @@
         ><input id="unit" type="hidden" value="1000" /><input
           id="space"
           type="hidden"
-          value="RAS" /><details class="sidebar-group" id="section-case" open=""
-          ><summary>▣ Caso</summary
+          value="RAS" /><details class="sidebar-group" id="section-structures" open=""
+          ><summary>◈ Estructuras</summary
           ><div class="sidebar-body"
-            ><div class="sidebar-body" id="caseLocalFiles"
+            ><div class="sidebar-body"
+              ><label for="structureSearch">Buscar estructura</label
+              ><input
+                id="structureSearch"
+                placeholder="Nombre de lesión, vaso u órgano…"
+                type="search" /><p class="note" hidden="" id="structureSearchEmpty"
+                >No hay coincidencias.</p
+              ><p id="treeMessage" class="note" aria-live="polite"></p
+              ><div id="childrenEditor" hidden
+                ><strong id="childrenTitle"></strong><input id="childrenParent" type="hidden" /><p
+                  class="note"
+                  >Marca las hijas directas. Una segmentación puede tener varios padres. No se
+                  permiten ciclos.</p
+                ><div id="childrenOptions"></div
+                ><button id="saveChildren" type="button">Guardar relaciones</button
+                ><button id="cancelChildren" type="button">Cancelar</button></div
+              ><div class="hierarchy-display"
+                ><label
+                  ><input id="simpleHierarchy" type="checkbox" checked /> Árbol simplificado</label
+                ><div
+                  ><button id="expandHierarchy" type="button">Expandir árbol</button
+                  ><button id="collapseHierarchy" type="button">Contraer árbol</button></div
+                ><p class="note"
+                  >Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida.
+                  Desactiva esta opción para ver los controles.</p
+                ></div
+              ><h4>Árbol de estructuras</h4
+              ><div class="tree-toolbar"
+                ><button id="createGroup" type="button">+ Grupo / subgrupo</button
+                ><button id="exportTree" type="button">Exportar árbol</button
+                ><button id="importTreeButton" type="button">Importar árbol</button
+                ><input id="importTree" type="file" accept=".json" hidden /></div
+              ><div id="groupEditor" hidden
+                ><input id="groupEditId" type="hidden" /><label for="groupName"
+                  >Nombre del grupo</label
+                ><input id="groupName" type="text" maxlength="100" /><label for="groupParent"
+                  >Grupo superior</label
+                ><select id="groupParent"></select
+                ><p class="note">Estructuras que pertenecen directamente a este grupo:</p
+                ><div id="groupMembers"></div
+                ><button id="saveGroup" type="button">Guardar grupo</button
+                ><button id="cancelGroup" type="button">Cancelar</button
+                ><button id="deleteGroup" type="button">Eliminar grupo</button></div
+              ><div id="treeRootDrop" class="note" hidden>Suelta aquí para colocar en la raíz. En una fila: borde superior/inferior para ordenar; centro para anidar. También puedes usar Acciones…</div
+              ><div id="structureTree"></div
+              ><section id="independentStructures"
+                ><h4>Todas las estructuras</h4
+                ><p id="catalogEditHint" class="note" hidden
+                  >Arrastra una fila al árbol para añadir una referencia. Suelta un nodo aquí para
+                  quitarlo del árbol y conservar sus hijos.</p
+                ><div id="modelLayers"></div
+                ><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p
+                ></section
               ><p class="note"
-                >Enlace automático: <code>?modelo=modelos/1.glb</code> busca
-                <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También
-                puedes cargar archivos locales usando los controles siguientes.</p
-              ><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p
-              ><div class="case-session-actions case-file-actions"
-                ><button type="button" data-case-file="nrrd">Cargar imagen NRRD</button
-                ><button type="button" data-case-file="glb">Cargar modelo GLB</button></div
-              ><input accept=".nrrd" id="nrrd" type="file" hidden /><input
-                accept=".glb"
-                id="glb"
-                type="file"
-                hidden
-              /> </div
-            ><div id="caseSessionControls"></div></div></details
-        ><details hidden id="section-visual"
-          ><summary>▤ Visualización</summary
+                >Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad compartida: ocultar una estructura afecta a sus referencias y descendientes en otras ramas. «↗ N» indica cuántas referencias tiene. Pulsa el
+                nombre de una segmentación para centrarla, o abre «Ajustes» en el catálogo para
+                cambiar su apariencia.</p
+              ><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p
+              ><div class="structure-actions"
+                ><button id="clearSelection" type="button">Quitar selección</button
+                ><button disabled="" id="isolateStructures" type="button"
+                  >Aislar seleccionadas</button
+                ><button disabled="" id="restoreVisibility" type="button"
+                  >Restaurar visibilidad anterior</button
+                ><button id="showAllStructures" type="button"
+                  >Mostrar todas las estructuras</button
+                ></div
+              ><div class="volume-summary"
+                ><strong id="selectedVolume">Volumen total seleccionado: 0,00 mL</strong
+                ><p class="note" id="selectedVolumeDetail"
+                  >Selecciona estructuras para sumar sus volúmenes.</p
+                ><p class="note"
+                  >Suma de volúmenes individuales; no descuenta solapamientos. 1 mL = 1 cm³.</p
+                ></div
+              ><button disabled="" id="resetLayers" type="button">Restablecer</button>
+              <div hidden="True" id="legacyStructureControls"
+                ><select id="focusStructure"></select
+                ><button disabled="" id="centerStructure" type="button"
+                  >Centrar en las cuatro ventanas</button
+                ><div id="structureSelection"></div></div></div></div></details
+        ><details id="section-toolbox" class="sidebar-group"><summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M14 6a5 5 0 0 0-6 6L3 17a2 2 0 0 0 4 4l5-5a5 5 0 0 0 6-6l-3 3-4-4z"/></svg>Herramientas</summary><div class="sidebar-body"><details id="section-visual" class="sidebar-subgroup"><summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M4 3v18 M12 3v18 M20 3v18 M1 8h6 M9 16h6 M17 7h6"/></svg>Apariencia y referencia</summary
           ><div class="sidebar-body"
             ><details class="sidebar-subgroup" id="menu-navigation"
-              ><summary>Navegación y herramientas</summary
+              ><summary>Cruces y sincronización</summary
               ><div class="sidebar-body"
                 ><div class="tool-grid" id="tools">
                   <button aria-pressed="true" data-tool="navigate" type="button">Navegar</button
@@ -3335,6 +3547,8 @@
                   type="range"
                   value="100"
                 /><label><input id="clipEnabled" type="checkbox" /> Activar recorte del GLB</label
+                ><label><input id="clipSyncTc" type="checkbox" disabled /> Sincronizar recorte con el TC</label
+                ><p class="note">Sigue la posición y orientación del plano elegido en «Eje de recorte», dejando 5 mm de modelo más allá del plano. Desactiva la sincronización para ajustar el recorte manualmente.</p
                 ><label for="clipAxis">Eje de recorte</label
                 ><select id="clipAxis"
                   ><option value="x">Sagital (X)</option
@@ -3365,85 +3579,7 @@
               ></details
             ></div
           ></details
-        ><details class="sidebar-group" id="section-structures" open=""
-          ><summary>◈ Estructuras</summary
-          ><div class="sidebar-body"
-            ><div class="sidebar-body"
-              ><label for="structureSearch">Buscar estructura</label
-              ><input
-                id="structureSearch"
-                placeholder="Nombre de lesión, vaso u órgano…"
-                type="search" /><p class="note" hidden="" id="structureSearchEmpty"
-                >No hay coincidencias.</p
-              ><p id="treeMessage" class="note" aria-live="polite"></p
-              ><div id="childrenEditor" hidden
-                ><strong id="childrenTitle"></strong><input id="childrenParent" type="hidden" /><p
-                  class="note"
-                  >Marca las hijas directas. Una segmentación puede tener varios padres. No se
-                  permiten ciclos.</p
-                ><div id="childrenOptions"></div
-                ><button id="saveChildren" type="button">Guardar relaciones</button
-                ><button id="cancelChildren" type="button">Cancelar</button></div
-              ><div class="hierarchy-display"
-                ><label
-                  ><input id="simpleHierarchy" type="checkbox" checked /> Árbol simplificado</label
-                ><div
-                  ><button id="expandHierarchy" type="button">Expandir árbol</button
-                  ><button id="collapseHierarchy" type="button">Contraer árbol</button></div
-                ><p class="note"
-                  >Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida.
-                  Desactiva esta opción para ver los controles.</p
-                ></div
-              ><section id="independentStructures"
-                ><h4>Todas las estructuras</h4><div id="modelLayers"></div
-                ><p id="independentEmpty" class="note"
-                  >Carga un GLB para mostrar sus estructuras.</p
-                ></section
-              ><h4>Grupos</h4><div id="structureTree"></div
-              ><div class="tree-toolbar"
-                ><button id="createGroup" type="button">+ Grupo / subgrupo</button
-                ><button id="exportTree" type="button">Exportar árbol</button
-                ><button id="importTreeButton" type="button">Importar árbol</button
-                ><input id="importTree" type="file" accept=".json" hidden /></div
-              ><div id="groupEditor" hidden
-                ><input id="groupEditId" type="hidden" /><label for="groupName"
-                  >Nombre del grupo</label
-                ><input id="groupName" type="text" maxlength="100" /><label for="groupParent"
-                  >Grupo superior</label
-                ><select id="groupParent"></select
-                ><p class="note">Estructuras que pertenecen directamente a este grupo:</p
-                ><div id="groupMembers"></div
-                ><button id="saveGroup" type="button">Guardar grupo</button
-                ><button id="cancelGroup" type="button">Cancelar</button
-                ><button id="deleteGroup" type="button">Eliminar grupo</button></div
-              ><p class="note"
-                >Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad. Abre
-                «Ajustes» para cambiar la apariencia o centrar la estructura.</p
-              ><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p
-              ><div class="structure-actions"
-                ><button id="clearSelection" type="button">Quitar selección</button
-                ><button disabled="" id="isolateStructures" type="button"
-                  >Aislar seleccionadas</button
-                ><button disabled="" id="restoreVisibility" type="button"
-                  >Restaurar visibilidad anterior</button
-                ><button id="showAllStructures" type="button"
-                  >Mostrar todas las estructuras</button
-                ></div
-              ><div class="volume-summary"
-                ><strong id="selectedVolume">Volumen total seleccionado: 0,00 mL</strong
-                ><p class="note" id="selectedVolumeDetail"
-                  >Selecciona estructuras para sumar sus volúmenes.</p
-                ><p class="note"
-                  >Suma de volúmenes individuales; no descuenta solapamientos. 1 mL = 1 cm³.</p
-                ></div
-              ><button disabled="" id="resetLayers" type="button">Restablecer</button>
-              <div hidden="True" id="legacyStructureControls"
-                ><select id="focusStructure"></select
-                ><button disabled="" id="centerStructure" type="button"
-                  >Centrar en las cuatro ventanas</button
-                ><div id="structureSelection"></div></div></div></div></details
-        ><details hidden id="section-tools"
-          ><summary>⚒ Herramientas</summary
+        ><details id="section-tools" class="sidebar-subgroup"><summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M3 16L16 3l5 5L8 21z M7 12l3 3 M10 9l3 3 M13 6l3 3"/></svg>Mediciones y anotaciones</summary
           ><div class="sidebar-body"
             ><details class="sidebar-subgroup" id="menu-measurements"
               ><summary>Mediciones</summary
@@ -3525,7 +3661,7 @@
               ></details
             ></div
           ></details
-        ><details class="sidebar-group" id="section-trajectory">
+        ><details id="section-trajectory" class="sidebar-subgroup">
           <summary
             ><svg
               width="14"
@@ -3577,7 +3713,7 @@
               >
             </div>
           </div> </details
-        ><details class="sidebar-group" id="section-saved"
+        ></div></details><details class="sidebar-group" id="section-saved"
           ><summary>▧ Mis vistas</summary
           ><div class="sidebar-body"
             ><div class="sidebar-body"
@@ -3921,7 +4057,7 @@
       // Un enlace de caso ya identifica el modelo; la carga manual se ofrece al entrar sin él.
       const linkedCase = !!new URLSearchParams(location.search).get("modelo")?.trim();
       $("caseLocalFiles").hidden = linkedCase;
-      $("section-case").open = !linkedCase;
+      $("section-case").open = false;
       for (const button of document.querySelectorAll("[data-case-file]")) {
         button.addEventListener("click", () => $(button.dataset.caseFile).click());
       }
@@ -3945,7 +4081,10 @@
         progressTrack = $("loadingTrack"),
         progressFill = $("loadingFill");
       const formatMB = (n) => (n / 1000000).toFixed(1) + " MB";
+      let progressDismissTimer = null;
       function showProgress(title, fraction = null, detail = "") {
+        clearTimeout(progressDismissTimer);
+        progressDismissTimer = null;
         progressPanel.hidden = false;
         progressPanel.setAttribute("aria-busy", fraction === null ? "true" : "false");
         $("loadingTitle").textContent = title;
@@ -3958,10 +4097,15 @@
         showProgress(ok ? "Carga completada" : "Error de carga", ok ? 1 : 0, message);
         progressPanel.setAttribute("aria-busy", "false");
         progressTrack.classList.remove("indeterminate");
+        if (ok) progressDismissTimer = setTimeout(() => {
+          progressPanel.hidden = true;
+          progressDismissTimer = null;
+        }, 10000);
       }
+      // same-origin permite puertos privados de Codespaces sin credenciales en otros orígenes.
       // Descarga progresiva que notifica bytes reales incluso dentro de cada fragmento.
       async function downloadWithProgress(url, onBytes, options = {}) {
-        const response = await fetch(url, { credentials: "omit", ...options });
+        const response = await fetch(url, { credentials: "same-origin", ...options });
         if (!response.ok)
           throw new Error(
             "HTTP " + response.status + " al descargar " + new URL(url, location.href).pathname
@@ -3995,7 +4139,19 @@
         structureRelations = [],
         treeCaseKey = null;
       const treeRows = [];
+      let treeSearchOpen = null, treeOpenNodes = new Set();
       let structureNameRoot = null;
+      const structureLabelView = {
+        position: new THREE.Vector3(),
+        rotation: new THREE.Quaternion(),
+        projection: new THREE.Matrix4(),
+        changedAt: -Infinity,
+        width: 0,
+        height: 0,
+        layoutDirty: true,
+        meshData: null,
+      };
+      const structureLabelSettleMs = 140;
       const selectedStructures = new Set();
       const modelAnnotations = [];
       let annotationRoot = null,
@@ -4013,6 +4169,12 @@
           z: { zoom: 1, x: 0, y: 0 },
         },
         viewAppliers = {};
+      let savedMprPosition = null;
+      let localWorkState = null;
+      let sceneRenderDirty = true;
+      const resampleBuffers = new WeakMap(), meshVertexBuffers = new WeakMap();
+      let pendingSliceFrame = null, pendingSliceTarget = null;
+      const pendingSliceAxes = new Set();
       const contourPaths = { x: [], y: [], z: [] },
         layerControls = new Map(),
         measurements = [];
@@ -4124,6 +4286,7 @@
         tmpV2 = new THREE.Vector3(),
         tmpV3 = new THREE.Vector3();
       function resize3D() {
+        requestSceneRender();
         const host = $("view3d"),
           width = Math.max(1, host.clientWidth),
           height = Math.max(1, host.clientHeight);
@@ -4131,19 +4294,40 @@
         camera.updateProjectionMatrix();
         renderer.setSize(width, height);
         controls.handleResize();
+        if (width !== structureLabelView.width || height !== structureLabelView.height) {
+          structureLabelView.width = width;
+          structureLabelView.height = height;
+          invalidateStructureNames();
+        }
       }
       const ro = new ResizeObserver(resize3D);
       ro.observe($("view3d"));
       let presentationCameraFlight = null;
-      function animate() {
-        requestAnimationFrame(animate);
+      function requestSceneRender() {
+        sceneRenderDirty = true;
+      }
+      function renderSceneFrame() {
         if (!presentationCameraFlight) controls.update();
+        const labelsPending = $("showStructureNames").checked && modelRoot.visible && structureLabelView.layoutDirty;
+        if (!sceneRenderDirty && !presentationCameraFlight && !labelsPending) return false;
+        sceneRenderDirty = false;
         updateStructureNames();
         updateAnnotationScale();
         renderer.render(scene, camera);
+        return true;
       }
+      function animate() {
+        requestAnimationFrame(animate);
+        renderSceneFrame();
+      }
+      controls.addEventListener("change", requestSceneRender);
+      for (const event of ["input", "change", "click", "pointerdown", "pointerup", "wheel", "keydown", "visibilitychange"])
+        document.addEventListener(event, requestSceneRender, { capture: true, passive: true });
+      document.addEventListener("pointermove", (event) => { if (event.buttons) requestSceneRender(); }, { capture: true, passive: true });
+      renderer.domElement.addEventListener("webglcontextrestored", requestSceneRender);
       animate();
       function fit() {
+        requestSceneRender();
         camera.up.set(0, 0, 1);
         const bbox = new THREE.Box3();
         let has = false;
@@ -4168,6 +4352,7 @@
        * No usar sobre la copia US: comparte geometrías/texturas con el modelo principal.
        */
       function clearRoot(root) {
+        requestSceneRender();
         const geometries = new Set(),
           materials = new Set(),
           textures = new Set();
@@ -4209,11 +4394,19 @@
       // =============================================================================
       // 04 · Remuestreo, orientación y coordenadas RAS (mm)
       // =============================================================================
+      function resampleImageData(canvas, ctx) {
+        let image = resampleBuffers.get(canvas);
+        if (!image || image.width !== canvas.width || image.height !== canvas.height) {
+          image = ctx.createImageData(canvas.width, canvas.height);
+          resampleBuffers.set(canvas, image);
+        }
+        return image;
+      }
       function resampleVolume(canvas, basis) {
         const ctx = canvas.getContext("2d"),
           w = canvas.width,
           h = canvas.height,
-          image = ctx.createImageData(w, h);
+          image = resampleImageData(canvas, ctx);
         const d = volumeInfo.directionsRAS,
           origin = new THREE.Vector3(...volumeInfo.originRAS);
         const inverse = new THREE.Matrix4()
@@ -4254,7 +4447,10 @@
               start.z + (x + 0.5 - basis.sx * 0.5) * du.z + (y + 0.5 - basis.sy * 0.5) * dv.z;
             const offset = 4 * (x + w * y);
             image.data[offset + 3] = 255;
-            if (px < 0 || py < 0 || pz < 0 || px > nx - 1 || py > ny - 1 || pz > nz - 1) continue;
+            if (px < 0 || py < 0 || pz < 0 || px > nx - 1 || py > ny - 1 || pz > nz - 1) {
+              image.data[offset] = image.data[offset + 1] = image.data[offset + 2] = 0;
+              continue;
+            }
             const ix = Math.floor(px),
               iy = Math.floor(py),
               iz = Math.floor(pz),
@@ -4371,11 +4567,36 @@
         setTool("navigate");
         ["x", "y", "z"].forEach(paint);
       }
-      function paint(axis) {
-        if (batchRestore) return;
-        const s = slices[axis];
-        if (!s) return;
-        const i = Number($("r" + axis).value);
+      function scheduleSlicePaint(axis) {
+        if (pendingSliceFrame !== null && pendingSliceTarget !== slices) {
+          cancelAnimationFrame(pendingSliceFrame);
+          pendingSliceFrame = null;
+          pendingSliceAxes.clear();
+        }
+        pendingSliceAxes.add(axis);
+        pendingSliceTarget = slices;
+        if (pendingSliceFrame !== null) return;
+        const target = slices;
+        pendingSliceFrame = requestAnimationFrame(() => {
+          pendingSliceFrame = null;
+          pendingSliceTarget = null;
+          const axes = [...pendingSliceAxes];
+          pendingSliceAxes.clear();
+          if (target !== slices || batchRestore) return;
+          const sync = $("clipSyncTc")?.checked && model && volumeInfo;
+          if (sync) updateClip({ repaint: false });
+          for (const a of sync ? ["x", "y", "z"] : axes)
+            paint(a, { reuseImage: true, updateClipping: false });
+        });
+      }
+      function updateSliceRaster(axis, reuseImage = false) {
+        const s = slices[axis], i = Number($("r" + axis).value);
+        const oblique = obliqueActive();
+        // Solo se reutiliza el último raster; no se duplican los datos del volumen.
+        const key = [volume, volume.data, volumeInfo, i, volume.windowLow, volume.windowHigh,
+          volume.lowerThreshold, volume.upperThreshold, oblique,
+          ...(oblique ? [...obliquePivot.toArray(), ...obliqueRotation.toArray(), ...obliqueShift.toArray()] : [])];
+        if (reuseImage && s.mprRasterKey?.length === key.length && key.every((value, index) => Object.is(value, s.mprRasterKey[index]))) return;
         if (s.obliqueBase) {
           s.mesh.position.copy(s.obliqueBase.position);
           s.mesh.quaternion.copy(s.obliqueBase.quaternion);
@@ -4383,11 +4604,18 @@
         }
         s.index = i;
         s.repaint();
-        s.obliqueBase = {
-          position: s.mesh.position.clone(),
-          quaternion: s.mesh.quaternion.clone(),
-        };
-        if (obliqueActive()) resampleOblique(s, slicePixelBasis(axis));
+        s.obliqueBase = { position: s.mesh.position.clone(), quaternion: s.mesh.quaternion.clone() };
+        if (oblique) resampleOblique(s, slicePixelBasis(axis));
+        s.mprRasterKey = key;
+      }
+      function paint(axis, { reuseImage = false, updateClipping = true } = {}) {
+        if (batchRestore) return;
+        requestSceneRender();
+        const s = slices[axis];
+        if (!s) return;
+        if (updateClipping && $("clipSyncTc")?.checked && model && volumeInfo) updateClip({ repaint: false });
+        const i = Number($("r" + axis).value);
+        updateSliceRaster(axis, reuseImage);
         const source = s.canvas,
           dest = $("ct" + axis),
           o = orientation[axis];
@@ -4418,6 +4646,7 @@
         drawMeasurements(axis, ctx, dest);
         drawTrajectorySlice(axis, ctx, dest);
         $("o" + axis).textContent = String(i);
+        sync3DSliceControl(axis);
       }
       // VolumeSlice de Three.js centra los planos 3D alrededor de (0,0,0).
       // Este centro físico en RAS, calculado desde el encabezado NRRD, debe añadirse
@@ -4894,11 +5123,26 @@
       // =============================================================================
       // 06 · Intersecciones de malla y contornos MPR
       // =============================================================================
+      function meshPlaneVertices(obj) {
+        const positions = obj.geometry.getAttribute("position");
+        let cached = meshVertexBuffers.get(obj);
+        if (!cached || cached.attribute !== positions || cached.version !== positions.version || cached.count !== positions.count || !cached.matrix.equals(obj.matrixWorld)) {
+          const data = new Float64Array(positions.count * 3), point = new THREE.Vector3();
+          for (let i = 0; i < positions.count; i++) {
+            point.fromBufferAttribute(positions, i).applyMatrix4(obj.matrixWorld);
+            point.toArray(data, i * 3);
+          }
+          cached = { attribute: positions, version: positions.version, count: positions.count, matrix: obj.matrixWorld.clone(), data };
+          meshVertexBuffers.set(obj, cached);
+        }
+        return cached.data;
+      }
       function meshPlaneSegments(obj, plane, project) {
         const geometry = obj.geometry;
         const pos = geometry.getAttribute("position");
         if (!pos) return [];
         const idx = geometry.index;
+        const worldVertices = meshPlaneVertices(obj);
         const segments = [];
         const edgePairs = [
           [0, 1],
@@ -4910,12 +5154,9 @@
           const ids = idx
             ? [idx.getX(t * 3), idx.getX(t * 3 + 1), idx.getX(t * 3 + 2)]
             : [t * 3, t * 3 + 1, t * 3 + 2];
-          tmpV1.fromBufferAttribute(pos, ids[0]);
-          tmpV1.applyMatrix4(obj.matrixWorld);
-          tmpV2.fromBufferAttribute(pos, ids[1]);
-          tmpV2.applyMatrix4(obj.matrixWorld);
-          tmpV3.fromBufferAttribute(pos, ids[2]);
-          tmpV3.applyMatrix4(obj.matrixWorld);
+          tmpV1.fromArray(worldVertices, ids[0] * 3);
+          tmpV2.fromArray(worldVertices, ids[1] * 3);
+          tmpV3.fromArray(worldVertices, ids[2] * 3);
           const verts = [tmpV1, tmpV2, tmpV3];
           const pts = [];
           for (const [a, b] of edgePairs) {
@@ -5050,7 +5291,7 @@
           const slice = volume.extractSlice(axis, +slider.value);
           slices[axis] = slice;
           planesRoot.add(slice.mesh);
-          slider.oninput = () => paint(axis);
+          slider.oninput = () => scheduleSlicePaint(axis);
           paint(axis);
         }
         updatePlaneVisibility();
@@ -5068,6 +5309,7 @@
         if (!Number.isFinite(nextVolume.windowLow) || !Number.isFinite(nextVolume.windowHigh)) {
           throw new Error("Ventana no disponible");
         }
+        localWorkState?.pause();
         if (volumeContentHash !== hash) {
           lastUsEntryPoint = null;
           usTargetPoint = null;
@@ -5086,7 +5328,10 @@
         volume.windowHigh = Number($("wl").value) + Number($("ww").value) / 2;
         initSlices();
         volumeContentHash = hash;
+        updateClip();
+        syncMprNavigation();
         syncNamedViews();
+        localWorkState?.sync();
         status.textContent = `Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;
       }
       bindLocalFile(
@@ -5132,6 +5377,7 @@
         const lps = $("space").value === "LPS";
         model.scale.set(lps ? -units : units, lps ? -units : units, units);
         model.updateWorldMatrix(true, true);
+        invalidateStructureNames(true);
         refreshStructureVolumes();
         fit();
         if (volume) ["x", "y", "z"].forEach(paint);
@@ -5237,6 +5483,7 @@
           visibilityLabel.append(visible, document.createTextNode("Ver"));
           visible.addEventListener("change", () => {
             items.forEach((item) => (item.mesh.visible = visible.checked));
+            invalidateStructureNames(true);
             if (!batchRestore) setSynchronizedVisibility([name], visible.checked);
           });
 
@@ -5296,6 +5543,7 @@
           nameCheck.setAttribute("aria-label", "Mostrar nombre de " + name + " en 3D");
           nameCheck.addEventListener("change", () => {
             if (nameCheck.checked) $("showStructureNames").checked = true;
+            invalidateStructureNames();
             updateStructureNames();
           });
           nameRow.append(nameLabel, nameCheck);
@@ -5324,6 +5572,7 @@
                 mat.depthWrite = value >= 1;
                 mat.needsUpdate = true;
               }
+            invalidateStructureNames(true);
             ["x", "y", "z"].forEach((a) => paint(a));
           });
           opacityRow.append(opacityLabel, slider, percent);
@@ -5352,6 +5601,7 @@
             visible.checked = items.every((item) => item.mesh.visible);
             contourCheck.checked = true;
             nameCheck.checked = true;
+            invalidateStructureNames(true);
             selectionCheck.disabled = !visible.checked;
             if (!batchRestore) updateStructureSelection();
             picker.value = defaultColor;
@@ -5429,6 +5679,7 @@
           buffer,
           url.startsWith("blob:") ? new URL("./", location.href).href : new URL("./", url).href
         );
+        localWorkState?.pause();
         clearRoot(modelRoot);
         model = result.scene;
         modelRoot.add(model);
@@ -5453,6 +5704,7 @@
         loadTree();
         syncNamedViews();
         if (volume) ["x", "y", "z"].forEach(paint);
+        localWorkState?.sync();
         status.textContent = `GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
       }
       bindLocalFile(
@@ -5484,11 +5736,8 @@
         const reset = document.createElement("button");
         reset.type = "button";
         reset.className = "view-reset";
-        reset.textContent = "Restablecer vista";
-        reset.onclick = () => {
-          Object.assign(state, { zoom: 1, x: 0, y: 0 });
-          apply();
-        };
+        reset.textContent = "Restablecer las cuatro vistas";
+        reset.onclick = resetMprViews;
         canvas.closest(".pane")._resetView = reset;
         stage.addEventListener(
           "wheel",
@@ -5509,7 +5758,7 @@
                   Math.max(Number(slider.min), Number(slider.value) + Math.sign(event.deltaY))
                 )
               );
-              paint(axis);
+              scheduleSlicePaint(axis);
             }
           },
           { passive: false }
@@ -5685,7 +5934,7 @@
         };
         const svg =
           icons[activeTool] &&
-          document.querySelector('.pane-quick-tools [data-tool="' + activeTool + '"] svg');
+          document.querySelector('#viewerTools [data-tool="' + activeTool + '"] svg');
         let cursor = "crosshair";
         if (svg) {
           const markup =
@@ -5708,6 +5957,7 @@
         }
       }
       function setTool(tool) {
+        document.dispatchEvent(new Event("mpr-tool-change"));
         if (typeof measurementDrag !== "undefined" && measurementDrag) endMeasurementDrag(true);
         if (activeTool !== tool) {
           pendingArrow = null;
@@ -5726,8 +5976,13 @@
           }
         }
         activeTool = tool;
+        if (tool === "trajectory" || tool.startsWith("measure") || tool === "editMeasure") {
+          const toolbox = $("section-toolbox");
+          if (toolbox) toolbox.open = true;
+        }
         if (typeof clipGuide !== "undefined") updateClip();
         updateToolCursor();
+        syncActiveToolLabel();
         pendingMeasure = null;
         document
           .querySelectorAll("[data-tool]")
@@ -5735,11 +5990,11 @@
         $("toolHint").textContent = toolHints[tool];
         updateMeasurementHint();
         if (tool === "trajectory") {
-          $("section-trajectory").open = true;
+          openSidebarSection("section-trajectory");
           updateTrajectoryPanel();
         }
-        if (tool.startsWith("measure") || tool === "editMeasure")
-          (($("section-tools").open = true), ($("measurementList").closest("details").open = true));
+        if (tool.startsWith("measure") || tool === "editMeasure") openSidebarSection("menu-measurements");
+        if (["annotation", "arrow"].includes(tool)) openSidebarSection("menu-annotations");
         repaintAll();
         renderMeasure3D();
       }
@@ -5822,6 +6077,7 @@
         ctx.restore();
       }
       function renderMeasure3D() {
+        requestSceneRender();
         while (measurementRoot.children.length) {
           const o = measurementRoot.children[0];
           measurementRoot.remove(o);
@@ -6191,46 +6447,87 @@
       clipGuide.renderOrder = 250;
       scene.add(clipGuide);
 
-      function updateClip() {
+      function tcClipGeometry(axis) {
+        const plane = volume.extractPerpendicularPlane(axis, Number($("r" + axis).value));
+        const pointAt = (i, j) => {
+          const ijk = volume.reverseAccess(plane.sliceAccess(i, j));
+          const point = new THREE.Vector3(...volumeInfo.originRAS);
+          for (let a = 0; a < 3; a++) point.addScaledVector(new THREE.Vector3(...volumeInfo.directionsRAS[a]), ijk[a]);
+          return point;
+        };
+        const point = pointAt(0, 0);
+        const normal = pointAt(1, 0).sub(point).cross(pointAt(0, 1).sub(point)).normalize();
+        const positive = new THREE.Vector3();
+        positive[axis] = 1;
+        if (normal.lengthSq() < 1e-12) normal.copy(positive);
+        if (normal.dot(positive) < 0) normal.negate();
+        if (obliqueActive()) {
+          point.sub(obliquePivot).applyQuaternion(obliqueRotation).add(obliquePivot).add(obliqueShift);
+          normal.applyQuaternion(obliqueRotation).normalize();
+        }
+        return { point, normal };
+      }
+      function updateClip({ repaint = true } = {}) {
+        requestSceneRender();
+        const sync = $("clipSyncTc").checked && !!volume && !!volumeInfo;
+        $("clipSyncTc").disabled = !volume || !volumeInfo || !model;
+        for (const id of ["clipPosition", "rotateClip", "clipRotationConstraint", "clipLeft", "clipRight", "clipUp", "clipDown", "alignClip", "resetClipRotation"])
+          $(id).disabled = sync;
+        const previousClip = clipPlane;
         clipPlane = null;
         clipGuide.visible = false;
         if (model && $("clipEnabled").checked) {
           model.updateWorldMatrix(true, true);
-          const box = new THREE.Box3().setFromObject(model),
+          const box = new THREE.Box3().setFromObject(model);
+          let normal, point;
+          if (sync) ({ normal, point } = tcClipGeometry($("clipAxis").value));
+          else {
             normal = new THREE.Vector3();
-          normal[$("clipAxis").value] = 1;
-          normal.applyQuaternion(clipRotation);
-          const projections = [];
-          for (const x of [box.min.x, box.max.x])
-            for (const y of [box.min.y, box.max.y])
-              for (const z of [box.min.z, box.max.z])
-                projections.push(normal.dot(new THREE.Vector3(x, y, z)));
-          const level = THREE.MathUtils.lerp(
-            Math.min(...projections),
-            Math.max(...projections),
-            Number($("clipPosition").value) / 100
-          );
-          const point = box.getCenter(new THREE.Vector3());
-          point.addScaledVector(normal, level - normal.dot(point));
+            normal[$("clipAxis").value] = 1;
+            normal.applyQuaternion(clipRotation);
+            const projections = [];
+            for (const x of [box.min.x, box.max.x])
+              for (const y of [box.min.y, box.max.y])
+                for (const z of [box.min.z, box.max.z])
+                  projections.push(normal.dot(new THREE.Vector3(x, y, z)));
+            const level = THREE.MathUtils.lerp(
+              Math.min(...projections),
+              Math.max(...projections),
+              Number($("clipPosition").value) / 100
+            );
+            point = box.getCenter(new THREE.Vector3());
+            point.addScaledVector(normal, level - normal.dot(point));
+          }
           if ($("clipReverse").checked) normal.negate();
+          // Amplía el lado conservado 5 mm para dejar una franja visible junto al TC.
+          if (sync) point.addScaledVector(normal, -5);
           clipPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(normal, point);
           clipGuide.position.copy(point);
           clipGuide.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
           clipGuide.scale.setScalar(box.getSize(new THREE.Vector3()).length());
-          clipGuide.visible = activeTool === "rotateClip";
+          clipGuide.visible = activeTool === "rotateClip" && !sync;
         }
+        if (clipPlane && previousClip?.equals(clipPlane)) clipPlane = previousClip;
+        if (clipPlane !== previousClip) invalidateStructureNames();
         model?.traverse((o) => {
           if (o.isMesh)
             for (const mat of Array.isArray(o.material) ? o.material : [o.material]) {
+              if ((clipPlane && mat.clippingPlanes?.[0] === clipPlane) || (!clipPlane && mat.clippingPlanes?.length === 0)) continue;
               mat.clippingPlanes = clipPlane ? [clipPlane] : [];
               mat.clipShadows = true;
               mat.needsUpdate = true;
             }
         });
-        if (volume && !batchRestore) ["x", "y", "z"].forEach(paint);
+        if (repaint && volume && !batchRestore)
+          for (const axis of ["x", "y", "z"]) paint(axis, { reuseImage: true, updateClipping: false });
       }
-      for (const id of ["clipEnabled", "clipAxis", "clipPosition", "clipReverse"])
+      for (const id of ["clipEnabled", "clipAxis", "clipPosition", "clipReverse", "clipSyncTc"])
         $(id).oninput = updateClip;
+      $("clipSyncTc").oninput = () => {
+        if ($("clipSyncTc").checked) $("clipEnabled").checked = true;
+        updateClip();
+        syncPaneToggles();
+      };
       $("rotateClip").onclick = () => {
         if (!model) return;
         $("clipEnabled").checked = true;
@@ -6297,7 +6594,7 @@
       renderer.domElement.addEventListener(
         "pointerdown",
         (event) => {
-          if (activeTool !== "rotateClip" || event.button !== 0 || !model) return;
+          if (activeTool !== "rotateClip" || $("clipSyncTc").checked || event.button !== 0 || !model) return;
           event.preventDefault();
           event.stopImmediatePropagation();
           clipDrag = {
@@ -6801,6 +7098,7 @@
       }
 
       function renderTrajectory() {
+        requestSceneRender();
         if (usTargetPath?.trajectory === trajectory && trajectory) {
           usTargetPoint.copy(trajectory.a).lerp(trajectory.b, usTargetPath.fraction);
         }
@@ -7027,6 +7325,7 @@
           clipRotation: clipRotation.toArray(),
           clipAxis: $("clipAxis").value,
           clipPosition: Number($("clipPosition").value),
+          clipSyncTc: $("clipSyncTc").checked,
           layers: [...layerControls].map(([key, l]) => ({
             key,
             visible: l.visible.checked,
@@ -7041,6 +7340,7 @@
       function validateConfig(data) {
         if (!data || typeof data !== "object" || Array.isArray(data))
           throw new Error("Configuración inválida.");
+        if (data.clipSyncTc !== undefined && typeof data.clipSyncTc !== "boolean") throw new Error("Sincronización de recorte inválida.");
         if (data.structureNodes !== undefined) validateNodes(data.structureNodes);
         if (data.structureGroups !== undefined) validateTree(data.structureGroups);
         if (data.structureRelations !== undefined)
@@ -7267,6 +7567,7 @@
           $("fillOpacity").value = data.fillOpacity;
           $("clipPosition").value = data.clipPosition;
           $("clipAxis").value = data.clipAxis;
+          $("clipSyncTc").checked = data.clipSyncTc ?? false;
           for (const l of data.layers) {
             const c = layerControls.get(l.key);
             c.nameCheck.checked = l.nameVisible ?? true;
@@ -7833,9 +8134,131 @@
         $("centerStructure").disabled = !layerControls.size;
         $("restoreVisibility").disabled = !isolationSnapshot;
         updateSelectedVolume();
+        updateSelectionCard();
         syncTreeRows();
         repaintAll();
       }
+      function mprPositionCaseKey() {
+        return volumeContentHash ? JSON.stringify([volumeContentHash, modelContentHash]) : null;
+      }
+      function syncMprNavigation() {
+        const ready = !!volume && !!volumeInfo;
+        if (savedMprPosition && savedMprPosition.caseKey !== mprPositionCaseKey()) savedMprPosition = null;
+        $("saveMprPosition").disabled = !ready;
+        $("restoreMprPosition").disabled = !ready || !savedMprPosition;
+        $("centerMprSelection").disabled = !ready || !selectedStructures.has(selectedStructure) || !layerControls.has(selectedStructure);
+        $("resetMprViews").disabled = !ready;
+        const centerAll = $("centerAllViews");
+        if (centerAll) centerAll.disabled = !volume && !model;
+      }
+      function saveMprPosition() {
+        syncMprNavigation();
+        if (!volume || !volumeInfo) return;
+        savedMprPosition = {
+          caseKey: mprPositionCaseKey(),
+          views: structuredClone(viewStates),
+          slices: Object.fromEntries(["x", "y", "z"].map((a) => [a, Number($("r" + a).value)])),
+          pivot: obliquePivot?.clone() || null,
+          rotation: obliqueRotation.clone(), shift: obliqueShift.clone(),
+          point: selectedWorldPoint?.clone() || null,
+          markerVisible: navMarker.visible, navText: $("navPoint").textContent,
+        };
+        syncMprNavigation();
+        status.textContent = "Posición MPR guardada para este caso durante la sesión.";
+      }
+      function restoreMprPosition() {
+        syncMprNavigation();
+        if (!savedMprPosition || !volume || !volumeInfo) return;
+        const saved = savedMprPosition;
+        obliquePivot = saved.pivot?.clone() || null;
+        obliqueRotation.copy(saved.rotation);
+        obliqueShift.copy(saved.shift);
+        selectedWorldPoint = saved.point?.clone() || null;
+        if (selectedWorldPoint) navMarker.position.copy(selectedWorldPoint);
+        navMarker.visible = saved.markerVisible && $("show3DMarker").checked;
+        $("navPoint").textContent = saved.navText;
+        for (const a of ["x", "y", "z"]) {
+          $("r" + a).value = saved.slices[a];
+          Object.assign(viewStates[a], saved.views[a]);
+          viewAppliers[a]();
+          paint(a);
+        }
+        document.dispatchEvent(new Event("case-state-change"));
+        status.textContent = "Posición MPR recuperada. Cámara 3D conservada.";
+      }
+      function centerAllViews() {
+        for (const axis of ["x", "y", "z"]) {
+          Object.assign(viewStates[axis], { x: 0, y: 0 });
+          viewAppliers[axis]();
+        }
+        if (model || planesRoot.children.length) {
+          const box = new THREE.Box3().setFromObject(model || planesRoot);
+          if (!box.isEmpty()) {
+            const target = box.getCenter(new THREE.Vector3());
+            camera.position.add(target.clone().sub(controls.target));
+            controls.target.copy(target);
+            controls.update();
+          }
+        }
+        document.dispatchEvent(new Event("case-state-change"));
+        status.textContent = "Las cuatro vistas están centradas. Zoom, cortes y orientación conservados.";
+      }
+      function resetMprViews() {
+        if (!volume || !volumeInfo) {
+          camera.zoom = 1;
+          fit();
+          return;
+        }
+        obliquePivot = null;
+        obliqueRotation.identity();
+        obliqueShift.set(0, 0, 0);
+        selectedWorldPoint = null;
+        navMarker.visible = false;
+        $("navPoint").textContent = "Pulsa un punto en un corte para sincronizar las vistas.";
+        setTool("navigate");
+        for (const a of ["x", "y", "z"]) {
+          const slider = $("r" + a);
+          slider.value = Math.floor(Number(slider.max) / 2);
+          Object.assign(viewStates[a], { zoom: 1, x: 0, y: 0 });
+          viewAppliers[a]();
+          paint(a);
+        }
+        camera.zoom = 1;
+        fit();
+        document.dispatchEvent(new Event("case-state-change"));
+        status.textContent = "Las cuatro vistas han vuelto al estado inicial.";
+      }
+      function updateSelectionCard() {
+        const keys = [...selectedStructures].filter((key) => layerControls.has(key));
+        const active = keys.includes(selectedStructure);
+        $("selectionCard").hidden = keys.length === 0;
+        $("selectionCardCenter").disabled = !active;
+        $("selectionCardClear").disabled = keys.length === 0;
+        $("selectionCardCenter").title = active ? "Centrar: " + selectedStructure : "Selecciona una estructura activa";
+        $("selectionCardName").textContent = keys.length > 1
+          ? keys.length + " estructuras seleccionadas"
+          : keys[0] || "";
+        let total = 0, missing = 0;
+        const lines = keys.map((key) => {
+          const value = layerControls.get(key).volumeML;
+          if (Number.isFinite(value)) total += value;
+          else missing++;
+          return key + (keys.length > 1 && key === selectedStructure ? " (activa)" : "") + ": " +
+            (Number.isFinite(value) ? formatVolume(value) : "Volumen no disponible");
+        });
+        if (keys.length > 1) {
+          lines.push(missing === keys.length ? "Volumen total no disponible" :
+            (missing ? "Subtotal calculable: " : "Volumen total: ") + formatVolume(total));
+          if (missing) lines.push(missing + " sin volumen disponible.");
+          lines.push("Suma sin descontar solapamientos.");
+        }
+        $("selectionCardDetail").textContent = lines.join("\n");
+        syncMprNavigation();
+      }
+      $("selectionCardCenter").onclick = () => {
+        if (selectedStructure && selectedStructures.has(selectedStructure)) focusStructure(selectedStructure, false);
+      };
+      $("selectionCardClear").onclick = () => selectStructure(null);
       function buildStructureSelection() {
         isolationSnapshot = null;
         selectedStructures.clear();
@@ -7902,8 +8325,9 @@
         $("restoreVisibility").disabled = true;
         status.textContent = "Todas las estructuras visibles.";
       };
-      function focusStructure(key, select = true) {
+      function focusStructure(key, select = true, reveal = true, mprOnly = false) {
         try {
+          if (mprOnly && (!volume || !volumeInfo)) throw new Error("Carga un volumen para centrar los cortes.");
           const layer = layerControls.get(key);
           if (!layer) throw new Error("Carga un modelo y elige una estructura.");
           model.updateWorldMatrix(true, true);
@@ -7924,12 +8348,14 @@
                 );
             }
           }
-          if (!layer.visible.checked) {
-            layer.visible.checked = true;
-            layer.visible.dispatchEvent(new Event("change"));
+          if (reveal) {
+            if (!layer.visible.checked) {
+              layer.visible.checked = true;
+              layer.visible.dispatchEvent(new Event("change"));
+            }
+            modelRoot.visible = true;
+            $("showmodel").checked = true;
           }
-          modelRoot.visible = true;
-          $("showmodel").checked = true;
           if (select && !selectedStructures.has(key)) selectStructure(key, true);
           if (volume && volumeInfo) {
             applyReferencePoint(center);
@@ -7943,6 +8369,11 @@
               viewStates[a].y += s.top + s.height / 2 - (r.top + (p.y * r.height) / canvas.height);
               viewAppliers[a]();
             }
+          }
+          if (mprOnly) {
+            status.textContent = "Cortes MPR centrados en: " + key + ". Cámara 3D conservada.";
+            document.dispatchEvent(new Event("case-state-change"));
+            return;
           }
           const direction = camera.position.clone().sub(controls.target);
           if (direction.lengthSq() < 1e-8) direction.set(1, 1, 1);
@@ -7974,7 +8405,7 @@
       scene.add(structureNameRoot);
       function rebuildStructureNames() {
         if (!structureNameRoot) return;
-        delete structureNameRoot.userData.layoutKey;
+        invalidateStructureNames(true);
         while (structureNameRoot.children.length) {
           const o = structureNameRoot.children[0];
           structureNameRoot.remove(o);
@@ -7995,15 +8426,12 @@
           structureNameRoot.add(sprite);
         }
       }
-      const structureLabelView = {
-        position: new THREE.Vector3(),
-        rotation: new THREE.Quaternion(),
-        projection: new THREE.Matrix4(),
-        changedAt: -Infinity,
-        checkedAt: -Infinity,
-      };
-      const structureLabelSettleMs = 140;
-      const structureLabelCheckMs = 180;
+      function invalidateStructureNames(meshesChanged = false) {
+        requestSceneRender();
+        structureLabelView.layoutDirty = true;
+        // El encuadre, el recorte y los nombres no cambian las cajas de las mallas.
+        if (meshesChanged) structureLabelView.meshData = null;
+      }
 
       function updateStructureNames(immediate = false) {
         if (!structureNameRoot) return;
@@ -8023,6 +8451,7 @@
           view.rotation.copy(camera.quaternion);
           view.projection.copy(camera.projectionMatrix);
           view.changedAt = now;
+          view.layoutDirty = true;
         }
 
         // No probar oclusiones en cada fotograma de giro, desplazamiento o zoom.
@@ -8031,12 +8460,10 @@
           return;
         }
 
-        const refresh =
-          immediate || !structureNameRoot.visible || now - view.checkedAt >= structureLabelCheckMs;
         structureNameRoot.visible = true;
-        if (refresh) {
+        if (view.layoutDirty) {
           layoutStructureNames();
-          view.checkedAt = now;
+          view.layoutDirty = false;
         }
       }
       annotationRoot = new THREE.Group();
@@ -8156,7 +8583,7 @@
         return entries;
       }
       // Una etiqueta sólo tiene anclaje si una superficie de su capa se ve desde la cámara.
-      function visibleStructureAnchor(items, blockers, viewRay) {
+      function visibleStructureAnchor(items, blockers, viewRay, forward) {
         const intersection = new THREE.Vector3();
         const coordinates = new THREE.Vector2();
         const hits = [];
@@ -8166,7 +8593,7 @@
         function surfaceAt(x, y) {
           coordinates.set(x, y);
           viewRay.setFromCamera(coordinates, camera);
-          const cosine = viewRay.ray.direction.dot(camera.getWorldDirection(intersection));
+          const cosine = viewRay.ray.direction.dot(forward);
           viewRay.near = camera.near / cosine;
           viewRay.far = camera.far / cosine;
           hits.length = 0;
@@ -8264,44 +8691,27 @@
         return bounds.isEmpty() ? null : bounds;
       }
 
-      function layoutStructureNames() {
-        if (!structureNameRoot?.visible) return;
-        const width = $("view3d").clientWidth;
-        const height = $("view3d").clientHeight;
-        if (width <= 40 || height <= 60) return;
-
-        camera.updateMatrixWorld();
+      function collectStructureLabelMeshes() {
         modelRoot.updateWorldMatrix(true, true);
         const sprites = structureNameRoot.children.filter((object) => object.isSprite);
-        const state = [
-          width,
-          height,
-          ...camera.matrixWorld.elements,
-          ...camera.projectionMatrix.elements,
-          clipPlane?.constant,
-          ...(clipPlane?.normal.toArray() ?? []),
-        ];
         const meshesBySprite = new Map();
         const blockers = [];
         const modelBounds = new THREE.Box3();
         for (const sprite of sprites) {
           const { layer } = sprite.userData;
-          state.push(layer.nameCheck.checked);
           const items = [];
           for (const { mesh } of layer.items) {
             let visible = true;
             for (let node = mesh; node; node = node.parent) {
-              if (!node.visible) visible = false;
+              if (!node.visible) {
+                visible = false;
+                break;
+              }
             }
-            state.push(visible);
             if (!visible) continue;
             const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-            for (const m of materials) {
-              state.push(m.visible, m.colorWrite, m.opacity, m.transparent, m.depthWrite, m.side);
-            }
             const drawn = materials.filter((m) => m.visible && m.colorWrite && m.opacity > 0);
             if (!drawn.length) continue;
-            state.push(...mesh.matrixWorld.elements);
             if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
             const box = mesh.geometry.boundingBox.clone().applyMatrix4(mesh.matrixWorld);
             const item = { mesh, box };
@@ -8313,16 +8723,25 @@
           }
           meshesBySprite.set(sprite, items);
         }
-        const stateKey = state.join(",");
-        if (structureNameRoot.userData.layoutKey === stateKey) return;
-        structureNameRoot.userData.layoutKey = stateKey;
+        return { sprites, meshesBySprite, blockers, modelBounds };
+      }
 
+      function layoutStructureNames() {
+        const host = $("view3d");
+        const width = host.clientWidth;
+        const height = host.clientHeight;
+        if (width <= 40 || height <= 60) return;
+
+        const { sprites, meshesBySprite, blockers, modelBounds } =
+          (structureLabelView.meshData ??= collectStructureLabelMeshes());
+        camera.updateMatrixWorld();
+        const forward = camera.getWorldDirection(new THREE.Vector3());
         const ray = new THREE.Raycaster();
         const entries = [];
         for (const sprite of sprites) {
           const { leader, labelPixels, layer } = sprite.userData;
           const anchor = layer.nameCheck.checked
-            ? visibleStructureAnchor(meshesBySprite.get(sprite), blockers, ray)
+            ? visibleStructureAnchor(meshesBySprite.get(sprite), blockers, ray, forward)
             : null;
           sprite.visible = leader.visible = !!anchor;
           if (!anchor) continue;
@@ -8480,6 +8899,7 @@
         return sprite;
       }
       function renderAnnotations() {
+        requestSceneRender();
         if (!annotationRoot) return;
         while (annotationRoot.children.length) {
           const o = annotationRoot.children[0];
@@ -8810,6 +9230,7 @@
             reason || "Calculado sobre la superficie cerrada del modelo.";
         }
         updateSelectedVolume();
+        updateSelectionCard();
         syncTreeRows();
       }
       function updateVisibleModelInfo() {
@@ -8870,7 +9291,7 @@
       // 14 · Carga publicada: fragmentos, árboles y vistas
       // =============================================================================
       async function loadNrrdParts(manifestUrl, label) {
-        const res = await fetch(manifestUrl, { credentials: "omit" });
+        const res = await fetch(manifestUrl, { credentials: "same-origin" });
         if (!res.ok) throw new Error("Manifiesto NRRD no disponible (HTTP " + res.status + ")");
         const manifest = await res.json();
         if (
@@ -8941,7 +9362,8 @@
             root
           );
         try {
-          const response = await fetch(url, { credentials: "omit", cache: "no-cache" });
+          const response = await fetch(url, { credentials: "same-origin", cache: "no-cache" });
+          if (modelContentHash !== hash) return;
           if (response.status === 404) {
             $("treeMessage").textContent =
               "No hay árbol publicado para " + basename + ". Se conserva la organización local.";
@@ -8951,20 +9373,16 @@
           const raw = await response.text();
           if (raw.length > 5000000) throw new Error("El archivo supera 5 MB.");
           const data = JSON.parse(raw);
-          if (
-            data?.format !== "mpr-structure-tree" ||
-            ![1, 2].includes(data.version) ||
-            data.modelHash !== hash
-          )
-            throw new Error("La organización no corresponde al mismo GLB.");
-          const groups = validateTree(data.groups),
-            relations = validateStructureRelations(data.relations || []);
           if (modelContentHash !== hash) return;
-          if (data.nodes) applyNodes(data.nodes);
-          else applyHierarchy(groups, relations);
+          if (treeLocalOverride) {
+            $("treeMessage").textContent = "Se conserva el árbol guardado en este navegador.";
+            return;
+          }
+          importStructureTree(data, false);
           $("treeMessage").textContent =
             "Árbol cargado de organización_estructuras/" + basename + "_estructura.json.";
         } catch (error) {
+          if (modelContentHash !== hash) return;
           $("treeMessage").textContent =
             "No se pudo cargar el árbol publicado: " +
             error.message +
@@ -8978,7 +9396,7 @@
         const url = new URL("vistas/mpr/" + encodeURIComponent(basename + "_vista.json"), root);
         let response;
         try {
-          response = await fetch(url, { credentials: "omit", cache: "no-cache" });
+          response = await fetch(url, { credentials: "same-origin", cache: "no-cache" });
         } catch (err) {
           $("namedViewMessage").textContent =
             "No se pudieron consultar las vistas publicadas: " + err.message;
@@ -9467,7 +9885,7 @@
           await loadPublishedStructureTree(basename, root);
           status.textContent = "Buscando NRRD de " + basename + "…";
           // El manifiesto tiene prioridad. Si no existe (404), conservar compatibilidad con .nrrd normal.
-          const probe = await fetch(manifestURL, { method: "HEAD", credentials: "omit" });
+          const probe = await fetch(manifestURL, { method: "HEAD", credentials: "same-origin" });
           if (probe.ok) {
             await loadNrrdParts(manifestURL, basename + ".nrrd");
           } else if (probe.status === 404) {
@@ -9586,8 +10004,66 @@
       }
 
       let structureNodes = [],
+        treeIndex = indexStructureNodes(structureNodes),
+        treeLocalOverride = false,
         treeEditing = false;
       const uid = () => crypto.randomUUID();
+      function indexStructureNodes(nodes) {
+        const byId = new Map(), children = new Map(), references = new Map();
+        for (const n of nodes) {
+          byId.set(n.id, n);
+          if (!children.has(n.parent)) children.set(n.parent, []);
+          children.get(n.parent).push(n);
+          if (n.type === "segment") {
+            if (!references.has(n.key)) references.set(n.key, []);
+            references.get(n.key).push(n);
+          }
+        }
+        return { byId, children, references };
+      }
+      function structureIconOptions() {
+        return [["generic", "Estructura"], ["vein", "Vena"], ["artery", "Arteria"],
+          ["lesion", "Lesión / tumor"], ["liver", "Hígado"], ["kidney", "Riñón"],
+          ["lung", "Pulmón"], ["bone", "Hueso"]];
+      }
+      function suggestedStructureIcon(name) {
+        const text = name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[_-]/g, " ");
+        if (/tumou?r|lesi[oó]n|lesion|nodul|nodule|metasta|neoplas|\badk\b/.test(text)) return "lesion";
+        if (/arter|aorta/.test(text)) return "artery";
+        if (/vena|venos|vein|venous|portal|\bporta\b/.test(text)) return "vein";
+        if (/higado|liver|hepatic parenchyma/.test(text)) return "liver";
+        if (/rinon|renal|kidney/.test(text)) return "kidney";
+        if (/pulmon|lung/.test(text)) return "lung";
+        if (/hueso|bone|vertebr|costill|\bribs?\b/.test(text)) return "bone";
+        return "generic";
+      }
+      function structureCategoryIcon(node) {
+        const category = node.type === "group" ? "folder" : node.icon || suggestedStructureIcon(node.key);
+        const paths = {
+          folder: "M2 6V3h5l2 3h7v10H2z",
+          generic: "M9 2l7 4v8l-7 3-7-3V6z M2 6l7 4 7-4 M9 10v7",
+          vein: "M7 17V9L3 3 M11 17V8l4-5 M7 9l4-1 M4 6l3-2 M12 6l3 1",
+          artery: "M7 17V9L3 3 M11 17V8l4-5 M9 14v-4 M7 12l2-2 2 2",
+          lesion: "M6 3l3 1 4-1 1 4 3 3-3 3-1 4-4-1-4 1-1-4-2-3 2-3z M7 8l4 4 M11 8l-4 4",
+          liver: "M2 7Q4 2 12 4l4 3-2 6-7 2-5-2z M10 5l-3 9",
+          kidney: "M11 3Q3 0 3 9t8 6q4-3-1-5 4-3 1-7z M10 8l4 1v7",
+          lung: "M9 2v6 M9 6l-3 3 M9 6l3 3 M7 4Q2 7 2 14q1 4 5 1V4 M11 4q5 3 5 10-1 4-5 1V4",
+          bone: "M5 6Q0 5 3 2q3-2 4 2l7 7q4 0 3 4-3 4-5 0L5 8q-3 2-3-1z",
+        };
+        const label = category === "folder" ? "Grupo" : structureIconOptions().find(([id]) => id === category)?.[1] || "Estructura";
+        const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        icon.setAttribute("viewBox", "0 0 18 18");
+        icon.setAttribute("class", "structure-category-icon");
+        icon.setAttribute("role", "img");
+        icon.setAttribute("aria-label", label);
+        icon.dataset.category = category;
+        const title = document.createElementNS(icon.namespaceURI, "title");
+        title.textContent = label + (node.type === "group" ? "" : node.icon ? " · elección manual" : " · sugerido por el nombre original");
+        const path = document.createElementNS(icon.namespaceURI, "path");
+        path.setAttribute("d", paths[category] || paths.generic);
+        icon.append(title, path);
+        return icon;
+      }
       function validateNodes(nodes) {
         if (!Array.isArray(nodes) || nodes.length > 10000)
           throw new Error("Árbol inválido o demasiado grande.");
@@ -9602,53 +10078,55 @@
             !(n.parent === null || typeof n.parent === "string") ||
             (n.type === "segment"
               ? !layerControls.has(n.key) ||
-                (n.name !== undefined && (typeof n.name !== "string" || n.name.length > 100))
+                (n.name !== undefined && (typeof n.name !== "string" || n.name.length > 100)) ||
+                (n.icon !== undefined && !structureIconOptions().some(([id]) => id === n.icon))
               : typeof n.name !== "string" || !n.name.trim() || n.name.length > 100)
           )
             throw new Error("Nodo inválido.");
           map.set(n.id, n);
         }
-        for (const n of nodes) {
-          const seen = new Set([n.id]),
-            keys = new Set(n.type === "segment" ? [n.key] : []);
-          let p = n.parent;
-          while (p !== null) {
-            if (seen.has(p) || !map.has(p)) throw new Error("Ciclo o padre inexistente.");
-            const a = map.get(p);
-            if (a.type === "segment") {
-              if (keys.has(a.key))
-                throw new Error("Una segmentación no puede ser descendiente de sí misma.");
-              keys.add(a.key);
-            }
-            seen.add(p);
-            p = a.parent;
+        const { children } = indexStructureNodes(nodes);
+        const pending = (children.get(null) || []).map((node) => ({ node, ancestor: null }));
+        const relations = [];
+        for (let i = 0; i < pending.length; i++) {
+          const { node, ancestor } = pending[i];
+          if (node.type === "segment" && ancestor !== null) {
+            if (node.key === ancestor)
+              throw new Error("Una segmentación no puede ser descendiente de sí misma.");
+            relations.push({ parent: ancestor, child: node.key });
+          }
+          for (const child of children.get(node.id) || []) {
+            pending.push({ node: child, ancestor: node.type === "segment" ? node.key : ancestor });
           }
         }
+        if (pending.length !== nodes.length) throw new Error("Ciclo o padre inexistente.");
+        // Las referencias a la misma segmentación comparten la relación, aunque estén en ramas distintas.
+        validateStructureRelations(relations);
         return nodes.map((n) =>
           n.type === "group"
             ? { id: n.id, type: n.type, name: n.name.trim(), parent: n.parent }
-            : { id: n.id, type: n.type, key: n.key, name: n.name?.trim() || "", parent: n.parent }
+            : { id: n.id, type: n.type, key: n.key, name: n.name?.trim() || "", parent: n.parent, ...(n.icon ? { icon: n.icon } : {}) }
         );
       }
       function nodeKeys(id) {
         const keys = new Set(),
-          stack = [id];
+          stack = [treeIndex.byId.get(id)];
         while (stack.length) {
-          const id = stack.pop(),
-            n = structureNodes.find((n) => n.id === id);
+          const n = stack.pop();
           if (!n) continue;
           if (n.type === "segment") keys.add(n.key);
-          for (const c of structureNodes) if (c.parent === n.id) stack.push(c.id);
+          for (const c of treeIndex.children.get(n.id) || []) stack.push(c);
         }
         return [...keys];
       }
       function saveTree() {
-        document.dispatchEvent(new Event("case-state-change"));
+        treeLocalOverride = true;
         if (treeCaseKey)
           try {
             localStorage.setItem(
               treeCaseKey,
               JSON.stringify({
+                edited: true,
                 nodes: structureNodes,
                 groups: structureGroups,
                 relations: structureRelations,
@@ -9658,14 +10136,47 @@
             $("treeMessage").textContent = "No se pudo guardar. Exporta el árbol.";
           }
       }
-      function applyNodes(nodes) {
+      // Historial de la organización de este modelo, limitado a 20 cambios por sesión.
+      const treeUndoHistory = [], treeRedoHistory = [];
+      function undoTreeChange() {
+        const previous = treeUndoHistory.at(-1);
+        if (!previous) return;
+        const current = structuredClone(structureNodes);
+        applyNodes(previous, { recordHistory: false });
+        treeUndoHistory.pop();
+        treeRedoHistory.push(current);
+        $("redoTree").disabled = false;
+        $("undoTree").disabled = treeUndoHistory.length === 0;
+        $("treeMessage").textContent = "Cambio del árbol deshecho.";
+      }
+      function redoTreeChange() {
+        const next = treeRedoHistory.at(-1);
+        if (!next) return;
+        const current = structuredClone(structureNodes);
+        applyNodes(next, { recordHistory: false });
+        treeRedoHistory.pop();
+        treeUndoHistory.push(current);
+        if (treeUndoHistory.length > 20) treeUndoHistory.shift();
+        $("undoTree").disabled = false;
+        $("redoTree").disabled = treeRedoHistory.length === 0;
+        $("treeMessage").textContent = "Cambio del árbol rehecho.";
+      }
+      function applyNodes(nodes, { reveal = [], persist = true, recordHistory = true } = {}) {
         const valid = validateNodes(nodes);
+        if (!persist) { treeUndoHistory.length = 0; treeRedoHistory.length = 0; }
+        else if (recordHistory && JSON.stringify(valid) !== JSON.stringify(structureNodes)) {
+          treeRedoHistory.length = 0;
+          treeUndoHistory.push(structuredClone(structureNodes));
+          if (treeUndoHistory.length > 20) treeUndoHistory.shift();
+        }
         structureNodes = valid;
-        saveTree();
-        renderTree();
+        treeIndex = indexStructureNodes(valid);
+        if (persist) saveTree();
+        document.dispatchEvent(new Event("case-state-change"));
+        renderTree(reveal);
       }
       /** Migra árboles v1 a referencias v2 sin expansión ilimitada ni mutación parcial. */
-      function applyHierarchy(groups, relations = []) {
+      function applyHierarchy(groups, relations = [], options) {
         const validGroups = validateTree(groups),
           validRelations = validateStructureRelations(relations);
         const nodes = validGroups.map((g) => ({
@@ -9698,39 +10209,86 @@
         const validNodes = validateNodes(nodes);
         structureGroups = validGroups;
         structureRelations = validRelations;
-        applyNodes(validNodes);
+        applyNodes(validNodes, options);
+      }
+      function importStructureTree(data, persist = true) {
+        if (
+          data?.format !== "mpr-structure-tree" ||
+          ![1, 2].includes(data.version) ||
+          !modelContentHash ||
+          data.modelHash !== modelContentHash
+        )
+          throw new Error("El árbol no corresponde a este GLB.");
+        if ("nodes" in data) applyNodes(data.nodes, { persist });
+        else applyHierarchy(data.groups, data.relations || [], { persist });
+      }
+      function loadTreeExpansion() {
+        treeOpenNodes = new Set();
+        if (!modelContentHash) return;
+        try {
+          const ids = JSON.parse(localStorage.getItem("mpr-tree-open-v1:" + modelContentHash) || "[]");
+          if (Array.isArray(ids) && ids.length <= 10000 && ids.every((id) => typeof id === "string"))
+            treeOpenNodes = new Set(ids);
+        } catch { /* Un estado de expansión inválido no impide cargar el caso. */ }
+      }
+      function saveTreeExpansion() {
+        if (!modelContentHash) return;
+        const ids = treeSearchOpen || new Set(treeRows.filter((r) => r.details.open).map((r) => r.node.id));
+        treeOpenNodes = new Set(ids);
+        try {
+          localStorage.setItem("mpr-tree-open-v1:" + modelContentHash, JSON.stringify([...ids]));
+        } catch { /* La expansión sigue funcionando si el navegador no permite guardarla. */ }
       }
       function loadTree() {
+        syncMprNavigation();
         const key = modelContentHash ? "mpr-tree-v1:" + modelContentHash : null;
         if (key === treeCaseKey) return;
         treeCaseKey = key;
+        treeSearchOpen = null;
+        treeRows.length = 0;
+        $("structureTree").replaceChildren();
+        loadTreeExpansion();
+        $("structureSearch").value = "";
+        treeUndoHistory.length = 0;
+        treeRedoHistory.length = 0;
         structureNodes = [];
+        treeIndex = indexStructureNodes(structureNodes);
         structureGroups = [];
         structureRelations = [];
+        treeLocalOverride = false;
         treeEditing = false;
         try {
           const data = key ? JSON.parse(localStorage.getItem(key) || "null") : null;
-          if (data?.nodes) applyNodes(data.nodes);
+          if (!data) {
+            renderTree();
+            return;
+          }
+          if ("nodes" in data) applyNodes(data.nodes, { persist: false });
           else
-            applyHierarchy(Array.isArray(data) ? data : data?.groups || [], data?.relations || []);
+            applyHierarchy(Array.isArray(data) ? data : data.groups || [], data.relations || [], {
+              persist: false,
+            });
+          treeLocalOverride = data.edited === true || structureNodes.length > 0;
         } catch (e) {
-          structureNodes = [];
           renderTree();
           $("treeMessage").textContent = "No se pudo recuperar el árbol: " + e.message;
         }
       }
       function visibilityClosure(initial) {
         const keys = new Set(initial),
-          pending = [...keys];
+          pending = [],
+          visited = new Set();
+        for (const key of keys)
+          for (const n of treeIndex.references.get(key) || []) pending.push(n);
         while (pending.length) {
-          const key = pending.pop();
-          for (const n of structureNodes)
-            if (n.type === "segment" && n.key === key)
-              for (const child of nodeKeys(n.id))
-                if (!keys.has(child)) {
-                  keys.add(child);
-                  pending.push(child);
-                }
+          const n = pending.pop();
+          if (visited.has(n.id)) continue;
+          visited.add(n.id);
+          if (n.type === "segment" && !keys.has(n.key)) {
+            keys.add(n.key);
+            for (const reference of treeIndex.references.get(n.key)) pending.push(reference);
+          }
+          for (const child of treeIndex.children.get(n.id) || []) pending.push(child);
         }
         return [...keys];
       }
@@ -9751,16 +10309,32 @@
         if (!previous) updateStructureSelection();
       }
       function syncTreeRows() {
-        for (const r of treeRows) {
-          const keys = r.keys(),
-            visible = keys.filter((k) => layerControls.get(k)?.visible.checked),
-            chosen = visible.filter((k) => selectedStructures.has(k));
-          r.selection.disabled = !visible.length;
-          r.selection.checked = !!visible.length && chosen.length === visible.length;
-          r.selection.indeterminate = chosen.length > 0 && chosen.length < visible.length;
-          r.visibility.checked = !!keys.length && visible.length === keys.length;
-          r.visibility.indeterminate = visible.length > 0 && visible.length < keys.length;
-          if (r.dot) r.dot.style.background = layerControls.get(r.key)?.picker.value || "#aaa";
+        const states = new Map();
+        for (let i = treeRows.length - 1; i >= 0; i--) {
+          const r = treeRows[i], { id, parent, key } = r.node;
+          const layer = layerControls.get(key);
+          const state = states.get(id) || { selected: false, unselected: false, hidden: false };
+          if (layer) {
+            if (!layer.visible.checked) state.hidden = true;
+            else if (selectedStructures.has(key)) state.selected = true;
+            else state.unselected = true;
+          }
+          const visible = state.selected || state.unselected;
+          r.selection.disabled = !visible;
+          r.selection.checked = state.selected && !state.unselected;
+          r.selection.indeterminate = state.selected && state.unselected;
+          r.visibility.disabled = !visible && !state.hidden;
+          r.visibility.checked = visible && !state.hidden;
+          r.visibility.indeterminate = visible && state.hidden;
+          if (r.dot) r.dot.style.background = layer?.picker.value || "#aaa";
+          if (parent !== null) {
+            const previous = states.get(parent);
+            states.set(parent, {
+              selected: state.selected || !!previous?.selected,
+              unselected: state.unselected || !!previous?.unselected,
+              hidden: state.hidden || !!previous?.hidden,
+            });
+          }
         }
       }
       function treeControls(keys) {
@@ -9768,7 +10342,7 @@
           visibility = document.createElement("input");
         selection.type = visibility.type = "checkbox";
         selection.title = "Seleccionar toda la rama visible";
-        visibility.title = "Mostrar u ocultar toda la rama";
+        visibility.title = "Mostrar u ocultar las estructuras de esta rama. También afecta a sus referencias y descendientes en otras ramas.";
         selection.setAttribute("aria-label", selection.title);
         visibility.setAttribute("aria-label", visibility.title);
         selection.onchange = () => {
@@ -9801,7 +10375,7 @@
         return b;
       }
       function editNode(id = null, parent = null) {
-        const n = structureNodes.find((n) => n.id === id),
+        const n = treeIndex.byId.get(id),
           panel = $("groupEditor");
         panel.replaceChildren();
         panel.hidden = false;
@@ -9823,17 +10397,32 @@
         const dest = document.createElement("select");
         dest.id = "nodeParent";
         dest.add(new Option("Raíz del árbol", ""));
+        const excluded = new Set(), descendants = n ? [n] : [];
+        while (descendants.length) {
+          const child = descendants.pop();
+          excluded.add(child.id);
+          for (const descendant of treeIndex.children.get(child.id) || []) descendants.push(descendant);
+        }
         for (const a of structureNodes)
-          if (a.id !== id) {
+          if (!excluded.has(a.id)) {
             const path = [];
             let cur = a;
             while (cur) {
-              path.unshift(cur.name || cur.key);
-              cur = structureNodes.find((x) => x.id === cur.parent);
+              path.push(cur.name || cur.key);
+              cur = treeIndex.byId.get(cur.parent);
             }
-            dest.add(new Option(path.join(" / "), a.id));
+            dest.add(new Option(path.reverse().join(" / "), a.id));
           }
         dest.value = n?.parent || parent || "";
+        const iconSelect = document.createElement("select");
+        iconSelect.id = "nodeCategoryIcon";
+        const iconLabel = document.createElement("label");
+        iconLabel.htmlFor = iconSelect.id;
+        iconLabel.textContent = "Icono de la referencia (no cambia el color ni interpreta diagnósticos)";
+        iconSelect.add(new Option("Automático según nombre original", ""));
+        for (const [value, label] of structureIconOptions()) iconSelect.add(new Option(label, value));
+        iconSelect.value = n?.icon || "";
+        if (nodeType === "segment") panel.append(iconLabel, iconSelect);
         panel.append(
           nameLabel,
           name,
@@ -9844,36 +10433,30 @@
               id: id || uid(),
               type: nodeType,
               parent: dest.value || null,
-              ...(nodeType === "group" ? { name: name.value } : { key: n.key, name: name.value }),
+              ...(nodeType === "group" ? { name: name.value } : { key: n.key, name: name.value, ...(iconSelect.value ? { icon: iconSelect.value } : {}) }),
             };
-            applyNodes([...structureNodes.filter((x) => x.id !== id), node]);
+            applyNodes(n ? structureNodes.map((x) => (x.id === id ? node : x)) : [...structureNodes, node], {
+              reveal: [node.parent],
+            });
             panel.hidden = true;
           }),
           button("Cancelar", () => (panel.hidden = true))
         );
         if (n)
           panel.append(
-            button("Quitar nodo y sus referencias hijas", () => {
-              const ids = new Set([id]);
-              let changed = true;
-              while (changed) {
-                changed = false;
-                for (const a of structureNodes)
-                  if (ids.has(a.parent) && !ids.has(a.id)) {
-                    ids.add(a.id);
-                    changed = true;
-                  }
-              }
-              applyNodes(structureNodes.filter((a) => !ids.has(a.id)));
-              panel.hidden = true;
-            })
+            button("Quitar solo este nodo", () => removeTreeReference(id)),
+            button("Quitar nodo y su rama", () => removeTreeReference(id, true))
           );
         panel.scrollIntoView({ block: "nearest" });
       }
-      function renderTree() {
+      function renderTree(reveal = []) {
         const host = $("structureTree"),
           canonical = $("modelLayers"),
-          open = new Set([...host.querySelectorAll("details[open]")].map((d) => d.dataset.node));
+          open = new Set(treeSearchOpen || (treeRows.length
+            ? treeRows.filter((r) => r.details.open).map((r) => r.node.id)
+            : treeOpenNodes));
+        for (const id of reveal)
+          for (let n = treeIndex.byId.get(id); n; n = treeIndex.byId.get(n.parent)) open.add(n.id);
         for (const l of layerControls.values()) {
           if (l.card.parentElement !== canonical) canonical.append(l.card);
           l.card.hidden = false;
@@ -9882,114 +10465,258 @@
         host.replaceChildren();
         host.className = "";
         treeRows.length = 0;
-        $("treeMode").textContent = treeEditing ? "✓ Terminar edición" : "Editar árbol";
+        setTreeIcon($("treeMode"), treeEditing ? "done" : "edit", treeEditing ? "Terminar edición" : "Editar árbol");
+        $("treeMode").setAttribute("aria-pressed", String(treeEditing));
+        $("undoTree").hidden = !treeEditing;
+        $("redoTree").hidden = !treeEditing;
+        $("undoTree").disabled = treeUndoHistory.length === 0;
+        $("redoTree").disabled = treeRedoHistory.length === 0;
         $("createGroup").hidden = !treeEditing;
+        $("treeRootDrop").hidden = !treeEditing;
+        bindTreeDrop($("treeRootDrop"), null);
         $("groupEditor").hidden = true;
-        const containers = new Map([[null, host]]),
-          pending = [...structureNodes];
+        const pending = [{ container: host, nodes: treeIndex.children.get(null) || [] }];
         while (pending.length) {
-          const i = pending.findIndex((n) => containers.has(n.parent));
-          if (i < 0) break;
-          const n = pending.splice(i, 1)[0],
-            details = document.createElement("details");
+          const { container, nodes, index = 0 } = pending.pop();
+          if (index >= nodes.length) continue;
+          const n = nodes[index], details = document.createElement("details");
+          pending.push({ container, nodes, index: index + 1 });
+          const children = treeIndex.children.get(n.id);
           details.className = "tree-group unified-node";
+          details.classList.toggle("has-children", !!children?.length);
           details.dataset.node = n.id;
           details.open = open.has(n.id);
-          const row = document.createElement("summary"),
-            title = document.createElement("span");
+          const caseHash = modelContentHash;
+          details.addEventListener("toggle", () => {
+            if (modelContentHash === caseHash && host.contains(details)) saveTreeExpansion();
+          });
+          const row = document.createElement("summary");
+          const name = n.name || n.key;
+          const title = treeEditing
+            ? button(name, () => editNode(n.id))
+            : n.type === "segment"
+              ? button(name, () => focusStructure(n.key, false, false))
+              : document.createElement("span");
           title.className = "tree-name";
           title.title = n.type === "segment" ? "Estructura original: " + n.key : n.name;
-          title.textContent = (n.type === "group" ? "▱ " : "") + (n.name || n.key);
+          title.textContent = name;
+          if (treeEditing) title.title += " · Pulsa para editar";
           const c = treeControls(() => nodeKeys(n.id));
+          Object.assign(c, { node: n, details, title });
           if (!treeEditing) row.append(c.selection);
           if (n.type === "segment") {
             const dot = document.createElement("span");
             dot.className = "color-dot";
             c.dot = dot;
-            c.key = n.key;
             row.append(dot);
           }
-          row.append(title);
-          if (!treeEditing) row.append(c.label);
-          else {
-            title.title += " · Doble clic para editar";
-            title.ondblclick = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              editNode(n.id);
-            };
+          row.append(structureCategoryIcon(n), title);
+          const referenceCount = n.type === "segment" ? treeIndex.references.get(n.key)?.length || 0 : 0;
+          if (referenceCount > 1) {
+            const shared = document.createElement("span");
+            shared.className = "tree-shared";
+            shared.textContent = "↗ " + referenceCount;
+            shared.title = "Esta estructura aparece en " + referenceCount +
+              " lugares del árbol. Su visibilidad se comparte entre todas sus referencias y sus descendientes.";
+            shared.setAttribute("role", "img");
+            shared.setAttribute("aria-label", shared.title);
+            shared.tabIndex = 0;
+            row.append(shared);
           }
-
+          c.visibility.setAttribute("aria-label", "Visibilidad de " + (n.name || n.key) + ". " + c.visibility.title);
+          if (!treeEditing) row.append(c.label);
+          else row.append(treeNodeActions(n));
           treeRows.push(c);
           if (treeEditing) {
             row.draggable = true;
             row.ondragstart = (e) => {
               e.stopPropagation();
-              e.dataTransfer.setData("text/plain", n.id);
+              e.dataTransfer.effectAllowed = "move";
               e.dataTransfer.setData("application/x-mpr-tree-node", n.id);
             };
-            row.ondragover = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            };
-            row.ondrop = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              details.open = true;
-              const source = e.dataTransfer.getData("text/plain");
-              try {
-                const key = e.dataTransfer.getData("application/x-mpr-structure");
-                if (key) {
-                  addStructureReference(key, n.id);
-                  return;
-                }
-                if (!structureNodes.some((a) => a.id === source)) return;
-                applyNodes(
-                  structureNodes.map((a) => (a.id === source ? { ...a, parent: n.id } : a))
-                );
-              } catch (err) {
-                $("treeMessage").textContent = err.message;
-              }
-            };
+            bindTreeDrop(row, n.id);
           }
           details.append(row);
           const body = document.createElement("div");
           body.className = "tree-children";
           details.append(body);
-          containers.get(n.parent).append(details);
-          containers.set(n.id, body);
+          container.append(details);
+          if (children) pending.push({ container: body, nodes: children });
         }
         renderStructureCatalog();
         syncTreeRows();
         filterTree();
       }
+      // El orden del array se conserva en el JSON y determina el orden entre hermanos.
+      function moveTreeNode(id, targetId, position = "inside") {
+        const node = treeIndex.byId.get(id), target = treeIndex.byId.get(targetId);
+        if (!node || id === targetId) return;
+        if (!["inside", "before", "after"].includes(position)) throw new Error("Posición inválida.");
+        if (targetId !== null && !target) throw new Error("Destino inexistente.");
+        const parent = position === "inside" ? targetId : target?.parent;
+        if (parent === undefined) throw new Error("Destino inexistente.");
+        const next = structureNodes.filter((n) => n.id !== id);
+        let index = next.length;
+        if (position !== "inside") {
+          index = next.findIndex((n) => n.id === targetId) + (position === "after" ? 1 : 0);
+        }
+        next.splice(index, 0, { ...node, parent });
+        applyNodes(next, { reveal: [node.parent, parent] });
+      }
+      function setTreeIcon(control, icon, label) {
+        const paths = {
+          settings: "M3 2v14 M9 2v14 M15 2v14 M1 6h4 M7 12h4 M13 7h4",
+          text: "M3 4h12 M9 4v11 M6 15h6",
+          arrow: "M3 15L15 3 M6 3h9v9",
+          image: "M2 2h14v14H2z M2 13l4-5 4 4 3-3 3 4 M11 5h1",
+          cube: "M9 1l7 4v8l-7 4-7-4V5z M2 5l7 4 7-4 M9 9v8",
+          report: "M4 1h7l4 4v12H4z M11 1v4h4 M7 8h5 M7 11h5 M7 14h3",
+          edit: "M12 3l3 3-9 9H3v-3z M10 5l3 3",
+          done: "M3 9l4 4 8-9",
+          maximize: "M2 6V2h4 M12 2h4v4 M2 12v4h4 M12 16h4v-4",
+          undo: "M6 3L2 7l4 4 M2 7h8a5 5 0 0 1 0 10",
+          redo: "M12 3l4 4-4 4 M16 7H8a5 5 0 0 0 0 10",
+          expand: "M4 6l5-4 5 4 M4 12l5 4 5-4",
+          collapse: "M4 2l5 4 5-4 M4 16l5-4 5 4",
+          group: "M2 6V4h5l2 2h7v10H2z M9 8v6 M6 11h6",
+          more: "M4 9h.01 M9 9h.01 M14 9h.01",
+          bookmark: "M4 2h10v14l-5-3-5 3z",
+          pan: "M9 1v16 M1 9h16 M6 4l3-3 3 3 M6 14l3 3 3-3 M4 6L1 9l3 3 M14 6l3 3-3 3",
+          target: "M9 1v4 M9 13v4 M1 9h4 M13 9h4 M9 5a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
+          reset: "M3 7a6 6 0 1 1 0 5 M3 2v5h5",
+          export: "M9 2v10 M5 8l4 4 4-4 M3 12v4h12v-4",
+          import: "M9 12V2 M5 6l4-4 4 4 M3 12v4h12v-4",
+        };
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 18 18");
+        svg.setAttribute("aria-hidden", "true");
+        svg.setAttribute("focusable", "false");
+        const path = document.createElementNS(svg.namespaceURI, "path");
+        path.setAttribute("d", paths[icon]);
+        svg.append(path);
+        control.replaceChildren(svg);
+        control.classList.add("tree-icon");
+        control.setAttribute("aria-label", label);
+        control.title = label;
+      }
+      function treeNodeActions(node) {
+        const actions = document.createElement("select");
+        actions.className = "tree-actions";
+        actions.setAttribute("aria-label", "Acciones de " + (node.name || node.key));
+        for (const [value, label] of [
+          ["", "Acciones…"], ["rename", "Renombrar"], ["move", "Mover a otra rama…"],
+          ["up", "Subir"], ["down", "Bajar"], ["remove", "Quitar solo este nodo"],
+          ...(node.type === "segment" ? [["icon", "Cambiar icono…"]] : []),
+        ]) {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = label;
+          actions.append(option);
+        }
+        const siblings = treeIndex.children.get(node.parent) || [];
+        const index = siblings.findIndex((n) => n.id === node.id);
+        actions.options[3].disabled = index <= 0;
+        actions.options[4].disabled = index >= siblings.length - 1;
+        actions.onclick = (e) => e.stopPropagation();
+        actions.onkeydown = (e) => e.stopPropagation();
+        actions.ondragstart = (e) => { e.preventDefault(); e.stopPropagation(); };
+        actions.onchange = () => {
+          const action = actions.value;
+          actions.value = "";
+          try {
+            if (["rename", "move", "icon"].includes(action)) {
+              editNode(node.id);
+              $(action === "rename" ? "nodeDisplayName" : action === "icon" ? "nodeCategoryIcon" : "nodeParent").focus();
+            } else if (action === "up" && index > 0) moveTreeNode(node.id, siblings[index - 1].id, "before");
+            else if (action === "down" && index < siblings.length - 1) moveTreeNode(node.id, siblings[index + 1].id, "after");
+            else if (action === "remove") removeTreeReference(node.id);
+          } catch (error) { $("treeMessage").textContent = error.message; }
+        };
+        const wrapper = document.createElement("span");
+        setTreeIcon(wrapper, "more", "Acciones de " + (node.name || node.key));
+        wrapper.classList.add("tree-actions-wrap");
+        wrapper.removeAttribute("aria-label");
+        wrapper.append(actions);
+        return wrapper;
+      }
+      function bindTreeDrop(target, parent) {
+        const dropPosition = (e) => {
+          if (parent === null || Array.from(e.dataTransfer.types || []).includes("application/x-mpr-structure")) return "inside";
+          const rect = target.getBoundingClientRect();
+          if (!rect.height || !Number.isFinite(e.clientY)) return "inside";
+          const fraction = (e.clientY - rect.top) / rect.height;
+          return fraction < 0.25 ? "before" : fraction > 0.75 ? "after" : "inside";
+        };
+        const clear = () => {
+          target.classList.remove("drop-target", "drop-before", "drop-after");
+        };
+        target.ondragover = (e) => {
+          const types = e.dataTransfer.types;
+          const copy = types.includes("application/x-mpr-structure");
+          if (!treeEditing || (!copy && !types.includes("application/x-mpr-tree-node"))) return;
+          e.preventDefault();
+          e.stopPropagation();
+          e.dataTransfer.dropEffect = copy ? "copy" : "move";
+          clear();
+          const position = dropPosition(e);
+          target.classList.add(position === "inside" ? "drop-target" : "drop-" + position);
+        };
+        target.ondragleave = (e) => {
+          if (!target.contains(e.relatedTarget)) clear();
+        };
+        target.ondrop = (e) => {
+          clear();
+          if (!treeEditing) return;
+          const key = e.dataTransfer.getData("application/x-mpr-structure");
+          const node = treeIndex.byId.get(e.dataTransfer.getData("application/x-mpr-tree-node"));
+          if (!key && !node) return;
+          e.preventDefault();
+          e.stopPropagation();
+          try {
+            if (key) addStructureReference(key, parent);
+            else moveTreeNode(node.id, parent, dropPosition(e));
+            $("treeMessage").textContent = "";
+          } catch (err) {
+            $("treeMessage").textContent = err.message;
+          }
+        };
+      }
       function addStructureReference(key, parent) {
         if (!layerControls.has(key)) throw new Error("Estructura desconocida.");
-        if (!structureNodes.some((n) => n.id === parent))
+        if (parent !== null && !treeIndex.byId.has(parent))
           throw new Error("Selecciona un nodo de destino.");
         if (
           structureNodes.some((n) => n.type === "segment" && n.key === key && n.parent === parent)
         )
           return;
-        applyNodes([...structureNodes, { id: uid(), type: "segment", key, parent }]);
+        applyNodes([...structureNodes, { id: uid(), type: "segment", key, parent }], {
+          reveal: [parent],
+        });
       }
-      function removeTreeReference(id) {
+      function removeTreeReference(id, includeChildren = false) {
+        const node = treeIndex.byId.get(id);
+        if (!node) return;
         const ids = new Set([id]);
-        let changed = true;
-        while (changed) {
-          changed = false;
-          for (const n of structureNodes)
-            if (ids.has(n.parent) && !ids.has(n.id)) {
-              ids.add(n.id);
-              changed = true;
+        if (includeChildren) {
+          const pending = [node];
+          while (pending.length) {
+            for (const child of treeIndex.children.get(pending.pop().id) || []) {
+              ids.add(child.id);
+              pending.push(child);
             }
+          }
         }
-        applyNodes(structureNodes.filter((n) => !ids.has(n.id)));
+        applyNodes(
+          structureNodes
+            .filter((n) => !ids.has(n.id))
+            .map((n) => (n.parent === id ? { ...n, parent: node.parent } : n)),
+          { reveal: [node.parent] }
+        );
       }
       function renderStructureCatalog() {
-        const catalog = $("structureCatalog");
-        catalog.hidden = !treeEditing;
-        catalog.replaceChildren();
+        const catalog = $("independentStructures");
+        $("catalogEditHint").hidden = !treeEditing;
+        catalog.classList.remove("drop-remove");
         catalog.ondragover = (e) => {
           if (
             !treeEditing ||
@@ -10007,102 +10734,108 @@
           catalog.classList.remove("drop-remove");
           if (!treeEditing) return;
           const id = e.dataTransfer.getData("application/x-mpr-tree-node");
-          if (!id || !structureNodes.some((n) => n.id === id)) return;
+          if (!treeIndex.byId.has(id)) return;
           e.preventDefault();
           e.stopPropagation();
           removeTreeReference(id);
           $("treeMessage").textContent =
             "Referencia retirada del árbol. Las estructuras siguen disponibles.";
         };
-        if (!treeEditing) return;
-        const heading = document.createElement("strong");
-        heading.textContent = "Estructuras disponibles";
-        const hint = document.createElement("p");
-        hint.className = "note";
-        hint.textContent =
-          "Arrastra una estructura sobre un grupo o una segmentación para añadir una referencia. Para retirar una referencia del árbol, arrástrala de vuelta aquí. El catálogo conserva todos los elementos.";
-        catalog.append(heading, hint);
-        const search = document.createElement("input");
-        search.type = "search";
-        search.placeholder = "Buscar en el catálogo…";
-        search.setAttribute("aria-label", "Buscar en el catálogo");
-        catalog.append(search);
-        const list = document.createElement("div");
-        list.className = "catalog-list";
-        catalog.append(list);
-        for (const key of layerControls.keys()) {
-          const row = document.createElement("div");
-          row.className = "catalog-item";
-          row.draggable = true;
-          row.textContent = "⠿ " + key;
-          row.dataset.key = key;
-          row.title = "Arrastra para añadir una referencia";
-          row.ondragstart = (e) => {
+        for (const [key, layer] of layerControls) {
+          const row = layer.card.querySelector(".layer-header");
+          row.draggable = treeEditing;
+          row.ondragstart = treeEditing ? (e) => {
             e.stopPropagation();
             e.dataTransfer.effectAllowed = "copy";
             e.dataTransfer.setData("application/x-mpr-structure", key);
-            e.dataTransfer.setData("text/plain", key);
-          };
-          list.append(row);
+          } : null;
         }
-        search.oninput = () => {
-          const q = search.value.trim().toLocaleLowerCase("es");
-          for (const row of list.children)
-            row.hidden = !row.dataset.key.toLocaleLowerCase("es").includes(q);
-        };
       }
       function filterTree() {
         const q = $("structureSearch").value.trim().toLocaleLowerCase("es");
+        if (q && treeSearchOpen === null)
+          treeSearchOpen = new Set(treeRows.filter((r) => r.details.open).map((r) => r.node.id));
+        const restoreOpen = !q && treeSearchOpen !== null;
         let count = 0;
         for (const [key, l] of layerControls) {
           l.card.hidden = !!q && !key.toLocaleLowerCase("es").includes(q);
           if (!l.card.hidden) count++;
         }
-        for (const d of [...$("structureTree").querySelectorAll(".unified-node")].reverse()) {
-          const own = d
-              .querySelector(":scope > summary .tree-name")
-              .textContent.toLocaleLowerCase("es")
-              .includes(q),
-            child = [...d.querySelectorAll(".unified-node")].some((c) => !c.hidden);
-          d.hidden = !!q && !own && !child;
-          if (!d.hidden) count++;
-          if (q && !d.hidden) d.open = true;
+        const matchingParents = new Set();
+        for (let i = treeRows.length - 1; i >= 0; i--) {
+          const { node, details, title } = treeRows[i];
+          const own = title.textContent.toLocaleLowerCase("es").includes(q) ||
+            (node.type === "segment" && node.key.toLocaleLowerCase("es").includes(q));
+          if (restoreOpen) details.open = treeSearchOpen.has(node.id);
+          details.hidden = !!q && !own && !matchingParents.has(node.id);
+          if (!details.hidden) {
+            count++;
+            if (q) {
+              matchingParents.add(node.parent);
+              details.open = true;
+            }
+          }
         }
+        if (restoreOpen) treeSearchOpen = null;
         $("structureSearchEmpty").hidden = !q || count > 0;
       }
-      const catalog = document.createElement("section");
-      catalog.id = "structureCatalog";
-      catalog.hidden = true;
-      $("structureTree").before(catalog);
+      function setTreeExpanded(expanded) {
+        // Una acción global termina la búsqueda para mostrar su resultado en todo el árbol.
+        $("structureSearch").value = "";
+        filterTree();
+        for (const { details } of treeRows) details.open = expanded;
+        saveTreeExpansion();
+      }
       const toolbar = $("createGroup").parentElement;
       const mode = button("Editar árbol", () => {
         treeEditing = !treeEditing;
         renderTree();
       });
       mode.id = "treeMode";
-      toolbar.prepend(mode);
-      $("createGroup").textContent = "+ Crear grupo";
+      const undo = button("Deshacer", undoTreeChange);
+      undo.id = "undoTree";
+      undo.disabled = true;
+      undo.hidden = true;
+      undo.title = "Deshacer el último cambio de organización (hasta 20 cambios por sesión). No cambia selección ni visibilidad.";
+      const redo = button("Rehacer", redoTreeChange);
+      redo.id = "redoTree";
+      redo.disabled = true;
+      redo.hidden = true;
+      redo.title = "Recuperar el último cambio deshecho. Una edición nueva descarta los cambios pendientes de rehacer.";
+      const expand = button("Expandir todo", () => setTreeExpanded(true));
+      const collapse = button("Contraer todo", () => setTreeExpanded(false));
+      expand.title = collapse.title = "Limpia la búsqueda y actúa sobre todo el árbol.";
+      setTreeIcon(mode, "edit", "Editar árbol");
+      setTreeIcon(undo, "undo", "Deshacer");
+      setTreeIcon(redo, "redo", "Rehacer");
+      setTreeIcon(expand, "expand", "Expandir todo");
+      setTreeIcon(collapse, "collapse", "Contraer todo");
+      expand.title = "Expandir todo · limpia la búsqueda";
+      collapse.title = "Contraer todo · limpia la búsqueda";
+      toolbar.prepend(mode, undo, redo, expand, collapse);
+      setTreeIcon($("createGroup"), "group", "Crear grupo");
+      setTreeIcon($("exportTree"), "export", "Exportar árbol");
+      setTreeIcon($("importTreeButton"), "import", "Importar árbol");
+      setTreeIcon($("exportNamedViews"), "export", "Exportar lista de vistas");
+      setTreeIcon($("importNamedViewsButton"), "import", "Importar lista de vistas");
       $("createGroup").onclick = () => editNode();
       $("childrenEditor").hidden = true;
       document.querySelector(".hierarchy-display").remove();
       $("createGroup").hidden = true;
+      function exportStructureTree() {
+        return {
+          format: "mpr-structure-tree",
+          version: 2,
+          modelHash: modelContentHash,
+          nodes: structureNodes,
+          groups: [],
+          relations: [],
+        };
+      }
       $("exportTree").onclick = () =>
         downloadBlob(
           new Blob(
-            [
-              JSON.stringify(
-                {
-                  format: "mpr-structure-tree",
-                  version: 2,
-                  modelHash: modelContentHash,
-                  nodes: structureNodes,
-                  groups: [],
-                  relations: [],
-                },
-                null,
-                2
-              ),
-            ],
+            [JSON.stringify(exportStructureTree(), null, 2)],
             { type: "application/json" }
           ),
           loadedModelName + "_estructura.json"
@@ -10112,16 +10845,7 @@
         $("importTree"),
         async (f) => {
           if (f.size > 5000000) throw new Error("Archivo demasiado grande.");
-          const d = JSON.parse(await f.text());
-          if (
-            d.format !== "mpr-structure-tree" ||
-            ![1, 2].includes(d.version) ||
-            !modelContentHash ||
-            d.modelHash !== modelContentHash
-          )
-            throw new Error("El árbol no corresponde a este GLB.");
-          if (d.nodes) applyNodes(d.nodes);
-          else applyHierarchy(d.groups, d.relations || []);
+          importStructureTree(JSON.parse(await f.text()));
           $("treeMessage").textContent = "Árbol importado.";
         },
         (message) => {
@@ -10160,19 +10884,295 @@
       // =============================================================================
       // 18 · Menús flotantes e iconos
       // =============================================================================
+      function createPaneHintController(menus) {
+        let timer = null;
+        const hide = () => {
+          clearTimeout(timer);
+          timer = null;
+          for (const { indicator } of menus) indicator.hidden = true;
+        };
+        document.addEventListener("mpr-tool-change", hide);
+        return () => {
+          hide();
+          if (!["select", "cut"].includes(activeTool)) hideStructureHover();
+          const text = $("toolHint").textContent;
+          if (activeTool === "navigate" || !text.trim()) return;
+          for (const { indicator } of menus) {
+            indicator.textContent = text;
+            indicator.hidden = false;
+          }
+          timer = setTimeout(hide, 4000);
+        };
+      }
+      function highlightSidebarSection(section) {
+        clearTimeout(highlightSidebarSection.timer);
+        for (const previous of document.querySelectorAll(".sidebar-highlight")) previous.classList.remove("sidebar-highlight");
+        section.classList.add("sidebar-highlight");
+        highlightSidebarSection.timer = setTimeout(() => section.classList.remove("sidebar-highlight"), 4000);
+      }
+      function openSidebarSection(id) {
+        const section = $(id);
+        for (let node = section; node; node = node.parentElement) {
+          if (node.tagName === "DETAILS") { node.hidden = false; node.open = true; }
+        }
+        if (document.body.classList.contains("panel-folded")) $("toggleGeneralPanel").click();
+        section.scrollIntoView({ block: "nearest" });
+        highlightSidebarSection(section);
+      }
+      function sync3DSliceControl(axis) {
+        const input = $("sceneSlice" + axis), source = $("r" + axis);
+        if (!input || !source) return;
+        for (const attribute of ["min", "max", "step"]) input[attribute] = source[attribute];
+        input.disabled = source.disabled;
+        input.value = source.value;
+        $("sceneSliceValue" + axis).textContent = source.disabled ? "—" : source.value;
+      }
+      function create3DSliceControls() {
+        const group = document.createElement("section");
+        group.className = "scene-slice-controls";
+        group.setAttribute("aria-label", "Desplazar planos del TC");
+        const heading = document.createElement("h3");
+        heading.textContent = "Desplazar planos del TC";
+        group.append(heading);
+        for (const [axis, name] of [["z", "Axial"], ["y", "Coronal"], ["x", "Sagital"]]) {
+          const row = document.createElement("div"), label = document.createElement("button");
+          label.type = "button";
+          const planeId = "plane" + axis.toUpperCase();
+          label.dataset.paneToggle = planeId;
+          label.title = "Mostrar u ocultar plano " + name.toLowerCase();
+          label.setAttribute("aria-label", label.title);
+          label.setAttribute("aria-pressed", String($("planes").checked && $(planeId).checked));
+          label.onclick = () => {
+            const plane = $(planeId), visible = $("planes").checked && plane.checked;
+            plane.checked = !visible;
+            if (!visible) $("planes").checked = true;
+            plane.dispatchEvent(new Event("change"));
+            syncPaneToggles();
+          };
+          const input = document.createElement("input"), output = document.createElement("output");
+          input.type = "range";
+          input.id = "sceneSlice" + axis;
+          input.setAttribute("aria-label", "Corte " + name.toLowerCase());
+          label.textContent = name;
+          output.id = "sceneSliceValue" + axis;
+          output.htmlFor = input.id;
+          row.append(label, input, output);
+          group.append(row);
+          const source = $("r" + axis);
+          const sync = () => {
+            for (const attribute of ["min", "max", "step"]) input[attribute] = source[attribute];
+            input.disabled = source.disabled;
+            input.value = source.value;
+            output.textContent = source.disabled ? "—" : source.value;
+          };
+          sync();
+          new MutationObserver(sync).observe(source, { attributes: true, attributeFilter: ["min", "max", "step", "disabled"] });
+          input.oninput = () => {
+            if (source.disabled) return;
+            source.value = input.value;
+            source.dispatchEvent(new Event("input", { bubbles: true }));
+            sync();
+          };
+        }
+        return group;
+      }
+      function organizeViewerTools(menus) {
+        const header = document.querySelector("header");
+        const bar = $("viewerTools");
+        // La estructura inicial ya está en el HTML; se enlazan las acciones sin mostrar controles heredados.
+        const positionControls = [...$("mprNavigation").children];
+        bar.replaceChildren();
+        const explore = document.createElement("div");
+        explore.className = "shared-explore";
+        explore.setAttribute("role", "group");
+        explore.setAttribute("aria-label", "Explorar");
+        const pools = menus.flatMap(({ toolbar }) => [...toolbar.querySelectorAll("button")]);
+        const takeTool = (tool) => pools.find((b) => b.dataset.tool === tool) || document.querySelector('[data-tool="' + tool + '"]');
+        const takeLabel = (label) => pools.find((b) => b.getAttribute("aria-label") === label);
+        const labelButton = (b, label) => {
+          if (!b) return;
+          if (!b.querySelector("svg")) setTreeIcon(b, "pan", label);
+          const svg = b.querySelector("svg");
+          b.replaceChildren(svg);
+          b.classList.remove("tree-icon");
+          b.classList.add("shared-tool");
+          const text = document.createElement("span");
+          text.textContent = label;
+          b.append(text);
+          b.title = label;
+          b.setAttribute("aria-label", label);
+          return b;
+        };
+        for (const [tool, label] of [["navigate", "Navegar"], ["select", "Seleccionar"], ["pan", "Desplazar"], ["zoom", "Zoom"], ["window", "Ventana"]]) {
+          const b = takeTool(tool);
+          labelButton(b, label);
+          b.title = label + (["pan", "zoom", "window"].includes(tool) ? " · vistas MPR" : " · MPR y 3D");
+          explore.append(b);
+        }
+        bar.append(explore);
+        const dropdown = (label, elements) => {
+          const details = document.createElement("details");
+          details.className = "shared-dropdown";
+          const summary = document.createElement("summary");
+          summary.textContent = label + " ▾";
+          const content = document.createElement("div");
+          content.className = "shared-dropdown-content";
+          for (const element of elements) if (element) content.append(element);
+          details.append(summary, content);
+          details.addEventListener("toggle", () => {
+            if (details.open) {
+              for (const other of bar.querySelectorAll(".shared-dropdown")) if (other !== details) other.open = false;
+              content.style.left = "0px";
+              const width = document.documentElement.clientWidth;
+              const right = content.getBoundingClientRect().right;
+              if (width && right > width - 8) content.style.left = (width - 8 - right) + "px";
+            }
+          });
+          content.addEventListener("click", (e) => { if (e.target.closest("button")) details.open = false; });
+          bar.append(details);
+          return content;
+        };
+        dropdown("Medir", [
+          labelButton(takeTool("measure2d"), "Medir en MPR"), labelButton(takeTool("measure3d"), "Medir en 3D"),
+          labelButton(takeTool("editMeasure"), "Editar medidas"), labelButton(takeTool("deleteMeasure"), "Borrar medida o anotación"),
+          button("Lista y ajustes de mediciones", () => openSidebarSection("menu-measurements")),
+        ]);
+        dropdown("Anotar", [$("addModelLabel"), $("addModelArrow"), button("Textos y ajustes", () => openSidebarSection("menu-annotations"))]);
+        const centerAll = button("Centrar todo", centerAllViews);
+        centerAll.id = "centerAllViews";
+        centerAll.disabled = true;
+        centerAll.title = "Centrar las cuatro vistas sin cambiar zoom, cortes ni orientación";
+        dropdown("Posición", [centerAll, ...positionControls]);
+        const more = dropdown("Más", []);
+        const family = (label, controls) => {
+          const group = document.createElement("section");
+          group.className = "shared-tool-family";
+          group.setAttribute("role", "group");
+          group.setAttribute("aria-label", label);
+          const heading = document.createElement("h3");
+          heading.textContent = label;
+          group.append(heading);
+          for (const control of controls) if (control) group.append(control);
+          more.append(group);
+        };
+        family("Planos y orientación", [
+          labelButton(takeTool("threePoints"), "Plano por tres puntos"),
+          labelButton(takeTool("oblique"), "Cortes oblicuos"),
+        ]);
+        const info = menus.find((item) => item.sceneView)?.toolbar.querySelector('[aria-controls="modelInfoPanel"]');
+        if (info) info.removeAttribute("style");
+        family("Apariencia", [
+          button("Ajustes de imagen MPR", () => openSidebarSection("menu-image")),
+          button("Ajustes de la vista 3D", () => openSidebarSection("menu-scene")),
+          labelButton(info, "Información del modelo"),
+          labelButton(takeTool("cut"), "Ocultar estructura"),
+          labelButton(takeLabel("Mostrar nombres de estructuras"), "Mostrar nombres de estructuras"),
+          labelButton(takeLabel("Activar / desactivar recorte del modelo"), "Recorte del modelo"),
+          labelButton(takeLabel("Rellenar contornos 2D cerrados"), "Rellenar contornos 2D"),
+        ]);
+        family("Referencias", [
+          labelButton(takeLabel("Mostrar cruces de referencia"), "Cruces de referencia MPR"),
+          labelButton(takeLabel("Mostrar cruce de referencia en 3D"), "Referencia en 3D"),
+        ]);
+        family("Trayectoria y ecografía", [
+          labelButton(takeTool("trajectory"), "Trayectoria 3D"),
+          labelButton($("headerUsMode"), "Modo US"), labelButton($("headerUsTarget"), "Objetivo US"),
+        ]);
+        family("Capturas e informe", [
+          labelButton(takeLabel("Capturar distribución actual"), "Capturar distribución actual"),
+          button("Capturas e informe", () => openSidebarSection("menu-captures")),
+        ]);
+        const menuIcons = {
+          "Lista y ajustes de mediciones": "settings", "Añadir etiqueta de texto": "text", "Añadir flecha": "arrow",
+          "Textos y ajustes": "settings", "Centrar todo": "target",
+          "Ajustes de imagen MPR": "image", "Ajustes de la vista 3D": "cube", "Capturas e informe": "report",
+        };
+        for (const control of bar.querySelectorAll(".shared-dropdown-content button")) {
+          const label = control.getAttribute("aria-label") || control.textContent.trim();
+          const title = control.title;
+          if (!control.querySelector("svg")) setTreeIcon(control, menuIcons[label] || "text", label);
+          labelButton(control, label);
+          if (title) control.title = title;
+        }
+        const active = document.createElement("span");
+        active.id = "activeToolLabel";
+        active.setAttribute("aria-live", "polite");
+        bar.append(active);
+        header.append(bar);
+        const files = $("headerCaseActions"), fileMenu = $("section-case");
+        $("headerUsTools").hidden = true;
+        $("caseLocalFiles").hidden = false;
+        const appearance = $("section-visual");
+        appearance.hidden = false;
+        appearance.open = false;
+        $("tools").hidden = true;
+        $("section-tools").hidden = false;
+        // Los ajustes permanecen en su sección; ya no se trasladan de una ventana a otra.
+        for (const section of [$("menu-measurements"), $("menu-navigation")])
+          for (const b of section.querySelectorAll("[data-tool]")) if (!bar.contains(b)) b.hidden = true;
+        for (const { pane, toolbar, panel, trigger, maximize, sceneView } of menus) {
+          panel.hidden = true;
+          if (sceneView) {
+            panel.replaceChildren();
+            const center = [...toolbar.children].find((b) => b.getAttribute("aria-label") === "Centrar");
+            if (center) panel.append(labelButton(center, "Centrar modelo"));
+            panel.append(button("Restablecer las cuatro vistas", resetMprViews));
+            panel.append(button("Ajustes de la vista 3D", () => openSidebarSection("menu-scene")));
+            panel.append(create3DSliceControls());
+            const orientations = toolbar.querySelector(".pane-plane-tools");
+            if (orientations) panel.append(orientations);
+            if (info) panel.append(button("Información del modelo", () => info.click()));
+            trigger.classList.add("pane-menu-trigger");
+            trigger.onclick = () => {
+              panel.hidden = !panel.hidden;
+              trigger.setAttribute("aria-expanded", String(!panel.hidden));
+            };
+          } else {
+            panel.remove();
+            trigger.remove();
+          }
+          setTreeIcon(maximize, "maximize", "Maximizar o restaurar esta vista");
+          maximize.classList.add("pane-maximize");
+          pane.append(maximize);
+          toolbar.remove();
+        }
+        document.addEventListener("pointerdown", (e) => {
+          if (!bar.contains(e.target)) for (const d of bar.querySelectorAll("details")) d.open = false;
+          if (!files.contains(e.target)) fileMenu.open = false;
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            for (const d of bar.querySelectorAll("details[open]")) { d.open = false; d.querySelector("summary").focus(); }
+            if (fileMenu.open) { fileMenu.open = false; fileMenu.querySelector("summary").focus(); }
+          }
+        });
+        bar.inert = false;
+        bar.setAttribute("aria-busy", "false");
+        syncActiveToolLabel();
+      }
+      function syncActiveToolLabel() {
+        const label = $("activeToolLabel");
+        if (!label) return;
+        const active = document.querySelector('#viewerTools [data-tool="' + activeTool + '"]');
+        label.textContent = "Activa: " + (active?.getAttribute("aria-label") || activeTool);
+      }
+      function toggleViewerTools() {
+        const bar = $("viewerTools"), toggle = $("togglePaneHeaders");
+        bar.hidden = !bar.hidden;
+        if (bar.hidden) {
+          for (const menu of bar.querySelectorAll("details")) menu.open = false;
+          if (bar.contains(document.activeElement)) toggle.focus();
+        }
+        const label = bar.hidden ? "Mostrar barra de herramientas" : "Ocultar barra de herramientas";
+        toggle.setAttribute("aria-expanded", String(!bar.hidden));
+        toggle.setAttribute("aria-label", label);
+        toggle.title = label;
+        resize3D();
+        repaintAll();
+      }
       function installPaneMenus() {
         const panes = [...document.querySelectorAll(".pane")];
         const menus = [];
-        const sectionsById = new Map(
-          [
-            "menu-scene",
-            "menu-navigation",
-            "menu-measurements",
-            "menu-annotations",
-            "menu-captures",
-            "menu-image",
-          ].map((id) => [id, $(id)])
-        );
         function closeMenus(restoreFocus = false) {
           for (const { panel, trigger } of menus) {
             if (!panel.hidden && restoreFocus) trigger.focus();
@@ -10198,48 +11198,10 @@
           const indicator = document.createElement("span");
           indicator.className = "pane-tool-status";
           indicator.hidden = true;
-          const reset = pane._resetView;
           const maximize = button("Maximizar / restaurar", () => {
             closeMenus(true);
             togglePane(pane);
           });
-          const sections = sceneView
-            ? [
-                "menu-scene",
-                "menu-navigation",
-                "menu-measurements",
-                "menu-annotations",
-                "menu-captures",
-              ]
-            : ["menu-image", "menu-navigation", "menu-measurements", "menu-captures"];
-          trigger.onclick = () => {
-            const opening = panel.hidden;
-            closeMenus();
-            if (!opening) return;
-            panel.replaceChildren();
-            if (!sceneView) {
-              const note = document.createElement("p");
-              note.className = "note";
-              note.textContent = "Ventana, nivel y relleno se aplican a los tres planos.";
-              panel.append(note);
-            }
-            for (const id of sections) {
-              const section = sectionsById.get(id);
-              section.open = false;
-              panel.append(section);
-            }
-            if (reset) panel.append(reset);
-            if (!sceneView)
-              panel.append(
-                button("Modo US", () => {
-                  closeMenus(true);
-                  toggleUsTool();
-                })
-              );
-            panel.append(maximize);
-            panel.hidden = false;
-            trigger.setAttribute("aria-expanded", "true");
-          };
           panel.addEventListener("click", (event) => {
             if (event.target.closest("[data-tool],#addModelLabel,#addModelArrow")) closeMenus(true);
           });
@@ -10293,16 +11255,8 @@
             return b;
           };
           const showSection = (id, headingId) => {
-            if (panel.hidden) trigger.click();
-            for (const section of panel.querySelectorAll("details"))
-              section.open = section.id === id;
-            if (headingId)
-              requestAnimationFrame(() => {
-                const heading = $(headingId);
-                panel.scrollTop +=
-                  heading.getBoundingClientRect().top - panel.getBoundingClientRect().top - 8;
-              });
-            else $(id).scrollIntoView({ block: "nearest" });
+            openSidebarSection(id);
+            if (headingId) $(headingId).scrollIntoView({ block: "nearest" });
           };
           quick("navigate", "Navegar", null, "navigate");
           const three = quick("threePoints", "Plano por tres puntos", () => {
@@ -10364,10 +11318,7 @@
               viewAppliers[axis]();
             }
           });
-          quick("reset", "Restablecer vista", () => {
-            if (sceneView) fit();
-            else reset.click();
-          });
+          quick("reset", "Restablecer las cuatro vistas", resetMprViews);
           if (sceneView)
             quick("camera", "Vistas anatómicas", () =>
               showSection("menu-scene", "cameraOrientationHeading")
@@ -10502,53 +11453,15 @@
               };
               row.append(b);
             }
-            for (const [label, id] of [
-              ["Axial", "planeZ"],
-              ["Coronal", "planeY"],
-              ["Sagital", "planeX"],
-            ]) {
-              const b = document.createElement("button");
-              b.type = "button";
-              b.textContent = label;
-              b.title = "Mostrar / ocultar plano " + label.toLowerCase();
-              b.setAttribute("aria-label", b.title);
-              b.dataset.paneToggle = id;
-              b.onclick = () => {
-                const input = $(id),
-                  visible = $("planes").checked && input.checked;
-                input.checked = !visible;
-                if (!visible) $("planes").checked = true;
-                input.dispatchEvent(new Event("change"));
-                syncPaneToggles();
-              };
-              row.append(b);
-            }
             toolbar.append(row);
           }
           pane.append(toolbar);
-          menus.push({ panel, trigger, indicator });
+          menus.push({ panel, trigger, indicator, pane, toolbar, maximize, sceneView });
           pane.append(trigger, panel, indicator);
         }
-        const refresh = () => {
-          if (!["select", "cut"].includes(activeTool)) hideStructureHover();
-          for (const { indicator } of menus) {
-            indicator.hidden = activeTool === "navigate";
-            indicator.textContent = $("toolHint").textContent;
-          }
-        };
-        const headersToggle = $("togglePaneHeaders");
-        headersToggle.onclick = () => {
-          const collapsed = document.body.classList.toggle("pane-headers-collapsed");
-          if (collapsed) closeMenus();
-          const label = collapsed
-            ? "Desplegar cabeceros de las vistas"
-            : "Contraer cabeceros de las vistas";
-          headersToggle.setAttribute("aria-expanded", String(!collapsed));
-          headersToggle.setAttribute("aria-label", label);
-          headersToggle.title = label;
-          resize3D();
-          repaintAll();
-        };
+        organizeViewerTools(menus);
+        const refresh = createPaneHintController(menus);
+        $("togglePaneHeaders").onclick = toggleViewerTools;
         new MutationObserver(refresh).observe($("toolHint"), {
           childList: true,
           characterData: true,
@@ -10701,7 +11614,18 @@
           setTool("navigate");
         }
       });
+      for (const [id, icon, label, action] of [
+        ["saveMprPosition", "bookmark", "Guardar posición MPR (sesión actual)", saveMprPosition],
+        ["restoreMprPosition", "undo", "Volver a la posición MPR guardada", restoreMprPosition],
+        ["centerMprSelection", "target", "Centrar cortes en la estructura activa sin mover la cámara 3D", () => focusStructure(selectedStructure, false, false, true)],
+        ["resetMprViews", "reset", "Restablecer las cuatro vistas al estado inicial", resetMprViews],
+      ]) {
+        setTreeIcon($(id), icon, label);
+        $(id).onclick = action;
+      }
+      syncMprNavigation();
       installPaneMenus();
+      syncMprNavigation();
       updateToolCursor();
       syncPaneToggles();
       updateVisibleModelInfo();
@@ -10736,6 +11660,9 @@
           button = (k) => buttons[k],
           message = box.querySelector("p"),
           input = box.querySelector("input");
+        setTreeIcon(button("load"), "import", "Importar configuración del caso");
+        setTreeIcon(button("save"), "export", "Exportar configuración del caso");
+        $("headerCaseActions").append(button("load"), button("save"));
         const historyActions = $("historyActions");
         historyActions.append(button("undo"), button("redo"));
         let entries = [],
@@ -10894,12 +11821,129 @@
         return { checkpoint, schedule, reset };
       }
 
+      /** Un estado local por pareja de archivos; nunca almacena los datos GLB/NRRD. */
+      function installLocalWorkState(adapter, host) {
+        const box = document.createElement("section");
+        box.className = "case-session";
+        box.innerHTML = '<strong>Estado de trabajo</strong><div class="case-session-actions"><button type="button" data-work="save">Guardar estado actual</button><button type="button" data-work="restore">Recuperar trabajo</button><button type="button" data-work="delete">Eliminar guardado</button></div><label><input type="checkbox" checked> Guardar automáticamente después de guardar o recuperar</label><p class="note" aria-live="polite"></p><p class="note hint">Solo en este navegador y dirección. Vuelve a cargar el mismo GLB y NRRD para recuperar cortes, cámara, estructuras, mediciones y vistas. No guarda los archivos originales; usa Exportar para llevar el trabajo a otro equipo.</p>';
+        host.prepend(box);
+        const buttons = Object.fromEntries([...box.querySelectorAll("[data-work]")].map(b => [b.dataset.work, b]));
+        const auto = box.querySelector("input"), message = box.querySelector('[aria-live]');
+        let key = null, record = null, armed = false, busy = false, timer = null, lastState = null;
+        function storageKey() { return "mpr-work-state-v1:" + key; }
+        function refresh() {
+          buttons.save.disabled = !key;
+          buttons.restore.disabled = !record;
+          buttons.delete.disabled = !key;
+          auto.disabled = !key;
+          buttons.save.title = record ? "Sustituir el estado guardado por el estado actual" : "Guardar el estado actual en este navegador";
+          const entry = document.getElementById("section-case")?.querySelector("summary");
+          if (entry) entry.textContent = record && !armed ? "Abrir · trabajo guardado" : "Abrir";
+        }
+        function validateRecord(data) {
+          if (data?.format !== "mpr-work-state" || data.version !== 1 || data.caseKey !== key ||
+              typeof data.autoSave !== "boolean" || typeof data.savedAt !== "string" || !Number.isFinite(Date.parse(data.savedAt)))
+            throw new Error("El estado guardado no corresponde a este caso o no es válido.");
+          adapter.validate(data.state);
+        }
+        function sync() {
+          const next = adapter.key();
+          if (next === key) return;
+          clearTimeout(timer);
+          key = next; record = null; armed = false; lastState = null; auto.checked = true;
+          message.textContent = key ? "Sin estado guardado. Pulsa Guardar estado actual para empezar." : "Carga el GLB y el NRRD para guardar o recuperar el trabajo.";
+          if (key) try {
+            const text = localStorage.getItem(storageKey());
+            if (text) {
+              if (text.length > 2500000) throw new Error("El estado guardado supera el tamaño permitido.");
+              const data = JSON.parse(text);
+              validateRecord(data);
+              record = data;
+              auto.checked = data.autoSave;
+              message.textContent = "Trabajo disponible del " + new Date(data.savedAt).toLocaleString() + ". Pulsa Recuperar trabajo o guarda el estado actual para sustituirlo. El guardado automático está en pausa hasta que elijas.";
+            }
+          } catch (error) { message.textContent = "No se pudo leer el estado local: " + error.message + " Puedes importar una copia JSON o guardar de nuevo."; }
+          refresh();
+        }
+        function save(manual = false) {
+          clearTimeout(timer);
+          sync();
+          if (!key || busy || adapter.blocked() || (!manual && (!armed || !auto.checked))) return;
+          try {
+            const state = adapter.capture();
+            adapter.validate(state);
+            const serialized = JSON.stringify(state);
+            if (!manual && serialized === lastState && record?.autoSave === auto.checked) return;
+            const data = { format: "mpr-work-state", version: 1, caseKey: key, savedAt: new Date().toISOString(), autoSave: auto.checked, state };
+            const text = JSON.stringify(data);
+            if (text.length > 2500000) throw new Error("El estado supera el tamaño permitido; exporta una copia JSON.");
+            localStorage.setItem(storageKey(), text);
+            record = data; lastState = serialized; armed = true;
+            message.textContent = "Guardado en este navegador: " + new Date(data.savedAt).toLocaleString() + (auto.checked ? ". Guardado automático activo." : ". Guardado automático desactivado.");
+          } catch (error) {
+            armed = false;
+            message.textContent = "No se pudo guardar el trabajo: " + error.message + " Exporta una copia JSON antes de cerrar.";
+          }
+          refresh();
+        }
+        function restore() {
+          sync();
+          if (!record || adapter.blocked()) return;
+          clearTimeout(timer); busy = true;
+          try {
+            validateRecord(record);
+            adapter.restore(structuredClone(record.state));
+            armed = true; lastState = JSON.stringify(adapter.capture());
+            message.textContent = "Trabajo recuperado." + (auto.checked ? " Guardado automático activo." : " Guardado automático desactivado.");
+          } catch (error) {
+            armed = false;
+            message.textContent = "No se pudo recuperar el trabajo: " + error.message;
+          } finally { busy = false; refresh(); }
+        }
+        function schedule(event) {
+          if (busy || (event?.target && box.contains(event.target))) return;
+          sync();
+          clearTimeout(timer);
+          if (armed && auto.checked && !adapter.blocked()) timer = setTimeout(() => save(), 1000);
+        }
+        function pause() {
+          save();
+          clearTimeout(timer);
+          key = null; record = null; armed = false; lastState = null;
+          refresh();
+        }
+        buttons.save.onclick = () => save(true);
+        buttons.restore.onclick = restore;
+        buttons.delete.onclick = () => {
+          sync();
+          if (!key) return;
+          try {
+            localStorage.removeItem(storageKey());
+            clearTimeout(timer); record = null; armed = false; lastState = null; auto.checked = false;
+            message.textContent = "Estado local eliminado. El trabajo abierto no cambia.";
+          } catch (error) { message.textContent = "No se pudo eliminar el estado local: " + error.message; }
+          refresh();
+        };
+        auto.onchange = () => {
+          if (armed) save(true);
+          else message.textContent = "Guarda o recupera primero el trabajo para activar esta opción sin sobrescribir el estado anterior.";
+        };
+        for (const type of ["click", "input", "change", "pointerup", "pointercancel", "wheel", "drop", "case-state-change"])
+          document.addEventListener(type, schedule);
+        adapter.onChange(schedule);
+        window.addEventListener("pagehide", () => save());
+        document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") save(); });
+        sync(); refresh();
+        return { sync, pause, save, restore };
+      }
+
       function caseSessionState() {
         return structuredClone({
           config: configData(),
           views: namedViews.map((v) => ({ ...v, notes: v.notes || "" })),
           active: activeNamedView?.name ?? null,
           selected: [...selectedStructures],
+          primary: selectedStructure,
         });
       }
       function validateCaseSession(state) {
@@ -10923,6 +11967,8 @@
         }
         if (!Array.isArray(state.selected) || state.selected.some((k) => !layerControls.has(k)))
           throw new Error("Selección inválida.");
+        if (state.primary != null && !state.selected.includes(state.primary))
+          throw new Error("Estructura activa inválida.");
       }
       function restoreCaseSession(state) {
         validateCaseSession(state);
@@ -10932,6 +11978,7 @@
         deletedView = null;
         selectedStructures.clear();
         for (const k of state.selected) selectedStructures.add(k);
+        selectedStructure = state.primary ?? state.selected.at(-1) ?? null;
         updateStructureSelection();
         persistNamedViews();
       }
@@ -10947,6 +11994,14 @@
         },
         $("caseSessionControls")
       );
+      localWorkState = installLocalWorkState({
+        key: currentViewCase,
+        capture: caseSessionState,
+        validate: validateCaseSession,
+        restore: restoreCaseSession,
+        onChange: fn => controls.addEventListener("end", fn),
+        blocked: () => batchRestore || presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open,
+      }, $("caseSessionControls"));
       // =============================================================================
       // 20 · Capturas y presentación
       // =============================================================================
