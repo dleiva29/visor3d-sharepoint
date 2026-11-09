@@ -11,8 +11,9 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.5.4 · Menús de exploración</title>
+    /><title>MPR · v2.6.0 · Menús de exploración</title>
     <style>
+      .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
       .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
       .tree-icon[hidden] { display: none; }
       .tree-icon svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -3044,7 +3045,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.5.4</strong
+        ><strong>Visor MPR · v2.6.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3438,7 +3439,7 @@
                 ><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p
                 ></section
               ><p class="note"
-                >Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad. Pulsa el
+                >Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad compartida: ocultar una estructura afecta a sus referencias y descendientes en otras ramas. «↗ N» indica cuántas referencias tiene. Pulsa el
                 nombre de una segmentación para centrarla, o abre «Ajustes» en el catálogo para
                 cambiar su apariencia.</p
               ><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p
@@ -9892,7 +9893,7 @@
           visibility = document.createElement("input");
         selection.type = visibility.type = "checkbox";
         selection.title = "Seleccionar toda la rama visible";
-        visibility.title = "Mostrar u ocultar toda la rama";
+        visibility.title = "Mostrar u ocultar las estructuras de esta rama. También afecta a sus referencias y descendientes en otras ramas.";
         selection.setAttribute("aria-label", selection.title);
         visibility.setAttribute("aria-label", visibility.title);
         selection.onchange = () => {
@@ -10046,6 +10047,19 @@
             row.append(dot);
           }
           row.append(title);
+          const referenceCount = n.type === "segment" ? treeIndex.references.get(n.key)?.length || 0 : 0;
+          if (referenceCount > 1) {
+            const shared = document.createElement("span");
+            shared.className = "tree-shared";
+            shared.textContent = "↗ " + referenceCount;
+            shared.title = "Esta estructura aparece en " + referenceCount +
+              " lugares del árbol. Su visibilidad se comparte entre todas sus referencias y sus descendientes.";
+            shared.setAttribute("role", "img");
+            shared.setAttribute("aria-label", shared.title);
+            shared.tabIndex = 0;
+            row.append(shared);
+          }
+          c.visibility.setAttribute("aria-label", "Visibilidad de " + (n.name || n.key) + ". " + c.visibility.title);
           if (!treeEditing) row.append(c.label);
           else row.append(treeNodeActions(n));
           treeRows.push(c);
