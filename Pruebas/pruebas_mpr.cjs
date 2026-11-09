@@ -92,6 +92,8 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   assert.equal($('saveMprPosition'),position);position.disabled=false;position.click();assert.equal(action,1);
   assert.ok($('menu-scene').closest('#section-visual'));
   assert.deepEqual([...$('section-toolbox').querySelector('.sidebar-body').children].map(el=>el.id),['section-visual','section-tools','section-trajectory']);
+  assert.ok($('section-toolbox').querySelector(':scope > summary svg[aria-hidden="true"]'));
+  for(const id of ['section-visual','section-tools','section-trajectory']){assert.equal($(id).className,'sidebar-subgroup');assert.ok($(id).querySelector(':scope > summary svg'));}
   assert.equal($('section-toolbox').open,false);context.openSidebarSection('menu-annotations');assert.equal($('section-toolbox').open,true);
   assert.ok($('addModelLabel').closest('#viewerTools'));
   assert.deepEqual([...document.querySelectorAll('.shared-tool-family')].map(el=>el.getAttribute('aria-label')),['Planos y orientación','Estructuras y apariencia','Referencias','Trayectoria y ecografía','Capturas e informe']);

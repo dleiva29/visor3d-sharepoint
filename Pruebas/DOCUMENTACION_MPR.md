@@ -177,7 +177,7 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
 
 
-## Distribución de herramientas e iconos (v2.10.4)
+## Distribución de herramientas e iconos (v2.10.5)
 
 La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras de las cuatro vistas conservan maximizar y un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
 
@@ -194,3 +194,5 @@ El apartado Caso ya no ocupa el panel lateral: los selectores NRRD/GLB y sus men
 Más se organiza con títulos y separadores en Planos y orientación, Estructuras y apariencia, Referencias, Trayectoria y ecografía, y Capturas e informe.
 
 El panel lateral agrupa Apariencia y referencia, Mediciones y anotaciones y Trayectoria 3D dentro de Herramientas. Los accesos desde la barra y la activación de mediciones o trayectoria abren el contenedor para mantener visibles los ajustes correspondientes.
+
+Herramientas usa un icono SVG de llave; sus tres subsecciones comparten marco, espaciado, flechas de despliegue e iconos de apariencia, medición y trayectoria.
