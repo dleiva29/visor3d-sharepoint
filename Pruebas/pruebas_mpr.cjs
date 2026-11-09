@@ -289,7 +289,7 @@ async function checkStructureTree({run, test}) {
         'redoTreeChange', 'undoTreeChange', 'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
         'applyHierarchy', 'loadTree', 'saveTree', 'exportStructureTree', 'importStructureTree',
         'loadPublishedStructureTree', 'nodeKeys', 'visibilityClosure', 'setSynchronizedVisibility',
-        'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop', 'moveTreeNode', 'treeNodeActions', 'editNode',
+        'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop', 'moveTreeNode', 'treeNodeActions', 'setTreeIcon', 'editNode',
         'addStructureReference', 'removeTreeReference', 'renderStructureCatalog', 'filterTree', 'setTreeExpanded',
       ]);
       try {
@@ -524,6 +524,18 @@ async function checkStructureTree({run, test}) {
     context.modelContentHash = 'otro'; context.loadTree();
     assert.equal(context.treeSearchOpen,null);
     assert.equal($('structureSearch').value,'');
+  }));
+
+  await test('Árbol: iconos accesibles y acciones nativas por nodo', withTree(({context, $}) => {
+    context.applyNodes([group('a')],{persist:false});
+    assert.equal($('treeMode').getAttribute('aria-label'),'Editar árbol');
+    assert.ok($('treeMode').querySelector('svg[aria-hidden="true"]'));
+    context.treeEditing = true; context.renderTree();
+    assert.equal($('treeMode').getAttribute('aria-label'),'Terminar edición');
+    const wrapper = $('structureTree').querySelector('.tree-actions-wrap');
+    assert.ok(wrapper.querySelector('svg'));
+    assert.equal(wrapper.querySelector('select').getAttribute('aria-label'),'Acciones de a');
+    assert.equal(wrapper.querySelectorAll('option').length,6);
   }));
 
   await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {
