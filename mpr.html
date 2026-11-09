@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.13.0 · Menús de exploración</title>
+    /><title>MPR · v2.13.1 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -1840,9 +1840,15 @@
       #viewerTools button, #viewerTools summary { width: auto; min-height: 28px; padding: 4px 7px; margin: 0; font-size: 12px; }
       #viewerTools svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
       #viewerTools .shared-tool { display: inline-flex; align-items: center; gap: 5px; }
-      #viewerTools [aria-pressed="true"] { background: #13788e; outline: 1px solid #65ddeb; }
+      #viewerTools .shared-explore > button[aria-pressed="true"], #viewerTools [aria-pressed="true"] { background: #13788e; outline: 1px solid #65ddeb; }
       #viewerTools .shared-dropdown { position: relative; margin: 0; padding: 0; border: 0; }
-      #viewerTools .shared-dropdown > summary { border: 1px solid #456078; border-radius: 5px; list-style: none; cursor: pointer; }
+      #viewerTools .shared-explore > button,
+      #viewerTools .shared-dropdown > summary,
+      #viewerTools .toolbar-placeholder { box-sizing: border-box; display: inline-flex; align-items: center; gap: 5px; min-height: 28px; font-family: Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 17px; background: #193c53; color: #e2eff9; border: 1px solid #31566e; border-radius: 6px; }
+      #viewerTools .shared-dropdown > summary { list-style: none; cursor: pointer; }
+      #viewerTools .shared-dropdown > summary::-webkit-details-marker { display: none; }
+      #viewerTools .shared-dropdown > summary:hover,
+      #viewerTools .shared-dropdown[open] > summary { background: #23536c; border-color: #44b2cb; }
       #viewerTools .shared-dropdown-content { position: absolute; z-index: 300; top: 100%; left: 0; background: #102534; border: 1px solid #456078; border-radius: 6px; padding: 7px; min-width: 210px; max-height: min(420px, 65dvh); overflow: auto; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 4px 15px #0008; }
       #viewerTools .shared-tool-family { display: flex; flex-direction: column; gap: 4px; margin-top: 5px; padding-top: 9px; border-top: 1px solid #385166; }
       #viewerTools .shared-tool-family:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
@@ -3135,7 +3141,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.13.0</strong
+        ><strong>Visor MPR · v2.13.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
