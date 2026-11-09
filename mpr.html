@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.9.0 · Menús de exploración</title>
+    /><title>MPR · v2.9.1 · Menús de exploración</title>
     <style>
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
       .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
@@ -3059,12 +3059,12 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.9.0</strong
+        ><strong>Visor MPR · v2.9.1</strong
         ><div id="mprNavigation" role="group" aria-label="Navegación MPR">
           <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
           <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
           <button id="centerMprSelection" type="button" disabled>Centrar cortes en la estructura activa</button>
-          <button id="resetMprViews" type="button" disabled>Restablecer zoom y desplazamiento MPR</button>
+          <button id="resetMprViews" type="button" disabled>Restablecer las cuatro vistas</button>
         </div
         ><button
           type="button"
@@ -5563,11 +5563,8 @@
         const reset = document.createElement("button");
         reset.type = "button";
         reset.className = "view-reset";
-        reset.textContent = "Restablecer vista";
-        reset.onclick = () => {
-          Object.assign(state, { zoom: 1, x: 0, y: 0 });
-          apply();
-        };
+        reset.textContent = "Restablecer las cuatro vistas";
+        reset.onclick = resetMprViews;
         canvas.closest(".pane")._resetView = reset;
         stage.addEventListener(
           "wheel",
@@ -7966,13 +7963,29 @@
         status.textContent = "Posición MPR recuperada. Cámara 3D conservada.";
       }
       function resetMprViews() {
-        if (!volume || !volumeInfo) return;
+        if (!volume || !volumeInfo) {
+          camera.zoom = 1;
+          fit();
+          return;
+        }
+        obliquePivot = null;
+        obliqueRotation.identity();
+        obliqueShift.set(0, 0, 0);
+        selectedWorldPoint = null;
+        navMarker.visible = false;
+        $("navPoint").textContent = "Pulsa un punto en un corte para sincronizar las vistas.";
+        setTool("navigate");
         for (const a of ["x", "y", "z"]) {
+          const slider = $("r" + a);
+          slider.value = Math.floor(Number(slider.max) / 2);
           Object.assign(viewStates[a], { zoom: 1, x: 0, y: 0 });
           viewAppliers[a]();
+          paint(a);
         }
+        camera.zoom = 1;
+        fit();
         document.dispatchEvent(new Event("case-state-change"));
-        status.textContent = "Zoom y desplazamiento MPR restablecidos. Cortes y orientación conservados.";
+        status.textContent = "Las cuatro vistas han vuelto al estado inicial.";
       }
       function updateSelectionCard() {
         const keys = [...selectedStructures].filter((key) => layerControls.has(key));
@@ -10790,10 +10803,7 @@
               viewAppliers[axis]();
             }
           });
-          quick("reset", "Restablecer vista", () => {
-            if (sceneView) fit();
-            else reset.click();
-          });
+          quick("reset", "Restablecer las cuatro vistas", resetMprViews);
           if (sceneView)
             quick("camera", "Vistas anatómicas", () =>
               showSection("menu-scene", "cameraOrientationHeading")
@@ -11125,7 +11135,7 @@
         ["saveMprPosition", "bookmark", "Guardar posición MPR (sesión actual)", saveMprPosition],
         ["restoreMprPosition", "undo", "Volver a la posición MPR guardada", restoreMprPosition],
         ["centerMprSelection", "target", "Centrar cortes en la estructura activa sin mover la cámara 3D", () => focusStructure(selectedStructure, false, false, true)],
-        ["resetMprViews", "reset", "Restablecer zoom y desplazamiento MPR sin cambiar cortes", resetMprViews],
+        ["resetMprViews", "reset", "Restablecer las cuatro vistas al estado inicial", resetMprViews],
       ]) {
         setTreeIcon($(id), icon, label);
         $(id).onclick = action;

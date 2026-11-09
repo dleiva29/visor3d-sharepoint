@@ -52,14 +52,14 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   dom.window.close();
  });
  await test('Navegación MPR: guarda y recupera cortes, zoom, referencia y orientación; aísla casos',()=>{
-  const elements=Object.fromEntries(['saveMprPosition','restoreMprPosition','centerMprSelection','resetMprViews','navPoint','show3DMarker','rx','ry','rz'].map(id=>[id,{value:'3',checked:true,textContent:'Posición guardada'}]));
+  const elements=Object.fromEntries(['saveMprPosition','restoreMprPosition','centerMprSelection','resetMprViews','navPoint','show3DMarker','rx','ry','rz'].map(id=>[id,{value:'3',max:'10',checked:true,textContent:'Posición guardada'}]));
   const views=Object.fromEntries(['x','y','z'].map(a=>[a,{zoom:2,x:10,y:-5}]));
-  let paints=0,applied=0;
-  const {fn,context}=run('saveMprPosition',{$:id=>elements[id],volume:{},volumeInfo:{},volumeContentHash:'v1',modelContentHash:'m1',savedMprPosition:null,selectedStructures:new Set(['A']),selectedStructure:'A',layerControls:new Map([['A',{}]]),viewStates:views,viewAppliers:Object.fromEntries(['x','y','z'].map(a=>[a,()=>applied++])),obliquePivot:new THREE.Vector3(1,2,3),obliqueRotation:new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.4),obliqueShift:new THREE.Vector3(4,5,6),selectedWorldPoint:new THREE.Vector3(7,8,9),navMarker:{visible:true,position:new THREE.Vector3()},status:{},paint:()=>paints++,document:{dispatchEvent:()=>{}},Event:class{}},['mprPositionCaseKey','syncMprNavigation','restoreMprPosition','resetMprViews']);
+  let paints=0,applied=0,fits=0;
+  const {fn,context}=run('saveMprPosition',{$:id=>elements[id],volume:{},volumeInfo:{},volumeContentHash:'v1',modelContentHash:'m1',savedMprPosition:null,camera:{zoom:3},fit:()=>fits++,setTool:()=>{},selectedStructures:new Set(['A']),selectedStructure:'A',layerControls:new Map([['A',{}]]),viewStates:views,viewAppliers:Object.fromEntries(['x','y','z'].map(a=>[a,()=>applied++])),obliquePivot:new THREE.Vector3(1,2,3),obliqueRotation:new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.4),obliqueShift:new THREE.Vector3(4,5,6),selectedWorldPoint:new THREE.Vector3(7,8,9),navMarker:{visible:true,position:new THREE.Vector3()},status:{},paint:()=>paints++,document:{dispatchEvent:()=>{}},Event:class{}},['mprPositionCaseKey','syncMprNavigation','restoreMprPosition','resetMprViews']);
   fn(); const saved=context.savedMprPosition;
   views.x.zoom=9;elements.rx.value='8';context.obliqueShift.set(0,0,0);
   context.restoreMprPosition();assert.equal(views.x.zoom,2);assert.equal(elements.rx.value,3);assert.deepEqual(context.obliqueShift.toArray(),[4,5,6]);assert.equal(paints,3);
-  context.resetMprViews();assert.equal(views.x.zoom,1);assert.equal(views.x.x,0);assert.equal(elements.rx.value,3);assert.equal(context.obliqueRotation.equals(saved.rotation),true);assert.equal(applied,6);
+  context.resetMprViews();assert.equal(views.x.zoom,1);assert.equal(views.x.x,0);assert.equal(elements.rx.value,5);assert.equal(context.obliqueRotation.equals(new THREE.Quaternion()),true);assert.equal(context.obliquePivot,null);assert.deepEqual(context.obliqueShift.toArray(),[0,0,0]);assert.equal(context.selectedWorldPoint,null);assert.equal(context.navMarker.visible,false);assert.equal(context.camera.zoom,1);assert.equal(fits,1);assert.equal(applied,6);assert.ok(context.selectedStructures.has('A'));assert.equal(context.savedMprPosition,saved);
   context.modelContentHash='m2';context.restoreMprPosition();assert.equal(context.savedMprPosition,null);assert.equal(elements.restoreMprPosition.disabled,true);
  });
  await test('Centrado MPR conserva cámara 3D y selección',()=>{
