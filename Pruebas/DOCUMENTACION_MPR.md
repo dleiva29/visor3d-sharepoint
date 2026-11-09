@@ -177,7 +177,7 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
 
 
-## Distribución de herramientas e iconos (v2.10.11)
+## Distribución de herramientas e iconos (v2.11.0)
 
 La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras MPR conservan solo maximizar; la vista 3D conserva además un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
 
@@ -208,3 +208,10 @@ Los accesos que abren ajustes laterales resaltan la sección de destino durante 
 Los botones de Herramientas comparten fuente de 12 px, altura mínima de 28 px, espaciado, bordes y colores del visor. Las etiquetas largas pueden ocupar varias líneas; se mantienen estados activos/deshabilitados, flechas de rangos compactas y altura táctil de 44 px.
 
 Se recupera el menú «…» solo en 3D, con centrar modelo, restablecer vistas, ajustes 3D, orientaciones anatómicas, visibilidad de planos e información del modelo. Las vistas MPR permanecen sin ese menú.
+
+
+### Recorte sincronizado con el TC
+
+La casilla «Sincronizar recorte con el TC» se habilita cuando hay modelo y volumen cargados. Al marcarla activa el recorte del GLB y utiliza la posición y orientación física del corte indicado en Eje de recorte, incluidos cortes oblicuos. Recorrer cortes o cambiar de eje actualiza el plano; Invertir lado conservado sigue disponible.
+
+La posición porcentual y los controles de giro manual quedan bloqueados mientras se sincroniza. Al desmarcar la casilla se recuperan esos controles y los parámetros manuales anteriores. La opción se conserva en el campo opcional booleano `clipSyncTc` de la configuración; los archivos anteriores se recuperan con sincronización desactivada. La cámara y el árbol no cambian.

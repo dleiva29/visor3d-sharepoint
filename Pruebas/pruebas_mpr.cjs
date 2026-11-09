@@ -150,6 +150,25 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   fn(b);assert.equal(a.classList.contains('sidebar-highlight'),false);assert.equal(b.classList.contains('sidebar-highlight'),true);assert.equal(timers.size,1);
   fn(b);assert.equal(timers.size,1);[...timers.values()][0]();assert.equal(b.classList.contains('sidebar-highlight'),false);dom.window.close();
  });
+ await test('Recorte TC: sigue los tres ejes con coordenadas RAS anisótropas y orientación oblicua',()=>{
+  const elements={rx:{value:2},ry:{value:3},rz:{value:4}};
+  const volume={extractPerpendicularPlane:(axis,index)=>({sliceAccess:(i,j)=>axis==='x'?[index,i,j]:axis==='y'?[i,index,j]:[i,j,index]}),reverseAccess:v=>v};
+  const {fn,context}=run('tcClipGeometry',{$:id=>elements[id],volume,volumeInfo:{originRAS:[10,20,30],directionsRAS:[[2,0,0],[0,-3,0],[0,0,4]]},obliqueActive:()=>false,obliquePivot:new THREE.Vector3(1,2,3),obliqueRotation:new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.4),obliqueShift:new THREE.Vector3(5,6,7)});
+  for(const [axis,value] of [['x',14],['y',11],['z',46]]){const g=fn(axis);assert.ok(Math.abs(g.normal[axis]-1)<1e-10);assert.equal(g.point[axis],value);}
+  const base=fn('z');context.obliqueActive=()=>true;const tilted=fn('z');
+  const expected=base.point.clone().sub(context.obliquePivot).applyQuaternion(context.obliqueRotation).add(context.obliquePivot).add(context.obliqueShift);
+  assert.ok(tilted.point.distanceTo(expected)<1e-10);assert.ok(tilted.normal.distanceTo(base.normal.applyQuaternion(context.obliqueRotation))<1e-10);
+  elements.rz.value=6;assert.ok(Math.abs(fn('z').point.distanceTo(tilted.point)-8)<1e-10);
+ });
+ await test('Recorte TC: inversión de lado, bloqueo manual y retorno al recorte independiente',()=>{
+  const ids=['clipSyncTc','clipPosition','rotateClip','clipRotationConstraint','clipLeft','clipRight','clipUp','clipDown','alignClip','resetClipRotation','clipEnabled','clipAxis','clipReverse'];
+  const elements=Object.fromEntries(ids.map(id=>[id,{checked:false,value:50,disabled:false}]));elements.clipSyncTc.checked=true;elements.clipEnabled.checked=true;elements.clipAxis.value='z';
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(10,10,10),new THREE.MeshStandardMaterial());let paints=0;
+  const {fn,context}=run('updateClip',{$:id=>elements[id],model:mesh,volume:{},volumeInfo:{},clipPlane:null,clipRotation:new THREE.Quaternion(),clipGuide:new THREE.Object3D(),activeTool:'rotateClip',batchRestore:false,invalidateStructureNames:()=>{},paint:()=>paints++,tcClipGeometry:()=>({point:new THREE.Vector3(0,0,2),normal:new THREE.Vector3(0,0,1)})});
+  fn({repaint:false});assert.equal(paints,0);assert.equal(elements.clipPosition.disabled,true);assert.equal(context.clipGuide.visible,false);assert.equal(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,2)),0);assert.ok(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,3))>0);
+  elements.clipReverse.checked=true;fn({repaint:false});assert.ok(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,3))<0);
+  elements.clipSyncTc.checked=false;elements.clipReverse.checked=false;fn();assert.equal(elements.clipPosition.disabled,false);assert.equal(elements.rotateClip.disabled,false);assert.equal(paints,3);assert.ok(Math.abs(context.clipPlane.constant)<1e-10);
+ });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){

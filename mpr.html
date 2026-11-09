@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.10.11 · Menús de exploración</title>
+    /><title>MPR · v2.11.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3126,7 +3126,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.10.11</strong
+        ><strong>Visor MPR · v2.11.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3532,6 +3532,8 @@
                   type="range"
                   value="100"
                 /><label><input id="clipEnabled" type="checkbox" /> Activar recorte del GLB</label
+                ><label><input id="clipSyncTc" type="checkbox" disabled /> Sincronizar recorte con el TC</label
+                ><p class="note">Sigue la posición y orientación del plano elegido en «Eje de recorte». Desactiva la sincronización para ajustar el recorte manualmente.</p
                 ><label for="clipAxis">Eje de recorte</label
                 ><select id="clipAxis"
                   ><option value="x">Sagital (X)</option
@@ -4520,6 +4522,7 @@
         if (batchRestore) return;
         const s = slices[axis];
         if (!s) return;
+        if ($("clipSyncTc")?.checked && model && volumeInfo) updateClip({ repaint: false });
         const i = Number($("r" + axis).value);
         if (s.obliqueBase) {
           s.mesh.position.copy(s.obliqueBase.position);
@@ -5195,7 +5198,7 @@
           const slice = volume.extractSlice(axis, +slider.value);
           slices[axis] = slice;
           planesRoot.add(slice.mesh);
-          slider.oninput = () => paint(axis);
+          slider.oninput = () => $("clipSyncTc")?.checked ? updateClip() : paint(axis);
           paint(axis);
         }
         updatePlaneVisibility();
@@ -5231,6 +5234,7 @@
         volume.windowHigh = Number($("wl").value) + Number($("ww").value) / 2;
         initSlices();
         volumeContentHash = hash;
+        updateClip();
         syncMprNavigation();
         syncNamedViews();
         status.textContent = `Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;
@@ -6345,48 +6349,83 @@
       clipGuide.renderOrder = 250;
       scene.add(clipGuide);
 
-      function updateClip() {
+      function tcClipGeometry(axis) {
+        const plane = volume.extractPerpendicularPlane(axis, Number($("r" + axis).value));
+        const pointAt = (i, j) => {
+          const ijk = volume.reverseAccess(plane.sliceAccess(i, j));
+          const point = new THREE.Vector3(...volumeInfo.originRAS);
+          for (let a = 0; a < 3; a++) point.addScaledVector(new THREE.Vector3(...volumeInfo.directionsRAS[a]), ijk[a]);
+          return point;
+        };
+        const point = pointAt(0, 0);
+        const normal = pointAt(1, 0).sub(point).cross(pointAt(0, 1).sub(point)).normalize();
+        const positive = new THREE.Vector3();
+        positive[axis] = 1;
+        if (normal.lengthSq() < 1e-12) normal.copy(positive);
+        if (normal.dot(positive) < 0) normal.negate();
+        if (obliqueActive()) {
+          point.sub(obliquePivot).applyQuaternion(obliqueRotation).add(obliquePivot).add(obliqueShift);
+          normal.applyQuaternion(obliqueRotation).normalize();
+        }
+        return { point, normal };
+      }
+      function updateClip({ repaint = true } = {}) {
+        const sync = $("clipSyncTc").checked && !!volume && !!volumeInfo;
+        $("clipSyncTc").disabled = !volume || !volumeInfo || !model;
+        for (const id of ["clipPosition", "rotateClip", "clipRotationConstraint", "clipLeft", "clipRight", "clipUp", "clipDown", "alignClip", "resetClipRotation"])
+          $(id).disabled = sync;
         const previousClip = clipPlane;
         clipPlane = null;
         clipGuide.visible = false;
         if (model && $("clipEnabled").checked) {
           model.updateWorldMatrix(true, true);
-          const box = new THREE.Box3().setFromObject(model),
+          const box = new THREE.Box3().setFromObject(model);
+          let normal, point;
+          if (sync) ({ normal, point } = tcClipGeometry($("clipAxis").value));
+          else {
             normal = new THREE.Vector3();
-          normal[$("clipAxis").value] = 1;
-          normal.applyQuaternion(clipRotation);
-          const projections = [];
-          for (const x of [box.min.x, box.max.x])
-            for (const y of [box.min.y, box.max.y])
-              for (const z of [box.min.z, box.max.z])
-                projections.push(normal.dot(new THREE.Vector3(x, y, z)));
-          const level = THREE.MathUtils.lerp(
-            Math.min(...projections),
-            Math.max(...projections),
-            Number($("clipPosition").value) / 100
-          );
-          const point = box.getCenter(new THREE.Vector3());
-          point.addScaledVector(normal, level - normal.dot(point));
+            normal[$("clipAxis").value] = 1;
+            normal.applyQuaternion(clipRotation);
+            const projections = [];
+            for (const x of [box.min.x, box.max.x])
+              for (const y of [box.min.y, box.max.y])
+                for (const z of [box.min.z, box.max.z])
+                  projections.push(normal.dot(new THREE.Vector3(x, y, z)));
+            const level = THREE.MathUtils.lerp(
+              Math.min(...projections),
+              Math.max(...projections),
+              Number($("clipPosition").value) / 100
+            );
+            point = box.getCenter(new THREE.Vector3());
+            point.addScaledVector(normal, level - normal.dot(point));
+          }
           if ($("clipReverse").checked) normal.negate();
           clipPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(normal, point);
           clipGuide.position.copy(point);
           clipGuide.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
           clipGuide.scale.setScalar(box.getSize(new THREE.Vector3()).length());
-          clipGuide.visible = activeTool === "rotateClip";
+          clipGuide.visible = activeTool === "rotateClip" && !sync;
         }
-        if (clipPlane ? !previousClip?.equals(clipPlane) : previousClip) invalidateStructureNames();
+        if (clipPlane && previousClip?.equals(clipPlane)) clipPlane = previousClip;
+        if (clipPlane !== previousClip) invalidateStructureNames();
         model?.traverse((o) => {
           if (o.isMesh)
             for (const mat of Array.isArray(o.material) ? o.material : [o.material]) {
+              if ((clipPlane && mat.clippingPlanes?.[0] === clipPlane) || (!clipPlane && mat.clippingPlanes?.length === 0)) continue;
               mat.clippingPlanes = clipPlane ? [clipPlane] : [];
               mat.clipShadows = true;
               mat.needsUpdate = true;
             }
         });
-        if (volume && !batchRestore) ["x", "y", "z"].forEach(paint);
+        if (repaint && volume && !batchRestore) ["x", "y", "z"].forEach(paint);
       }
-      for (const id of ["clipEnabled", "clipAxis", "clipPosition", "clipReverse"])
+      for (const id of ["clipEnabled", "clipAxis", "clipPosition", "clipReverse", "clipSyncTc"])
         $(id).oninput = updateClip;
+      $("clipSyncTc").oninput = () => {
+        if ($("clipSyncTc").checked) $("clipEnabled").checked = true;
+        updateClip();
+        syncPaneToggles();
+      };
       $("rotateClip").onclick = () => {
         if (!model) return;
         $("clipEnabled").checked = true;
@@ -6453,7 +6492,7 @@
       renderer.domElement.addEventListener(
         "pointerdown",
         (event) => {
-          if (activeTool !== "rotateClip" || event.button !== 0 || !model) return;
+          if (activeTool !== "rotateClip" || $("clipSyncTc").checked || event.button !== 0 || !model) return;
           event.preventDefault();
           event.stopImmediatePropagation();
           clipDrag = {
@@ -7183,6 +7222,7 @@
           clipRotation: clipRotation.toArray(),
           clipAxis: $("clipAxis").value,
           clipPosition: Number($("clipPosition").value),
+          clipSyncTc: $("clipSyncTc").checked,
           layers: [...layerControls].map(([key, l]) => ({
             key,
             visible: l.visible.checked,
@@ -7197,6 +7237,7 @@
       function validateConfig(data) {
         if (!data || typeof data !== "object" || Array.isArray(data))
           throw new Error("Configuración inválida.");
+        if (data.clipSyncTc !== undefined && typeof data.clipSyncTc !== "boolean") throw new Error("Sincronización de recorte inválida.");
         if (data.structureNodes !== undefined) validateNodes(data.structureNodes);
         if (data.structureGroups !== undefined) validateTree(data.structureGroups);
         if (data.structureRelations !== undefined)
@@ -7423,6 +7464,7 @@
           $("fillOpacity").value = data.fillOpacity;
           $("clipPosition").value = data.clipPosition;
           $("clipAxis").value = data.clipAxis;
+          $("clipSyncTc").checked = data.clipSyncTc ?? false;
           for (const l of data.layers) {
             const c = layerControls.get(l.key);
             c.nameCheck.checked = l.nameVisible ?? true;
