@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.10.3 · Menús de exploración</title>
+    /><title>MPR · v2.10.4 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3099,7 +3099,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.10.3</strong
+        ><strong>Visor MPR · v2.10.4</strong
         ><div id="mprNavigation" role="group" aria-label="Navegación MPR">
           <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
           <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
@@ -5844,6 +5844,10 @@
           }
         }
         activeTool = tool;
+        if (tool === "trajectory" || tool.startsWith("measure") || tool === "editMeasure") {
+          const toolbox = $("section-toolbox");
+          if (toolbox) toolbox.open = true;
+        }
         if (typeof clipGuide !== "undefined") updateClip();
         updateToolCursor();
         syncActiveToolLabel();
@@ -10829,6 +10833,16 @@
         $("tools").hidden = true;
         $("section-tools").hidden = false;
         $("section-tools").querySelector("summary").textContent = "Mediciones y anotaciones";
+        const toolbox = document.createElement("details");
+        toolbox.id = "section-toolbox";
+        toolbox.className = "sidebar-group";
+        const toolboxTitle = document.createElement("summary");
+        toolboxTitle.textContent = "Herramientas";
+        const toolboxBody = document.createElement("div");
+        toolboxBody.className = "sidebar-body";
+        toolboxBody.append(appearance, $("section-tools"), $("section-trajectory"));
+        toolbox.append(toolboxTitle, toolboxBody);
+        $("section-structures").after(toolbox);
         // Los ajustes permanecen en su sección; ya no se trasladan de una ventana a otra.
         for (const section of [$("menu-measurements"), $("menu-navigation")])
           for (const b of section.querySelectorAll("[data-tool]")) if (!bar.contains(b)) b.hidden = true;

@@ -74,7 +74,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   for(const [name,icon] of [['Vena porta','vein'],['portal_vein','vein'],['renal artery','artery'],['lesión junto a vena porta','lesion'],['Tumour','lesion'],['metástasis','lesion'],['HÍGADO','liver'],['Riñón izquierdo','kidney'],['lung_right','lung'],['vértebra L3','bone'],['RIB_02','bone'],['Segmento 7','generic']]) assert.equal(classify(name),icon,name);
  });
  await test('Barra común: conserva controles, acciones, opciones locales y acceso por teclado',()=>{
-  const dom=new JSDOM(html);const document=dom.window.document,$=id=>document.getElementById(id);let action=0;
+  const dom=new JSDOM(html);const document=dom.window.document,$=id=>document.getElementById(id);dom.window.HTMLElement.prototype.scrollIntoView=()=>{};let action=0;
   const position=$('saveMprPosition');position.onclick=()=>action++;
   const menus=[...document.querySelectorAll('.views > .pane')].map((pane,i)=>{
     const toolbar=document.createElement('div');toolbar.className='pane-quick-tools';
@@ -83,7 +83,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
     const panel=document.createElement('div'),trigger=document.createElement('button'),maximize=document.createElement('button');panel.className='pane-menu';panel.hidden=true;pane.append(toolbar,panel,trigger);
     return {pane,toolbar,panel,trigger,maximize,sceneView:i===3};
   });
-  const {fn}=run('organizeViewerTools',{document,$,activeTool:'navigate',button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
+  const {fn,context}=run('organizeViewerTools',{document,$,activeTool:'navigate',button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
   fn(menus);
   assert.equal(document.querySelectorAll('.pane-quick-tools').length,0);
   assert.equal(document.querySelectorAll('.pane-maximize').length,4);
@@ -91,6 +91,8 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   assert.ok($('section-case').closest('#headerCaseActions'));assert.equal($('section-case').closest('#generalPanel'),null);assert.equal($('section-case').querySelector('summary').textContent,'Abrir');assert.equal($('caseLocalFiles').hidden,false);
   assert.equal($('saveMprPosition'),position);position.disabled=false;position.click();assert.equal(action,1);
   assert.ok($('menu-scene').closest('#section-visual'));
+  assert.deepEqual([...$('section-toolbox').querySelector('.sidebar-body').children].map(el=>el.id),['section-visual','section-tools','section-trajectory']);
+  assert.equal($('section-toolbox').open,false);context.openSidebarSection('menu-annotations');assert.equal($('section-toolbox').open,true);
   assert.ok($('addModelLabel').closest('#viewerTools'));
   assert.deepEqual([...document.querySelectorAll('.shared-tool-family')].map(el=>el.getAttribute('aria-label')),['Planos y orientación','Estructuras y apariencia','Referencias','Trayectoria y ecografía','Capturas e informe']);
   assert.equal(document.querySelector('#viewerTools [data-tool="trajectory"]').closest('section').getAttribute('aria-label'),'Trayectoria y ecografía');
