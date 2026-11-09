@@ -88,6 +88,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   assert.equal(document.querySelectorAll('.pane-quick-tools').length,0);
   assert.equal(document.querySelectorAll('.pane-maximize').length,4);
   assert.equal(document.querySelectorAll('#viewerTools [data-tool="select"]').length,1);
+  assert.ok($('section-case').closest('#headerCaseActions'));assert.equal($('section-case').closest('#generalPanel'),null);assert.equal($('section-case').querySelector('summary').textContent,'Abrir');assert.equal($('caseLocalFiles').hidden,false);
   assert.equal($('saveMprPosition'),position);position.disabled=false;position.click();assert.equal(action,1);
   assert.ok($('menu-scene').closest('#section-visual'));
   assert.ok($('addModelLabel').closest('#viewerTools'));

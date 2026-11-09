@@ -177,7 +177,7 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
 
 
-## Distribución de herramientas e iconos (v2.10.1)
+## Distribución de herramientas e iconos (v2.10.2)
 
 La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras de las cuatro vistas conservan maximizar y un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
 
@@ -188,3 +188,5 @@ Los nodos de segmentación de `mpr-structure-tree` v2 admiten el campo opcional 
 Verificación de esta revisión: pruebas unitarias y de DOM con ESLint, más una prueba integral en Chromium cargando GLB y NRRD del caso 10. No sustituye la validación visual final en Codespaces ni las comprobaciones de US, presentaciones e informes de la lista anterior.
 
 El botón de plegado de la cabecera muestra u oculta exclusivamente la barra común; mantiene las cabeceras de las vistas y la herramienta activa. Al plegar cierra los desplegables abiertos y actualiza su etiqueta accesible.
+
+El apartado Caso ya no ocupa el panel lateral: los selectores NRRD/GLB y sus mensajes están en Abrir, en la cabecera. La importación y exportación de configuración permanecen junto a ese menú.

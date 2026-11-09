@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.10.1 · Menús de exploración</title>
+    /><title>MPR · v2.10.2 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -1849,7 +1849,7 @@
       #viewerTools [hidden], #tools, #section-tools [data-tool][hidden] { display: none !important; }
       #activeToolLabel { font-size: 11px; color: #7ce0ed; margin-left: auto; }
       #headerCaseActions { display: inline-flex; gap: 4px; vertical-align: middle; }
-      #headerCaseActions button { width: 28px; height: 28px; min-height: 28px; margin: 0; padding: 4px; }
+      #headerCaseActions > button { width: 28px; height: 28px; min-height: 28px; margin: 0; padding: 4px; }
       .pane .pane-maximize { position: absolute; top: 2px; right: 42px; z-index: 12; width: 25px; height: 25px; padding: 3px; margin: 0; }
       .pane:has(#view3d) h2, .pane h2 { padding-right: 80px; }
       .pane-menu .pane-plane-tools { display: flex; flex-wrap: wrap; padding: 0; justify-content: flex-start; margin-top: 8px; }
@@ -3078,6 +3078,10 @@
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded):has(.pane.maximized) aside { left: auto; right: 0; width: 340px; }
       header .viewer-header-main { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 70px; }
       #headerCaseActions { margin-left: auto; }
+      #headerCaseActions .header-file-menu { position: relative; margin: 0; padding: 0; border: 0; }
+      #headerCaseActions .header-file-menu > summary { font-size: 12px; padding: 5px 8px; border: 1px solid #456078; border-radius: 5px; cursor: pointer; list-style: none; }
+      #headerCaseActions .header-file-menu > .sidebar-body { position: absolute; right: 0; top: 100%; z-index: 300; width: min(300px, 80vw); max-height: 70dvh; overflow: auto; padding: 8px; background: #102534; border: 1px solid #456078; border-radius: 6px; box-shadow: 0 4px 15px #0008; }
+      #headerCaseActions .header-file-menu:not([open]) > .sidebar-body { display: none; }
       #headerUsTools[hidden] { display: none !important; }
       header .viewer-header-main > small { order: 10; flex-basis: 100%; margin: 0; }
       #viewerTools { padding-right: 0; }
@@ -3092,7 +3096,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.10.1</strong
+        ><strong>Visor MPR · v2.10.2</strong
         ><div id="mprNavigation" role="group" aria-label="Navegación MPR">
           <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
           <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
@@ -10785,6 +10789,12 @@
         const mainHeader = header.querySelector(".viewer-header-main");
         mainHeader.insertBefore(files, mainHeader.querySelector("small"));
         $("headerUsTools").hidden = true;
+        const fileMenu = $("section-case");
+        fileMenu.className = "header-file-menu";
+        fileMenu.open = false;
+        fileMenu.querySelector("summary").textContent = "Abrir";
+        $("caseLocalFiles").hidden = false;
+        files.append(fileMenu);
         const appearance = $("section-visual");
         appearance.hidden = false;
         appearance.open = false;
@@ -10821,9 +10831,13 @@
         }
         document.addEventListener("pointerdown", (e) => {
           if (!bar.contains(e.target)) for (const d of bar.querySelectorAll("details")) d.open = false;
+          if (!files.contains(e.target)) fileMenu.open = false;
         });
         document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") for (const d of bar.querySelectorAll("details[open]")) { d.open = false; d.querySelector("summary").focus(); }
+          if (e.key === "Escape") {
+            for (const d of bar.querySelectorAll("details[open]")) { d.open = false; d.querySelector("summary").focus(); }
+            if (fileMenu.open) { fileMenu.open = false; fileMenu.querySelector("summary").focus(); }
+          }
         });
         syncActiveToolLabel();
       }
