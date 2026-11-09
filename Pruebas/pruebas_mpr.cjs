@@ -83,7 +83,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
     const panel=document.createElement('div'),trigger=document.createElement('button'),maximize=document.createElement('button');panel.className='pane-menu';panel.hidden=true;pane.append(toolbar,panel,trigger);
     return {pane,toolbar,panel,trigger,maximize,sceneView:i===3};
   });
-  const {fn,context}=run('organizeViewerTools',{document,$,activeTool:'navigate',centerAllViews:()=>{},resetMprViews:()=>{},highlightSidebarSection:()=>{},button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
+  const {fn,context}=run('organizeViewerTools',{document,$,activeTool:'navigate',centerAllViews:()=>{},resetMprViews:()=>{},create3DSliceControls:()=>document.createElement("section"),highlightSidebarSection:()=>{},button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
   fn(menus);
   assert.equal(document.querySelectorAll('.pane-quick-tools').length,0);
   assert.equal(document.querySelectorAll('.pane-maximize').length,4);
@@ -168,6 +168,17 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   fn({repaint:false});assert.equal(paints,0);assert.equal(elements.clipPosition.disabled,true);assert.equal(context.clipGuide.visible,false);assert.equal(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,2)),5);assert.equal(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,-3)),0);assert.ok(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,-4))<0);
   elements.clipReverse.checked=true;fn({repaint:false});assert.equal(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,2)),5);assert.equal(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,7)),0);assert.ok(context.clipPlane.distanceToPoint(new THREE.Vector3(0,0,8))<0);
   elements.clipSyncTc.checked=false;elements.clipReverse.checked=false;fn();assert.equal(elements.clipPosition.disabled,false);assert.equal(elements.rotateClip.disabled,false);assert.equal(paints,3);assert.ok(Math.abs(context.clipPlane.constant)<1e-10);
+ });
+ await test('Planos TC en 3D: controles reflejan cortes MPR, límites y disponibilidad',async()=>{
+  const dom=new JSDOM('<input type="range" id="rx" min="0" max="10" value="3"><input type="range" id="ry" min="0" max="20" value="4"><input type="range" id="rz" min="0" max="30" value="5">');
+  const document=dom.window.document,$=id=>document.getElementById(id);let inputs=0;
+  $('rz').oninput=()=>inputs++;
+  const {fn,context}=run('create3DSliceControls',{document,$,MutationObserver:dom.window.MutationObserver,Event:dom.window.Event},['sync3DSliceControl']);
+  document.body.append(fn());
+  assert.equal($('sceneSlicez').max,'30');assert.equal($('sceneSlicez').value,'5');
+  $('sceneSlicez').value='12';$('sceneSlicez').dispatchEvent(new dom.window.Event('input'));assert.equal($('rz').value,'12');assert.equal(inputs,1);assert.equal($('sceneSliceValuez').textContent,'12');
+  $('rz').value='8';context.sync3DSliceControl('z');assert.equal($('sceneSlicez').value,'8');
+  $('rx').disabled=true;$('ry').max='40';await new Promise(r=>setTimeout(r,0));assert.equal($('sceneSlicex').disabled,true);assert.equal($('sceneSliceValuex').textContent,'—');assert.equal($('sceneSlicey').max,'40');dom.window.close();
  });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});

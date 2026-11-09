@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.11.2 · Menús de exploración</title>
+    /><title>MPR · v2.12.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3108,6 +3108,12 @@
       .pane:has(#view3d) > .pane-maximize { right: 5px; }
       .pane:has(#view3d) > .pane-menu-trigger { right: 35px; }
       .pane:has(#view3d) > h2 { padding-right: 80px; }
+      .scene-slice-controls { border-top: 1px solid #385166; margin-top: 8px; padding-top: 8px; }
+      .scene-slice-controls h3 { font-size: 11px; margin: 0 0 6px; color: #8fd8e6; }
+      .scene-slice-controls > div { display: grid; grid-template-columns: 48px minmax(0, 1fr) 28px; align-items: center; gap: 5px; margin: 8px 0; }
+      .scene-slice-controls label, .scene-slice-controls output { font-size: 11px; margin: 0; }
+      .scene-slice-controls output { text-align: right; }
+      .scene-slice-controls input[type="range"] { width: 100%; min-width: 0; margin: 0; }
       #headerUsTools[hidden] { display: none !important; }
       header .viewer-header-main > small { order: 10; flex-basis: 100%; margin: 0; }
       #viewerTools { padding-right: 0; }
@@ -3127,7 +3133,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.11.2</strong
+        ><strong>Visor MPR · v2.12.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4567,6 +4573,7 @@
         drawMeasurements(axis, ctx, dest);
         drawTrajectorySlice(axis, ctx, dest);
         $("o" + axis).textContent = String(i);
+        sync3DSliceControl(axis);
       }
       // VolumeSlice de Three.js centra los planos 3D alrededor de (0,0,0).
       // Este centro físico en RAS, calculado desde el encabezado NRRD, debe añadirse
@@ -10811,6 +10818,51 @@
         section.scrollIntoView({ block: "nearest" });
         highlightSidebarSection(section);
       }
+      function sync3DSliceControl(axis) {
+        const input = $("sceneSlice" + axis), source = $("r" + axis);
+        if (!input || !source) return;
+        for (const attribute of ["min", "max", "step"]) input[attribute] = source[attribute];
+        input.disabled = source.disabled;
+        input.value = source.value;
+        $("sceneSliceValue" + axis).textContent = source.disabled ? "—" : source.value;
+      }
+      function create3DSliceControls() {
+        const group = document.createElement("section");
+        group.className = "scene-slice-controls";
+        group.setAttribute("aria-label", "Desplazar planos del TC");
+        const heading = document.createElement("h3");
+        heading.textContent = "Desplazar planos del TC";
+        group.append(heading);
+        for (const [axis, name] of [["z", "Axial"], ["y", "Coronal"], ["x", "Sagital"]]) {
+          const row = document.createElement("div"), label = document.createElement("label");
+          const input = document.createElement("input"), output = document.createElement("output");
+          input.type = "range";
+          input.id = "sceneSlice" + axis;
+          input.setAttribute("aria-label", "Corte " + name.toLowerCase());
+          label.htmlFor = input.id;
+          label.textContent = name;
+          output.id = "sceneSliceValue" + axis;
+          output.htmlFor = input.id;
+          row.append(label, input, output);
+          group.append(row);
+          const source = $("r" + axis);
+          const sync = () => {
+            for (const attribute of ["min", "max", "step"]) input[attribute] = source[attribute];
+            input.disabled = source.disabled;
+            input.value = source.value;
+            output.textContent = source.disabled ? "—" : source.value;
+          };
+          sync();
+          new MutationObserver(sync).observe(source, { attributes: true, attributeFilter: ["min", "max", "step", "disabled"] });
+          input.oninput = () => {
+            if (source.disabled) return;
+            source.value = input.value;
+            source.dispatchEvent(new Event("input", { bubbles: true }));
+            sync();
+          };
+        }
+        return group;
+      }
       function organizeViewerTools(menus) {
         const header = document.querySelector("header");
         const bar = $("viewerTools");
@@ -10941,6 +10993,7 @@
             if (center) panel.append(labelButton(center, "Centrar modelo"));
             panel.append(button("Restablecer las cuatro vistas", resetMprViews));
             panel.append(button("Ajustes de la vista 3D", () => openSidebarSection("menu-scene")));
+            panel.append(create3DSliceControls());
             const orientations = toolbar.querySelector(".pane-plane-tools");
             if (orientations) panel.append(orientations);
             if (info) panel.append(button("Información del modelo", () => info.click()));

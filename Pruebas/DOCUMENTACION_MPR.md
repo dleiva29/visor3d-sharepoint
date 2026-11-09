@@ -217,3 +217,7 @@ La casilla «Sincronizar recorte con el TC» se habilita cuando hay modelo y vol
 La posición porcentual y los controles de giro manual quedan bloqueados mientras se sincroniza. Al desmarcar la casilla se recuperan esos controles y los parámetros manuales anteriores. La opción se conserva en el campo opcional booleano `clipSyncTc` de la configuración; los archivos anteriores se recuperan con sincronización desactivada. La cámara y el árbol no cambian.
 
 El recorte sincronizado se desplaza 5 mm respecto del plano del TC hacia el lado descartado para ampliar la franja visible del modelo. El desplazamiento sigue la normal física (también en oblicuo) y se invierte con Invertir lado conservado. No modifica el recorte manual.
+
+### Desplazamiento de planos desde 3D (v2.12.0)
+
+El menú «…» de 3D incluye deslizadores axial, coronal y sagital, utilizables con la vista maximizada. Reflejan límites, disponibilidad e índice de los controles MPR originales. Ambos controles actualizan el mismo corte; el recorte sincronizado continúa siguiendo el eje elegido. Los deslizadores quedan desactivados cuando no hay volumen.
