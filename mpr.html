@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.10.6 · Menús de exploración</title>
+    /><title>MPR · v2.10.7 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -1832,7 +1832,9 @@
         padding: 4px 8px;
         font-size: 12px;
       }
-      #viewerTools[hidden] { display: none; }
+      #viewerTools[hidden], #mprNavigation[hidden] { display: none; }
+      #viewerTools .toolbar-placeholder { font-size: 12px; padding: 4px 7px; border: 1px solid #456078; border-radius: 5px; min-height: 28px; box-sizing: border-box; }
+      #viewerStartupStatus { margin-left: auto; font-size: 11px; color: #a6c9dd; }
       #viewerTools { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 7px; padding-top: 6px; border-top: 1px solid #30495c; }
       #viewerTools .shared-explore { display: flex; align-items: center; flex-wrap: wrap; gap: 3px; }
       #viewerTools button, #viewerTools summary { width: auto; min-height: 28px; padding: 4px 7px; margin: 0; font-size: 12px; }
@@ -3096,6 +3098,11 @@
       #viewerTools { padding-right: 0; }
     </style></head
   ><body>
+<script>
+  // Establece la distribución antes de pintar, sin esperar a los módulos 3D.
+  document.body.dataset.viewerLayout = matchMedia("(max-width:700px), (pointer:coarse) and (max-height:500px) and (max-width:950px)").matches ? "phone" : matchMedia("(max-width:1100px), (pointer:coarse) and (max-width:1366px)").matches ? "tablet" : "desktop";
+</script>
+
     <header id="viewerHeader"
       ><a
         class="manual-link"
@@ -3105,13 +3112,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.10.6</strong
-        ><div id="mprNavigation" role="group" aria-label="Navegación MPR">
-          <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
-          <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
-          <button id="centerMprSelection" type="button" disabled>Centrar cortes en la estructura activa</button>
-          <button id="resetMprViews" type="button" disabled>Restablecer las cuatro vistas</button>
-        </div
+        ><strong>Visor MPR · v2.10.7</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3192,7 +3193,25 @@
             ><svg viewBox="0 0 16 16" aria-hidden="true">
               <rect x="4" y="4" width="8" height="8" rx="1" /></svg
           ></button> </span
-        ><small
+        ><div id="headerCaseActions" role="group" aria-label="Configuración del caso"><details id="section-case" class="header-file-menu"><summary>Abrir</summary
+          ><div class="sidebar-body"
+            ><div class="sidebar-body" id="caseLocalFiles"
+              ><p class="note"
+                >Enlace automático: <code>?modelo=modelos/1.glb</code> busca
+                <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También
+                puedes cargar archivos locales usando los controles siguientes.</p
+              ><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p
+              ><div class="case-session-actions case-file-actions"
+                ><button type="button" data-case-file="nrrd">Cargar imagen NRRD</button
+                ><button type="button" data-case-file="glb">Cargar modelo GLB</button></div
+              ><input accept=".nrrd" id="nrrd" type="file" hidden /><input
+                accept=".glb"
+                id="glb"
+                type="file"
+                hidden
+              /> </div
+            ><div id="caseSessionControls"></div></div></details
+        ></div><small
           >Carga por enlace o archivos locales · No publiques estudios clínicos en GitHub
           Pages</small
         ></div
@@ -3205,7 +3224,13 @@
           aria-label="Anotación de la vista"
           hidden
         ></div> </div
-    ></header>
+    ><nav id="viewerTools" aria-label="Herramientas comunes del visor" aria-busy="true" inert><div hidden id="mprNavigation" role="group" aria-label="Navegación MPR">
+          <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
+          <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
+          <button id="centerMprSelection" type="button" disabled>Centrar cortes en la estructura activa</button>
+          <button id="resetMprViews" type="button" disabled>Restablecer las cuatro vistas</button>
+        </div
+        ><div class="shared-explore"><button type="button" class="shared-tool" disabled>Navegar</button><button type="button" class="shared-tool" disabled>Seleccionar</button><button type="button" class="shared-tool" disabled>Desplazar</button><button type="button" class="shared-tool" disabled>Zoom</button><button type="button" class="shared-tool" disabled>Ventana</button></div><span class="toolbar-placeholder">Medir ▾</span><span class="toolbar-placeholder">Anotar ▾</span><span class="toolbar-placeholder">Posición ▾</span><span class="toolbar-placeholder">Más ▾</span><span id="viewerStartupStatus" role="status">Preparando herramientas…</span></nav></header>
     <div class="layout"
       ><div class="views">
         <section class="pane" data-view-pane="axial"
@@ -3301,30 +3326,93 @@
         ><input id="unit" type="hidden" value="1000" /><input
           id="space"
           type="hidden"
-          value="RAS" /><details class="sidebar-group" id="section-case" open=""
-          ><summary>▣ Caso</summary
+          value="RAS" /><details class="sidebar-group" id="section-structures" open=""
+          ><summary>◈ Estructuras</summary
           ><div class="sidebar-body"
-            ><div class="sidebar-body" id="caseLocalFiles"
+            ><div class="sidebar-body"
+              ><label for="structureSearch">Buscar estructura</label
+              ><input
+                id="structureSearch"
+                placeholder="Nombre de lesión, vaso u órgano…"
+                type="search" /><p class="note" hidden="" id="structureSearchEmpty"
+                >No hay coincidencias.</p
+              ><p id="treeMessage" class="note" aria-live="polite"></p
+              ><div id="childrenEditor" hidden
+                ><strong id="childrenTitle"></strong><input id="childrenParent" type="hidden" /><p
+                  class="note"
+                  >Marca las hijas directas. Una segmentación puede tener varios padres. No se
+                  permiten ciclos.</p
+                ><div id="childrenOptions"></div
+                ><button id="saveChildren" type="button">Guardar relaciones</button
+                ><button id="cancelChildren" type="button">Cancelar</button></div
+              ><div class="hierarchy-display"
+                ><label
+                  ><input id="simpleHierarchy" type="checkbox" checked /> Árbol simplificado</label
+                ><div
+                  ><button id="expandHierarchy" type="button">Expandir árbol</button
+                  ><button id="collapseHierarchy" type="button">Contraer árbol</button></div
+                ><p class="note"
+                  >Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida.
+                  Desactiva esta opción para ver los controles.</p
+                ></div
+              ><h4>Árbol de estructuras</h4
+              ><div class="tree-toolbar"
+                ><button id="createGroup" type="button">+ Grupo / subgrupo</button
+                ><button id="exportTree" type="button">Exportar árbol</button
+                ><button id="importTreeButton" type="button">Importar árbol</button
+                ><input id="importTree" type="file" accept=".json" hidden /></div
+              ><div id="groupEditor" hidden
+                ><input id="groupEditId" type="hidden" /><label for="groupName"
+                  >Nombre del grupo</label
+                ><input id="groupName" type="text" maxlength="100" /><label for="groupParent"
+                  >Grupo superior</label
+                ><select id="groupParent"></select
+                ><p class="note">Estructuras que pertenecen directamente a este grupo:</p
+                ><div id="groupMembers"></div
+                ><button id="saveGroup" type="button">Guardar grupo</button
+                ><button id="cancelGroup" type="button">Cancelar</button
+                ><button id="deleteGroup" type="button">Eliminar grupo</button></div
+              ><div id="treeRootDrop" class="note" hidden>Suelta aquí para colocar en la raíz. En una fila: borde superior/inferior para ordenar; centro para anidar. También puedes usar Acciones…</div
+              ><div id="structureTree"></div
+              ><section id="independentStructures"
+                ><h4>Todas las estructuras</h4
+                ><p id="catalogEditHint" class="note" hidden
+                  >Arrastra una fila al árbol para añadir una referencia. Suelta un nodo aquí para
+                  quitarlo del árbol y conservar sus hijos.</p
+                ><div id="modelLayers"></div
+                ><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p
+                ></section
               ><p class="note"
-                >Enlace automático: <code>?modelo=modelos/1.glb</code> busca
-                <code>nrrd/1.nrrd.parts.json</code> (fragmentos) o <code>nrrd/1.nrrd</code>. También
-                puedes cargar archivos locales usando los controles siguientes.</p
-              ><p id="status" role="status">Selecciona un volumen de imagen para comenzar.</p
-              ><div class="case-session-actions case-file-actions"
-                ><button type="button" data-case-file="nrrd">Cargar imagen NRRD</button
-                ><button type="button" data-case-file="glb">Cargar modelo GLB</button></div
-              ><input accept=".nrrd" id="nrrd" type="file" hidden /><input
-                accept=".glb"
-                id="glb"
-                type="file"
-                hidden
-              /> </div
-            ><div id="caseSessionControls"></div></div></details
-        ><details hidden id="section-visual"
-          ><summary>▤ Visualización</summary
+                >Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad compartida: ocultar una estructura afecta a sus referencias y descendientes en otras ramas. «↗ N» indica cuántas referencias tiene. Pulsa el
+                nombre de una segmentación para centrarla, o abre «Ajustes» en el catálogo para
+                cambiar su apariencia.</p
+              ><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p
+              ><div class="structure-actions"
+                ><button id="clearSelection" type="button">Quitar selección</button
+                ><button disabled="" id="isolateStructures" type="button"
+                  >Aislar seleccionadas</button
+                ><button disabled="" id="restoreVisibility" type="button"
+                  >Restaurar visibilidad anterior</button
+                ><button id="showAllStructures" type="button"
+                  >Mostrar todas las estructuras</button
+                ></div
+              ><div class="volume-summary"
+                ><strong id="selectedVolume">Volumen total seleccionado: 0,00 mL</strong
+                ><p class="note" id="selectedVolumeDetail"
+                  >Selecciona estructuras para sumar sus volúmenes.</p
+                ><p class="note"
+                  >Suma de volúmenes individuales; no descuenta solapamientos. 1 mL = 1 cm³.</p
+                ></div
+              ><button disabled="" id="resetLayers" type="button">Restablecer</button>
+              <div hidden="True" id="legacyStructureControls"
+                ><select id="focusStructure"></select
+                ><button disabled="" id="centerStructure" type="button"
+                  >Centrar en las cuatro ventanas</button
+                ><div id="structureSelection"></div></div></div></div></details
+        ><details id="section-toolbox" class="sidebar-group"><summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M14 6a5 5 0 0 0-6 6L3 17a2 2 0 0 0 4 4l5-5a5 5 0 0 0 6-6l-3 3-4-4z"/></svg>Herramientas</summary><div class="sidebar-body"><details id="section-visual" class="sidebar-subgroup"><summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M4 3v18 M12 3v18 M20 3v18 M1 8h6 M9 16h6 M17 7h6"/></svg>Apariencia y referencia</summary
           ><div class="sidebar-body"
             ><details class="sidebar-subgroup" id="menu-navigation"
-              ><summary>Navegación y herramientas</summary
+              ><summary>Cruces y sincronización</summary
               ><div class="sidebar-body"
                 ><div class="tool-grid" id="tools">
                   <button aria-pressed="true" data-tool="navigate" type="button">Navegar</button
@@ -3460,91 +3548,7 @@
               ></details
             ></div
           ></details
-        ><details class="sidebar-group" id="section-structures" open=""
-          ><summary>◈ Estructuras</summary
-          ><div class="sidebar-body"
-            ><div class="sidebar-body"
-              ><label for="structureSearch">Buscar estructura</label
-              ><input
-                id="structureSearch"
-                placeholder="Nombre de lesión, vaso u órgano…"
-                type="search" /><p class="note" hidden="" id="structureSearchEmpty"
-                >No hay coincidencias.</p
-              ><p id="treeMessage" class="note" aria-live="polite"></p
-              ><div id="childrenEditor" hidden
-                ><strong id="childrenTitle"></strong><input id="childrenParent" type="hidden" /><p
-                  class="note"
-                  >Marca las hijas directas. Una segmentación puede tener varios padres. No se
-                  permiten ciclos.</p
-                ><div id="childrenOptions"></div
-                ><button id="saveChildren" type="button">Guardar relaciones</button
-                ><button id="cancelChildren" type="button">Cancelar</button></div
-              ><div class="hierarchy-display"
-                ><label
-                  ><input id="simpleHierarchy" type="checkbox" checked /> Árbol simplificado</label
-                ><div
-                  ><button id="expandHierarchy" type="button">Expandir árbol</button
-                  ><button id="collapseHierarchy" type="button">Contraer árbol</button></div
-                ><p class="note"
-                  >Carpetas: grupos · puntos de color: segmentaciones · ↗: referencia compartida.
-                  Desactiva esta opción para ver los controles.</p
-                ></div
-              ><h4>Árbol de estructuras</h4
-              ><div class="tree-toolbar"
-                ><button id="createGroup" type="button">+ Grupo / subgrupo</button
-                ><button id="exportTree" type="button">Exportar árbol</button
-                ><button id="importTreeButton" type="button">Importar árbol</button
-                ><input id="importTree" type="file" accept=".json" hidden /></div
-              ><div id="groupEditor" hidden
-                ><input id="groupEditId" type="hidden" /><label for="groupName"
-                  >Nombre del grupo</label
-                ><input id="groupName" type="text" maxlength="100" /><label for="groupParent"
-                  >Grupo superior</label
-                ><select id="groupParent"></select
-                ><p class="note">Estructuras que pertenecen directamente a este grupo:</p
-                ><div id="groupMembers"></div
-                ><button id="saveGroup" type="button">Guardar grupo</button
-                ><button id="cancelGroup" type="button">Cancelar</button
-                ><button id="deleteGroup" type="button">Eliminar grupo</button></div
-              ><div id="treeRootDrop" class="note" hidden>Suelta aquí para colocar en la raíz. En una fila: borde superior/inferior para ordenar; centro para anidar. También puedes usar Acciones…</div
-              ><div id="structureTree"></div
-              ><section id="independentStructures"
-                ><h4>Todas las estructuras</h4
-                ><p id="catalogEditHint" class="note" hidden
-                  >Arrastra una fila al árbol para añadir una referencia. Suelta un nodo aquí para
-                  quitarlo del árbol y conservar sus hijos.</p
-                ><div id="modelLayers"></div
-                ><p id="independentEmpty" class="note">Carga un GLB para mostrar sus estructuras.</p
-                ></section
-              ><p class="note"
-                >Marca para seleccionar y sumar volúmenes. «Ver» controla la visibilidad compartida: ocultar una estructura afecta a sus referencias y descendientes en otras ramas. «↗ N» indica cuántas referencias tiene. Pulsa el
-                nombre de una segmentación para centrarla, o abre «Ajustes» en el catálogo para
-                cambiar su apariencia.</p
-              ><p aria-live="polite" id="selectionInfo">Ninguna estructura seleccionada.</p
-              ><div class="structure-actions"
-                ><button id="clearSelection" type="button">Quitar selección</button
-                ><button disabled="" id="isolateStructures" type="button"
-                  >Aislar seleccionadas</button
-                ><button disabled="" id="restoreVisibility" type="button"
-                  >Restaurar visibilidad anterior</button
-                ><button id="showAllStructures" type="button"
-                  >Mostrar todas las estructuras</button
-                ></div
-              ><div class="volume-summary"
-                ><strong id="selectedVolume">Volumen total seleccionado: 0,00 mL</strong
-                ><p class="note" id="selectedVolumeDetail"
-                  >Selecciona estructuras para sumar sus volúmenes.</p
-                ><p class="note"
-                  >Suma de volúmenes individuales; no descuenta solapamientos. 1 mL = 1 cm³.</p
-                ></div
-              ><button disabled="" id="resetLayers" type="button">Restablecer</button>
-              <div hidden="True" id="legacyStructureControls"
-                ><select id="focusStructure"></select
-                ><button disabled="" id="centerStructure" type="button"
-                  >Centrar en las cuatro ventanas</button
-                ><div id="structureSelection"></div></div></div></div></details
-        ><details hidden id="section-tools"
-          ><summary>⚒ Herramientas</summary
+        ><details id="section-tools" class="sidebar-subgroup"><summary><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true" focusable="false"><path d="M3 16L16 3l5 5L8 21z M7 12l3 3 M10 9l3 3 M13 6l3 3"/></svg>Mediciones y anotaciones</summary
           ><div class="sidebar-body"
             ><details class="sidebar-subgroup" id="menu-measurements"
               ><summary>Mediciones</summary
@@ -3626,7 +3630,7 @@
               ></details
             ></div
           ></details
-        ><details class="sidebar-group" id="section-trajectory">
+        ><details id="section-trajectory" class="sidebar-subgroup">
           <summary
             ><svg
               width="14"
@@ -3678,7 +3682,7 @@
               >
             </div>
           </div> </details
-        ><details class="sidebar-group" id="section-saved"
+        ></div></details><details class="sidebar-group" id="section-saved"
           ><summary>▧ Mis vistas</summary
           ><div class="sidebar-body"
             ><div class="sidebar-body"
@@ -4022,7 +4026,7 @@
       // Un enlace de caso ya identifica el modelo; la carga manual se ofrece al entrar sin él.
       const linkedCase = !!new URLSearchParams(location.search).get("modelo")?.trim();
       $("caseLocalFiles").hidden = linkedCase;
-      $("section-case").open = !linkedCase;
+      $("section-case").open = false;
       for (const button of document.querySelectorAll("[data-case-file]")) {
         button.addEventListener("click", () => $(button.dataset.caseFile).click());
       }
@@ -10724,9 +10728,10 @@
       }
       function organizeViewerTools(menus) {
         const header = document.querySelector("header");
-        const bar = document.createElement("nav");
-        bar.id = "viewerTools";
-        bar.setAttribute("aria-label", "Herramientas comunes del visor");
+        const bar = $("viewerTools");
+        // La estructura inicial ya está en el HTML; se enlazan las acciones sin mostrar controles heredados.
+        const positionControls = [...$("mprNavigation").children];
+        bar.replaceChildren();
         const explore = document.createElement("div");
         explore.className = "shared-explore";
         explore.setAttribute("role", "group");
@@ -10783,8 +10788,7 @@
           button("Lista y ajustes de mediciones", () => openSidebarSection("menu-measurements")),
         ]);
         dropdown("Anotar", [$("addModelLabel"), $("addModelArrow"), button("Textos y ajustes", () => openSidebarSection("menu-annotations"))]);
-        dropdown("Posición", [...$("mprNavigation").children]);
-        $("mprNavigation").remove();
+        dropdown("Posición", positionControls);
         const more = dropdown("Más", []);
         const family = (label, controls) => {
           const group = document.createElement("section");
@@ -10824,53 +10828,14 @@
         active.setAttribute("aria-live", "polite");
         bar.append(active);
         header.append(bar);
-        const files = document.createElement("div");
-        files.id = "headerCaseActions";
-        files.setAttribute("role", "group");
-        files.setAttribute("aria-label", "Configuración del caso");
-        const mainHeader = header.querySelector(".viewer-header-main");
-        mainHeader.insertBefore(files, mainHeader.querySelector("small"));
+        const files = $("headerCaseActions"), fileMenu = $("section-case");
         $("headerUsTools").hidden = true;
-        const fileMenu = $("section-case");
-        fileMenu.className = "header-file-menu";
-        fileMenu.open = false;
-        fileMenu.querySelector("summary").textContent = "Abrir";
         $("caseLocalFiles").hidden = false;
-        files.append(fileMenu);
         const appearance = $("section-visual");
         appearance.hidden = false;
         appearance.open = false;
-        appearance.querySelector("summary").textContent = "Apariencia y referencia";
-        $("section-structures").after(appearance);
-        $("menu-navigation").querySelector("summary").textContent = "Cruces y sincronización";
         $("tools").hidden = true;
         $("section-tools").hidden = false;
-        $("section-tools").querySelector("summary").textContent = "Mediciones y anotaciones";
-        const toolbox = document.createElement("details");
-        toolbox.id = "section-toolbox";
-        toolbox.className = "sidebar-group";
-        const toolboxTitle = document.createElement("summary");
-        toolboxTitle.textContent = "Herramientas";
-        const decorateSummary = (summary, pathData) => {
-          const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-          svg.setAttribute("viewBox", "0 0 24 24");
-          svg.setAttribute("aria-hidden", "true");
-          svg.setAttribute("focusable", "false");
-          const path = document.createElementNS(svg.namespaceURI, "path");
-          path.setAttribute("d", pathData);
-          svg.append(path);
-          summary.prepend(svg);
-        };
-        decorateSummary(toolboxTitle, "M14 6a5 5 0 0 0-6 6L3 17a2 2 0 0 0 4 4l5-5a5 5 0 0 0 6-6l-3 3-4-4z");
-        decorateSummary(appearance.querySelector("summary"), "M4 3v18 M12 3v18 M20 3v18 M1 8h6 M9 16h6 M17 7h6");
-        decorateSummary($("section-tools").querySelector("summary"), "M3 16L16 3l5 5L8 21z M7 12l3 3 M10 9l3 3 M13 6l3 3");
-        for (const section of [appearance, $("section-tools"), $("section-trajectory")])
-          section.className = "sidebar-subgroup";
-        const toolboxBody = document.createElement("div");
-        toolboxBody.className = "sidebar-body";
-        toolboxBody.append(appearance, $("section-tools"), $("section-trajectory"));
-        toolbox.append(toolboxTitle, toolboxBody);
-        $("section-structures").after(toolbox);
         // Los ajustes permanecen en su sección; ya no se trasladan de una ventana a otra.
         for (const section of [$("menu-measurements"), $("menu-navigation")])
           for (const b of section.querySelectorAll("[data-tool]")) if (!bar.contains(b)) b.hidden = true;
@@ -10906,6 +10871,8 @@
             if (fileMenu.open) { fileMenu.open = false; fileMenu.querySelector("summary").focus(); }
           }
         });
+        bar.inert = false;
+        bar.setAttribute("aria-busy", "false");
         syncActiveToolLabel();
       }
       function syncActiveToolLabel() {

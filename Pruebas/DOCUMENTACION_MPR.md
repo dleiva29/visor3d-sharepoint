@@ -177,7 +177,7 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
 
 
-## Distribución de herramientas e iconos (v2.10.6)
+## Distribución de herramientas e iconos (v2.10.7)
 
 La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras de las cuatro vistas conservan maximizar y un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
 
@@ -198,3 +198,5 @@ El panel lateral agrupa Apariencia y referencia, Mediciones y anotaciones y Tray
 Herramientas usa un icono SVG de llave; sus tres subsecciones comparten marco, espaciado, flechas de despliegue e iconos de apariencia, medición y trayectoria.
 
 El aviso de carga completada se oculta diez segundos después del éxito; una nueva carga cancela ese temporizador y los errores permanecen visibles.
+
+La distribución inicial está definida en el HTML (barra común, Abrir y Herramientas). Un script breve establece escritorio/tableta/móvil antes de pintar; la barra se presenta desactivada mientras se cargan los módulos y se enlazan sus acciones. Se verificó el arranque en Chromium con módulos retardados, sin mostrar la disposición heredada.

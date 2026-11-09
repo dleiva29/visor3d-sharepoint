@@ -121,6 +121,16 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   fn(true);fn(false,'Error');assert.equal(timers.size,0);assert.equal($('loadingPanel').hidden,false);assert.equal($('loadingTitle').textContent,'Error de carga');
   dom.window.close();
  });
+ await test('Distribución inicial: nueva cabecera y grupos están en HTML antes de ejecutar módulos',()=>{
+  const dom=new JSDOM(html),document=dom.window.document;
+  assert.ok(document.querySelector('#viewerTools[aria-busy="true"][inert]'));
+  assert.ok(document.querySelector('#headerCaseActions #section-case'));
+  assert.equal(document.querySelector('#generalPanel #section-case'),null);
+  assert.deepEqual([...document.querySelector('#section-toolbox > .sidebar-body').children].map(n=>n.id),['section-visual','section-tools','section-trajectory']);
+  assert.equal(document.querySelector('#section-visual > summary').textContent,'Apariencia y referencia');
+  assert.equal(document.querySelector('#section-tools > summary').textContent,'Mediciones y anotaciones');
+  assert.ok(document.querySelector('#mprNavigation[hidden]'));dom.window.close();
+ });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){
