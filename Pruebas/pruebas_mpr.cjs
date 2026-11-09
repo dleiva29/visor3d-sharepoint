@@ -281,13 +281,13 @@ async function checkStructureTree({run, test}) {
       const {context} = run('applyNodes', {
         $, document, Event, localStorage, Option: dom.window.Option, layerControls, selectedStructures,
         URL, modelContentHash: 'synthetic-model', treeCaseKey: null, treeLocalOverride: false,
-        treeSearchOpen: null, treeRedoHistory: [], treeUndoHistory: [], treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
+        treeOpenNodes: new Set(), treeSearchOpen: null, treeRedoHistory: [], treeUndoHistory: [], treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
         treeEditing: false, batchRestore: false, uid: () => 'new-' + ++id,
         updateStructureSelection: () => context.syncTreeRows(),
         focusStructure: (...args) => focusCalls.push(args),
       }, [
         'redoTreeChange', 'undoTreeChange', 'indexStructureNodes', 'validateNodes', 'validateTree', 'validateStructureRelations',
-        'applyHierarchy', 'loadTree', 'saveTree', 'exportStructureTree', 'importStructureTree',
+        'loadTreeExpansion', 'saveTreeExpansion', 'applyHierarchy', 'loadTree', 'saveTree', 'exportStructureTree', 'importStructureTree',
         'loadPublishedStructureTree', 'nodeKeys', 'visibilityClosure', 'setSynchronizedVisibility',
         'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop', 'moveTreeNode', 'treeNodeActions', 'setTreeIcon', 'editNode',
         'addStructureReference', 'removeTreeReference', 'renderStructureCatalog', 'filterTree', 'setTreeExpanded',
@@ -555,6 +555,37 @@ async function checkStructureTree({run, test}) {
     assert.equal(badge('reference-1'),null);
     context.undoTreeChange();
     assert.equal(badge('reference-1').textContent,'↗ 2');
+  }));
+
+  await test('Árbol: recuerda expansión por modelo y no guarda apertura temporal de búsqueda', withTree(({context, $}) => {
+    context.applyNodes(nodes);
+    const row = id => context.treeRows.find(r => r.node.id === id);
+    row('left').details.open = true;
+    row('left').details.dispatchEvent(new context.Event('toggle'));
+    assert.deepEqual(JSON.parse(context.localStorage.getItem('mpr-tree-open-v1:synthetic-model')),['left']);
+    $('structureSearch').value = 'C'; context.filterTree();
+    context.saveTreeExpansion();
+    assert.deepEqual(JSON.parse(context.localStorage.getItem('mpr-tree-open-v1:synthetic-model')),['left']);
+    context.treeCaseKey = null; context.loadTree();
+    assert.equal(row('left').details.open,true);
+    assert.equal(row('right').details.open,false);
+    context.modelContentHash = 'otro'; context.loadTree();
+    context.applyNodes(nodes);
+    assert.ok(context.treeRows.every(r => !r.details.open));
+    context.modelContentHash = 'synthetic-model'; context.loadTree();
+    assert.equal(row('left').details.open,true);
+    context.setTreeExpanded(false);
+    assert.deepEqual(JSON.parse(context.localStorage.getItem('mpr-tree-open-v1:synthetic-model')),[]);
+  }));
+  await test('Árbol: expansión tolera datos corruptos y almacenamiento no disponible', withTree(({context}) => {
+    context.localStorage.setItem('mpr-tree-open-v1:synthetic-model','{roto');
+    context.treeCaseKey = null;
+    assert.doesNotThrow(()=>context.loadTree());
+    context.localStorage = {getItem(){throw Error('blocked')},setItem(){throw Error('full')}};
+    assert.doesNotThrow(()=>context.loadTreeExpansion());
+    context.applyNodes(nodes,{persist:false});
+    assert.doesNotThrow(()=>context.setTreeExpanded(true));
+    assert.ok(context.treeRows.every(r => r.details.open));
   }));
 
   await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {
