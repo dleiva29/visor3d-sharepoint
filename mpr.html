@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.8.2 · Menús de exploración</title>
+    /><title>MPR · v2.9.1 · Menús de exploración</title>
     <style>
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
       .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
@@ -1718,6 +1718,8 @@
       #view3d {
         position: relative;
       }
+      #mprNavigation { display: inline-flex; vertical-align: middle; margin: 0 6px; gap: 3px; flex-wrap: wrap; }
+      #mprNavigation button.tree-icon { width: 26px; height: 26px; min-height: 26px; padding: 4px; margin: 0; }
       #selectionCard {
         position: absolute; top: 8px; left: 8px; z-index: 5;
         max-width: min(300px, calc(100% - 16px)); box-sizing: border-box;
@@ -3057,7 +3059,13 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.8.2</strong
+        ><strong>Visor MPR · v2.9.1</strong
+        ><div id="mprNavigation" role="group" aria-label="Navegación MPR">
+          <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
+          <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
+          <button id="centerMprSelection" type="button" disabled>Centrar cortes en la estructura activa</button>
+          <button id="resetMprViews" type="button" disabled>Restablecer las cuatro vistas</button>
+        </div
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4072,6 +4080,7 @@
           z: { zoom: 1, x: 0, y: 0 },
         },
         viewAppliers = {};
+      let savedMprPosition = null;
       const contourPaths = { x: [], y: [], z: [] },
         layerControls = new Map(),
         measurements = [];
@@ -5150,6 +5159,7 @@
         volume.windowHigh = Number($("wl").value) + Number($("ww").value) / 2;
         initSlices();
         volumeContentHash = hash;
+        syncMprNavigation();
         syncNamedViews();
         status.textContent = `Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;
       }
@@ -5553,11 +5563,8 @@
         const reset = document.createElement("button");
         reset.type = "button";
         reset.className = "view-reset";
-        reset.textContent = "Restablecer vista";
-        reset.onclick = () => {
-          Object.assign(state, { zoom: 1, x: 0, y: 0 });
-          apply();
-        };
+        reset.textContent = "Restablecer las cuatro vistas";
+        reset.onclick = resetMprViews;
         canvas.closest(".pane")._resetView = reset;
         stage.addEventListener(
           "wheel",
@@ -7909,6 +7916,77 @@
         syncTreeRows();
         repaintAll();
       }
+      function mprPositionCaseKey() {
+        return volumeContentHash ? JSON.stringify([volumeContentHash, modelContentHash]) : null;
+      }
+      function syncMprNavigation() {
+        const ready = !!volume && !!volumeInfo;
+        if (savedMprPosition && savedMprPosition.caseKey !== mprPositionCaseKey()) savedMprPosition = null;
+        $("saveMprPosition").disabled = !ready;
+        $("restoreMprPosition").disabled = !ready || !savedMprPosition;
+        $("centerMprSelection").disabled = !ready || !selectedStructures.has(selectedStructure) || !layerControls.has(selectedStructure);
+        $("resetMprViews").disabled = !ready;
+      }
+      function saveMprPosition() {
+        syncMprNavigation();
+        if (!volume || !volumeInfo) return;
+        savedMprPosition = {
+          caseKey: mprPositionCaseKey(),
+          views: structuredClone(viewStates),
+          slices: Object.fromEntries(["x", "y", "z"].map((a) => [a, Number($("r" + a).value)])),
+          pivot: obliquePivot?.clone() || null,
+          rotation: obliqueRotation.clone(), shift: obliqueShift.clone(),
+          point: selectedWorldPoint?.clone() || null,
+          markerVisible: navMarker.visible, navText: $("navPoint").textContent,
+        };
+        syncMprNavigation();
+        status.textContent = "Posición MPR guardada para este caso durante la sesión.";
+      }
+      function restoreMprPosition() {
+        syncMprNavigation();
+        if (!savedMprPosition || !volume || !volumeInfo) return;
+        const saved = savedMprPosition;
+        obliquePivot = saved.pivot?.clone() || null;
+        obliqueRotation.copy(saved.rotation);
+        obliqueShift.copy(saved.shift);
+        selectedWorldPoint = saved.point?.clone() || null;
+        if (selectedWorldPoint) navMarker.position.copy(selectedWorldPoint);
+        navMarker.visible = saved.markerVisible && $("show3DMarker").checked;
+        $("navPoint").textContent = saved.navText;
+        for (const a of ["x", "y", "z"]) {
+          $("r" + a).value = saved.slices[a];
+          Object.assign(viewStates[a], saved.views[a]);
+          viewAppliers[a]();
+          paint(a);
+        }
+        document.dispatchEvent(new Event("case-state-change"));
+        status.textContent = "Posición MPR recuperada. Cámara 3D conservada.";
+      }
+      function resetMprViews() {
+        if (!volume || !volumeInfo) {
+          camera.zoom = 1;
+          fit();
+          return;
+        }
+        obliquePivot = null;
+        obliqueRotation.identity();
+        obliqueShift.set(0, 0, 0);
+        selectedWorldPoint = null;
+        navMarker.visible = false;
+        $("navPoint").textContent = "Pulsa un punto en un corte para sincronizar las vistas.";
+        setTool("navigate");
+        for (const a of ["x", "y", "z"]) {
+          const slider = $("r" + a);
+          slider.value = Math.floor(Number(slider.max) / 2);
+          Object.assign(viewStates[a], { zoom: 1, x: 0, y: 0 });
+          viewAppliers[a]();
+          paint(a);
+        }
+        camera.zoom = 1;
+        fit();
+        document.dispatchEvent(new Event("case-state-change"));
+        status.textContent = "Las cuatro vistas han vuelto al estado inicial.";
+      }
       function updateSelectionCard() {
         const keys = [...selectedStructures].filter((key) => layerControls.has(key));
         const active = keys.includes(selectedStructure);
@@ -7934,6 +8012,7 @@
           lines.push("Suma sin descontar solapamientos.");
         }
         $("selectionCardDetail").textContent = lines.join("\n");
+        syncMprNavigation();
       }
       $("selectionCardCenter").onclick = () => {
         if (selectedStructure && selectedStructures.has(selectedStructure)) focusStructure(selectedStructure, false);
@@ -8005,8 +8084,9 @@
         $("restoreVisibility").disabled = true;
         status.textContent = "Todas las estructuras visibles.";
       };
-      function focusStructure(key, select = true, reveal = true) {
+      function focusStructure(key, select = true, reveal = true, mprOnly = false) {
         try {
+          if (mprOnly && (!volume || !volumeInfo)) throw new Error("Carga un volumen para centrar los cortes.");
           const layer = layerControls.get(key);
           if (!layer) throw new Error("Carga un modelo y elige una estructura.");
           model.updateWorldMatrix(true, true);
@@ -8048,6 +8128,11 @@
               viewStates[a].y += s.top + s.height / 2 - (r.top + (p.y * r.height) / canvas.height);
               viewAppliers[a]();
             }
+          }
+          if (mprOnly) {
+            status.textContent = "Cortes MPR centrados en: " + key + ". Cámara 3D conservada.";
+            document.dispatchEvent(new Event("case-state-change"));
+            return;
           }
           const direction = camera.position.clone().sub(controls.target);
           if (direction.lengthSq() < 1e-8) direction.set(1, 1, 1);
@@ -9868,6 +9953,7 @@
         } catch { /* La expansión sigue funcionando si el navegador no permite guardarla. */ }
       }
       function loadTree() {
+        syncMprNavigation();
         const key = modelContentHash ? "mpr-tree-v1:" + modelContentHash : null;
         if (key === treeCaseKey) return;
         treeCaseKey = key;
@@ -10191,6 +10277,9 @@
           collapse: "M4 2l5 4 5-4 M4 16l5-4 5 4",
           group: "M2 6V4h5l2 2h7v10H2z M9 8v6 M6 11h6",
           more: "M4 9h.01 M9 9h.01 M14 9h.01",
+          bookmark: "M4 2h10v14l-5-3-5 3z",
+          target: "M9 1v4 M9 13v4 M1 9h4 M13 9h4 M9 5a4 4 0 1 0 0 8 4 4 0 0 0 0-8",
+          reset: "M3 7a6 6 0 1 1 0 5 M3 2v5h5",
           export: "M9 2v10 M5 8l4 4 4-4 M3 12v4h12v-4",
           import: "M9 12V2 M5 6l4-4 4 4 M3 12v4h12v-4",
         };
@@ -10714,10 +10803,7 @@
               viewAppliers[axis]();
             }
           });
-          quick("reset", "Restablecer vista", () => {
-            if (sceneView) fit();
-            else reset.click();
-          });
+          quick("reset", "Restablecer las cuatro vistas", resetMprViews);
           if (sceneView)
             quick("camera", "Vistas anatómicas", () =>
               showSection("menu-scene", "cameraOrientationHeading")
@@ -11045,6 +11131,16 @@
           setTool("navigate");
         }
       });
+      for (const [id, icon, label, action] of [
+        ["saveMprPosition", "bookmark", "Guardar posición MPR (sesión actual)", saveMprPosition],
+        ["restoreMprPosition", "undo", "Volver a la posición MPR guardada", restoreMprPosition],
+        ["centerMprSelection", "target", "Centrar cortes en la estructura activa sin mover la cámara 3D", () => focusStructure(selectedStructure, false, false, true)],
+        ["resetMprViews", "reset", "Restablecer las cuatro vistas al estado inicial", resetMprViews],
+      ]) {
+        setTreeIcon($(id), icon, label);
+        $(id).onclick = action;
+      }
+      syncMprNavigation();
       installPaneMenus();
       updateToolCursor();
       syncPaneToggles();

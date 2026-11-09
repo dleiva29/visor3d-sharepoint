@@ -25,7 +25,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   const elements=Object.fromEntries(['selectionCard','selectionCardCenter','selectionCardClear','selectionCardName','selectionCardDetail'].map(id=>[id,{}]));
   const selected=new Set(['A']);
   const layers=new Map([['A',{volumeML:12}],['B',{volumeML:null}]]);
-  const {fn,context}=run('updateSelectionCard',{$:id=>elements[id],layerControls:layers,selectedStructures:selected,selectedStructure:'A',formatVolume:n=>n+' mL'});
+  const {fn,context}=run('updateSelectionCard',{$:id=>elements[id],layerControls:layers,selectedStructures:selected,selectedStructure:'A',syncMprNavigation:()=>{},formatVolume:n=>n+' mL'});
   fn(); assert.equal(elements.selectionCard.hidden,false);assert.equal(elements.selectionCardName.textContent,'A');assert.match(elements.selectionCardDetail.textContent,/12 mL/);
   selected.add('B');fn();assert.match(elements.selectionCardName.textContent,/2 estructuras/);
   assert.match(elements.selectionCardDetail.textContent,/A \(activa\): 12 mL/);
@@ -50,6 +50,24 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   context.activeTool='navigate';refresh();assert.equal(timers.size,0);
   context.activeTool='select';dom.window.document.getElementById('toolHint').textContent=' ';refresh();assert.equal(timers.size,0);
   dom.window.close();
+ });
+ await test('Navegación MPR: guarda y recupera cortes, zoom, referencia y orientación; aísla casos',()=>{
+  const elements=Object.fromEntries(['saveMprPosition','restoreMprPosition','centerMprSelection','resetMprViews','navPoint','show3DMarker','rx','ry','rz'].map(id=>[id,{value:'3',max:'10',checked:true,textContent:'Posición guardada'}]));
+  const views=Object.fromEntries(['x','y','z'].map(a=>[a,{zoom:2,x:10,y:-5}]));
+  let paints=0,applied=0,fits=0;
+  const {fn,context}=run('saveMprPosition',{$:id=>elements[id],volume:{},volumeInfo:{},volumeContentHash:'v1',modelContentHash:'m1',savedMprPosition:null,camera:{zoom:3},fit:()=>fits++,setTool:()=>{},selectedStructures:new Set(['A']),selectedStructure:'A',layerControls:new Map([['A',{}]]),viewStates:views,viewAppliers:Object.fromEntries(['x','y','z'].map(a=>[a,()=>applied++])),obliquePivot:new THREE.Vector3(1,2,3),obliqueRotation:new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.4),obliqueShift:new THREE.Vector3(4,5,6),selectedWorldPoint:new THREE.Vector3(7,8,9),navMarker:{visible:true,position:new THREE.Vector3()},status:{},paint:()=>paints++,document:{dispatchEvent:()=>{}},Event:class{}},['mprPositionCaseKey','syncMprNavigation','restoreMprPosition','resetMprViews']);
+  fn(); const saved=context.savedMprPosition;
+  views.x.zoom=9;elements.rx.value='8';context.obliqueShift.set(0,0,0);
+  context.restoreMprPosition();assert.equal(views.x.zoom,2);assert.equal(elements.rx.value,3);assert.deepEqual(context.obliqueShift.toArray(),[4,5,6]);assert.equal(paints,3);
+  context.resetMprViews();assert.equal(views.x.zoom,1);assert.equal(views.x.x,0);assert.equal(elements.rx.value,5);assert.equal(context.obliqueRotation.equals(new THREE.Quaternion()),true);assert.equal(context.obliquePivot,null);assert.deepEqual(context.obliqueShift.toArray(),[0,0,0]);assert.equal(context.selectedWorldPoint,null);assert.equal(context.navMarker.visible,false);assert.equal(context.camera.zoom,1);assert.equal(fits,1);assert.equal(applied,6);assert.ok(context.selectedStructures.has('A'));assert.equal(context.savedMprPosition,saved);
+  context.modelContentHash='m2';context.restoreMprPosition();assert.equal(context.savedMprPosition,null);assert.equal(elements.restoreMprPosition.disabled,true);
+ });
+ await test('Centrado MPR conserva cámara 3D y selección',()=>{
+  const mesh=new THREE.Mesh(new THREE.BoxGeometry(2,2,2));let focused=0;const message={};
+  const rect=()=>({left:0,top:0,width:100,height:100});
+  const elements={};for(const a of ['x','y','z']){elements['r'+a]={max:10};elements['ct'+a]={width:100,parentElement:{getBoundingClientRect:rect},getBoundingClientRect:rect};}
+  const {fn}=run('focusStructure',{$:id=>elements[id],volume:{},volumeInfo:{},layerControls:new Map([['A',{items:[{mesh}]}]]),model:{updateWorldMatrix:()=>{}},physicalCoordinateAt:(a,i)=>i===0?-10:10,selectedStructures:new Set(['A']),viewStates:Object.fromEntries(['x','y','z'].map(a=>[a,{x:0,y:0}])),viewAppliers:{x:()=>{},y:()=>{},z:()=>{}},applyReferencePoint:()=>focused++,worldToPixel:()=>({x:50,y:50}),slicePixelBasis:()=>({}),camera:new Proxy({},{get(){throw Error('Camera touched')}}),status:message,document:{dispatchEvent:()=>{}},Event:class{}});
+  fn('A',false,false,true);assert.equal(focused,1);assert.match(message.textContent,/Cámara 3D conservada/);
  });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
@@ -313,6 +331,7 @@ async function checkStructureTree({run, test}) {
         URL, modelContentHash: 'synthetic-model', treeCaseKey: null, treeLocalOverride: false,
         treeOpenNodes: new Set(), treeSearchOpen: null, treeRedoHistory: [], treeUndoHistory: [], treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
         treeEditing: false, batchRestore: false, uid: () => 'new-' + ++id,
+        syncMprNavigation: () => {},
         updateStructureSelection: () => context.syncTreeRows(),
         focusStructure: (...args) => focusCalls.push(args),
       }, [
