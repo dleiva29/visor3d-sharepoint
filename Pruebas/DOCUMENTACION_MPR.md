@@ -177,7 +177,7 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
 
 
-## Distribución de herramientas e iconos (v2.10.0)
+## Distribución de herramientas e iconos (v2.10.1)
 
 La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras de las cuatro vistas conservan maximizar y un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
 
@@ -186,3 +186,5 @@ Los nodos de segmentación de `mpr-structure-tree` v2 admiten el campo opcional 
 «Acciones → Cambiar icono» permite elegir la categoría para esa referencia o volver a Automático. La elección se conserva en almacenamiento local, exportación, configuración del caso y Deshacer/Rehacer. El icono es neutro e independiente del punto de color real de la estructura. Los grupos muestran una carpeta.
 
 Verificación de esta revisión: pruebas unitarias y de DOM con ESLint, más una prueba integral en Chromium cargando GLB y NRRD del caso 10. No sustituye la validación visual final en Codespaces ni las comprobaciones de US, presentaciones e informes de la lista anterior.
+
+El botón de plegado de la cabecera muestra u oculta exclusivamente la barra común; mantiene las cabeceras de las vistas y la herramienta activa. Al plegar cierra los desplegables abiertos y actualiza su etiqueta accesible.

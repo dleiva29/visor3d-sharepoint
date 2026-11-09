@@ -96,6 +96,14 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   document.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape'}));assert.equal(drop.open,false);
   dom.window.close();
  });
+ await test('Barra común: plegar no oculta cabeceras ni cambia la herramienta activa',()=>{
+  const dom=new JSDOM('<button id="togglePaneHeaders"></button><nav id="viewerTools"><details open><summary>Medir</summary></details></nav><section class="pane"><h2>Axial</h2></section>');
+  const document=dom.window.document,$=id=>document.getElementById(id);let resized=0;
+  const {fn}=run('toggleViewerTools',{document,$,resize3D:()=>resized++,repaintAll:()=>{}});
+  fn();assert.equal($('viewerTools').hidden,true);assert.equal($('togglePaneHeaders').getAttribute('aria-expanded'),'false');assert.equal($('viewerTools').querySelector('details').open,false);
+  assert.equal(document.body.classList.contains('pane-headers-collapsed'),false);assert.equal(document.querySelector('.pane h2').hidden,false);
+  fn();assert.equal($('viewerTools').hidden,false);assert.equal($('togglePaneHeaders').getAttribute('aria-label'),'Ocultar barra de herramientas');assert.equal(resized,2);dom.window.close();
+ });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){
