@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.4.0 · Menús de exploración</title>
+    /><title>MPR · v2.4.1 · Menús de exploración</title>
     <style>
       .tree-actions { max-width: 10rem; font-size: 0.85em; }
       #structureTree summary.drop-before { box-shadow: inset 0 3px #38bdf8; }
@@ -3027,7 +3027,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.4.0</strong
+        ><strong>Visor MPR · v2.4.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -9986,6 +9986,8 @@
         treeRows.length = 0;
         $("treeMode").textContent = treeEditing ? "✓ Terminar edición" : "Editar árbol";
         $("treeMode").setAttribute("aria-pressed", String(treeEditing));
+        $("undoTree").hidden = !treeEditing;
+        $("redoTree").hidden = !treeEditing;
         $("undoTree").disabled = treeUndoHistory.length === 0;
         $("redoTree").disabled = treeRedoHistory.length === 0;
         $("createGroup").hidden = !treeEditing;
@@ -10240,10 +10242,12 @@
       const undo = button("Deshacer", undoTreeChange);
       undo.id = "undoTree";
       undo.disabled = true;
+      undo.hidden = true;
       undo.title = "Deshacer el último cambio de organización (hasta 20 cambios por sesión). No cambia selección ni visibilidad.";
       const redo = button("Rehacer", redoTreeChange);
       redo.id = "redoTree";
       redo.disabled = true;
+      redo.hidden = true;
       redo.title = "Recuperar el último cambio deshecho. Una edición nueva descarta los cambios pendientes de rehacer.";
       toolbar.prepend(mode, undo, redo);
       $("createGroup").textContent = "+ Crear grupo";

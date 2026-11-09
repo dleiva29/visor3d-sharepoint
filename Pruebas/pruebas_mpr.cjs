@@ -473,6 +473,24 @@ async function checkStructureTree({run, test}) {
     context.redoTreeChange(); assert.equal(context.structureNodes.length,0);
   }));
 
+  await test('Árbol: deshacer y rehacer solo visibles en edición sin perder historial', withTree(({context, $}) => {
+    context.applyNodes([group('a')],{persist:false});
+    assert.equal($('undoTree').hidden,true);
+    assert.equal($('redoTree').hidden,true);
+    context.treeEditing = true; context.renderTree();
+    assert.equal($('undoTree').hidden,false);
+    assert.equal($('redoTree').hidden,false);
+    context.applyNodes([group('b')]); context.undoTreeChange();
+    context.treeEditing = false; context.renderTree();
+    assert.equal($('undoTree').hidden,true);
+    assert.equal($('redoTree').hidden,true);
+    context.treeEditing = true; context.renderTree();
+    assert.equal($('redoTree').hidden,false);
+    assert.equal($('redoTree').disabled,false);
+    context.redoTreeChange();
+    assert.equal(context.structureNodes[0].id,'b');
+  }));
+
   await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {
     context.applyNodes(nodes);
     const exported = JSON.parse(JSON.stringify(context.exportStructureTree()));
