@@ -538,6 +538,25 @@ async function checkStructureTree({run, test}) {
     assert.equal(wrapper.querySelectorAll('option').length,6);
   }));
 
+  await test('Árbol: referencias compartidas muestran contador y explicación accesible', withTree(({context, $}) => {
+    context.applyNodes(nodes,{persist:false});
+    const badge = id => $('structureTree').querySelector('[data-node="'+id+'"] > summary .tree-shared');
+    assert.equal(badge('reference-1').textContent,'↗ 2');
+    assert.equal(badge('reference-2').textContent,'↗ 2');
+    assert.match(badge('reference-1').getAttribute('aria-label'),/2 lugares.*visibilidad.*descendientes/);
+    assert.equal(badge('child'),null);
+    assert.equal(badge('left'),null);
+    const control = context.treeRows.find(r => r.node.id === 'left').visibility;
+    assert.match(control.title,/otras ramas/);
+    assert.match(control.getAttribute('aria-label'),/left/);
+    context.treeEditing = true; context.renderTree();
+    assert.equal(badge('reference-1').textContent,'↗ 2');
+    context.removeTreeReference('reference-2');
+    assert.equal(badge('reference-1'),null);
+    context.undoTreeChange();
+    assert.equal(badge('reference-1').textContent,'↗ 2');
+  }));
+
   await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {
     context.applyNodes(nodes);
     const exported = JSON.parse(JSON.stringify(context.exportStructureTree()));
