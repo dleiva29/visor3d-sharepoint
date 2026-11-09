@@ -177,9 +177,9 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
 
 
-## Distribución de herramientas e iconos (v2.10.10)
+## Distribución de herramientas e iconos (v2.10.11)
 
-La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras de las cuatro vistas conservan solo maximizar. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
+La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras MPR conservan solo maximizar; la vista 3D conserva además un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
 
 Los nodos de segmentación de `mpr-structure-tree` v2 admiten el campo opcional `icon`: `generic`, `vein`, `artery`, `lesion`, `liver`, `kidney`, `lung` o `bone`. Sin ese campo se sugiere un icono por la clave original, con prioridad de lesión/tumor sobre vasos; no se deducen diagnósticos. El nombre visible no cambia la sugerencia. Los archivos v1 y v2 anteriores siguen siendo válidos. Los valores ajenos a la lista se rechazan antes de aplicar el árbol.
 
@@ -206,3 +206,5 @@ Posición → Centrar todo elimina el desplazamiento de las tres vistas MPR y ce
 Los accesos que abren ajustes laterales resaltan la sección de destino durante cuatro segundos con contorno y cabecera de acento. Medir, anotar y trayectoria también abren y señalan sus ajustes. Una nueva apertura retira el resaltado anterior y reinicia el temporizador.
 
 Los botones de Herramientas comparten fuente de 12 px, altura mínima de 28 px, espaciado, bordes y colores del visor. Las etiquetas largas pueden ocupar varias líneas; se mantienen estados activos/deshabilitados, flechas de rangos compactas y altura táctil de 44 px.
+
+Se recupera el menú «…» solo en 3D, con centrar modelo, restablecer vistas, ajustes 3D, orientaciones anatómicas, visibilidad de planos e información del modelo. Las vistas MPR permanecen sin ese menú.

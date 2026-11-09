@@ -83,7 +83,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
     const panel=document.createElement('div'),trigger=document.createElement('button'),maximize=document.createElement('button');panel.className='pane-menu';panel.hidden=true;pane.append(toolbar,panel,trigger);
     return {pane,toolbar,panel,trigger,maximize,sceneView:i===3};
   });
-  const {fn,context}=run('organizeViewerTools',{document,$,activeTool:'navigate',centerAllViews:()=>{},highlightSidebarSection:()=>{},button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
+  const {fn,context}=run('organizeViewerTools',{document,$,activeTool:'navigate',centerAllViews:()=>{},resetMprViews:()=>{},highlightSidebarSection:()=>{},button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
   fn(menus);
   assert.equal(document.querySelectorAll('.pane-quick-tools').length,0);
   assert.equal(document.querySelectorAll('.pane-maximize').length,4);
@@ -98,7 +98,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   assert.ok($('addModelLabel').closest('#viewerTools'));
   assert.deepEqual([...document.querySelectorAll('.shared-tool-family')].map(el=>el.getAttribute('aria-label')),['Planos y orientación','Apariencia','Referencias','Trayectoria y ecografía','Capturas e informe']);
   assert.equal(document.querySelector('#viewerTools [data-tool="trajectory"]').closest('section').getAttribute('aria-label'),'Trayectoria y ecografía');
-  assert.equal(document.querySelectorAll('.pane-menu').length,0);assert.equal(document.querySelectorAll('.pane-menu-trigger').length,0);assert.ok($('centerAllViews').closest('#viewerTools'));
+  assert.equal(document.querySelectorAll('.pane-menu').length,1);assert.equal(document.querySelectorAll('.pane-menu-trigger').length,1);menus[3].trigger.click();assert.equal(menus[3].panel.hidden,false);menus[3].trigger.click();assert.equal(menus[3].panel.hidden,true);assert.ok($('centerAllViews').closest('#viewerTools'));
   assert.equal([...document.querySelectorAll('.shared-tool-family')].find(el=>el.getAttribute('aria-label')==='Apariencia').querySelector('button').textContent,'Ajustes de imagen MPR');
   const drop=document.querySelector('#viewerTools .shared-dropdown');drop.open=true;
   document.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape'}));assert.equal(drop.open,false);
