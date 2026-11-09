@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.5.3 · Menús de exploración</title>
+    /><title>MPR · v2.5.4 · Menús de exploración</title>
     <style>
       .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
       .tree-icon[hidden] { display: none; }
@@ -1151,6 +1151,8 @@
         font-size: 10px;
         padding: 6px;
       }
+      .sidebar-body button.tree-icon,
+      .case-session-actions button.tree-icon,
       .structure-tools .tree-toolbar button.tree-icon {
         width: 24px;
         min-width: 24px;
@@ -3042,7 +3044,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.5.3</strong
+        ><strong>Visor MPR · v2.5.4</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -10323,6 +10325,8 @@
       setTreeIcon($("createGroup"), "group", "Crear grupo");
       setTreeIcon($("exportTree"), "export", "Exportar árbol");
       setTreeIcon($("importTreeButton"), "import", "Importar árbol");
+      setTreeIcon($("exportNamedViews"), "export", "Exportar lista de vistas");
+      setTreeIcon($("importNamedViewsButton"), "import", "Importar lista de vistas");
       $("createGroup").onclick = () => editNode();
       $("childrenEditor").hidden = true;
       document.querySelector(".hierarchy-display").remove();
@@ -10965,6 +10969,8 @@
           button = (k) => buttons[k],
           message = box.querySelector("p"),
           input = box.querySelector("input");
+        setTreeIcon(button("load"), "import", "Importar configuración del caso");
+        setTreeIcon(button("save"), "export", "Exportar configuración del caso");
         const historyActions = $("historyActions");
         historyActions.append(button("undo"), button("redo"));
         let entries = [],
