@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.5.2 · Menús de exploración</title>
+    /><title>MPR · v2.5.3 · Menús de exploración</title>
     <style>
       .tree-icon { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; padding: 3px; flex-shrink: 0; }
       .tree-icon[hidden] { display: none; }
@@ -3042,7 +3042,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.5.2</strong
+        ><strong>Visor MPR · v2.5.3</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -10093,6 +10093,8 @@
           collapse: "M4 2l5 4 5-4 M4 16l5-4 5 4",
           group: "M2 6V4h5l2 2h7v10H2z M9 8v6 M6 11h6",
           more: "M4 9h.01 M9 9h.01 M14 9h.01",
+          export: "M9 2v10 M5 8l4 4 4-4 M3 12v4h12v-4",
+          import: "M9 12V2 M5 6l4-4 4 4 M3 12v4h12v-4",
         };
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttribute("viewBox", "0 0 18 18");
@@ -10319,6 +10321,8 @@
       collapse.title = "Contraer todo · limpia la búsqueda";
       toolbar.prepend(mode, undo, redo, expand, collapse);
       setTreeIcon($("createGroup"), "group", "Crear grupo");
+      setTreeIcon($("exportTree"), "export", "Exportar árbol");
+      setTreeIcon($("importTreeButton"), "import", "Importar árbol");
       $("createGroup").onclick = () => editNode();
       $("childrenEditor").hidden = true;
       document.querySelector(".hierarchy-display").remove();
