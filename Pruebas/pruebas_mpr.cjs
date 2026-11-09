@@ -92,6 +92,8 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   assert.equal($('saveMprPosition'),position);position.disabled=false;position.click();assert.equal(action,1);
   assert.ok($('menu-scene').closest('#section-visual'));
   assert.ok($('addModelLabel').closest('#viewerTools'));
+  assert.deepEqual([...document.querySelectorAll('.shared-tool-family')].map(el=>el.getAttribute('aria-label')),['Planos y orientación','Estructuras y apariencia','Referencias','Trayectoria y ecografía','Capturas e informe']);
+  assert.equal(document.querySelector('#viewerTools [data-tool="trajectory"]').closest('section').getAttribute('aria-label'),'Trayectoria y ecografía');
   menus[3].trigger.click();assert.equal(menus[3].panel.hidden,false);menus[0].trigger.click();assert.equal(menus[3].panel.hidden,true);
   const drop=document.querySelector('#viewerTools .shared-dropdown');drop.open=true;
   document.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape'}));assert.equal(drop.open,false);

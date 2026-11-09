@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.10.2 · Menús de exploración</title>
+    /><title>MPR · v2.10.3 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -1842,6 +1842,9 @@
       #viewerTools .shared-dropdown { position: relative; margin: 0; padding: 0; border: 0; }
       #viewerTools .shared-dropdown > summary { border: 1px solid #456078; border-radius: 5px; list-style: none; cursor: pointer; }
       #viewerTools .shared-dropdown-content { position: absolute; z-index: 300; top: 100%; left: 0; background: #102534; border: 1px solid #456078; border-radius: 6px; padding: 7px; min-width: 210px; max-height: min(420px, 65dvh); overflow: auto; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 4px 15px #0008; }
+      #viewerTools .shared-tool-family { display: flex; flex-direction: column; gap: 4px; margin-top: 5px; padding-top: 9px; border-top: 1px solid #385166; }
+      #viewerTools .shared-tool-family:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+      #viewerTools .shared-tool-family h3 { margin: 1px 2px 4px; font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #8fd8e6; }
       #viewerTools .shared-dropdown:not([open]) > .shared-dropdown-content { display: none; }
       #viewerTools .shared-dropdown-content button { width: 100%; text-align: left; justify-content: flex-start; flex-shrink: 0; }
       #viewerTools button.tree-icon { height: auto; }
@@ -3096,7 +3099,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.10.2</strong
+        ><strong>Visor MPR · v2.10.3</strong
         ><div id="mprNavigation" role="group" aria-label="Navegación MPR">
           <button id="saveMprPosition" type="button" disabled>Guardar posición MPR</button>
           <button id="restoreMprPosition" type="button" disabled>Volver a posición MPR</button>
@@ -10765,16 +10768,38 @@
         dropdown("Anotar", [$("addModelLabel"), $("addModelArrow"), button("Textos y ajustes", () => openSidebarSection("menu-annotations"))]);
         dropdown("Posición", [...$("mprNavigation").children]);
         $("mprNavigation").remove();
-        dropdown("Más", [
-          labelButton(takeTool("threePoints"), "Plano por tres puntos"), labelButton(takeTool("oblique"), "Cortes oblicuos"),
-          labelButton(takeTool("trajectory"), "Trayectoria 3D"), labelButton(takeTool("cut"), "Ocultar estructura"),
-          labelButton(takeLabel("Capturar distribución actual"), "Capturar distribución actual"),
+        const more = dropdown("Más", []);
+        const family = (label, controls) => {
+          const group = document.createElement("section");
+          group.className = "shared-tool-family";
+          group.setAttribute("role", "group");
+          group.setAttribute("aria-label", label);
+          const heading = document.createElement("h3");
+          heading.textContent = label;
+          group.append(heading);
+          for (const control of controls) if (control) group.append(control);
+          more.append(group);
+        };
+        family("Planos y orientación", [
+          labelButton(takeTool("threePoints"), "Plano por tres puntos"),
+          labelButton(takeTool("oblique"), "Cortes oblicuos"),
+        ]);
+        family("Estructuras y apariencia", [
+          labelButton(takeTool("cut"), "Ocultar estructura"),
           labelButton(takeLabel("Mostrar nombres de estructuras"), "Mostrar nombres de estructuras"),
           labelButton(takeLabel("Activar / desactivar recorte del modelo"), "Recorte del modelo"),
           labelButton(takeLabel("Rellenar contornos 2D cerrados"), "Rellenar contornos 2D"),
+        ]);
+        family("Referencias", [
           labelButton(takeLabel("Mostrar cruces de referencia"), "Cruces de referencia MPR"),
           labelButton(takeLabel("Mostrar cruce de referencia en 3D"), "Referencia en 3D"),
+        ]);
+        family("Trayectoria y ecografía", [
+          labelButton(takeTool("trajectory"), "Trayectoria 3D"),
           labelButton($("headerUsMode"), "Modo US"), labelButton($("headerUsTarget"), "Objetivo US"),
+        ]);
+        family("Capturas e informe", [
+          labelButton(takeLabel("Capturar distribución actual"), "Capturar distribución actual"),
           button("Capturas e informe", () => openSidebarSection("menu-captures")),
         ]);
         const active = document.createElement("span");
