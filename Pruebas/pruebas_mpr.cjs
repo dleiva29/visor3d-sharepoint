@@ -83,7 +83,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
     const panel=document.createElement('div'),trigger=document.createElement('button'),maximize=document.createElement('button');panel.className='pane-menu';panel.hidden=true;pane.append(toolbar,panel,trigger);
     return {pane,toolbar,panel,trigger,maximize,sceneView:i===3};
   });
-  const {fn,context}=run('organizeViewerTools',{document,$,activeTool:'navigate',centerAllViews:()=>{},button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
+  const {fn,context}=run('organizeViewerTools',{document,$,activeTool:'navigate',centerAllViews:()=>{},highlightSidebarSection:()=>{},button:(text,fn)=>{const b=document.createElement('button');b.textContent=text;b.onclick=fn;return b;}},['setTreeIcon','syncActiveToolLabel','openSidebarSection']);
   fn(menus);
   assert.equal(document.querySelectorAll('.pane-quick-tools').length,0);
   assert.equal(document.querySelectorAll('.pane-maximize').length,4);
@@ -140,6 +140,15 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   const {fn}=run('centerAllViews',{viewStates:states,viewAppliers:{x:()=>{},y:()=>{},z:()=>{}},model:mesh,planesRoot:{children:[]},camera,controls,status:{},document:{dispatchEvent:()=>{}},Event:class{}});
   fn();assert.deepEqual(camera.position.toArray(),[60,80,100]);assert.deepEqual(controls.target.toArray(),[10,20,30]);assert.equal(camera.zoom,3);assert.deepEqual(camera.up.toArray(),[0,0,1]);
   for(const a of ['x','y','z'])assert.deepEqual(states[a],{zoom:2,x:0,y:0});
+ });
+ await test('Panel lateral: resalta cuatro segundos solo la sección abierta y reinicia el aviso',()=>{
+  const dom=new JSDOM('<details id="a"><summary>A</summary></details><details id="b"><summary>B</summary></details>');
+  const document=dom.window.document,timers=new Map();let id=0;
+  const {fn}=run('highlightSidebarSection',{document,setTimeout:(fn,ms)=>{assert.equal(ms,4000);timers.set(++id,fn);return id;},clearTimeout:key=>timers.delete(key)});
+  const a=document.getElementById('a'),b=document.getElementById('b');
+  fn(a);assert.equal(a.classList.contains('sidebar-highlight'),true);
+  fn(b);assert.equal(a.classList.contains('sidebar-highlight'),false);assert.equal(b.classList.contains('sidebar-highlight'),true);assert.equal(timers.size,1);
+  fn(b);assert.equal(timers.size,1);[...timers.values()][0]();assert.equal(b.classList.contains('sidebar-highlight'),false);dom.window.close();
  });
  await test('Geometría RAS válida y centro físico',()=>{const g=run('parseNrrdGeometry').fn(buffer(''));assert.deepEqual(g.centerRAS.toArray(),[10.5,22,34.5]);});
  await test('Geometría LPS convertida a RAS',()=>{const a=new TextDecoder().decode(buffer('')).replace('right-anterior-superior','left-posterior-superior');const g=run('parseNrrdGeometry').fn(new TextEncoder().encode(a).buffer);assert.deepEqual(g.centerRAS.toArray(),[-10.5,-22,34.5]);});

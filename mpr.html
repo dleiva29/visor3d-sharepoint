@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.10.8 · Menús de exploración</title>
+    /><title>MPR · v2.10.9 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3093,6 +3093,8 @@
       #section-toolbox > .sidebar-body > details > summary::after { content: "⌄"; float: right; color: #89bed4; }
       #section-toolbox > .sidebar-body > details[open] > summary { background: #173347; border-radius: 5px 5px 0 0; border-bottom: 1px solid var(--edge); }
       #section-toolbox > .sidebar-body > details[open] > summary::after { content: "⌃"; }
+      #generalPanel .sidebar-highlight { outline: 2px solid #56d8eb; outline-offset: 2px; box-shadow: inset 3px 0 #56d8eb; border-radius: 6px; }
+      #generalPanel .sidebar-highlight > summary { background: #174557; color: #b4f6ff; }
       #headerUsTools[hidden] { display: none !important; }
       header .viewer-header-main > small { order: 10; flex-basis: 100%; margin: 0; }
       #viewerTools { padding-right: 0; }
@@ -3112,7 +3114,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.10.8</strong
+        ><strong>Visor MPR · v2.10.9</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -5875,11 +5877,11 @@
         $("toolHint").textContent = toolHints[tool];
         updateMeasurementHint();
         if (tool === "trajectory") {
-          $("section-trajectory").open = true;
+          openSidebarSection("section-trajectory");
           updateTrajectoryPanel();
         }
-        if (tool.startsWith("measure") || tool === "editMeasure")
-          (($("section-tools").open = true), ($("measurementList").closest("details").open = true));
+        if (tool.startsWith("measure") || tool === "editMeasure") openSidebarSection("menu-measurements");
+        if (["annotation", "arrow"].includes(tool)) openSidebarSection("menu-annotations");
         repaintAll();
         renderMeasure3D();
       }
@@ -10737,6 +10739,12 @@
           timer = setTimeout(hide, 4000);
         };
       }
+      function highlightSidebarSection(section) {
+        clearTimeout(highlightSidebarSection.timer);
+        for (const previous of document.querySelectorAll(".sidebar-highlight")) previous.classList.remove("sidebar-highlight");
+        section.classList.add("sidebar-highlight");
+        highlightSidebarSection.timer = setTimeout(() => section.classList.remove("sidebar-highlight"), 4000);
+      }
       function openSidebarSection(id) {
         const section = $(id);
         for (let node = section; node; node = node.parentElement) {
@@ -10744,6 +10752,7 @@
         }
         if (document.body.classList.contains("panel-folded")) $("toggleGeneralPanel").click();
         section.scrollIntoView({ block: "nearest" });
+        highlightSidebarSection(section);
       }
       function organizeViewerTools(menus) {
         const header = document.querySelector("header");

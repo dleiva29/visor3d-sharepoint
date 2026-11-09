@@ -177,7 +177,7 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
 
 
-## Distribución de herramientas e iconos (v2.10.8)
+## Distribución de herramientas e iconos (v2.10.9)
 
 La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras de las cuatro vistas conservan solo maximizar. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
 
@@ -202,3 +202,5 @@ El aviso de carga completada se oculta diez segundos después del éxito; una nu
 La distribución inicial está definida en el HTML (barra común, Abrir y Herramientas). Un script breve establece escritorio/tableta/móvil antes de pintar; la barra se presenta desactivada mientras se cargan los módulos y se enlazan sus acciones. Se verificó el arranque en Chromium con módulos retardados, sin mostrar la disposición heredada.
 
 Posición → Centrar todo elimina el desplazamiento de las tres vistas MPR y centra el encuadre 3D, conservando zoom, cortes y orientación. Más → Apariencia reúne los ajustes MPR, los ajustes 3D y la información del modelo. Se retiran los menús «…» de las ventanas; orientación anatómica y planos siguen disponibles en los ajustes 3D.
+
+Los accesos que abren ajustes laterales resaltan la sección de destino durante cuatro segundos con contorno y cabecera de acento. Medir, anotar y trayectoria también abren y señalan sus ajustes. Una nueva apertura retira el resaltado anterior y reinicia el temporizador.
