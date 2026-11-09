@@ -177,7 +177,7 @@ Chromium no pudo iniciarse en este entorno; por ello estas comprobaciones no se 
 - La geometría de los volúmenes cerrados se comprueba, pero no se ha validado aquí la exactitud clínica de medidas, orientación o simulación US. Las limitaciones ya presentes en el visor siguen vigentes.
 
 
-## Distribución de herramientas e iconos (v2.11.0)
+## Distribución de herramientas e iconos (v2.11.1)
 
 La barra común bajo la cabecera reúne Explorar, Medir, Anotar, Posición y Más. La herramienta activa se indica en texto y en el botón. Las cabeceras MPR conservan solo maximizar; la vista 3D conserva además un menú de opciones locales. Los ajustes permanecen en el panel lateral (a la derecha en escritorio); los controles existentes se trasladan, conservando sus manejadores, identificadores y estados. En tabletas y móviles se mantiene la disposición adaptable.
 
@@ -215,3 +215,5 @@ Se recupera el menú «…» solo en 3D, con centrar modelo, restablecer vistas,
 La casilla «Sincronizar recorte con el TC» se habilita cuando hay modelo y volumen cargados. Al marcarla activa el recorte del GLB y utiliza la posición y orientación física del corte indicado en Eje de recorte, incluidos cortes oblicuos. Recorrer cortes o cambiar de eje actualiza el plano; Invertir lado conservado sigue disponible.
 
 La posición porcentual y los controles de giro manual quedan bloqueados mientras se sincroniza. Al desmarcar la casilla se recuperan esos controles y los parámetros manuales anteriores. La opción se conserva en el campo opcional booleano `clipSyncTc` de la configuración; los archivos anteriores se recuperan con sincronización desactivada. La cámara y el árbol no cambian.
+
+El recorte sincronizado se desplaza 5 mm respecto del plano del TC hacia el lado descartado para ampliar la franja visible del modelo. El desplazamiento sigue la normal física (también en oblicuo) y se invierte con Invertir lado conservado. No modifica el recorte manual.

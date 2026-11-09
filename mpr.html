@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.11.0 · Menús de exploración</title>
+    /><title>MPR · v2.11.1 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3126,7 +3126,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.11.0</strong
+        ><strong>Visor MPR · v2.11.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3533,7 +3533,7 @@
                   value="100"
                 /><label><input id="clipEnabled" type="checkbox" /> Activar recorte del GLB</label
                 ><label><input id="clipSyncTc" type="checkbox" disabled /> Sincronizar recorte con el TC</label
-                ><p class="note">Sigue la posición y orientación del plano elegido en «Eje de recorte». Desactiva la sincronización para ajustar el recorte manualmente.</p
+                ><p class="note">Sigue la posición y orientación del plano elegido en «Eje de recorte», dejando 5 mm de modelo más allá del plano. Desactiva la sincronización para ajustar el recorte manualmente.</p
                 ><label for="clipAxis">Eje de recorte</label
                 ><select id="clipAxis"
                   ><option value="x">Sagital (X)</option
@@ -6400,6 +6400,8 @@
             point.addScaledVector(normal, level - normal.dot(point));
           }
           if ($("clipReverse").checked) normal.negate();
+          // Amplía el lado conservado 5 mm para dejar una franja visible junto al TC.
+          if (sync) point.addScaledVector(normal, -5);
           clipPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(normal, point);
           clipGuide.position.copy(point);
           clipGuide.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
