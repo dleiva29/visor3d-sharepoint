@@ -281,7 +281,7 @@ async function checkStructureTree({run, test}) {
       const {context} = run('applyNodes', {
         $, document, Event, localStorage, Option: dom.window.Option, layerControls, selectedStructures,
         URL, modelContentHash: 'synthetic-model', treeCaseKey: null, treeLocalOverride: false,
-        treeRedoHistory: [], treeUndoHistory: [], treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
+        treeSearchOpen: null, treeRedoHistory: [], treeUndoHistory: [], treeRows: [], structureNodes: [], structureGroups: [], structureRelations: [],
         treeEditing: false, batchRestore: false, uid: () => 'new-' + ++id,
         updateStructureSelection: () => context.syncTreeRows(),
         focusStructure: (...args) => focusCalls.push(args),
@@ -290,7 +290,7 @@ async function checkStructureTree({run, test}) {
         'applyHierarchy', 'loadTree', 'saveTree', 'exportStructureTree', 'importStructureTree',
         'loadPublishedStructureTree', 'nodeKeys', 'visibilityClosure', 'setSynchronizedVisibility',
         'syncTreeRows', 'treeControls', 'button', 'renderTree', 'bindTreeDrop', 'moveTreeNode', 'treeNodeActions', 'editNode',
-        'addStructureReference', 'removeTreeReference', 'renderStructureCatalog', 'filterTree',
+        'addStructureReference', 'removeTreeReference', 'renderStructureCatalog', 'filterTree', 'setTreeExpanded',
       ]);
       try {
         context.loadTree();
@@ -489,6 +489,41 @@ async function checkStructureTree({run, test}) {
     assert.equal($('redoTree').disabled,false);
     context.redoTreeChange();
     assert.equal(context.structureNodes[0].id,'b');
+  }));
+
+  await test('Árbol: busca alias y clave original y restaura expansión tras búsquedas y render', withTree(({context, $}) => {
+    context.applyNodes([group('root'), {...segment('ref','A','root'),name:'Nombre visible'},group('other')],{persist:false});
+    const row = id => context.treeRows.find(r => r.node.id === id);
+    row('other').details.open = true;
+    $('structureSearch').value = 'nombre visible'; context.filterTree();
+    assert.equal(row('ref').details.hidden,false);
+    assert.equal(row('root').details.open,true);
+    $('structureSearch').value = 'A'; context.filterTree();
+    assert.equal(row('ref').details.hidden,false);
+    context.renderTree();
+    $('structureSearch').value = 'sin coincidencias'; context.filterTree();
+    assert.equal($('structureSearchEmpty').hidden,false);
+    $('structureSearch').value = ''; context.filterTree();
+    assert.equal(row('root').details.open,false);
+    assert.equal(row('other').details.open,true);
+    assert.equal(row('ref').details.hidden,false);
+    assert.equal(context.treeSearchOpen,null);
+  }));
+  await test('Árbol: expandir y contraer terminan búsqueda sin cambiar organización ni historial', withTree(({context, $}) => {
+    context.applyNodes(nodes,{persist:false});
+    const before = JSON.stringify(context.structureNodes);
+    $('structureSearch').value = 'A'; context.filterTree();
+    context.setTreeExpanded(false);
+    assert.equal($('structureSearch').value,'');
+    assert.ok(context.treeRows.every(r => !r.details.open && !r.details.hidden));
+    context.setTreeExpanded(true);
+    assert.ok(context.treeRows.every(r => r.details.open));
+    assert.equal(JSON.stringify(context.structureNodes),before);
+    assert.equal(context.treeUndoHistory.length,0);
+    $('structureSearch').value = 'B'; context.filterTree();
+    context.modelContentHash = 'otro'; context.loadTree();
+    assert.equal(context.treeSearchOpen,null);
+    assert.equal($('structureSearch').value,'');
   }));
 
   await test('Árbol: round-trip v2, migración v1 y preferencia por la edición local', withTree(async ({context}) => {

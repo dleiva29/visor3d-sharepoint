@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.4.1 · Menús de exploración</title>
+    /><title>MPR · v2.5.0 · Menús de exploración</title>
     <style>
       .tree-actions { max-width: 10rem; font-size: 0.85em; }
       #structureTree summary.drop-before { box-shadow: inset 0 3px #38bdf8; }
@@ -3027,7 +3027,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.4.1</strong
+        ><strong>Visor MPR · v2.5.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4001,6 +4001,7 @@
         structureRelations = [],
         treeCaseKey = null;
       const treeRows = [];
+      let treeSearchOpen = null;
       let structureNameRoot = null;
       const structureLabelView = {
         position: new THREE.Vector3(),
@@ -9779,6 +9780,8 @@
         const key = modelContentHash ? "mpr-tree-v1:" + modelContentHash : null;
         if (key === treeCaseKey) return;
         treeCaseKey = key;
+        treeSearchOpen = null;
+        $("structureSearch").value = "";
         treeUndoHistory.length = 0;
         treeRedoHistory.length = 0;
         structureNodes = [];
@@ -10213,6 +10216,9 @@
       }
       function filterTree() {
         const q = $("structureSearch").value.trim().toLocaleLowerCase("es");
+        if (q && treeSearchOpen === null)
+          treeSearchOpen = new Set(treeRows.filter((r) => r.details.open).map((r) => r.node.id));
+        const restoreOpen = !q && treeSearchOpen !== null;
         let count = 0;
         for (const [key, l] of layerControls) {
           l.card.hidden = !!q && !key.toLocaleLowerCase("es").includes(q);
@@ -10221,7 +10227,9 @@
         const matchingParents = new Set();
         for (let i = treeRows.length - 1; i >= 0; i--) {
           const { node, details, title } = treeRows[i];
-          const own = title.textContent.toLocaleLowerCase("es").includes(q);
+          const own = title.textContent.toLocaleLowerCase("es").includes(q) ||
+            (node.type === "segment" && node.key.toLocaleLowerCase("es").includes(q));
+          if (restoreOpen) details.open = treeSearchOpen.has(node.id);
           details.hidden = !!q && !own && !matchingParents.has(node.id);
           if (!details.hidden) {
             count++;
@@ -10231,7 +10239,14 @@
             }
           }
         }
+        if (restoreOpen) treeSearchOpen = null;
         $("structureSearchEmpty").hidden = !q || count > 0;
+      }
+      function setTreeExpanded(expanded) {
+        // Una acción global termina la búsqueda para mostrar su resultado en todo el árbol.
+        $("structureSearch").value = "";
+        filterTree();
+        for (const { details } of treeRows) details.open = expanded;
       }
       const toolbar = $("createGroup").parentElement;
       const mode = button("Editar árbol", () => {
@@ -10249,7 +10264,10 @@
       redo.disabled = true;
       redo.hidden = true;
       redo.title = "Recuperar el último cambio deshecho. Una edición nueva descarta los cambios pendientes de rehacer.";
-      toolbar.prepend(mode, undo, redo);
+      const expand = button("Expandir todo", () => setTreeExpanded(true));
+      const collapse = button("Contraer todo", () => setTreeExpanded(false));
+      expand.title = collapse.title = "Limpia la búsqueda y actúa sobre todo el árbol.";
+      toolbar.prepend(mode, undo, redo, expand, collapse);
       $("createGroup").textContent = "+ Crear grupo";
       $("createGroup").onclick = () => editNode();
       $("childrenEditor").hidden = true;
