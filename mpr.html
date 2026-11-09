@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.12.0 · Menús de exploración</title>
+    /><title>MPR · v2.12.1 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3110,8 +3110,10 @@
       .pane:has(#view3d) > h2 { padding-right: 80px; }
       .scene-slice-controls { border-top: 1px solid #385166; margin-top: 8px; padding-top: 8px; }
       .scene-slice-controls h3 { font-size: 11px; margin: 0 0 6px; color: #8fd8e6; }
-      .scene-slice-controls > div { display: grid; grid-template-columns: 48px minmax(0, 1fr) 28px; align-items: center; gap: 5px; margin: 8px 0; }
-      .scene-slice-controls label, .scene-slice-controls output { font-size: 11px; margin: 0; }
+      .scene-slice-controls > div { display: grid; grid-template-columns: 60px minmax(0, 1fr) 28px; align-items: center; gap: 5px; margin: 8px 0; }
+      .scene-slice-controls button, .scene-slice-controls output { font-size: 11px; margin: 0; }
+      .pane-menu .scene-slice-controls button { padding: 3px 4px; }
+      .scene-slice-controls button[aria-pressed="true"] { background: #13788e; border-color: #65ddeb; }
       .scene-slice-controls output { text-align: right; }
       .scene-slice-controls input[type="range"] { width: 100%; min-width: 0; margin: 0; }
       #headerUsTools[hidden] { display: none !important; }
@@ -3133,7 +3135,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.12.0</strong
+        ><strong>Visor MPR · v2.12.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -10834,12 +10836,24 @@
         heading.textContent = "Desplazar planos del TC";
         group.append(heading);
         for (const [axis, name] of [["z", "Axial"], ["y", "Coronal"], ["x", "Sagital"]]) {
-          const row = document.createElement("div"), label = document.createElement("label");
+          const row = document.createElement("div"), label = document.createElement("button");
+          label.type = "button";
+          const planeId = "plane" + axis.toUpperCase();
+          label.dataset.paneToggle = planeId;
+          label.title = "Mostrar u ocultar plano " + name.toLowerCase();
+          label.setAttribute("aria-label", label.title);
+          label.setAttribute("aria-pressed", String($("planes").checked && $(planeId).checked));
+          label.onclick = () => {
+            const plane = $(planeId), visible = $("planes").checked && plane.checked;
+            plane.checked = !visible;
+            if (!visible) $("planes").checked = true;
+            plane.dispatchEvent(new Event("change"));
+            syncPaneToggles();
+          };
           const input = document.createElement("input"), output = document.createElement("output");
           input.type = "range";
           input.id = "sceneSlice" + axis;
           input.setAttribute("aria-label", "Corte " + name.toLowerCase());
-          label.htmlFor = input.id;
           label.textContent = name;
           output.id = "sceneSliceValue" + axis;
           output.htmlFor = input.id;
@@ -11325,27 +11339,6 @@
               b.onclick = () => {
                 $("cameraView").value = value;
                 $("cameraView").dispatchEvent(new Event("change"));
-              };
-              row.append(b);
-            }
-            for (const [label, id] of [
-              ["Axial", "planeZ"],
-              ["Coronal", "planeY"],
-              ["Sagital", "planeX"],
-            ]) {
-              const b = document.createElement("button");
-              b.type = "button";
-              b.textContent = label;
-              b.title = "Mostrar / ocultar plano " + label.toLowerCase();
-              b.setAttribute("aria-label", b.title);
-              b.dataset.paneToggle = id;
-              b.onclick = () => {
-                const input = $(id),
-                  visible = $("planes").checked && input.checked;
-                input.checked = !visible;
-                if (!visible) $("planes").checked = true;
-                input.dispatchEvent(new Event("change"));
-                syncPaneToggles();
               };
               row.append(b);
             }

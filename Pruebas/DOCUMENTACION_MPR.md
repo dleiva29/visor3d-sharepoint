@@ -218,6 +218,8 @@ La posición porcentual y los controles de giro manual quedan bloqueados mientra
 
 El recorte sincronizado se desplaza 5 mm respecto del plano del TC hacia el lado descartado para ampliar la franja visible del modelo. El desplazamiento sigue la normal física (también en oblicuo) y se invierte con Invertir lado conservado. No modifica el recorte manual.
 
-### Desplazamiento de planos desde 3D (v2.12.0)
+### Desplazamiento de planos desde 3D (v2.12.1)
 
 El menú «…» de 3D incluye deslizadores axial, coronal y sagital, utilizables con la vista maximizada. Reflejan límites, disponibilidad e índice de los controles MPR originales. Ambos controles actualizan el mismo corte; el recorte sincronizado continúa siguiendo el eje elegido. Los deslizadores quedan desactivados cuando no hay volumen.
+
+Los botones de visibilidad Axial, Coronal y Sagital sirven como títulos de sus respectivos deslizadores en el menú 3D; su estado activo indica si el plano está visible. Se elimina la fila duplicada, conservando los botones de orientación anatómica.
