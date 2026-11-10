@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.29.0 · Menús de exploración</title>
+    /><title>MPR · v2.30.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.29.0</strong
+        ><strong>Visor MPR · v2.30.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -12661,6 +12661,10 @@
         const headerPrevious = $("headerPresentationPrev");
         const headerNext = $("headerPresentationNext");
         const headerStop = $("headerPresentationStop");
+        for (const control of [exit, headerStop]) {
+          control.title = "Salir y recuperar el estado de trabajo anterior";
+          control.setAttribute("aria-label", control.title);
+        }
         const headerInfo = $("headerPresentationInfo");
         const headerTitle = $("headerPresentationTitle");
         const headerNotes = $("headerPresentationNotes");
@@ -12676,6 +12680,7 @@
         let index = 0;
         let exporting = false;
         let presentationCase = null;
+        let previousWork = null;
 
         function showFeaturedPane() {
           for (const pane of panes) {
@@ -12745,6 +12750,9 @@
         }
         function endPresentation() {
           const sameCase = namedCaseKey === presentationCase;
+          const work = previousWork;
+          previousWork = null;
+          finishPresentationCamera(false);
           panel.hidden = true;
           headerControls.hidden = true;
           headerInfo.hidden = true;
@@ -12752,13 +12760,33 @@
           syncViewerHeaderHeight();
           syncMobileLayout();
           presentationCase = null;
-          finishPresentationCamera(sameCase);
+          if (sameCase && work) {
+            try {
+              restoreConfig(work.config, { applyTree: false });
+              selectedStructures.clear();
+              for (const key of work.selection) if (layerControls.has(key)) selectedStructures.add(key);
+              selectedStructure = work.primary;
+              isolationSnapshot = work.isolation;
+              updateStructureSelection();
+              resize3D();
+              repaintAll();
+              status.textContent = "Presentación terminada. Estado de trabajo anterior recuperado.";
+            } catch (error) {
+              status.textContent = "No se pudo recuperar el estado anterior: " + error.message;
+            }
+          }
           if (launch.getClientRects().length) launch.focus();
           else $("toggleGeneralPanel").focus();
         }
         launch.onclick = () => {
           const included = presentationViews();
           if (exporting || !namedCaseKey || !included.length) return;
+          if (panel.hidden) previousWork = {
+            config: structuredClone(configData()),
+            selection: [...selectedStructures],
+            primary: selectedStructure,
+            isolation: isolationSnapshot,
+          };
           presentationCase = namedCaseKey;
           slides = structuredClone(included);
           index = Math.max(0, $("presentationStartView").selectedIndex);
