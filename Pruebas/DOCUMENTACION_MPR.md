@@ -417,3 +417,11 @@ Las rutas de aplicación manual, arrastre y recuperación de configuración usan
 Restablecer ventana inicial recupera exclusivamente el nivel y anchura presentes al cargar el volumen, sin cambiar cortes, cámara ni zoom. Este punto inicial pertenece a la sesión del volumen, no se sustituye al recuperar una vista. Esc, cancelación táctil y pérdida de captura durante un ajuste recuperan los valores previos al arrastre. Se añaden indicaciones del gesto horizontal/vertical.
 
 Validación: 90 pruebas y ESLint sin errores. Chromium con NRRD sintético y GLB 10 verifica restablecimiento, arrastre real con ratón y Esc, gesto táctil emulado y touchCancel, además de guardar/recuperar configuración con el preajuste Pulmón. Pendiente valoración visual del usuario y gestos en dispositivo físico.
+
+## v2.28.0 — Zoom y desplazamiento MPR
+
+Zoom admite arrastre vertical con ratón o un dedo, además de rueda; conserva límites de 0,25× a 8×. La rueda normaliza unidades de píxel, línea y página. Los arrastres de Zoom, Desplazar y Ventana se cancelan con Esc, interrupción táctil, pérdida de captura o cambio de herramienta, recuperando el estado inicial del gesto. Un segundo puntero no sustituye el arrastre activo y la rueda no altera el estado durante el gesto. El doble clic en estas herramientas no maximiza accidentalmente la vista.
+
+Los cambios se limitan a la navegación MPR; los controles 3D se mantienen. El gesto táctil nuevo es arrastre con un dedo en Zoom, no una pinza de dos dedos.
+
+Validación: 90 pruebas y ESLint sin errores. Chromium con NRRD sintético y GLB 10 verifica desplazamiento y Esc, zoom táctil emulado con cancelación, límites de rueda, recuperación de configuración y conservación al maximizar. Pendiente prueba del usuario en dispositivo físico.
