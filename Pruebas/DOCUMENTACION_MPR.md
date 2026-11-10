@@ -401,3 +401,11 @@ Esc durante el arrastre de un extremo recupera su posición anterior y restaura 
 El panel confirma la cancelación o recuerda actualizar la vista guardada tras un movimiento. Las indicaciones usan entrada (verde) y objetivo (rosa). El margen de selección de extremos aumenta de 14 a 24 píxeles CSS con puntero táctil, tanto en las vistas como en la reconstrucción de trayectoria. La serialización existente de los extremos no cambia.
 
 Validación: 89 pruebas y ESLint sin errores. Nuevas pruebas de cancelación, recuperación de controles, ausencia de guardado al cancelar y tolerancia táctil. Chromium con trayectoria sintética comprueba la posición recuperada, conservación de la maximización y salida posterior de edición. Pendiente revisión visual del usuario con su caso.
+
+## v2.26.0 — Capturas de la reconstrucción de trayectoria
+
+La captura de una vista detecta si muestra la reconstrucción de trayectoria y exporta ese lienzo con su título, ajustándolo sin deformación al área disponible. Antes se capturaba el lienzo 3D oculto. La exportación PNG repinta las vistas, espera un frame para la reconstrucción y actualiza la escala de las anotaciones antes del render. Las vistas sin dimensiones visibles producen un mensaje de error en lugar de una captura vacía.
+
+La generación de informes mantiene el orden de las vistas y sus títulos y comentarios, insertados mediante textContent. No se ha cambiado el formato del informe.
+
+Validación: 89 pruebas y ESLint sin errores. Chromium comprueba por píxeles que capturePane elige el lienzo de reconstrucción visible y vuelve al lienzo normal cuando se oculta. Pendiente exportación integral con el caso del usuario, mediciones y anotaciones reales.
