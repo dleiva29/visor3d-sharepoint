@@ -11,7 +11,7 @@ function suite(html){
  const code=moduleOf(html),ast=espree.parse(code,{ecmaVersion:'latest',sourceType:'module',range:true});
  const funcs=new Map(ast.body.filter(n=>n.type==='FunctionDeclaration').map(n=>[n.id.name,code.slice(...n.range)]));
  function run(name, globals = {}, dependencies = []) {
-   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, savedViewTracker:null, selectedMeasurement:null, hoveredMeasurement:null, hoveredAnnotation:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
+   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, clipManualOffset:0, savedViewTracker:null, selectedMeasurement:null, hoveredMeasurement:null, hoveredAnnotation:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
    vm.runInContext([...dependencies, name].map((key) => funcs.get(key)).join("\n"), context);
    return {fn: context[name], context};
  }
@@ -47,6 +47,16 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   assert.equal(fn({clientX:50,clientY:0},'z',{}).item,m);
   m.index=2;assert.equal(fn({clientX:50,clientY:0},'z',{}),null);
   m.index=3;m.a.z=2;assert.equal(fn({clientX:50,clientY:0},'z',{}),null);
+ });
+ await test('Recorte: pasar a manual conserva el plano oblicuo, ambos lados y posiciones exteriores',()=>{
+  for(const reverse of [false,true]) for(const level of [1.234567,25,-25]) {
+   const ids=['clipSyncTc','clipPosition','rotateClip','clipRotationConstraint','clipLeft','clipRight','clipUp','clipDown','alignClip','resetClipRotation','clipEnabled','clipAxis','clipReverse','clipStatus'];
+   const elements=Object.fromEntries(ids.map(id=>[id,{checked:false,value:50}]));elements.clipEnabled.checked=true;elements.clipAxis.value='z';elements.clipReverse.checked=reverse;
+   const normal=new THREE.Vector3(1,2,3).normalize();if(reverse)normal.negate();
+   const before=new THREE.Plane(normal,level);
+   const {fn,context}=run('preserveClipAsManual',{$:id=>elements[id],model:new THREE.Mesh(new THREE.BoxGeometry(10,10,10),new THREE.MeshBasicMaterial()),clipPlane:before.clone(),clipRotation:new THREE.Quaternion(),clipGuide:new THREE.Object3D(),volume:null,volumeInfo:null,activeTool:'navigate',invalidateStructureNames:()=>{}},['orientClip','updateClip']);
+   fn();assert.ok(context.clipPlane.normal.distanceTo(before.normal)<1e-10);assert.ok(Math.abs(context.clipPlane.constant-before.constant)<1e-10);assert.equal(elements.clipStatus.textContent,'Recorte manual');
+  }
  });
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
  function workHarness(storage = new Map()) {
