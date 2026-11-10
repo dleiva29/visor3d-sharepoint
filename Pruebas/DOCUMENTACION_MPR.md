@@ -355,3 +355,11 @@ Verificación: 82 pruebas y ESLint correctos, incluidos comparación, actualizac
 - Los menús de herramientas y Abrir se ajustan a los bordes y al alto disponible, con desplazamiento interno; se recolocan al cambiar el tamaño o la altura de la cabecera.
 - Los controles principales y los botones de maximizar y menú 3D tienen objetivos táctiles de 44 px. Se separan los controles 3D para evitar solapamientos.
 - Validación: 83 pruebas y ESLint sin errores. Chromium con puntero táctil emulado en 390×844, 768×1024 y 844×390, y escritorio 1400×1000: menús Más y Abrir, cambio de orientación, plegado del panel, vista 3D maximizada y su menú. Sin desbordamiento horizontal ni errores JavaScript observados. Esta revisión de distribución no sustituye la prueba de gestos en un dispositivo físico.
+
+## v2.22.0 — Iconos para acciones habituales
+
+Se convierten en iconos guardar/cancelar relaciones y grupos, centrar la selección o la vista 3D, restablecer apariencia y orientación del recorte, guardar/borrar trayectoria, guardar nueva vista y deshacer su eliminación. Las acciones Actualizar y Eliminar de cada vista también emplean iconos con su nombre en la descripción accesible. Se conservan los identificadores, eventos y estados deshabilitados.
+
+Los botones nuevos incluyen `aria-label` y `title`, SVG decorativo y tamaño de 28 px en escritorio o 44 px con puntero táctil. Se conserva texto en las herramientas específicas, el estado de trabajo local y las acciones de borrado global para evitar ambigüedades.
+
+Validación: 83 pruebas y ESLint sin errores; Chromium verifica los 12 controles estáticos, sus nombres accesibles y dimensiones en 1400×1000 y 390×844. Pendiente la revisión visual del usuario.
