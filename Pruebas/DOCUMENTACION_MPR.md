@@ -339,3 +339,12 @@ La colocación de flechas comienza por la punta, que se selecciona sobre una sup
 Esc, cambiar de herramienta o terminar la colocación retiran la previsualización. Esta no forma parte del estado exportado. El formato existente conserva a como inicio y b como punta; las flechas anteriores no cambian.
 
 Verificación: 80 pruebas y ESLint correctos. Chromium verifica previsualización, segundo clic sobre espacio vacío, guardado con punta fija y punto inicial en el plano esperado, y cancelación con Esc sin errores JavaScript.
+
+
+## Estado de las vistas guardadas (v2.20.0)
+
+Mis vistas muestra el nombre de la vista activa y si existen cambios pendientes respecto de su estado recuperado o actualizado. Se comparan cortes, cámara, apariencia, estructuras, medidas y anotaciones con una espera de 250 ms tras la interacción; no se añade un bucle en reposo. El orden de propiedades y diferencias numéricas inferiores a la precisión de seis decimales no generan avisos.
+
+Actualizar vista guarda la configuración actual conservando nombre y notas. Guardar como nueva abre el formulario con un nombre sugerido y conserva la vista original; la nueva vista pasa a ser activa al guardarse. Abrir el formulario ya no borra la selección de la vista activa. La comparación y actualización rápida se pausan durante presentaciones o US. Las vistas US conservan su edición específica desde los ajustes existentes. El aviso se refiere a la vista nombrada; es independiente del guardado automático del estado de trabajo.
+
+Verificación: 82 pruebas y ESLint correctos, incluidos comparación, actualización y conservación de la original. Chromium con GLB del caso 10 y volumen sintético verifica crear una vista, detectar una medida nueva, guardar copia, recuperar la original y actualizarla. Pendiente prueba visual del usuario.
