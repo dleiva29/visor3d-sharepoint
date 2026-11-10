@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.16.1 · Menús de exploración</title>
+    /><title>MPR · v2.19.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -458,13 +458,25 @@
         padding: 8px 0;
         margin-top: 8px;
       }
+      .annotation-editor { position: fixed; margin: 0; box-sizing: border-box; width: min(300px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); overflow: auto; padding: 12px; background: #102534; color: #e2eff9; border: 1px solid #65ddeb; border-radius: 8px; box-shadow: 0 8px 30px #0008; }
+      .annotation-editor::backdrop { background: #0002; }
+      .annotation-editor textarea { box-sizing: border-box; width: 100%; margin: 6px 0; }
+      .annotation-editor input[type="color"] { width: 28px; height: 28px; padding: 2px; vertical-align: middle; }
+      .annotation-editor .tree-icon { width: 28px; height: 28px; padding: 4px; vertical-align: middle; }
+      .annotation-card.selected { outline: 1px solid #ffd36e; }
       .annotation-card strong {
         display: block;
         margin-bottom: 5px;
       }
       .annotation-card input[type="color"] {
         height: 28px;
-        width: 45px;
+        width: 28px;
+        padding: 2px;
+        box-sizing: border-box;
+        vertical-align: middle;
+      }
+      #section-toolbox .annotation-card button.tree-icon {
+        width: 28px; height: 28px; min-height: 28px; padding: 4px; vertical-align: middle;
       }
       .annotation-tools h3 {
         margin-top: 0;
@@ -3145,7 +3157,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.16.1</strong
+        ><strong>Visor MPR · v2.19.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3626,15 +3638,7 @@
             ><details class="sidebar-subgroup" id="menu-annotations"
               ><summary>Textos y flechas 3D</summary
               ><div class="sidebar-body"
-                ><label for="annotationText">Texto (opcional para flechas)</label
-                ><textarea
-                  id="annotationText"
-                  maxlength="180"
-                  placeholder="Ej.: Bifurcación portal"
-                  rows="2"
-                ></textarea
-                ><label for="annotationColor">Color</label
-                ><input id="annotationColor" type="color" value="#ffdf40" /><button
+                ><p class="note">Texto: pulsa un punto del modelo. Flecha: marca la punta en el modelo y después el inicio, incluso fuera de él. Después escribe y guarda. Pulsa una anotación en 3D o Editar en la lista para modificarla.</p><button
                   id="addModelLabel"
                   type="button"
                   >Añadir etiqueta de texto</button
@@ -4157,6 +4161,9 @@
       const structureLabelSettleMs = 140;
       const selectedStructures = new Set();
       const modelAnnotations = [];
+      let selectedAnnotation = null;
+      let arrowPlacementPlane = null, arrowPlacementPreview = null;
+      let annotationEditor = null, annotationEditorColor = "#ffdf40";
       let annotationRoot = null,
         pendingArrow = null;
       let batchRestore = false;
@@ -5916,7 +5923,7 @@
         editMeasure:
           "Arrastra un extremo de una medición. En 2D permanece en su corte; en 3D se desplaza sobre superficies visibles del GLB. Esc cancela.",
         annotation: "Etiqueta 3D: pulsa una superficie del modelo.",
-        arrow: "Pulsa el origen y después la punta de la flecha sobre el modelo.",
+        arrow: "Pulsa la punta en el modelo y después coloca el inicio en el espacio.",
         navigate: "Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.",
         pan: "Arrastra con el botón izquierdo para desplazar el volumen.",
         zoom: "Rueda sobre el volumen para aumentar o reducir. Ctrl + rueda funciona en cualquier modo.",
@@ -6442,6 +6449,7 @@
         down3D = null;
         if (
           ![
+            "navigate",
             "measure3d",
             "threePoints",
             "select",
@@ -6463,6 +6471,16 @@
           ),
           camera
         );
+        if (["navigate", "select"].includes(activeTool) && annotationRoot.visible) {
+          const annotation = raycaster.intersectObjects(annotationRoot.children, false).find(h => h.object.userData.annotationItem)?.object.userData.annotationItem;
+          if (annotation) { openAnnotationEditor(annotation, annotation); return; }
+        }
+        if (activeTool === "navigate") return;
+        if (activeTool === "arrow" && pendingArrow && arrowPlacementPlane) {
+          const start = raycaster.ray.intersectPlane(arrowPlacementPlane, new THREE.Vector3());
+          if (start) pickAnnotation(start);
+          return;
+        }
         if ((activeTool === "us" || activeTool === "usTarget") && trajectory) {
           const point = new THREE.Vector3();
           raycaster.ray.distanceSqToSegment(trajectory.a, trajectory.b, undefined, point);
@@ -7523,6 +7541,7 @@
                 !["label", "arrow"].includes(a.kind) ||
                 typeof a.text !== "string" ||
                 a.text.length > 180 ||
+                (a.visible !== undefined && typeof a.visible !== "boolean") ||
                 !/^#[0-9a-f]{6}$/i.test(a.color) ||
                 !vec(a.a) ||
                 (a.kind === "arrow" &&
@@ -8989,8 +9008,36 @@
         sprite.userData.leader = leader;
         return sprite;
       }
-      function renderAnnotations() {
+      function locateAnnotation(item) {
+        if (!modelAnnotations.includes(item)) return;
+        selectedAnnotation = item;
+        item.visible = true;
+        $("showAnnotations").checked = true;
+        setTool("navigate");
+        const target = new THREE.Vector3(...item.a);
+        if (item.kind === "arrow") target.add(new THREE.Vector3(...item.b)).multiplyScalar(0.5);
+        camera.position.add(target.clone().sub(controls.target));
+        controls.target.copy(target);
+        controls.update();
+        const maximized = document.querySelector(".pane.maximized");
+        if (maximized && maximized.dataset.viewPane !== "3d") {
+          maximized.classList.remove("maximized");
+          document.querySelector('[data-view-pane="3d"]').classList.add("maximized");
+          resize3D();
+        }
+        renderAnnotations({ refreshList: false });
+        for (const card of $("modelAnnotationList").children)
+          card.classList.toggle("selected", card.dataset.annotationIndex === String(modelAnnotations.indexOf(item)));
+        $("annotationHint").textContent = "Anotación resaltada en 3D. Pulsa Editar en la lista o la anotación en 3D para modificarla.";
+        document.dispatchEvent(new Event("case-state-change"));
+      }
+      function renderAnnotations({ refreshList = true } = {}) {
         requestSceneRender();
+        if (!pendingArrow) {
+          arrowPlacementPlane = null;
+          if (arrowPlacementPreview) arrowPlacementPreview.visible = false;
+        }
+        if (!modelAnnotations.includes(selectedAnnotation)) selectedAnnotation = null;
         if (!annotationRoot) return;
         while (annotationRoot.children.length) {
           const o = annotationRoot.children[0];
@@ -9016,9 +9063,11 @@
           annotationRoot.add(m);
         };
         for (const item of modelAnnotations) {
+          if (item.visible === false) continue;
+          const color = item === selectedAnnotation ? "#ffd36e" : item.color;
           const firstChild = annotationRoot.children.length;
           const a = new THREE.Vector3(...item.a);
-          if (item.kind === "label") ball(a, item.color);
+          if (item.kind === "label") ball(a, color);
           else {
             const b = new THREE.Vector3(...item.b),
               dir = b.clone().sub(a),
@@ -9029,7 +9078,7 @@
             const line = new THREE.Line(
               new THREE.BufferGeometry().setFromPoints([a, b.clone().addScaledVector(dir, -head)]),
               new THREE.LineBasicMaterial({
-                color: item.color,
+                color,
                 depthTest: false,
                 depthWrite: false,
               })
@@ -9039,7 +9088,7 @@
             const cone = new THREE.Mesh(
               new THREE.ConeGeometry(head * 0.3, head, 12),
               new THREE.MeshBasicMaterial({
-                color: item.color,
+                color,
                 depthTest: false,
                 depthWrite: false,
               })
@@ -9049,97 +9098,153 @@
             cone.renderOrder = 211;
             annotationRoot.add(cone);
           }
-          if (item.text) annotationRoot.add(annotationSprite(item.text, item.color, a));
+          if (item.text) annotationRoot.add(annotationSprite(item.text, color, a));
           for (const object of annotationRoot.children.slice(firstChild))
             object.userData.annotationItem = item;
         }
         if (pendingArrow) ball(pendingArrow, "#ffff00", 5);
         updateAnnotationScale();
-        renderAnnotationList();
+        if (refreshList) renderAnnotationList();
+      }
+      function openAnnotationEditor(draft, original = null) {
+        annotationEditor?.close();
+        const sourceModel = model;
+        const dialog = document.createElement("dialog");
+        dialog.className = "annotation-editor";
+        dialog.setAttribute("aria-label", original ? "Editar anotación" : "Nueva anotación");
+        const heading = document.createElement("strong");
+        heading.textContent = original ? "Editar anotación" : draft.kind === "arrow" ? "Nueva flecha" : "Nuevo texto";
+        const label = document.createElement("label");
+        label.textContent = draft.kind === "arrow" ? "Texto (opcional)" : "Texto";
+        const text = document.createElement("textarea");
+        text.rows = 3; text.maxLength = 180; text.value = draft.text || "";
+        text.setAttribute("aria-label", label.textContent);
+        label.append(text);
+        const color = document.createElement("input");
+        color.type = "color"; color.value = draft.color;
+        color.setAttribute("aria-label", "Color de anotación");
+        const message = document.createElement("p");
+        message.setAttribute("role", "status");
+        const save = document.createElement("button"), cancel = document.createElement("button");
+        save.type = cancel.type = "button";
+        setTreeIcon(save, "done", "Guardar anotación");
+        setTreeIcon(cancel, "close", "Cancelar edición");
+        cancel.onclick = () => dialog.close();
+        save.onclick = () => {
+          if (draft.kind === "label" && !text.value.trim()) { message.textContent = "Escribe un texto para la etiqueta."; text.focus(); return; }
+          if (sourceModel !== model || (original && !modelAnnotations.includes(original))) { dialog.close(); return; }
+          if (!original && modelAnnotations.length >= 100) { message.textContent = "Máximo de 100 anotaciones."; return; }
+          const saved = { ...structuredClone(draft), text: text.value.trim().slice(0, 180), color: color.value };
+          if (original) Object.assign(original, saved);
+          else modelAnnotations.push(saved);
+          selectedAnnotation = original || saved;
+          annotationEditorColor = color.value;
+          $("showAnnotations").checked = true;
+          dialog.close("saved");
+          renderAnnotations();
+          document.dispatchEvent(new Event("case-state-change"));
+          $("annotationHint").textContent = "Anotación guardada. Actualiza la vista guardada para conservar este cambio en ella.";
+        };
+        dialog.append(heading, label, color, save, cancel, message);
+        dialog.addEventListener("close", () => {
+          if (annotationEditor === dialog) annotationEditor = null;
+          dialog.remove();
+          if (dialog.returnValue !== "saved") $("annotationHint").textContent = "Edición cancelada; no se han guardado cambios.";
+        });
+        document.body.append(dialog);
+        annotationEditor = dialog;
+        pendingArrow = null;
+        setTool("navigate");
+        renderAnnotations();
+        dialog.showModal();
+        const anchor = screenEndpoint(new THREE.Vector3(...draft.a), renderer.domElement);
+        dialog.style.left = Math.max(8, Math.min(innerWidth - dialog.offsetWidth - 8, (anchor?.x ?? innerWidth / 2) + 12)) + "px";
+        dialog.style.top = Math.max(8, Math.min(innerHeight - dialog.offsetHeight - 8, (anchor?.y ?? innerHeight / 2) + 12)) + "px";
+        text.focus();
       }
       function renderAnnotationList() {
         $("modelAnnotationList").replaceChildren();
-        $("modelAnnotationEmpty").textContent = modelAnnotations.length
-          ? ""
-          : "Todavía no hay anotaciones en el modelo.";
+        $("modelAnnotationEmpty").textContent = modelAnnotations.length ? "" : "Todavía no hay anotaciones en el modelo.";
         modelAnnotations.forEach((item, index) => {
           const card = document.createElement("div");
           card.className = "annotation-card";
+          card.dataset.annotationIndex = String(index);
+          card.classList.toggle("selected", item === selectedAnnotation);
           const title = document.createElement("strong");
-          title.textContent = (item.kind === "arrow" ? "Flecha " : "Etiqueta ") + (index + 1);
-          const text = document.createElement("textarea");
-          text.rows = 2;
-          text.maxLength = 180;
-          text.value = item.text;
-          text.setAttribute("aria-label", "Texto de " + title.textContent);
-          const color = document.createElement("input");
-          color.type = "color";
-          color.value = item.color;
-          color.setAttribute("aria-label", "Color de " + title.textContent);
-          const save = document.createElement("button");
-          save.textContent = "Actualizar anotación";
-          save.onclick = () => {
-            if (item.kind === "label" && !text.value.trim()) {
-              $("annotationHint").textContent = "La etiqueta necesita un texto.";
-              return;
-            }
-            item.text = text.value.slice(0, 180);
-            item.color = color.value;
-            renderAnnotations();
-            $("annotationHint").textContent =
-              "Anotación actualizada. Actualiza la vista guardada para conservar el cambio.";
+          const name = (item.kind === "arrow" ? "Flecha " : "Etiqueta ") + (index + 1);
+          title.textContent = item.text || name + " (sin texto)";
+          title.style.overflowWrap = "anywhere";
+          const visibility = document.createElement("label"), toggle = document.createElement("input");
+          toggle.type = "checkbox"; toggle.checked = item.visible !== false;
+          toggle.setAttribute("aria-label", "Mostrar " + name);
+          toggle.onchange = () => {
+            item.visible = toggle.checked;
+            renderAnnotations({ refreshList: false });
+            document.dispatchEvent(new Event("case-state-change"));
           };
-          const del = document.createElement("button");
-          del.textContent = "Eliminar";
-          del.onclick = () => {
-            modelAnnotations.splice(index, 1);
-            renderAnnotations();
-          };
-          card.append(title, text, color, save, del);
+          visibility.append(toggle, document.createTextNode(" Mostrar"));
+          card.append(title, visibility);
+          for (const [label, icon, action] of [
+            ["Localizar", "target", () => { locateAnnotation(item); toggle.checked = true; }],
+            ["Editar", "edit", () => openAnnotationEditor(item, item)],
+            ["Eliminar", "delete", () => {
+              const position = modelAnnotations.indexOf(item);
+              if (position < 0) return;
+              modelAnnotations.splice(position, 1); renderAnnotations();
+              document.dispatchEvent(new Event("case-state-change"));
+            }],
+          ]) {
+            const control = document.createElement("button"); control.type = "button";
+            setTreeIcon(control, icon, label + " " + name); control.onclick = action; card.append(control);
+          }
           $("modelAnnotationList").append(card);
         });
       }
+      function updateArrowPlacementPreview(point) {
+        if (!pendingArrow || !point || activeTool !== "arrow") {
+          if (arrowPlacementPreview) arrowPlacementPreview.visible = false;
+          requestSceneRender(); return;
+        }
+        const direction = pendingArrow.clone().sub(point), length = direction.length();
+        if (length < 0.01) {
+          if (arrowPlacementPreview) arrowPlacementPreview.visible = false;
+          requestSceneRender(); return;
+        }
+        if (!arrowPlacementPreview) {
+          arrowPlacementPreview = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(), 1, 0xffd36e);
+          arrowPlacementPreview.traverse(o => {
+            if (o.material) { o.material.depthTest = false; o.material.depthWrite = false; }
+            o.renderOrder = 220;
+          });
+          scene.add(arrowPlacementPreview);
+        }
+        arrowPlacementPreview.position.copy(point);
+        arrowPlacementPreview.setDirection(direction.normalize());
+        arrowPlacementPreview.setLength(length, Math.min(5, length * 0.25), Math.min(1.5, length * 0.075));
+        arrowPlacementPreview.visible = true;
+        requestSceneRender();
+      }
+      renderer.domElement.addEventListener("pointermove", event => {
+        if (activeTool !== "arrow" || !pendingArrow || !arrowPlacementPlane || event.buttons) return;
+        updateArrowPlacementPreview(pointOnTrajectoryDragPlane(event, renderer.domElement, arrowPlacementPlane));
+      });
+      renderer.domElement.addEventListener("pointerleave", () => {
+        if (arrowPlacementPreview?.visible) updateArrowPlacementPreview(null);
+      });
       function pickAnnotation(point) {
-        if (modelAnnotations.length >= 100) {
-          $("annotationHint").textContent = "Máximo de 100 anotaciones por vista.";
+        if (modelAnnotations.length >= 100) { $("annotationHint").textContent = "Máximo de 100 anotaciones por vista."; return; }
+        if (activeTool === "annotation") {
+          openAnnotationEditor({ kind: "label", text: "", color: annotationEditorColor, a: point.toArray() });
           return;
         }
-        const text = $("annotationText").value.trim().slice(0, 180),
-          color = $("annotationColor").value;
-        if (activeTool === "annotation") {
-          if (!text) {
-            $("annotationHint").textContent = "Escribe el texto antes de marcar el punto.";
-            return;
-          }
-          modelAnnotations.push({ kind: "label", text, color, a: point.toArray() });
-          setTool("navigate");
-          $("annotationHint").textContent =
-            "Etiqueta añadida. Guarda o actualiza la vista para conservarla.";
-        } else {
-          if (!pendingArrow) {
-            pendingArrow = point.clone();
-            $("annotationHint").textContent =
-              "Ahora pulsa el punto donde debe terminar la punta de la flecha.";
-            renderAnnotations();
-            return;
-          }
-          if (pendingArrow.distanceTo(point) < 0.01) {
-            $("annotationHint").textContent = "Elige un segundo punto diferente.";
-            return;
-          }
-          modelAnnotations.push({
-            kind: "arrow",
-            text,
-            color,
-            a: pendingArrow.toArray(),
-            b: point.toArray(),
-          });
-          pendingArrow = null;
-          setTool("navigate");
-          $("annotationHint").textContent =
-            "Flecha añadida. Guarda o actualiza la vista para conservarla.";
+        if (!pendingArrow) {
+          pendingArrow = point.clone();
+          arrowPlacementPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(camera.getWorldDirection(new THREE.Vector3()), pendingArrow);
+          $("annotationHint").textContent = "Punta fijada. Mueve el ratón y pulsa para colocar el inicio, incluso fuera del modelo. Esc cancela.";
+          renderAnnotations(); return;
         }
-        renderAnnotations();
+        if (pendingArrow.distanceTo(point) < 0.01) { $("annotationHint").textContent = "Elige un segundo punto diferente."; return; }
+        openAnnotationEditor({ kind: "arrow", text: "", color: annotationEditorColor, a: point.toArray(), b: pendingArrow.toArray() });
       }
       function clearModelAnnotations() {
         modelAnnotations.length = 0;
@@ -9154,7 +9259,7 @@
       $("addModelArrow").onclick = () => {
         setTool("arrow");
         $("annotationHint").textContent =
-          "Pulsa el origen y después la punta de la flecha sobre superficies del modelo 3D.";
+          "Pulsa la estructura que quieres señalar; después coloca el inicio de la flecha, también fuera del modelo.";
       };
       $("showAnnotations").onchange = () => (annotationRoot.visible = $("showAnnotations").checked);
       $("clearModelAnnotations").onclick = clearModelAnnotations;
@@ -9744,6 +9849,7 @@
                 if (!annotation) {
                   let distance = 14;
                   for (const item of modelAnnotations) {
+                    if (item.visible === false) continue;
                     const a = screenEndpoint(new THREE.Vector3(...item.a), canvas);
                     const b = item.b ? screenEndpoint(new THREE.Vector3(...item.b), canvas) : a;
                     if (!a || !b) continue;
@@ -10658,6 +10764,7 @@
       }
       function setTreeIcon(control, icon, label) {
         const paths = {
+          close: "M4 4l10 10 M14 4L4 14",
           delete: "M3 5h12 M6 5V2h6v3 M4 5l1 11h8l1-11 M7 8v5 M11 8v5",
           settings: "M3 2v14 M9 2v14 M15 2v14 M1 6h4 M7 12h4 M13 7h4",
           text: "M3 4h12 M9 4v11 M6 15h6",
@@ -11995,7 +12102,7 @@
           } finally { busy = false; refresh(); }
         }
         function schedule(event) {
-          if (busy || (event?.target && box.contains(event.target))) return;
+          if (busy || (event?.target?.nodeType && box.contains(event.target))) return;
           sync();
           clearTimeout(timer);
           if (armed && auto.checked && !adapter.blocked()) timer = setTimeout(() => save(), 1000);
