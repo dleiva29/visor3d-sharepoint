@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.25.1 · Menús de exploración</title>
+    /><title>MPR · v2.26.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.25.1</strong
+        ><strong>Visor MPR · v2.26.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -6860,11 +6860,21 @@
         ctx.fillRect(0, 0, width, height);
         ctx.fillStyle = "#eaf1f8";
         ctx.font = "18px system-ui";
-        ctx.fillText(pane.querySelector("h2").textContent, 16, 27);
+        const preview = pane.querySelector("#trajectoryPreview:not([hidden])");
+        ctx.fillText(preview ? "Reconstrucción de trayectoria" : pane.querySelector("h2").textContent, 16, 27);
+        if (preview) {
+          const source = preview.querySelector("canvas");
+          if (!source?.width || !source.height) throw new Error("Reconstrucción de trayectoria no disponible.");
+          const fit = Math.min(width / source.width, (height - 45) / source.height);
+          ctx.drawImage(source, (width - source.width * fit) / 2,
+            45 + (height - 45 - source.height * fit) / 2, source.width * fit, source.height * fit);
+          return out;
+        }
         const stage = pane.querySelector(".stage"),
           r = stage.getBoundingClientRect(),
           canvas = stage.querySelector("canvas"),
           c = canvas.getBoundingClientRect();
+        if (!r.width || !r.height || !c.width || !c.height) throw new Error("La vista no está visible. Muéstrala antes de capturarla.");
         const scale = Math.min(width / r.width, (height - 45) / r.height),
           ox = (width - r.width * scale) / 2,
           oy = 45 + (height - 45 - r.height * scale) / 2;
@@ -6882,9 +6892,13 @@
         ctx.restore();
         return out;
       }
-      $("capture").onclick = () => {
+      $("capture").onclick = async () => {
         try {
           const selection = $("captureView").value;
+          repaintAll();
+          // La reconstrucción se pinta en el siguiente frame.
+          await new Promise(resolve => requestAnimationFrame(resolve));
+          updateAnnotationScale();
           if (selection === "all" || selection === "3d") updateStructureNames(true);
           renderer.render(scene, camera);
           let result;
