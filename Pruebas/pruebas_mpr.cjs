@@ -11,7 +11,7 @@ function suite(html){
  const code=moduleOf(html),ast=espree.parse(code,{ecmaVersion:'latest',sourceType:'module',range:true});
  const funcs=new Map(ast.body.filter(n=>n.type==='FunctionDeclaration').map(n=>[n.id.name,code.slice(...n.range)]));
  function run(name, globals = {}, dependencies = []) {
-   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, selectedMeasurement:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
+   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, savedViewTracker:null, selectedMeasurement:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
    vm.runInContext([...dependencies, name].map((key) => funcs.get(key)).join("\n"), context);
    return {fn: context[name], context};
  }
@@ -103,6 +103,17 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
  await test('Anotaciones: localizar muestra y centra la flecha conservando la distancia de cámara',()=>{
   const dom=new JSDOM('<input id="showAnnotations" type="checkbox"><div id="modelAnnotationList"></div><p id="annotationHint"></p>');const item={kind:'arrow',a:[0,0,0],b:[4,6,8],visible:false};const camera={position:new THREE.Vector3(10,10,10)},controls={target:new THREE.Vector3(),update:()=>{}};
   const {fn,context}=run('locateAnnotation',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),modelAnnotations:[item],camera,controls,setTool:()=>{},renderAnnotations:()=>{}});fn(item);assert.equal(item.visible,true);assert.equal(context.selectedAnnotation,item);assert.deepEqual(controls.target.toArray(),[2,3,4]);assert.deepEqual(camera.position.toArray(),[12,13,14]);assert.equal(dom.window.document.getElementById('showAnnotations').checked,true);dom.window.close();
+ });
+ await test('Vistas: aviso de cambios, actualización y copia sin sobrescribir original',()=>{
+  const dom=new JSDOM('<p id="activeSavedViewStatus"></p><div id="activeSavedViewState"></div><button id="updateActiveSavedView"></button><button id="saveAsNewView"></button><section id="casePresentation" hidden></section><dialog id="usDialog"></dialog><details id="newNamedView"></details><input id="namedViewName"><textarea id="namedViewNotes"></textarea>');const $=id=>dom.window.document.getElementById(id);
+  let config={camera:{x:1},measurements:[]},writes=0;const view={name:'Vista A',notes:'Nota',config:structuredClone(config)};
+  const {fn}=run('installSavedViewTracker',{document:dom.window.document,$,activeNamedView:view,namedViews:[view],namedCaseKey:'case',presentationCameraFlight:null,configData:()=>config,controls:{addEventListener:()=>{}},setTimeout:()=>1,clearTimeout:()=>{},persistNamedViews:()=>writes++,uniqueViewName:n=>n},['savedViewSignature']);const tracker=fn();tracker.accept(view);tracker.refresh();assert.match($('activeSavedViewStatus').textContent,/Sin cambios/);
+  config.measurements.push({name:'Lesión',visible:false});tracker.refresh();assert.match($('activeSavedViewStatus').textContent,/Cambios sin guardar/);assert.equal($('updateActiveSavedView').disabled,false);
+  $('saveAsNewView').click();assert.equal(view.config.measurements.length,0);assert.equal($('namedViewName').value,'Vista A · copia');
+  $('updateActiveSavedView').click();assert.equal(writes,1);assert.equal(view.config.measurements.length,1);assert.match($('activeSavedViewStatus').textContent,/Sin cambios/);config.camera.x=4;tracker.refresh();assert.equal(view.config.camera.x,1);assert.equal($('updateActiveSavedView').disabled,false);dom.window.close();
+ });
+ await test('Vistas: comparación independiente de orden y ruido numérico',()=>{
+  const signature=run('savedViewSignature').fn;assert.equal(signature({b:2,a:1}),signature({a:1,b:2}));assert.equal(signature({x:1}),signature({x:1+1e-9}));assert.notEqual(signature({x:1}),signature({x:1.01}));
  });
  await test('Ficha 3D: selección activa, múltiple, vacía y volumen no disponible',()=>{
   const elements=Object.fromEntries(['selectionCard','selectionCardCenter','selectionCardClear','selectionCardName','selectionCardDetail'].map(id=>[id,{}]));

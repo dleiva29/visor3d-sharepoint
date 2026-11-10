@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.19.0 · Menús de exploración</title>
+    /><title>MPR · v2.20.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3157,7 +3157,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.19.0</strong
+        ><strong>Visor MPR · v2.20.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3724,7 +3724,7 @@
           ><summary>▧ Mis vistas</summary
           ><div class="sidebar-body"
             ><div class="sidebar-body"
-              ><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div
+              ><div class="case-session" id="activeSavedViewState"><p id="activeSavedViewStatus" role="status">Sin vista activa.</p><div class="case-session-actions"><button id="updateActiveSavedView" type="button" disabled>Actualizar vista</button><button id="saveAsNewView" type="button" disabled>Guardar como nueva</button></div></div><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div
               ><div id="activeViewNote" hidden
                 ><label for="activeViewNoteText">Anotación de la vista seleccionada</label
                 ><textarea
@@ -4182,6 +4182,7 @@
       let selectedMeasurement = null;
       let savedMprPosition = null;
       let localWorkState = null;
+      let savedViewTracker = null;
       let sceneRenderDirty = true;
       const resampleBuffers = new WeakMap(), meshVertexBuffers = new WeakMap();
       let pendingSliceFrame = null, pendingSliceTarget = null;
@@ -7882,6 +7883,7 @@
         restoreConfig(structuredClone(view.config));
         if (view.config.usProbe) usMode.restorePosition(view);
         activeNamedView = view;
+        savedViewTracker?.accept(view);
         $("newNamedView").open = false;
         updateActiveViewNote();
         for (const row of $("namedViewList").querySelectorAll(".named-view-open")) {
@@ -7946,6 +7948,7 @@
                 const config = structuredClone(configData());
                 if (view.config.usProbe) config.usProbe = view.config.usProbe;
                 Object.assign(view, { name, notes: note.value, config });
+                savedViewTracker?.accept(view);
                 persistNamedViews();
                 $("namedViewMessage").textContent = "Vista actualizada: " + view.name;
               },
@@ -8101,13 +8104,9 @@
         }
       }
       $("newNamedView").addEventListener("toggle", () => {
-        if (!$("newNamedView").open || !activeNamedView) return;
-        activeNamedView = null;
-        updateActiveViewNote();
-        for (const label of $("namedViewList").querySelectorAll(".named-view-open"))
-          label.setAttribute("aria-current", "false");
-        $("namedViewName").value = "";
-        $("namedViewNotes").value = "";
+        if (!$("newNamedView").open) return;
+        if (!$("namedViewName").value || $("namedViewName").value === activeNamedView?.name)
+          $("namedViewName").value = uniqueViewName(activeNamedView ? activeNamedView.name + " · copia" : "Vista");
       });
       $("addNamedView").onclick = () => {
         try {
@@ -8116,11 +8115,10 @@
           const name = viewName();
           if (namedViews.some((v) => v.name === name))
             throw new Error("Ya existe ese nombre. Usa «Actualizar» o elige otro.");
-          namedViews.push({
-            name,
-            notes: $("namedViewNotes").value.slice(0, 3000),
-            config: structuredClone(configData()),
-          });
+          const view = { name, notes: $("namedViewNotes").value.slice(0, 3000), config: structuredClone(configData()) };
+          namedViews.push(view);
+          activeNamedView = view;
+          savedViewTracker?.accept(view);
           persistNamedViews();
           $("newNamedView").open = false;
         } catch (e) {
@@ -12138,6 +12136,57 @@
         return { sync, pause, save, restore };
       }
 
+      function savedViewSignature(config) {
+        return JSON.stringify(config, (_key, value) => {
+          if (typeof value === "number") return Math.round(value * 1e6) / 1e6;
+          if (value && typeof value === "object" && !Array.isArray(value))
+            return Object.fromEntries(Object.keys(value).sort().map(key => [key, value[key]]));
+          return value;
+        });
+      }
+      function installSavedViewTracker() {
+        const baselines = new WeakMap();
+        let timer = null;
+        const blocked = () => presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open;
+        function refresh() {
+          const view = activeNamedView && namedViews.includes(activeNamedView) ? activeNamedView : null;
+          const unsupported = !!view?.config.usProbe, paused = blocked();
+          const dirty = view && !unsupported && !paused && savedViewSignature(configData()) !== (baselines.get(view) || savedViewSignature(view.config));
+          $("activeSavedViewStatus").textContent = !namedCaseKey ? "Carga el caso para guardar vistas." : !view ? "Sin vista activa. Puedes guardar la configuración actual como nueva vista." : "Vista activa: " + view.name + (unsupported ? " · vista US (edición desde sus ajustes)." : paused ? " · Comparación en pausa durante presentación o US." : dirty ? " · Cambios sin guardar en esta vista." : " · Sin cambios pendientes.");
+          $("activeSavedViewState").style.borderColor = dirty ? "#ffd36e" : "";
+          $("updateActiveSavedView").disabled = !view || unsupported || !dirty || blocked();
+          $("saveAsNewView").disabled = !namedCaseKey || blocked();
+        }
+        function schedule() {
+          clearTimeout(timer);
+          timer = setTimeout(refresh, 250);
+        }
+        function accept(view) {
+          baselines.set(view, savedViewSignature(view === activeNamedView ? configData() : view.config));
+          schedule();
+        }
+        $("updateActiveSavedView").onclick = () => {
+          if (!activeNamedView || !namedViews.includes(activeNamedView) || activeNamedView.config.usProbe || blocked()) return;
+          activeNamedView.config = structuredClone(configData());
+          accept(activeNamedView);
+          persistNamedViews();
+          refresh();
+        };
+        $("saveAsNewView").onclick = () => {
+          if (!namedCaseKey || blocked()) return;
+          $("newNamedView").open = true;
+          $("namedViewName").value = uniqueViewName(activeNamedView ? activeNamedView.name + " · copia" : "Vista");
+          $("namedViewNotes").value = activeNamedView?.notes || "";
+          $("namedViewName").focus();
+          $("namedViewName").select();
+        };
+        for (const event of ["click", "input", "change", "pointerup", "wheel", "case-state-change"])
+          document.addEventListener(event, schedule);
+        controls.addEventListener("change", schedule);
+        refresh();
+        return { accept, refresh };
+      }
+
       function caseSessionState() {
         return structuredClone({
           config: configData(),
@@ -12203,6 +12252,7 @@
         onChange: fn => controls.addEventListener("end", fn),
         blocked: () => batchRestore || presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open,
       }, $("caseSessionControls"));
+      savedViewTracker = installSavedViewTracker();
       // =============================================================================
       // 20 · Capturas y presentación
       // =============================================================================
