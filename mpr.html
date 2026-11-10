@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.27.0 · Menús de exploración</title>
+    /><title>MPR · v2.28.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.27.0</strong
+        ><strong>Visor MPR · v2.28.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -5794,11 +5794,11 @@
           "wheel",
           (event) => {
             event.preventDefault();
-            if (!slices[axis]) return;
+            if (!slices[axis] || drag) return;
             if (event.ctrlKey || activeTool === "zoom") {
               state.zoom = Math.min(
                 8,
-                Math.max(0.25, state.zoom * Math.exp(-event.deltaY * 0.002))
+                Math.max(0.25, state.zoom * Math.exp(-event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? stage.clientHeight : 1) * 0.002))
               );
               apply();
             } else if (event.deltaY) {
@@ -5816,10 +5816,11 @@
         );
         stage.addEventListener("contextmenu", (event) => event.preventDefault());
         stage.addEventListener("pointerdown", (event) => {
+          if (drag || !slices[axis]) return;
           if (
             event.button !== 2 &&
             event.button !== 1 &&
-            !(event.button === 0 && ["pan", "window"].includes(activeTool))
+            !(event.button === 0 && ["pan", "window", "zoom"].includes(activeTool))
           )
             return;
           event.preventDefault();
@@ -5829,6 +5830,7 @@
             y: event.clientY,
             mode: event.button === 0 ? activeTool : "pan",
             window: [Number($("wl").value), Number($("ww").value)],
+            view: {...state},
           };
           stage.setPointerCapture(event.pointerId);
           canvas.style.cursor = "grabbing";
@@ -5840,6 +5842,8 @@
               Number($("wl").value) - (event.clientY - drag.y) * 2,
               Number($("ww").value) + (event.clientX - drag.x) * 2
             );
+          } else if (drag.mode === "zoom") {
+            state.zoom = Math.min(8, Math.max(0.25, state.zoom * Math.exp((drag.y - event.clientY) * 0.01)));
           } else {
             state.x += event.clientX - drag.x;
             state.y += event.clientY - drag.y;
@@ -5852,20 +5856,24 @@
           drag = null;
           updateToolCursor();
         };
-        stage.addEventListener("pointerup", stop);
-        const cancelWindow = () => {
-          if (drag?.mode === "window") setWindow(...drag.window);
-          stop();
+        stage.addEventListener("pointerup", event => { if (drag?.id === event.pointerId) stop(); });
+        const cancelNavigation = () => {
+          if (!drag) return;
+          const previous = drag;
+          drag = null;
+          if (previous.mode === "window") setWindow(...previous.window);
+          else { Object.assign(state, previous.view); apply(); }
+          if (stage.hasPointerCapture(previous.id)) stage.releasePointerCapture(previous.id);
+          updateToolCursor();
         };
-        stage.addEventListener("pointercancel", cancelWindow);
-        stage.addEventListener("lostpointercapture", cancelWindow);
+        stage.addEventListener("pointercancel", event => { if (drag?.id === event.pointerId) cancelNavigation(); });
+        stage.addEventListener("lostpointercapture", event => { if (drag?.id === event.pointerId) cancelNavigation(); });
+        document.addEventListener("mpr-tool-change", cancelNavigation);
         document.addEventListener("keydown", event => {
-          if (event.key !== "Escape" || drag?.mode !== "window") return;
+          if (event.key !== "Escape" || !drag) return;
           event.preventDefault();
           event.stopPropagation();
-          const pointerId = drag.id;
-          cancelWindow();
-          if (stage.hasPointerCapture(pointerId)) stage.releasePointerCapture(pointerId);
+          cancelNavigation();
         }, true);
       }
       // =============================================================================
@@ -5883,6 +5891,9 @@
           if (
             event.target.closest("button,input,select,.pane-menu,.pane-quick-tools") ||
             ([
+              "pan",
+              "zoom",
+              "window",
               "measure2d",
               "measure3d",
               "editMeasure",
@@ -5997,7 +6008,7 @@
         arrow: "Pulsa la punta en el modelo y después coloca el inicio en el espacio.",
         navigate: "Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.",
         pan: "Arrastra con el botón izquierdo para desplazar el volumen.",
-        zoom: "Rueda sobre el volumen para aumentar o reducir. Ctrl + rueda funciona en cualquier modo.",
+        zoom: "Arrastra hacia arriba para ampliar y hacia abajo para reducir, con ratón o un dedo. También puedes usar la rueda. Ctrl + rueda funciona en cualquier modo. Esc cancela el arrastre.",
         window: "Arrastra en el Volumen: horizontal = anchura, vertical = nivel.",
         measure2d: "Pulsa dos puntos en el mismo corte del volumen. Esc cancela el primer punto.",
         measure3d:
