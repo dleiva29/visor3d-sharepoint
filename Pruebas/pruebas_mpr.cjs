@@ -20,6 +20,17 @@ function suite(html){
  return {run,test,errors,code,ast};
 }
 async function check(html, additionalTests = false){const s=suite(html);const {run,test}=s;
+ await test('Menús de cabecera: caben en horizontal y se recolocan al girar la pantalla',()=>{
+  const content={style:{},offsetWidth:260};
+  const anchor={left:760,bottom:151};
+  const menu={querySelector:selector=>selector==='summary'?{getBoundingClientRect:()=>anchor}:content};
+  const viewport={clientWidth:844,clientHeight:390};
+  const document={documentElement:viewport,querySelectorAll:()=>[menu]};
+  const {fn}=run('positionHeaderMenus',{document});
+  fn();assert.equal(content.style.left,'576px');assert.equal(content.style.maxHeight,'231px');
+  viewport.clientWidth=390;viewport.clientHeight=844;anchor.left=18;anchor.bottom=274;
+  fn();assert.equal(content.style.left,'18px');assert.equal(content.style.top,'274px');assert.equal(content.style.maxHeight,'420px');
+ });
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
  function workHarness(storage = new Map()) {
   const dom = new JSDOM('<div id="host"></div>', {url:'https://viewer.test/mpr.html'});

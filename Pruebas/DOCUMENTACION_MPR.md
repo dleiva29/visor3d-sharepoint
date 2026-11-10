@@ -348,3 +348,10 @@ Mis vistas muestra el nombre de la vista activa y si existen cambios pendientes 
 Actualizar vista guarda la configuración actual conservando nombre y notas. Guardar como nueva abre el formulario con un nombre sugerido y conserva la vista original; la nueva vista pasa a ser activa al guardarse. Abrir el formulario ya no borra la selección de la vista activa. La comparación y actualización rápida se pausan durante presentaciones o US. Las vistas US conservan su edición específica desde los ajustes existentes. El aviso se refiere a la vista nombrada; es independiente del guardado automático del estado de trabajo.
 
 Verificación: 82 pruebas y ESLint correctos, incluidos comparación, actualización y conservación de la original. Chromium con GLB del caso 10 y volumen sintético verifica crear una vista, detectar una medida nueva, guardar copia, recuperar la original y actualizarla. Pendiente prueba visual del usuario.
+
+## v2.21.0 — Menús y controles en pantallas pequeñas
+
+- La cabecera aprovecha el ancho disponible sin reservar espacio para el enlace Manual en toda la barra.
+- Los menús de herramientas y Abrir se ajustan a los bordes y al alto disponible, con desplazamiento interno; se recolocan al cambiar el tamaño o la altura de la cabecera.
+- Los controles principales y los botones de maximizar y menú 3D tienen objetivos táctiles de 44 px. Se separan los controles 3D para evitar solapamientos.
+- Validación: 83 pruebas y ESLint sin errores. Chromium con puntero táctil emulado en 390×844, 768×1024 y 844×390, y escritorio 1400×1000: menús Más y Abrir, cambio de orientación, plegado del panel, vista 3D maximizada y su menú. Sin desbordamiento horizontal ni errores JavaScript observados. Esta revisión de distribución no sustituye la prueba de gestos en un dispositivo físico.
