@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.20.1 · Menús de exploración</title>
+    /><title>MPR · v2.30.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3104,7 +3104,7 @@
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout > aside { grid-column: 2; border-left: 1px solid var(--edge); border-right: 0; }
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .pane.maximized { left: 6px; right: 346px; }
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded):has(.pane.maximized) aside { left: auto; right: 0; width: 340px; }
-      header .viewer-header-main { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 70px; }
+      header .viewer-header-main { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 90px; }
       #headerCaseActions { margin-left: auto; }
       #headerCaseActions .header-file-menu { position: relative; margin: 0; padding: 0; border: 0; }
       #headerCaseActions .header-file-menu > summary { font-size: 12px; padding: 5px 8px; border: 1px solid #456078; border-radius: 5px; cursor: pointer; list-style: none; }
@@ -3142,6 +3142,37 @@
       #headerUsTools[hidden] { display: none !important; }
       header .viewer-header-main > small { order: 10; flex-basis: 100%; margin: 0; }
       #viewerTools { padding-right: 0; }
+      #viewerHeader { padding-right: 18px; }
+      body button.action-icon.tree-icon,
+      #section-toolbox button.action-icon:not(.range-stepper-button) {
+        display: inline-flex; align-items: center; justify-content: center;
+        flex: 0 0 28px; width: 28px; height: 28px; min-height: 28px;
+        padding: 4px; margin: 3px 2px;
+      }
+      button.action-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      @media (pointer: coarse) {
+        body button.action-icon.tree-icon,
+        #section-toolbox button.action-icon:not(.range-stepper-button) {
+          flex-basis: 44px; width: 44px; height: 44px; min-height: 44px;
+        }
+      }
+      #viewerTools .shared-dropdown-content,
+      #headerCaseActions .header-file-menu > .sidebar-body {
+        position: fixed; right: auto; box-sizing: border-box;
+        min-width: 0; width: min(260px, calc(100vw - 16px));
+        overscroll-behavior: contain;
+      }
+      #headerCaseActions .header-file-menu > .sidebar-body { width: min(300px, calc(100vw - 16px)); }
+      @media (pointer: coarse) {
+        #viewerTools button, #viewerTools .shared-explore > button, #viewerTools .shared-dropdown > summary,
+        #headerCaseActions .header-file-menu > summary { min-height: 44px; }
+        #headerCaseActions > button { width: 44px; height: 44px; }
+        .pane .pane-maximize, .pane .pane-menu-trigger { width: 44px; height: 44px; min-height: 44px; }
+        .pane:has(#view3d) > .pane-menu-trigger { right: 53px; }
+        .pane > h2 { min-height: 48px; box-sizing: border-box; }
+        .pane:has(#view3d) > h2 { padding-right: 102px; }
+        .pane-menu { top: 50px; max-height: calc(100% - 56px); }
+      }
     </style></head
   ><body>
 <script>
@@ -3158,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.20.1</strong
+        ><strong>Visor MPR · v2.30.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3511,6 +3542,8 @@
                   ><option value="-600,1500">Pulmón · −600 / 1500</option
                   ><option value="400,1800">Hueso · 400 / 1800</option></select
                 >
+                <button id="resetWindow" type="button" disabled title="Restablecer ventana y nivel iniciales del volumen">Restablecer ventana inicial</button>
+                <p class="note">Con Ventana activa, arrastra horizontalmente para cambiar la anchura y verticalmente para cambiar el nivel. Esc cancela el ajuste.</p>
                 <h4>Relleno de segmentaciones</h4
                 ><label
                   ><input id="fillSegments" type="checkbox" /> Rellenar los contornos 2D
@@ -3555,6 +3588,7 @@
                   >Selecciona la orientación de la cámara. Los planos axial, coronal y sagital se
                   activan en «Vista 3D».</p
                 ><h4 id="modelClipHeading">Recorte del modelo</h4
+                ><p class="note" id="clipStatus" role="status">Recorte desactivado</p
                 ><label for="clipPosition">Posición de recorte</label
                 ><input
                   id="clipPosition"
@@ -3588,8 +3622,7 @@
                   >Arrastra para inclinar el plano. Mayús permite ajuste fino. Puedes limitar el
                   giro a un eje o usar los botones de 1°. Esc cancela el arrastre.</p
                 ><label
-                  ><input id="clipReverse" type="checkbox" checked /> Invertir lado
-                  conservado</label
+                  ><input id="clipReverse" type="checkbox" checked /> Cambiar lado conservado</label
                 ><p class="note"
                   >Recorte visual sin tapa; las imágenes y contornos MPR no se recortan.</p
                 ></div
@@ -4181,6 +4214,8 @@
         },
         viewAppliers = {};
       let selectedMeasurement = null;
+      let hoveredMeasurement = null;
+      let hoveredAnnotation = null;
       let savedMprPosition = null;
       let localWorkState = null;
       let savedViewTracker = null;
@@ -4563,6 +4598,8 @@
           $("showCross").checked = true;
         }
         $("clipAxis").value = "z";
+        // Este plano debe pasar exactamente por los puntos, sin margen de sincronización.
+        $("clipSyncTc").checked = false;
         clipRotation.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
         $("clipEnabled").checked = true;
         orientClip(clipRotation.clone(), center);
@@ -5339,6 +5376,9 @@
         planesRoot.position.copy(physicalCenter);
         volume.windowLow = Number($("wl").value) - Number($("ww").value) / 2;
         volume.windowHigh = Number($("wl").value) + Number($("ww").value) / 2;
+        initialWindow = [Number($("wl").value), Number($("ww").value)];
+        $("resetWindow").disabled = false;
+        syncWindowPreset();
         initSlices();
         volumeContentHash = hash;
         updateClip();
@@ -5368,9 +5408,7 @@
           status.textContent = "Ventana no válida";
           return;
         }
-        volume.windowLow = l - w / 2;
-        volume.windowHigh = l + w / 2;
-        repaintAll();
+        setWindow(l, w);
       };
       function updatePlaneVisibility() {
         planesRoot.visible = $("planes").checked;
@@ -5756,11 +5794,11 @@
           "wheel",
           (event) => {
             event.preventDefault();
-            if (!slices[axis]) return;
+            if (!slices[axis] || drag) return;
             if (event.ctrlKey || activeTool === "zoom") {
               state.zoom = Math.min(
                 8,
-                Math.max(0.25, state.zoom * Math.exp(-event.deltaY * 0.002))
+                Math.max(0.25, state.zoom * Math.exp(-event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? stage.clientHeight : 1) * 0.002))
               );
               apply();
             } else if (event.deltaY) {
@@ -5778,10 +5816,11 @@
         );
         stage.addEventListener("contextmenu", (event) => event.preventDefault());
         stage.addEventListener("pointerdown", (event) => {
+          if (drag || !slices[axis]) return;
           if (
             event.button !== 2 &&
             event.button !== 1 &&
-            !(event.button === 0 && ["pan", "window"].includes(activeTool))
+            !(event.button === 0 && ["pan", "window", "zoom"].includes(activeTool))
           )
             return;
           event.preventDefault();
@@ -5790,6 +5829,8 @@
             x: event.clientX,
             y: event.clientY,
             mode: event.button === 0 ? activeTool : "pan",
+            window: [Number($("wl").value), Number($("ww").value)],
+            view: {...state},
           };
           stage.setPointerCapture(event.pointerId);
           canvas.style.cursor = "grabbing";
@@ -5801,6 +5842,8 @@
               Number($("wl").value) - (event.clientY - drag.y) * 2,
               Number($("ww").value) + (event.clientX - drag.x) * 2
             );
+          } else if (drag.mode === "zoom") {
+            state.zoom = Math.min(8, Math.max(0.25, state.zoom * Math.exp((drag.y - event.clientY) * 0.01)));
           } else {
             state.x += event.clientX - drag.x;
             state.y += event.clientY - drag.y;
@@ -5813,8 +5856,25 @@
           drag = null;
           updateToolCursor();
         };
-        stage.addEventListener("pointerup", stop);
-        stage.addEventListener("pointercancel", stop);
+        stage.addEventListener("pointerup", event => { if (drag?.id === event.pointerId) stop(); });
+        const cancelNavigation = () => {
+          if (!drag) return;
+          const previous = drag;
+          drag = null;
+          if (previous.mode === "window") setWindow(...previous.window);
+          else { Object.assign(state, previous.view); apply(); }
+          if (stage.hasPointerCapture(previous.id)) stage.releasePointerCapture(previous.id);
+          updateToolCursor();
+        };
+        stage.addEventListener("pointercancel", event => { if (drag?.id === event.pointerId) cancelNavigation(); });
+        stage.addEventListener("lostpointercapture", event => { if (drag?.id === event.pointerId) cancelNavigation(); });
+        document.addEventListener("mpr-tool-change", cancelNavigation);
+        document.addEventListener("keydown", event => {
+          if (event.key !== "Escape" || !drag) return;
+          event.preventDefault();
+          event.stopPropagation();
+          cancelNavigation();
+        }, true);
       }
       // =============================================================================
       // 08 · Ventanas, herramientas y navegación
@@ -5831,6 +5891,9 @@
           if (
             event.target.closest("button,input,select,.pane-menu,.pane-quick-tools") ||
             ([
+              "pan",
+              "zoom",
+              "window",
               "measure2d",
               "measure3d",
               "editMeasure",
@@ -5851,6 +5914,13 @@
         });
       }
       document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && activeTool === "threePoints") {
+          event.preventDefault();
+          planePoints = [];
+          setTool("navigate");
+          $("toolHint").textContent = "Plano por tres puntos cancelado. Se conserva la orientación anterior.";
+          return;
+        }
         if (event.key === "Escape" && !event.defaultPrevented)
           document
             .querySelectorAll(".pane.maximized")
@@ -5889,13 +5959,23 @@
         controls.querySelector("[data-trajectory-finish]").onclick = () => setTool("navigate");
       }
       renderer.localClippingEnabled = true;
+      let initialWindow = [70, 350];
+      function syncWindowPreset() {
+        const preset = $("windowPreset");
+        const level = Number($("wl").value), width = Number($("ww").value);
+        preset.value = [...preset.options].find(option => {
+          const values = option.value.split(",").map(Number);
+          return values.length === 2 && values[0] === level && values[1] === width;
+        })?.value || "custom";
+      }
+      $("resetWindow").onclick = () => { if (volume) setWindow(...initialWindow); };
       function setWindow(level, width) {
         level = Number(level);
         width = Math.max(1, Number(width));
         if (!Number.isFinite(level) || !Number.isFinite(width)) return;
-        $("wl").value = Math.round(level);
-        $("ww").value = Math.round(width);
-        $("windowPreset").value = "custom";
+        $("wl").value = level;
+        $("ww").value = width;
+        syncWindowPreset();
         if (volume) {
           volume.windowLow = level - width / 2;
           volume.windowHigh = level + width / 2;
@@ -5915,7 +5995,7 @@
         usTarget:
           "Marca el objetivo sobre la trayectoria, en un corte o en una superficie visible del modelo 3D. Esc cancela.",
         us: "Modo US: pulsa la trayectoria 3D o elige una entrada manual en un corte axial, coronal o sagital.",
-        threePoints: "Marca tres puntos en 2D o sobre superficies 3D. Esc cancela.",
+        threePoints: "Marca tres puntos en 2D o sobre superficies 3D. Esc cancela sin cambiar la orientación. Al completar, el recorte pasa a manual.",
         rotateClip:
           "Arrastra en 3D para orientar el plano de recorte. Pulsa Navegar para volver a girar el modelo.",
         oblique:
@@ -5928,7 +6008,7 @@
         arrow: "Pulsa la punta en el modelo y después coloca el inicio en el espacio.",
         navigate: "Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.",
         pan: "Arrastra con el botón izquierdo para desplazar el volumen.",
-        zoom: "Rueda sobre el volumen para aumentar o reducir. Ctrl + rueda funciona en cualquier modo.",
+        zoom: "Arrastra hacia arriba para ampliar y hacia abajo para reducir, con ratón o un dedo. También puedes usar la rueda. Ctrl + rueda funciona en cualquier modo. Esc cancela el arrastre.",
         window: "Arrastra en el Volumen: horizontal = anchura, vertical = nivel.",
         measure2d: "Pulsa dos puntos en el mismo corte del volumen. Esc cancela el primer punto.",
         measure3d:
@@ -6074,7 +6154,7 @@
             Math.abs(plane.distanceToPoint(m.b)) > 0.1
           )
             continue;
-          ctx.strokeStyle = ctx.fillStyle = m === selectedMeasurement ? "#ffd36e" : "#40ffff";
+          ctx.strokeStyle = ctx.fillStyle = m === selectedMeasurement ? "#ffd36e" : m === hoveredMeasurement ? "#ffffff" : "#40ffff";
           const a = worldToPixel(axis, m.a, b, dest),
             p = worldToPixel(axis, m.b, b, dest);
           ctx.beginPath();
@@ -6110,7 +6190,7 @@
           o.material?.dispose();
         }
         for (const m of measurements.filter((m) => m.axis === null && m.visible !== false)) {
-          const color = m === selectedMeasurement ? "#ffd36e" : "#40ffff";
+          const color = m === selectedMeasurement ? "#ffd36e" : m === hoveredMeasurement ? "#ffffff" : "#40ffff";
           const line = new THREE.Line(
             new THREE.BufferGeometry().setFromPoints([m.a, m.b]),
             new THREE.LineBasicMaterial({ color, depthTest: false })
@@ -6527,6 +6607,7 @@
       });
       let clipPlane = null,
         clipRotation = new THREE.Quaternion();
+      let clipManualOffset = 0;
       const clipGuide = new THREE.Mesh(
         new THREE.PlaneGeometry(1, 1),
         new THREE.MeshBasicMaterial({
@@ -6569,6 +6650,11 @@
         $("clipSyncTc").disabled = !volume || !volumeInfo || !model;
         for (const id of ["clipPosition", "rotateClip", "clipRotationConstraint", "clipLeft", "clipRight", "clipUp", "clipDown", "alignClip", "resetClipRotation"])
           $(id).disabled = sync;
+        const status = $("clipStatus");
+        if (status) status.textContent = !model || !$("clipEnabled").checked
+          ? "Recorte desactivado"
+          : sync ? "Sincronizado con TC · " + ({x: "Sagital", y: "Coronal", z: "Axial"}[$("clipAxis").value]) + " · margen 5 mm"
+            : "Recorte manual";
         const previousClip = clipPlane;
         clipPlane = null;
         clipGuide.visible = false;
@@ -6592,7 +6678,7 @@
               Number($("clipPosition").value) / 100
             );
             point = box.getCenter(new THREE.Vector3());
-            point.addScaledVector(normal, level - normal.dot(point));
+            point.addScaledVector(normal, level + clipManualOffset - normal.dot(point));
           }
           if ($("clipReverse").checked) normal.negate();
           // Amplía el lado conservado 5 mm para dejar una franja visible junto al TC.
@@ -6619,7 +6705,9 @@
       }
       for (const id of ["clipEnabled", "clipAxis", "clipPosition", "clipReverse", "clipSyncTc"])
         $(id).oninput = updateClip;
+      $("clipPosition").oninput = () => { clipManualOffset = 0; updateClip(); };
       $("clipSyncTc").oninput = () => {
+        if (!$("clipSyncTc").checked && clipPlane && model) preserveClipAsManual();
         if ($("clipSyncTc").checked) $("clipEnabled").checked = true;
         updateClip();
         syncPaneToggles();
@@ -6642,6 +6730,14 @@
         clipRotation.copy(obliqueRotation);
         updateClip();
       };
+      function preserveClipAsManual() {
+        const normal = clipPlane.normal.clone();
+        if ($("clipReverse").checked) normal.negate();
+        const axis = new THREE.Vector3();
+        axis[$("clipAxis").value] = 1;
+        const point = clipPlane.coplanarPoint(new THREE.Vector3());
+        orientClip(new THREE.Quaternion().setFromUnitVectors(axis, normal), point);
+      }
       function orientClip(rotation, pivot) {
         clipRotation.copy(rotation).normalize();
         const normal = new THREE.Vector3();
@@ -6662,6 +6758,8 @@
             100
           )
         );
+        // Conserva también planos fuera de la caja y el redondeo del deslizador.
+        clipManualOffset = normal.dot(pivot) - THREE.MathUtils.lerp(min, max, Number($("clipPosition").value) / 100);
         updateClip();
       }
       for (const [id, axis, sign] of [
@@ -6699,6 +6797,7 @@
             y: event.clientY,
             rotation: clipRotation.clone(),
             position: $("clipPosition").value,
+            manualOffset: clipManualOffset,
             pivot: clipGuide.position.clone(),
             enabled: controls.enabled,
             up: new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion),
@@ -6743,6 +6842,7 @@
           endClipDrag();
           clipRotation.copy(drag.rotation);
           $("clipPosition").value = drag.position;
+          clipManualOffset = drag.manualOffset;
           updateClip();
           event.preventDefault();
         }
@@ -6798,11 +6898,21 @@
         ctx.fillRect(0, 0, width, height);
         ctx.fillStyle = "#eaf1f8";
         ctx.font = "18px system-ui";
-        ctx.fillText(pane.querySelector("h2").textContent, 16, 27);
+        const preview = pane.querySelector("#trajectoryPreview:not([hidden])");
+        ctx.fillText(preview ? "Reconstrucción de trayectoria" : pane.querySelector("h2").textContent, 16, 27);
+        if (preview) {
+          const source = preview.querySelector("canvas");
+          if (!source?.width || !source.height) throw new Error("Reconstrucción de trayectoria no disponible.");
+          const fit = Math.min(width / source.width, (height - 45) / source.height);
+          ctx.drawImage(source, (width - source.width * fit) / 2,
+            45 + (height - 45 - source.height * fit) / 2, source.width * fit, source.height * fit);
+          return out;
+        }
         const stage = pane.querySelector(".stage"),
           r = stage.getBoundingClientRect(),
           canvas = stage.querySelector("canvas"),
           c = canvas.getBoundingClientRect();
+        if (!r.width || !r.height || !c.width || !c.height) throw new Error("La vista no está visible. Muéstrala antes de capturarla.");
         const scale = Math.min(width / r.width, (height - 45) / r.height),
           ox = (width - r.width * scale) / 2,
           oy = 45 + (height - 45 - r.height * scale) / 2;
@@ -6820,9 +6930,13 @@
         ctx.restore();
         return out;
       }
-      $("capture").onclick = () => {
+      $("capture").onclick = async () => {
         try {
           const selection = $("captureView").value;
+          repaintAll();
+          // La reconstrucción se pinta en el siguiente frame.
+          await new Promise(resolve => requestAnimationFrame(resolve));
+          updateAnnotationScale();
           if (selection === "all" || selection === "3d") updateStructureNames(true);
           renderer.render(scene, camera);
           let result;
@@ -7250,7 +7364,7 @@
 
       function updateTrajectoryPanel() {
         const hint = trajectory
-          ? "Pulsa «Editar extremos» para empezar o terminar. Arrastra el punto verde (entrada) o el rosa (destino). Un círculo hueco indica que el extremo está proyectado sobre el corte más cercano."
+          ? "Pulsa «Editar extremos» para empezar o terminar. Arrastra el punto verde (entrada) o el rosa (objetivo). Esc cancela el movimiento y recupera la posición anterior. Un círculo hueco indica que el extremo está proyectado sobre el corte más cercano."
           : pendingTrajectoryTarget
             ? "Objetivo marcado. Pulsa el punto de entrada."
             : "Marca primero el objetivo y después la entrada, en los cortes o en el modelo 3D.";
@@ -7436,6 +7550,7 @@
           clipRotation: clipRotation.toArray(),
           clipAxis: $("clipAxis").value,
           clipPosition: Number($("clipPosition").value),
+          clipManualOffset,
           clipSyncTc: $("clipSyncTc").checked,
           layers: [...layerControls].map(([key, l]) => ({
             key,
@@ -7505,6 +7620,7 @@
           flagIds.some((id) => typeof data.flags?.[id] !== "boolean") ||
           !finite(data.fillOpacity, 0, 70) ||
           !finite(data.clipPosition, 0, 100) ||
+          (data.clipManualOffset !== undefined && (typeof data.clipManualOffset !== "number" || !Number.isFinite(data.clipManualOffset))) ||
           !["x", "y", "z"].includes(data.clipAxis) ||
           !Array.isArray(data.layers)
         )
@@ -7678,6 +7794,7 @@
           for (const id of flagIds) $(id).checked = data.flags[id];
           $("fillOpacity").value = data.fillOpacity;
           $("clipPosition").value = data.clipPosition;
+          clipManualOffset = data.clipManualOffset ?? 0;
           $("clipAxis").value = data.clipAxis;
           $("clipSyncTc").checked = data.clipSyncTc ?? false;
           for (const l of data.layers) {
@@ -7968,6 +8085,8 @@
             b.type = "button";
             b.textContent = label;
             b.className = label === "Eliminar" ? "view-action-delete" : "view-action-secondary";
+            setTreeIcon(b, label === "Eliminar" ? "delete" : "done", label + " vista «" + view.name + "»");
+            b.classList.add("action-icon");
             b.onclick = () => {
               try {
                 action();
@@ -9063,7 +9182,7 @@
         };
         for (const item of modelAnnotations) {
           if (item.visible === false) continue;
-          const color = item === selectedAnnotation ? "#ffd36e" : item.color;
+          const color = item === selectedAnnotation ? "#ffd36e" : item === hoveredAnnotation ? "#ffffff" : item.color;
           const firstChild = annotationRoot.children.length;
           const a = new THREE.Vector3(...item.a);
           if (item.kind === "label") ball(a, color);
@@ -9692,7 +9811,7 @@
           y = rect.top + (rect.height - height * scale) / 2;
         const da = Math.hypot(event.clientX - x, event.clientY - (y + entryY * scale));
         const db = Math.hypot(event.clientX - x, event.clientY - (y + destinationY * scale));
-        if (Math.min(da, db) > 14) return null;
+        if (Math.min(da, db) > (event.pointerType === "touch" ? 24 : 14)) return null;
         // Conservar el plano y la escala de partida mientras la reconstrucción se actualiza.
         const previewDrag = {
           x: event.clientX,
@@ -9706,7 +9825,7 @@
         if (!trajectory) return null;
         const slice = axis ? trajectoryPlane(axis) : null;
         let hit = null,
-          distance = 14;
+          distance = event.pointerType === "touch" ? 24 : 14;
         for (const end of ["a", "b"]) {
           const point = trajectory[end];
           if (slice && !trajectoryEndOnSlice(axis, point)) continue;
@@ -9733,6 +9852,48 @@
           camera
         );
         return raycaster.ray.intersectPlane(plane, new THREE.Vector3());
+      }
+      document.addEventListener("mpr-tool-change", () => setOverlayHover(null));
+      function nearestOverlay(event, axis, canvas) {
+        if (axis && !slices[axis]) return null;
+        let best = null, distance = event.pointerType === "touch" ? 22 : 10;
+        const basis = axis ? slicePixelBasis(axis) : null;
+        const plane = basis ? new THREE.Plane().setFromNormalAndCoplanarPoint(
+          basis.u.clone().cross(basis.v).normalize(), basis.origin
+        ) : null;
+        const consider = (item, kind, a, b) => {
+          const start = screenEndpoint(a, canvas, axis), end = screenEndpoint(b, canvas, axis);
+          if (!start || !end) return;
+          const d = segmentDistance({x: event.clientX, y: event.clientY}, start, end);
+          if (d < distance) { distance = d; best = {item, kind}; }
+        };
+        for (const m of measurements) {
+          if (m.visible === false || m.axis !== axis) continue;
+          if (axis && (m.index !== Number($("r" + axis).value) ||
+            [m.a, m.b].some(p => Math.abs(plane.distanceToPoint(p)) > 0.1))) continue;
+          consider(m, "measurement", m.a, m.b);
+        }
+        if (!axis && annotationRoot.visible) {
+          for (const item of modelAnnotations) {
+            if (item.visible === false) continue;
+            consider(item, "annotation", new THREE.Vector3(...item.a), new THREE.Vector3(...(item.b || item.a)));
+          }
+        }
+        return best;
+      }
+      function setOverlayHover(hit) {
+        const measurement = hit?.kind === "measurement" ? hit.item : null;
+        const annotation = hit?.kind === "annotation" ? hit.item : null;
+        if (measurement === hoveredMeasurement && annotation === hoveredAnnotation) return;
+        const previous = hoveredMeasurement;
+        const annotationChanged = annotation !== hoveredAnnotation;
+        hoveredMeasurement = measurement;
+        hoveredAnnotation = annotation;
+        for (const axis of new Set([previous?.axis, measurement?.axis])) {
+          if (axis) paint(axis);
+          else if (axis === null) renderMeasure3D();
+        }
+        if (annotationChanged) renderAnnotations({refreshList: false});
       }
       function nearestMeasurementEnd(event, axis, canvas) {
         let best = null,
@@ -9796,6 +9957,9 @@
         if (d.isTrajectory) {
           renderTrajectory();
           repaintAll();
+          $("trajectoryHint").textContent = cancel
+            ? "Movimiento cancelado. El extremo ha vuelto a su posición anterior."
+            : "Trayectoria actualizada. Actualiza la vista guardada para conservar el cambio.";
           if (!cancel) document.dispatchEvent(new Event("case-state-change"));
           return;
         }
@@ -9811,6 +9975,41 @@
       ]) {
         const isPreview = canvas === trajectoryPreviewCanvas;
         let suppressTrajectoryClick = false;
+        if (!isPreview) {
+          let start = null;
+          canvas.addEventListener("pointerdown", event => {
+            start = event.button === 0 ? {x: event.clientX, y: event.clientY, type: event.pointerType} : null;
+          }, true);
+          canvas.addEventListener("pointermove", event => {
+            if (event.buttons || !["navigate", "select"].includes(activeTool)) { setOverlayHover(null); return; }
+            const hit = nearestOverlay(event, axis, canvas);
+            setOverlayHover(hit);
+            if (hit) canvas.style.cursor = "pointer";
+            else updateToolCursor();
+          });
+          canvas.addEventListener("pointerleave", () => { setOverlayHover(null); updateToolCursor(); });
+          canvas.addEventListener("pointerup", event => {
+            if (!start || !["navigate", "select"].includes(activeTool) ||
+              Math.hypot(event.clientX - start.x, event.clientY - start.y) > 5) return;
+            const hit = nearestOverlay({clientX: event.clientX, clientY: event.clientY, pointerType: start.type}, axis, canvas);
+            start = null;
+            if (!hit) return;
+            suppressTrajectoryClick = true;
+            down3D = null;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (hit.kind === "measurement") {
+              selectedMeasurement = hit.item;
+              updateMeasurementList();
+              redrawEditedMeasurement(axis);
+              openSidebarSection("menu-measurements", $("measurementList").querySelector(".selected"));
+            } else {
+              selectedAnnotation = hit.item;
+              renderAnnotations();
+              openSidebarSection("menu-annotations", $("modelAnnotationList").querySelector(".selected"));
+            }
+          }, true);
+        }
         canvas.addEventListener(
           "click",
           (event) => {
@@ -10028,13 +10227,24 @@
           if (measurementDrag?.canvas === canvas) endMeasurementDrag(true);
         });
       }
-      document.addEventListener("keydown", (e) => {
-        if (e.key !== "Escape") return;
+      function cancelTrajectoryInteraction(event) {
+        if (event.key !== "Escape" || event.defaultPrevented) return;
         if (measurementDrag) {
-          e.preventDefault();
+          event.preventDefault();
+          event.stopPropagation();
+          down3D = null;
           endMeasurementDrag(true);
-        } else if (activeTool === "trajectory" && !trajectory) setTool("navigate");
-      });
+        } else if (activeTool === "trajectory") {
+          event.preventDefault();
+          event.stopPropagation();
+          const pending = !!pendingTrajectoryTarget;
+          setTool("navigate");
+          $("trajectoryHint").textContent = pending
+            ? "Creación de trayectoria cancelada."
+            : "Edición de extremos terminada. Se conserva la trayectoria.";
+        }
+      }
+      document.addEventListener("keydown", cancelTrajectoryInteraction, true);
       document.addEventListener(
         "wheel",
         (e) => {
@@ -11110,14 +11320,23 @@
         section.classList.add("sidebar-highlight");
         highlightSidebarSection.timer = setTimeout(() => section.classList.remove("sidebar-highlight"), 4000);
       }
-      function openSidebarSection(id) {
+      function openSidebarSection(id, selectedCard = null) {
         const section = $(id);
         for (let node = section; node; node = node.parentElement) {
           if (node.tagName === "DETAILS") { node.hidden = false; node.open = true; }
         }
         if (document.body.classList.contains("panel-folded")) $("toggleGeneralPanel").click();
-        section.scrollIntoView({ block: "nearest" });
-        highlightSidebarSection(section);
+        if (selectedCard && section.contains(selectedCard)) {
+          const panel = $("generalPanel");
+          const panelRect = panel.getBoundingClientRect();
+          const cardRect = selectedCard.getBoundingClientRect();
+          // Desplaza solo el panel: las vistas y la página mantienen su posición.
+          panel.scrollTop += cardRect.top - panelRect.top - panel.clientTop - 8;
+          highlightSidebarSection(selectedCard);
+        } else {
+          section.scrollIntoView({ block: "nearest" });
+          highlightSidebarSection(section);
+        }
       }
       function sync3DSliceControl(axis) {
         const input = $("sceneSlice" + axis), source = $("r" + axis);
@@ -11222,10 +11441,7 @@
           details.addEventListener("toggle", () => {
             if (details.open) {
               for (const other of bar.querySelectorAll(".shared-dropdown")) if (other !== details) other.open = false;
-              content.style.left = "0px";
-              const width = document.documentElement.clientWidth;
-              const right = content.getBoundingClientRect().right;
-              if (width && right > width - 8) content.style.left = (width - 8 - right) + "px";
+              positionHeaderMenus();
             }
           });
           content.addEventListener("click", (e) => { if (e.target.closest("button")) details.open = false; });
@@ -11258,6 +11474,10 @@
         family("Planos y orientación", [
           labelButton(takeTool("threePoints"), "Plano por tres puntos"),
           labelButton(takeTool("oblique"), "Cortes oblicuos"),
+          button("Volver a cortes ortogonales", () => {
+            resetOblique();
+            $("toolHint").textContent = "Cortes axial, coronal y sagital restaurados. El recorte manual se conserva.";
+          }),
         ]);
         const info = menus.find((item) => item.sceneView)?.toolbar.querySelector('[aria-controls="modelInfoPanel"]');
         if (info) info.removeAttribute("style");
@@ -11283,7 +11503,7 @@
           button("Capturas e informe", () => openSidebarSection("menu-captures")),
         ]);
         const menuIcons = {
-          "Lista y ajustes de mediciones": "settings", "Añadir etiqueta de texto": "text", "Añadir flecha": "arrow",
+          "Volver a cortes ortogonales": "reset", "Lista y ajustes de mediciones": "settings", "Añadir etiqueta de texto": "text", "Añadir flecha": "arrow",
           "Textos y ajustes": "settings", "Centrar todo": "target",
           "Ajustes de imagen MPR": "image", "Ajustes de la vista 3D": "cube", "Capturas e informe": "report",
         };
@@ -11808,12 +12028,6 @@
         canvas.addEventListener("pointerdown", hideStructureHover);
       }
       document.addEventListener("pointerdown", hideStructureHover, true);
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && activeTool === "threePoints") {
-          planePoints = [];
-          setTool("navigate");
-        }
-      });
       for (const [id, icon, label, action] of [
         ["saveMprPosition", "bookmark", "Guardar posición MPR (sesión actual)", saveMprPosition],
         ["restoreMprPosition", "undo", "Volver a la posición MPR guardada", restoreMprPosition],
@@ -11822,6 +12036,23 @@
       ]) {
         setTreeIcon($(id), icon, label);
         $(id).onclick = action;
+      }
+      for (const [id, icon, label] of [
+        ["saveChildren", "done", "Guardar relaciones"],
+        ["cancelChildren", "close", "Cancelar edición de relaciones"],
+        ["saveGroup", "done", "Guardar grupo"],
+        ["cancelGroup", "close", "Cancelar edición del grupo"],
+        ["selectionCardCenter", "target", "Centrar selección en las cuatro vistas"],
+        ["resetLayers", "reset", "Restablecer apariencia de las estructuras"],
+        ["fit", "target", "Centrar vista 3D"],
+        ["resetClipRotation", "reset", "Restablecer orientación del recorte"],
+        ["saveTrajectory", "bookmark", "Guardar trayectoria como vista"],
+        ["clearTrajectory", "delete", "Borrar trayectoria"],
+        ["addNamedView", "done", "Guardar nueva vista"],
+        ["undoDeleteView", "undo", "Deshacer eliminación de vista"],
+      ]) {
+        setTreeIcon($(id), icon, label);
+        $(id).classList.add("action-icon");
       }
       syncMprNavigation();
       installPaneMenus();
@@ -12394,9 +12625,25 @@
       for (const query of [compactViewer, mediumViewer])
         query.addEventListener("change", syncViewerLayout);
       const viewerHeader = $("viewerHeader");
+      function positionHeaderMenus() {
+        for (const menu of document.querySelectorAll("#viewerHeader details[open]")) {
+          const content = menu.querySelector(":scope > .shared-dropdown-content, :scope > .sidebar-body");
+          if (!content) continue;
+          const anchor = menu.querySelector("summary").getBoundingClientRect();
+          const width = document.documentElement.clientWidth;
+          const height = document.documentElement.clientHeight;
+          const top = Math.min(anchor.bottom, height - 48);
+          content.style.top = Math.max(8, top) + "px";
+          content.style.left = Math.max(8, Math.min(anchor.left, width - content.offsetWidth - 8)) + "px";
+          content.style.maxHeight = Math.max(32, Math.min(420, height - Math.max(8, top) - 8)) + "px";
+        }
+      }
+      viewerHeader.addEventListener("toggle", positionHeaderMenus, true);
+      window.addEventListener("resize", positionHeaderMenus);
       function syncViewerHeaderHeight() {
         const height = Math.ceil(viewerHeader.getBoundingClientRect().height);
         document.documentElement.style.setProperty("--viewer-header-height", height + "px");
+        positionHeaderMenus();
       }
       syncViewerHeaderHeight();
       new ResizeObserver(syncViewerHeaderHeight).observe(viewerHeader);
@@ -12414,6 +12661,10 @@
         const headerPrevious = $("headerPresentationPrev");
         const headerNext = $("headerPresentationNext");
         const headerStop = $("headerPresentationStop");
+        for (const control of [exit, headerStop]) {
+          control.title = "Salir y recuperar el estado de trabajo anterior";
+          control.setAttribute("aria-label", control.title);
+        }
         const headerInfo = $("headerPresentationInfo");
         const headerTitle = $("headerPresentationTitle");
         const headerNotes = $("headerPresentationNotes");
@@ -12429,6 +12680,7 @@
         let index = 0;
         let exporting = false;
         let presentationCase = null;
+        let previousWork = null;
 
         function showFeaturedPane() {
           for (const pane of panes) {
@@ -12498,6 +12750,9 @@
         }
         function endPresentation() {
           const sameCase = namedCaseKey === presentationCase;
+          const work = previousWork;
+          previousWork = null;
+          finishPresentationCamera(false);
           panel.hidden = true;
           headerControls.hidden = true;
           headerInfo.hidden = true;
@@ -12505,13 +12760,33 @@
           syncViewerHeaderHeight();
           syncMobileLayout();
           presentationCase = null;
-          finishPresentationCamera(sameCase);
+          if (sameCase && work) {
+            try {
+              restoreConfig(work.config, { applyTree: false });
+              selectedStructures.clear();
+              for (const key of work.selection) if (layerControls.has(key)) selectedStructures.add(key);
+              selectedStructure = work.primary;
+              isolationSnapshot = work.isolation;
+              updateStructureSelection();
+              resize3D();
+              repaintAll();
+              status.textContent = "Presentación terminada. Estado de trabajo anterior recuperado.";
+            } catch (error) {
+              status.textContent = "No se pudo recuperar el estado anterior: " + error.message;
+            }
+          }
           if (launch.getClientRects().length) launch.focus();
           else $("toggleGeneralPanel").focus();
         }
         launch.onclick = () => {
           const included = presentationViews();
           if (exporting || !namedCaseKey || !included.length) return;
+          if (panel.hidden) previousWork = {
+            config: structuredClone(configData()),
+            selection: [...selectedStructures],
+            primary: selectedStructure,
+            isolation: isolationSnapshot,
+          };
           presentationCase = namedCaseKey;
           slides = structuredClone(included);
           index = Math.max(0, $("presentationStartView").selectedIndex);
@@ -13479,9 +13754,14 @@
           });
         }
 
-        function stopProbeDrag() {
+        function stopProbeDrag(cancel = false) {
           if (!probeDrag) return;
-          const { pointerId } = probeDrag;
+          const { pointerId, angle, shift } = probeDrag;
+          if (cancel) {
+            rotation.value = String(angle);
+            offset.value = String(shift);
+            scheduleCut();
+          }
           probeDrag = null;
           probeDragButton.classList.remove("is-dragging");
           document.documentElement.classList.remove("us-probe-dragging");
@@ -13520,7 +13800,7 @@
         });
         for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
           probeDragButton.addEventListener(type, (event) => {
-            if (event.pointerId === probeDrag?.pointerId) stopProbeDrag();
+            if (event.pointerId === probeDrag?.pointerId) stopProbeDrag(type !== "pointerup");
           });
         }
 
@@ -13770,7 +14050,8 @@
           )
             return;
           entryCanvas.setPointerCapture(event.pointerId);
-          entryDrag = { id: event.pointerId, clientX: event.clientX, clientY: event.clientY, x, y };
+          entryDrag = { id: event.pointerId, clientX: event.clientX, clientY: event.clientY, x, y,
+            probe: session.probe.clone(), lastEntry: lastUsEntryPoint?.clone() || null };
         });
         entryCanvas.addEventListener("pointermove", (event) => {
           if (!session || pickingFocus || entryDrag?.id !== event.pointerId) return;
@@ -13782,7 +14063,7 @@
         });
         for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
           entryCanvas.addEventListener(type, (event) => {
-            if (entryDrag?.id === event.pointerId) entryDrag = null;
+            if (entryDrag?.id === event.pointerId) stopEntryDrag(type !== "pointerup");
           });
         }
         entryCanvas.addEventListener("keydown", (event) => {
@@ -13834,7 +14115,8 @@
         orientationCanvas.addEventListener("pointerdown", (event) => {
           if (!session || orientationDrag || event.button !== 0) return;
           orientationCanvas.setPointerCapture(event.pointerId);
-          orientationDrag = { id: event.pointerId, x: event.clientX, y: event.clientY };
+          orientationDrag = { id: event.pointerId, x: event.clientX, y: event.clientY,
+            right: orientationRight.clone(), up: orientationUp.clone(), normal: orientationNormal.clone() };
         });
         orientationCanvas.addEventListener("pointermove", (event) => {
           if (orientationDrag?.id !== event.pointerId) return;
@@ -13847,9 +14129,42 @@
         });
         for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
           orientationCanvas.addEventListener(type, (event) => {
-            if (orientationDrag?.id === event.pointerId) orientationDrag = null;
+            if (orientationDrag?.id === event.pointerId) stopOrientationDrag(type !== "pointerup");
           });
         }
+        function stopEntryDrag(cancel = false) {
+          const drag = entryDrag;
+          if (!drag) return;
+          entryDrag = null;
+          if (cancel && session) {
+            session.entry.x = drag.x;
+            session.entry.y = drag.y;
+            session.probe.copy(drag.probe);
+            lastUsEntryPoint = drag.lastEntry;
+            scheduleCut();
+          }
+          if (entryCanvas.hasPointerCapture(drag.id)) entryCanvas.releasePointerCapture(drag.id);
+        }
+        function stopOrientationDrag(cancel = false) {
+          const drag = orientationDrag;
+          if (!drag) return;
+          orientationDrag = null;
+          if (cancel) {
+            orientationRight.copy(drag.right);
+            orientationUp.copy(drag.up);
+            orientationNormal.copy(drag.normal);
+            scheduleOrientation();
+          }
+          if (orientationCanvas.hasPointerCapture(drag.id)) orientationCanvas.releasePointerCapture(drag.id);
+        }
+        dialog.addEventListener("keydown", event => {
+          if (event.key !== "Escape" || !(probeDrag || entryDrag || orientationDrag)) return;
+          event.preventDefault();
+          event.stopPropagation();
+          stopProbeDrag(true);
+          stopEntryDrag(true);
+          stopOrientationDrag(true);
+        }, true);
         function toggleUsPreview(canvas) {
           const figure = canvas.closest("figure");
           const current = dialog.querySelector(".us-preview-maximized");
@@ -13893,12 +14208,12 @@
         function releaseSection() {
           setFocusPicking(false);
           dialog.querySelector(".us-preview-maximized")?.classList.remove("us-preview-maximized");
-          orientationDrag = null;
+          stopOrientationDrag(true);
           cancelAnimationFrame(orientationFrame);
           orientationFrame = 0;
           resetOrientation();
-          entryDrag = null;
-          stopProbeDrag();
+          stopEntryDrag(true);
+          stopProbeDrag(true);
           cancelAnimationFrame(pendingFrame);
           pendingFrame = 0;
           if (!session) return;

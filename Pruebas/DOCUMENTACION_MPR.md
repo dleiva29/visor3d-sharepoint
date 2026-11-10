@@ -348,3 +348,96 @@ Mis vistas muestra el nombre de la vista activa y si existen cambios pendientes 
 Actualizar vista guarda la configuración actual conservando nombre y notas. Guardar como nueva abre el formulario con un nombre sugerido y conserva la vista original; la nueva vista pasa a ser activa al guardarse. Abrir el formulario ya no borra la selección de la vista activa. La comparación y actualización rápida se pausan durante presentaciones o US. Las vistas US conservan su edición específica desde los ajustes existentes. El aviso se refiere a la vista nombrada; es independiente del guardado automático del estado de trabajo.
 
 Verificación: 82 pruebas y ESLint correctos, incluidos comparación, actualización y conservación de la original. Chromium con GLB del caso 10 y volumen sintético verifica crear una vista, detectar una medida nueva, guardar copia, recuperar la original y actualizarla. Pendiente prueba visual del usuario.
+
+## v2.21.0 — Menús y controles en pantallas pequeñas
+
+- La cabecera aprovecha el ancho disponible sin reservar espacio para el enlace Manual en toda la barra.
+- Los menús de herramientas y Abrir se ajustan a los bordes y al alto disponible, con desplazamiento interno; se recolocan al cambiar el tamaño o la altura de la cabecera.
+- Los controles principales y los botones de maximizar y menú 3D tienen objetivos táctiles de 44 px. Se separan los controles 3D para evitar solapamientos.
+- Validación: 83 pruebas y ESLint sin errores. Chromium con puntero táctil emulado en 390×844, 768×1024 y 844×390, y escritorio 1400×1000: menús Más y Abrir, cambio de orientación, plegado del panel, vista 3D maximizada y su menú. Sin desbordamiento horizontal ni errores JavaScript observados. Esta revisión de distribución no sustituye la prueba de gestos en un dispositivo físico.
+
+## v2.22.0 — Iconos para acciones habituales
+
+Se convierten en iconos guardar/cancelar relaciones y grupos, centrar la selección o la vista 3D, restablecer apariencia y orientación del recorte, guardar/borrar trayectoria, guardar nueva vista y deshacer su eliminación. Las acciones Actualizar y Eliminar de cada vista también emplean iconos con su nombre en la descripción accesible. Se conservan los identificadores, eventos y estados deshabilitados.
+
+Los botones nuevos incluyen `aria-label` y `title`, SVG decorativo y tamaño de 28 px en escritorio o 44 px con puntero táctil. Se conserva texto en las herramientas específicas, el estado de trabajo local y las acciones de borrado global para evitar ambigüedades.
+
+Validación: 83 pruebas y ESLint sin errores; Chromium verifica los 12 controles estáticos, sus nombres accesibles y dimensiones en 1400×1000 y 390×844. Pendiente la revisión visual del usuario.
+
+## v2.23.0 — Selección directa de mediciones y anotaciones
+
+En Navegar y Seleccionar se detecta la línea completa de las mediciones MPR/3D y las flechas 3D, además del punto de anclaje de las etiquetas. El resaltado previo es blanco y la selección amarilla. Pulsar abre la sección de mediciones o anotaciones con sus acciones existentes, sin recentrar la cámara. Los textos 3D conservan la edición directa existente al pulsar fuera de su anclaje.
+
+La tolerancia es de 10 píxeles CSS con ratón y 22 con puntero táctil. Se excluyen elementos ocultos y medidas de otro corte u orientación. Un desplazamiento mayor de 5 píxeles se considera arrastre y no selección. El resaltado se limpia al salir de la vista o cambiar de herramienta y solo se repinta cuando cambia el elemento señalado.
+
+Validación: 85 pruebas y ESLint sin errores. Nuevas pruebas de selección sobre el segmento, tolerancia táctil, visibilidad y plano MPR. Chromium verifica el resaltado y selección de una medición 3D sobre su punto medio. Pendiente revisión visual con casos reales y dispositivo táctil.
+
+## v2.23.1 — Localizar la ficha del elemento seleccionado
+
+Seleccionar una medición o el anclaje/trazado de una anotación desde la vista abre su sección, despliega el panel si estaba oculto y desplaza únicamente el panel hasta la ficha seleccionada. Se aplica el resaltado existente durante cuatro segundos; no se cambia el foco del teclado ni se desplaza la página. Los accesos generales a secciones conservan su comportamiento.
+
+Validación: 85 pruebas y ESLint sin errores. Chromium en escritorio y móvil emulado con una lista de 30 mediciones: la ficha 25 queda visible al desplegar el panel, la página conserva su desplazamiento y el resaltado desaparece a los cuatro segundos.
+
+## v2.24.0 — Estado del recorte y transición a manual
+
+El panel indica Recorte desactivado, Recorte manual o Sincronizado con TC con eje y margen de 5 mm. La casilla de inversión se denomina Cambiar lado conservado.
+
+Al desactivar la sincronización se convierten la normal y la posición del plano actual a los controles manuales. Un desplazamiento residual conserva posiciones exteriores a la caja del modelo y evita saltos por redondeo del deslizador. Se serializa como `clipManualOffset`, opcional y cero para configuraciones anteriores; mover el deslizador vuelve al recorrido normal de la caja. Cancelar un giro restaura también este desplazamiento.
+
+Validación: 86 pruebas y ESLint sin errores. La nueva prueba cubre planos oblicuos, ambos lados y posiciones interiores/exteriores. Chromium comprueba el evento de desactivar sincronización, el estado manual y la conservación numérica del plano con un modelo sintético. Pendiente prueba visual del usuario con su caso.
+
+## v2.25.0 — Planos oblicuos y plano por tres puntos
+
+- Más / Planos y orientación incluye Volver a cortes ortogonales, con icono y texto. Restaura la orientación del TC sin restablecer cámara, zoom ni recorte manual; el recorte sincronizado sigue los cortes restaurados.
+- Esc durante la selección de tres puntos cancela y retira los marcadores sin salir de la vista maximizada ni cambiar la orientación anterior.
+- Completar los tres puntos desactiva la sincronización del recorte para que este pase exactamente por ellos, sin el margen de 5 mm. La indicación inicial avisa del paso a manual.
+
+Validación: 87 pruebas y ESLint sin errores. Nueva regresión para la desactivación de sincronización antes de orientar. Chromium con geometría sintética verifica cancelación con vista maximizada, distancia nula de los tres puntos al plano y botón de vuelta a ortogonales. Pendiente prueba visual con el caso del usuario.
+
+## v2.25.1 — Edición de trayectoria y cancelación
+
+Esc durante el arrastre de un extremo recupera su posición anterior y restaura los controles sin salir de la vista maximizada. Sin arrastre, Esc termina la edición conservando la trayectoria o cancela la creación pendiente. La gestión se realiza en captura para evitar que el manejador general restaure primero la ventana.
+
+El panel confirma la cancelación o recuerda actualizar la vista guardada tras un movimiento. Las indicaciones usan entrada (verde) y objetivo (rosa). El margen de selección de extremos aumenta de 14 a 24 píxeles CSS con puntero táctil, tanto en las vistas como en la reconstrucción de trayectoria. La serialización existente de los extremos no cambia.
+
+Validación: 89 pruebas y ESLint sin errores. Nuevas pruebas de cancelación, recuperación de controles, ausencia de guardado al cancelar y tolerancia táctil. Chromium con trayectoria sintética comprueba la posición recuperada, conservación de la maximización y salida posterior de edición. Pendiente revisión visual del usuario con su caso.
+
+## v2.26.0 — Capturas de la reconstrucción de trayectoria
+
+La captura de una vista detecta si muestra la reconstrucción de trayectoria y exporta ese lienzo con su título, ajustándolo sin deformación al área disponible. Antes se capturaba el lienzo 3D oculto. La exportación PNG repinta las vistas, espera un frame para la reconstrucción y actualiza la escala de las anotaciones antes del render. Las vistas sin dimensiones visibles producen un mensaje de error en lugar de una captura vacía.
+
+La generación de informes mantiene el orden de las vistas y sus títulos y comentarios, insertados mediante textContent. No se ha cambiado el formato del informe.
+
+Validación: 89 pruebas y ESLint sin errores. Chromium comprueba por píxeles que capturePane elige el lienzo de reconstrucción visible y vuelve al lienzo normal cuando se oculta. Pendiente exportación integral con el caso del usuario, mediciones y anotaciones reales.
+
+## v2.27.0 — Ventana y nivel del TC
+
+Las rutas de aplicación manual, arrastre y recuperación de configuración usan el mismo ajuste. El selector identifica Abdomen, Pulmón o Hueso cuando los valores coinciden, y Personalizado en otro caso. Los decimales mostrados coinciden con los aplicados al volumen.
+
+Restablecer ventana inicial recupera exclusivamente el nivel y anchura presentes al cargar el volumen, sin cambiar cortes, cámara ni zoom. Este punto inicial pertenece a la sesión del volumen, no se sustituye al recuperar una vista. Esc, cancelación táctil y pérdida de captura durante un ajuste recuperan los valores previos al arrastre. Se añaden indicaciones del gesto horizontal/vertical.
+
+Validación: 90 pruebas y ESLint sin errores. Chromium con NRRD sintético y GLB 10 verifica restablecimiento, arrastre real con ratón y Esc, gesto táctil emulado y touchCancel, además de guardar/recuperar configuración con el preajuste Pulmón. Pendiente valoración visual del usuario y gestos en dispositivo físico.
+
+## v2.28.0 — Zoom y desplazamiento MPR
+
+Zoom admite arrastre vertical con ratón o un dedo, además de rueda; conserva límites de 0,25× a 8×. La rueda normaliza unidades de píxel, línea y página. Los arrastres de Zoom, Desplazar y Ventana se cancelan con Esc, interrupción táctil, pérdida de captura o cambio de herramienta, recuperando el estado inicial del gesto. Un segundo puntero no sustituye el arrastre activo y la rueda no altera el estado durante el gesto. El doble clic en estas herramientas no maximiza accidentalmente la vista.
+
+Los cambios se limitan a la navegación MPR; los controles 3D se mantienen. El gesto táctil nuevo es arrastre con un dedo en Zoom, no una pinza de dos dedos.
+
+Validación: 90 pruebas y ESLint sin errores. Chromium con NRRD sintético y GLB 10 verifica desplazamiento y Esc, zoom táctil emulado con cancelación, límites de rueda, recuperación de configuración y conservación al maximizar. Pendiente prueba del usuario en dispositivo físico.
+
+## v2.29.0 — Cancelación de movimientos en Modo US
+
+Los arrastres de sonda, entrada y orientación conservan una copia del estado inicial. Esc, pointercancel y pérdida de captura recuperan ese estado; pointerup confirma el movimiento. Esc durante un arrastre se consume dentro del diálogo antes de cerrar US o restaurar una previsualización ampliada. Cerrar el diálogo con un arrastre pendiente también lo cancela.
+
+La recuperación de entrada incluye el punto de sonda, coordenadas normalizadas y última entrada US. La orientación recupera sus tres vectores y la sonda sus valores de rotación y desplazamiento. El cálculo y la colocación del objetivo no se modifican.
+
+Validación: 90 pruebas y ESLint sin errores. Chromium con NRRD sintético y GLB 10 abre US desde una trayectoria; verifica arrastres reales de sonda y orientación cancelados con Esc manteniendo el diálogo abierto, y restauración de entrada mediante el estado de arrastre instrumentado. Pendiente prueba visual y cancelación táctil en dispositivo físico.
+
+## v2.30.0 — Recuperar el trabajo al salir de presentación
+
+La presentación conserva una copia de la configuración de trabajo y selección antes de abrir la primera diapositiva. Al salir cancela la transición en curso y recupera cortes, cámara, zoom, mediciones, anotaciones, selección y aislamiento, además del estado previo del panel. Solo restaura si sigue abierto el mismo caso. Los botones de salida explican este comportamiento en su descripción accesible.
+
+La lista de diapositivas sigue siendo una copia ordenada de las vistas incluidas; presentar no modifica las vistas guardadas. Las vistas US continúan excluidas de esta presentación.
+
+Validación: 90 pruebas y ESLint sin errores. Chromium en 1400×1000 y móvil emulado 390×1000 con NRRD sintético y GLB 10 comprueba el orden de dos diapositivas, salida con Esc durante una transición y coincidencia de la configuración completa antes/después. Pendiente revisión visual del usuario.

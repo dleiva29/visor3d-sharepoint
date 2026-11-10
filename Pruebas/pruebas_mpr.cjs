@@ -11,7 +11,7 @@ function suite(html){
  const code=moduleOf(html),ast=espree.parse(code,{ecmaVersion:'latest',sourceType:'module',range:true});
  const funcs=new Map(ast.body.filter(n=>n.type==='FunctionDeclaration').map(n=>[n.id.name,code.slice(...n.range)]));
  function run(name, globals = {}, dependencies = []) {
-   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, savedViewTracker:null, selectedMeasurement:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
+   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, clipManualOffset:0, savedViewTracker:null, selectedMeasurement:null, hoveredMeasurement:null, hoveredAnnotation:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
    vm.runInContext([...dependencies, name].map((key) => funcs.get(key)).join("\n"), context);
    return {fn: context[name], context};
  }
@@ -20,6 +20,74 @@ function suite(html){
  return {run,test,errors,code,ast};
 }
 async function check(html, additionalTests = false){const s=suite(html);const {run,test}=s;
+ await test('Menús de cabecera: caben en horizontal y se recolocan al girar la pantalla',()=>{
+  const content={style:{},offsetWidth:260};
+  const anchor={left:760,bottom:151};
+  const menu={querySelector:selector=>selector==='summary'?{getBoundingClientRect:()=>anchor}:content};
+  const viewport={clientWidth:844,clientHeight:390};
+  const document={documentElement:viewport,querySelectorAll:()=>[menu]};
+  const {fn}=run('positionHeaderMenus',{document});
+  fn();assert.equal(content.style.left,'576px');assert.equal(content.style.maxHeight,'231px');
+  viewport.clientWidth=390;viewport.clientHeight=844;anchor.left=18;anchor.bottom=274;
+  fn();assert.equal(content.style.left,'18px');assert.equal(content.style.top,'274px');assert.equal(content.style.maxHeight,'420px');
+ });
+ await test('Selección de superposiciones: línea completa, tolerancia táctil y ocultas',()=>{
+  const m={axis:null,a:new THREE.Vector3(0,0,0),b:new THREE.Vector3(100,0,0)};
+  const globals={measurements:[m],modelAnnotations:[],annotationRoot:{visible:false},screenEndpoint:p=>({x:p.x,y:p.y})};
+  const {fn}=run('nearestOverlay',globals,['segmentDistance']);
+  assert.equal(fn({clientX:50,clientY:8},null,{}).item,m);
+  assert.equal(fn({clientX:50,clientY:18},null,{}),null);
+  assert.equal(fn({clientX:50,clientY:18,pointerType:'touch'},null,{}).item,m);
+  m.visible=false;assert.equal(fn({clientX:50,clientY:0},null,{}),null);
+ });
+ await test('Selección MPR: excluye otro corte y otra orientación',()=>{
+  const m={axis:'z',index:3,a:new THREE.Vector3(0,0,0),b:new THREE.Vector3(100,0,0)};
+  const globals={measurements:[m],slices:{z:{}},$:()=>({value:3}),slicePixelBasis:()=>({u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0),origin:new THREE.Vector3()}),screenEndpoint:p=>({x:p.x,y:p.y})};
+  const {fn}=run('nearestOverlay',globals,['segmentDistance']);
+  assert.equal(fn({clientX:50,clientY:0},'z',{}).item,m);
+  m.index=2;assert.equal(fn({clientX:50,clientY:0},'z',{}),null);
+  m.index=3;m.a.z=2;assert.equal(fn({clientX:50,clientY:0},'z',{}),null);
+ });
+ await test('Recorte: pasar a manual conserva el plano oblicuo, ambos lados y posiciones exteriores',()=>{
+  for(const reverse of [false,true]) for(const level of [1.234567,25,-25]) {
+   const ids=['clipSyncTc','clipPosition','rotateClip','clipRotationConstraint','clipLeft','clipRight','clipUp','clipDown','alignClip','resetClipRotation','clipEnabled','clipAxis','clipReverse','clipStatus'];
+   const elements=Object.fromEntries(ids.map(id=>[id,{checked:false,value:50}]));elements.clipEnabled.checked=true;elements.clipAxis.value='z';elements.clipReverse.checked=reverse;
+   const normal=new THREE.Vector3(1,2,3).normalize();if(reverse)normal.negate();
+   const before=new THREE.Plane(normal,level);
+   const {fn,context}=run('preserveClipAsManual',{$:id=>elements[id],model:new THREE.Mesh(new THREE.BoxGeometry(10,10,10),new THREE.MeshBasicMaterial()),clipPlane:before.clone(),clipRotation:new THREE.Quaternion(),clipGuide:new THREE.Object3D(),volume:null,volumeInfo:null,activeTool:'navigate',invalidateStructureNames:()=>{}},['orientClip','updateClip']);
+   fn();assert.ok(context.clipPlane.normal.distanceTo(before.normal)<1e-10);assert.ok(Math.abs(context.clipPlane.constant-before.constant)<1e-10);assert.equal(elements.clipStatus.textContent,'Recorte manual');
+  }
+ });
+ await test('Plano por tres puntos: desactiva sincronización antes de orientar el recorte',()=>{
+  const elements={toolHint:{},clipAxis:{value:'x'},clipSyncTc:{checked:true},clipEnabled:{checked:false}};
+  let oriented=false;
+  const {fn}=run('addPlanePoint',{$:id=>elements[id],planePoints:[],planePointRoot:new THREE.Group(),volumeInfo:null,clipRotation:new THREE.Quaternion(),orientClip:(rotation,center)=>{assert.equal(elements.clipSyncTc.checked,false);assert.equal(elements.clipAxis.value,'z');assert.ok(center.distanceTo(new THREE.Vector3(1/3,1/3,2))<1e-10);oriented=true;},setTool:()=>{},syncPaneToggles:()=>{},repaintAll:()=>{}});
+  [new THREE.Vector3(0,0,1),new THREE.Vector3(1,0,2),new THREE.Vector3(0,1,3)].forEach(fn);
+  assert(oriented);assert.equal(elements.clipEnabled.checked,true);
+ });
+ await test('Trayectoria: Esc restaura extremo y controles sin emitir guardado',()=>{
+  const path={a:new THREE.Vector3(5,6,7),b:new THREE.Vector3(20,0,0)},original=new THREE.Vector3(1,2,3),controls={enabled:false};let emitted=0,released=0;
+  const hint={};const canvas={style:{cursor:'grabbing'},hasPointerCapture:()=>true,releasePointerCapture:()=>released++};
+  const {fn,context}=run('cancelTrajectoryInteraction',{measurementDrag:{m:path,end:'a',original,canvas,pointerId:1,orbitEnabled:true,cursor:'grab',isTrajectory:true},controls,down3D:{},$:()=>hint,renderTrajectory:()=>{},repaintAll:()=>{},document:{dispatchEvent:()=>emitted++}},['endMeasurementDrag']);
+  const event={key:'Escape',preventDefault(){this.defaultPrevented=true},stopPropagation(){this.stopped=true}};fn(event);
+  assert(path.a.equals(original));assert.equal(context.measurementDrag,null);assert(controls.enabled);assert(event.stopped);assert.equal(released,1);assert.equal(emitted,0);assert.match(hint.textContent,/cancelado/);
+ });
+ await test('Trayectoria: extremos con margen táctil y elección del más cercano',()=>{
+  const path={a:new THREE.Vector3(0,0,0),b:new THREE.Vector3(100,0,0)};
+  const {fn}=run('nearestTrajectoryEnd',{trajectory:path,screenEndpoint:p=>({x:p.x,y:p.y})});
+  assert.equal(fn({clientX:20,clientY:0},null,{}),null);
+  assert.equal(fn({clientX:20,clientY:0,pointerType:'touch'},null,{}).end,'a');
+  assert.equal(fn({clientX:90,clientY:0,pointerType:'touch'},null,{}).end,'b');
+ });
+ await test('Ventana: preajustes, valores decimales coherentes y restauración',()=>{
+  const preset={options:[{value:'custom'},{value:'70,350'},{value:'-600,1500'},{value:'400,1800'}]};
+  const elements={wl:{value:70},ww:{value:350},windowPreset:preset},volume={};let paints=0;
+  const {fn}=run('setWindow',{$:id=>elements[id],volume,repaintAll:()=>paints++},['syncWindowPreset']);
+  fn(-600,1500);assert.equal(preset.value,'-600,1500');assert.equal(volume.windowLow,-1350);
+  fn(70.25,350.5);assert.equal(preset.value,'custom');assert.equal(elements.wl.value,70.25);assert.equal(volume.windowHigh-volume.windowLow,350.5);
+  fn(70,350);assert.equal(preset.value,'70,350');assert.equal(paints,3);
+  fn(NaN,350);assert.equal(paints,3);
+ });
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
  function workHarness(storage = new Map()) {
   const dom = new JSDOM('<div id="host"></div>', {url:'https://viewer.test/mpr.html'});
