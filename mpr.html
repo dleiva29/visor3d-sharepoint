@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.16.1 · Menús de exploración</title>
+    /><title>MPR · v2.17.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -458,6 +458,7 @@
         padding: 8px 0;
         margin-top: 8px;
       }
+      .annotation-card.selected { outline: 1px solid #ffd36e; }
       .annotation-card strong {
         display: block;
         margin-bottom: 5px;
@@ -3145,7 +3146,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.16.1</strong
+        ><strong>Visor MPR · v2.17.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4157,6 +4158,7 @@
       const structureLabelSettleMs = 140;
       const selectedStructures = new Set();
       const modelAnnotations = [];
+      let selectedAnnotation = null;
       let annotationRoot = null,
         pendingArrow = null;
       let batchRestore = false;
@@ -7523,6 +7525,7 @@
                 !["label", "arrow"].includes(a.kind) ||
                 typeof a.text !== "string" ||
                 a.text.length > 180 ||
+                (a.visible !== undefined && typeof a.visible !== "boolean") ||
                 !/^#[0-9a-f]{6}$/i.test(a.color) ||
                 !vec(a.a) ||
                 (a.kind === "arrow" &&
@@ -8989,8 +8992,32 @@
         sprite.userData.leader = leader;
         return sprite;
       }
-      function renderAnnotations() {
+      function locateAnnotation(item) {
+        if (!modelAnnotations.includes(item)) return;
+        selectedAnnotation = item;
+        item.visible = true;
+        $("showAnnotations").checked = true;
+        setTool("navigate");
+        const target = new THREE.Vector3(...item.a);
+        if (item.kind === "arrow") target.add(new THREE.Vector3(...item.b)).multiplyScalar(0.5);
+        camera.position.add(target.clone().sub(controls.target));
+        controls.target.copy(target);
+        controls.update();
+        const maximized = document.querySelector(".pane.maximized");
+        if (maximized && maximized.dataset.viewPane !== "3d") {
+          maximized.classList.remove("maximized");
+          document.querySelector('[data-view-pane="3d"]').classList.add("maximized");
+          resize3D();
+        }
+        renderAnnotations({ refreshList: false });
+        for (const card of $("modelAnnotationList").children)
+          card.classList.toggle("selected", card.dataset.annotationIndex === String(modelAnnotations.indexOf(item)));
+        $("annotationHint").textContent = "Anotación resaltada en 3D. Edita su texto o color y pulsa Actualizar para conservar los cambios.";
+        document.dispatchEvent(new Event("case-state-change"));
+      }
+      function renderAnnotations({ refreshList = true } = {}) {
         requestSceneRender();
+        if (!modelAnnotations.includes(selectedAnnotation)) selectedAnnotation = null;
         if (!annotationRoot) return;
         while (annotationRoot.children.length) {
           const o = annotationRoot.children[0];
@@ -9016,9 +9043,11 @@
           annotationRoot.add(m);
         };
         for (const item of modelAnnotations) {
+          if (item.visible === false) continue;
+          const color = item === selectedAnnotation ? "#ffd36e" : item.color;
           const firstChild = annotationRoot.children.length;
           const a = new THREE.Vector3(...item.a);
-          if (item.kind === "label") ball(a, item.color);
+          if (item.kind === "label") ball(a, color);
           else {
             const b = new THREE.Vector3(...item.b),
               dir = b.clone().sub(a),
@@ -9029,7 +9058,7 @@
             const line = new THREE.Line(
               new THREE.BufferGeometry().setFromPoints([a, b.clone().addScaledVector(dir, -head)]),
               new THREE.LineBasicMaterial({
-                color: item.color,
+                color,
                 depthTest: false,
                 depthWrite: false,
               })
@@ -9039,7 +9068,7 @@
             const cone = new THREE.Mesh(
               new THREE.ConeGeometry(head * 0.3, head, 12),
               new THREE.MeshBasicMaterial({
-                color: item.color,
+                color,
                 depthTest: false,
                 depthWrite: false,
               })
@@ -9049,13 +9078,13 @@
             cone.renderOrder = 211;
             annotationRoot.add(cone);
           }
-          if (item.text) annotationRoot.add(annotationSprite(item.text, item.color, a));
+          if (item.text) annotationRoot.add(annotationSprite(item.text, color, a));
           for (const object of annotationRoot.children.slice(firstChild))
             object.userData.annotationItem = item;
         }
         if (pendingArrow) ball(pendingArrow, "#ffff00", 5);
         updateAnnotationScale();
-        renderAnnotationList();
+        if (refreshList) renderAnnotationList();
       }
       function renderAnnotationList() {
         $("modelAnnotationList").replaceChildren();
@@ -9065,6 +9094,8 @@
         modelAnnotations.forEach((item, index) => {
           const card = document.createElement("div");
           card.className = "annotation-card";
+          card.dataset.annotationIndex = String(index);
+          card.classList.toggle("selected", item === selectedAnnotation);
           const title = document.createElement("strong");
           title.textContent = (item.kind === "arrow" ? "Flecha " : "Etiqueta ") + (index + 1);
           const text = document.createElement("textarea");
@@ -9076,8 +9107,24 @@
           color.type = "color";
           color.value = item.color;
           color.setAttribute("aria-label", "Color de " + title.textContent);
+          const visibility = document.createElement("label");
+          const toggle = document.createElement("input");
+          toggle.type = "checkbox";
+          toggle.checked = item.visible !== false;
+          toggle.setAttribute("aria-label", "Mostrar " + title.textContent);
+          toggle.onchange = () => {
+            item.visible = toggle.checked;
+            renderAnnotations({ refreshList: false });
+            document.dispatchEvent(new Event("case-state-change"));
+          };
+          visibility.append(toggle, document.createTextNode(" Mostrar anotación"));
+          const locate = document.createElement("button");
+          locate.type = "button";
+          setTreeIcon(locate, "target", "Localizar " + title.textContent);
+          locate.onclick = () => { locateAnnotation(item); toggle.checked = true; };
           const save = document.createElement("button");
-          save.textContent = "Actualizar anotación";
+          save.type = "button";
+          save.textContent = "Actualizar";
           save.onclick = () => {
             if (item.kind === "label" && !text.value.trim()) {
               $("annotationHint").textContent = "La etiqueta necesita un texto.";
@@ -9085,17 +9132,22 @@
             }
             item.text = text.value.slice(0, 180);
             item.color = color.value;
-            renderAnnotations();
+            renderAnnotations({ refreshList: false });
+            document.dispatchEvent(new Event("case-state-change"));
             $("annotationHint").textContent =
               "Anotación actualizada. Actualiza la vista guardada para conservar el cambio.";
           };
           const del = document.createElement("button");
-          del.textContent = "Eliminar";
+          del.type = "button";
+          setTreeIcon(del, "delete", "Eliminar " + title.textContent);
           del.onclick = () => {
-            modelAnnotations.splice(index, 1);
+            const position = modelAnnotations.indexOf(item);
+            if (position < 0) return;
+            modelAnnotations.splice(position, 1);
             renderAnnotations();
+            document.dispatchEvent(new Event("case-state-change"));
           };
-          card.append(title, text, color, save, del);
+          card.append(title, visibility, text, color, locate, save, del);
           $("modelAnnotationList").append(card);
         });
       }
@@ -9744,6 +9796,7 @@
                 if (!annotation) {
                   let distance = 14;
                   for (const item of modelAnnotations) {
+                    if (item.visible === false) continue;
                     const a = screenEndpoint(new THREE.Vector3(...item.a), canvas);
                     const b = item.b ? screenEndpoint(new THREE.Vector3(...item.b), canvas) : a;
                     if (!a || !b) continue;

@@ -310,3 +310,12 @@ Verificación: 77 pruebas y ESLint correctos, ampliando los casos de edición de
 Cada fila incluye «Mostrar medida». Oculta línea, extremos y etiqueta en MPR o 3D sin eliminarla de la lista. Las medidas ocultas no participan en la selección de extremos ni en el borrado desde la imagen. Localizar o Editar desde la lista vuelven a mostrarlas. El campo opcional booleano `visible` se conserva en vistas, historial y configuración; las medidas anteriores se muestran por defecto.
 
 Verificación: 77 pruebas y ESLint correctos, con casos ampliados de casilla, validación y serialización. Chromium verifica que ocultar retira los objetos 3D y que Localizar los recupera y marca la casilla.
+
+
+## Gestión de anotaciones (v2.17.0)
+
+Cada etiqueta o flecha incluye Mostrar anotación, Localizar, edición de texto/color con Actualizar y eliminación individual. Localizar vuelve a mostrarla, activa la visibilidad general de anotaciones y centra la cámara en el punto de la etiqueta o el centro de la flecha conservando su distancia. Si hay una vista MPR maximizada, pasa a 3D. La anotación y su fila se resaltan en amarillo sin modificar el color guardado. Ocultar o localizar no descarta el borrador de texto de la lista.
+
+El campo opcional booleano `visible` se conserva mediante la configuración existente en vistas, historial y estado de trabajo; las anotaciones antiguas son visibles por defecto. Las ocultas no participan en el borrado por proximidad desde la imagen. La selección resaltada es transitoria. Texto y color se confirman con Actualizar; para conservar esos cambios en una vista existente se debe actualizar también esa vista.
+
+Verificación: 79 pruebas y ESLint correctos. Pruebas de conservación del borrador, visibilidad y centrado de flechas. Chromium verifica ocultar, localizar, editar y eliminar una etiqueta, y comprueba texto y visibilidad en la configuración del caso sin errores JavaScript. Pendiente validación visual del usuario con el caso real.
