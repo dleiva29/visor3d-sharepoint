@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.20.0 · Menús de exploración</title>
+    /><title>MPR · v2.20.1 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -1848,6 +1848,7 @@
         padding: 4px 8px;
         font-size: 12px;
       }
+      #activeSavedViewState button.tree-icon { flex: 0 0 28px; width: 28px; height: 28px; min-height: 28px; padding: 4px; margin: 0; }
       #viewerTools[hidden], #mprNavigation[hidden] { display: none; }
       #viewerTools .toolbar-placeholder { font-size: 12px; padding: 4px 7px; border: 1px solid #456078; border-radius: 5px; min-height: 28px; box-sizing: border-box; }
       #viewerStartupStatus { margin-left: auto; font-size: 11px; color: #a6c9dd; }
@@ -3157,7 +3158,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.20.0</strong
+        ><strong>Visor MPR · v2.20.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3724,7 +3725,7 @@
           ><summary>▧ Mis vistas</summary
           ><div class="sidebar-body"
             ><div class="sidebar-body"
-              ><div class="case-session" id="activeSavedViewState"><p id="activeSavedViewStatus" role="status">Sin vista activa.</p><div class="case-session-actions"><button id="updateActiveSavedView" type="button" disabled>Actualizar vista</button><button id="saveAsNewView" type="button" disabled>Guardar como nueva</button></div></div><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div
+              ><div class="case-session" id="activeSavedViewState"><p id="activeSavedViewStatus" role="status">Sin vista activa.</p><div class="case-session-actions"><button id="updateActiveSavedView" class="tree-icon" type="button" disabled title="Actualizar vista" aria-label="Actualizar vista"><svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M3 9l4 4 8-9"/></svg></button><button id="saveAsNewView" class="tree-icon" type="button" disabled title="Guardar como nueva" aria-label="Guardar como nueva"><svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M3 2h9v14l-4.5-3L3 16z M14 3v6 M11 6h6"/></svg></button></div></div><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div
               ><div id="activeViewNote" hidden
                 ><label for="activeViewNoteText">Anotación de la vista seleccionada</label
                 ><textarea
