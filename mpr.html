@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.23.0 · Menús de exploración</title>
+    /><title>MPR · v2.23.1 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.23.0</strong
+        ><strong>Visor MPR · v2.23.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -9915,11 +9915,11 @@
               selectedMeasurement = hit.item;
               updateMeasurementList();
               redrawEditedMeasurement(axis);
-              openSidebarSection("menu-measurements");
+              openSidebarSection("menu-measurements", $("measurementList").querySelector(".selected"));
             } else {
               selectedAnnotation = hit.item;
               renderAnnotations();
-              openSidebarSection("menu-annotations");
+              openSidebarSection("menu-annotations", $("modelAnnotationList").querySelector(".selected"));
             }
           }, true);
         }
@@ -11222,14 +11222,23 @@
         section.classList.add("sidebar-highlight");
         highlightSidebarSection.timer = setTimeout(() => section.classList.remove("sidebar-highlight"), 4000);
       }
-      function openSidebarSection(id) {
+      function openSidebarSection(id, selectedCard = null) {
         const section = $(id);
         for (let node = section; node; node = node.parentElement) {
           if (node.tagName === "DETAILS") { node.hidden = false; node.open = true; }
         }
         if (document.body.classList.contains("panel-folded")) $("toggleGeneralPanel").click();
-        section.scrollIntoView({ block: "nearest" });
-        highlightSidebarSection(section);
+        if (selectedCard && section.contains(selectedCard)) {
+          const panel = $("generalPanel");
+          const panelRect = panel.getBoundingClientRect();
+          const cardRect = selectedCard.getBoundingClientRect();
+          // Desplaza solo el panel: las vistas y la página mantienen su posición.
+          panel.scrollTop += cardRect.top - panelRect.top - panel.clientTop - 8;
+          highlightSidebarSection(selectedCard);
+        } else {
+          section.scrollIntoView({ block: "nearest" });
+          highlightSidebarSection(section);
+        }
       }
       function sync3DSliceControl(axis) {
         const input = $("sceneSlice" + axis), source = $("r" + axis);
