@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.21.0 · Menús de exploración</title>
+    /><title>MPR · v2.22.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3143,6 +3143,19 @@
       header .viewer-header-main > small { order: 10; flex-basis: 100%; margin: 0; }
       #viewerTools { padding-right: 0; }
       #viewerHeader { padding-right: 18px; }
+      body button.action-icon.tree-icon,
+      #section-toolbox button.action-icon:not(.range-stepper-button) {
+        display: inline-flex; align-items: center; justify-content: center;
+        flex: 0 0 28px; width: 28px; height: 28px; min-height: 28px;
+        padding: 4px; margin: 3px 2px;
+      }
+      button.action-icon svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+      @media (pointer: coarse) {
+        body button.action-icon.tree-icon,
+        #section-toolbox button.action-icon:not(.range-stepper-button) {
+          flex-basis: 44px; width: 44px; height: 44px; min-height: 44px;
+        }
+      }
       #viewerTools .shared-dropdown-content,
       #headerCaseActions .header-file-menu > .sidebar-body {
         position: fixed; right: auto; box-sizing: border-box;
@@ -3176,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.21.0</strong
+        ><strong>Visor MPR · v2.22.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -7986,6 +7999,8 @@
             b.type = "button";
             b.textContent = label;
             b.className = label === "Eliminar" ? "view-action-delete" : "view-action-secondary";
+            setTreeIcon(b, label === "Eliminar" ? "delete" : "done", label + " vista «" + view.name + "»");
+            b.classList.add("action-icon");
             b.onclick = () => {
               try {
                 action();
@@ -11837,6 +11852,23 @@
       ]) {
         setTreeIcon($(id), icon, label);
         $(id).onclick = action;
+      }
+      for (const [id, icon, label] of [
+        ["saveChildren", "done", "Guardar relaciones"],
+        ["cancelChildren", "close", "Cancelar edición de relaciones"],
+        ["saveGroup", "done", "Guardar grupo"],
+        ["cancelGroup", "close", "Cancelar edición del grupo"],
+        ["selectionCardCenter", "target", "Centrar selección en las cuatro vistas"],
+        ["resetLayers", "reset", "Restablecer apariencia de las estructuras"],
+        ["fit", "target", "Centrar vista 3D"],
+        ["resetClipRotation", "reset", "Restablecer orientación del recorte"],
+        ["saveTrajectory", "bookmark", "Guardar trayectoria como vista"],
+        ["clearTrajectory", "delete", "Borrar trayectoria"],
+        ["addNamedView", "done", "Guardar nueva vista"],
+        ["undoDeleteView", "undo", "Deshacer eliminación de vista"],
+      ]) {
+        setTreeIcon($(id), icon, label);
+        $(id).classList.add("action-icon");
       }
       syncMprNavigation();
       installPaneMenus();
