@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.20.1 · Menús de exploración</title>
+    /><title>MPR · v2.21.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3104,7 +3104,7 @@
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout > aside { grid-column: 2; border-left: 1px solid var(--edge); border-right: 0; }
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .pane.maximized { left: 6px; right: 346px; }
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded):has(.pane.maximized) aside { left: auto; right: 0; width: 340px; }
-      header .viewer-header-main { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 70px; }
+      header .viewer-header-main { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 90px; }
       #headerCaseActions { margin-left: auto; }
       #headerCaseActions .header-file-menu { position: relative; margin: 0; padding: 0; border: 0; }
       #headerCaseActions .header-file-menu > summary { font-size: 12px; padding: 5px 8px; border: 1px solid #456078; border-radius: 5px; cursor: pointer; list-style: none; }
@@ -3142,6 +3142,24 @@
       #headerUsTools[hidden] { display: none !important; }
       header .viewer-header-main > small { order: 10; flex-basis: 100%; margin: 0; }
       #viewerTools { padding-right: 0; }
+      #viewerHeader { padding-right: 18px; }
+      #viewerTools .shared-dropdown-content,
+      #headerCaseActions .header-file-menu > .sidebar-body {
+        position: fixed; right: auto; box-sizing: border-box;
+        min-width: 0; width: min(260px, calc(100vw - 16px));
+        overscroll-behavior: contain;
+      }
+      #headerCaseActions .header-file-menu > .sidebar-body { width: min(300px, calc(100vw - 16px)); }
+      @media (pointer: coarse) {
+        #viewerTools button, #viewerTools .shared-explore > button, #viewerTools .shared-dropdown > summary,
+        #headerCaseActions .header-file-menu > summary { min-height: 44px; }
+        #headerCaseActions > button { width: 44px; height: 44px; }
+        .pane .pane-maximize, .pane .pane-menu-trigger { width: 44px; height: 44px; min-height: 44px; }
+        .pane:has(#view3d) > .pane-menu-trigger { right: 53px; }
+        .pane > h2 { min-height: 48px; box-sizing: border-box; }
+        .pane:has(#view3d) > h2 { padding-right: 102px; }
+        .pane-menu { top: 50px; max-height: calc(100% - 56px); }
+      }
     </style></head
   ><body>
 <script>
@@ -3158,7 +3176,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.20.1</strong
+        ><strong>Visor MPR · v2.21.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -11222,10 +11240,7 @@
           details.addEventListener("toggle", () => {
             if (details.open) {
               for (const other of bar.querySelectorAll(".shared-dropdown")) if (other !== details) other.open = false;
-              content.style.left = "0px";
-              const width = document.documentElement.clientWidth;
-              const right = content.getBoundingClientRect().right;
-              if (width && right > width - 8) content.style.left = (width - 8 - right) + "px";
+              positionHeaderMenus();
             }
           });
           content.addEventListener("click", (e) => { if (e.target.closest("button")) details.open = false; });
@@ -12394,9 +12409,25 @@
       for (const query of [compactViewer, mediumViewer])
         query.addEventListener("change", syncViewerLayout);
       const viewerHeader = $("viewerHeader");
+      function positionHeaderMenus() {
+        for (const menu of document.querySelectorAll("#viewerHeader details[open]")) {
+          const content = menu.querySelector(":scope > .shared-dropdown-content, :scope > .sidebar-body");
+          if (!content) continue;
+          const anchor = menu.querySelector("summary").getBoundingClientRect();
+          const width = document.documentElement.clientWidth;
+          const height = document.documentElement.clientHeight;
+          const top = Math.min(anchor.bottom, height - 48);
+          content.style.top = Math.max(8, top) + "px";
+          content.style.left = Math.max(8, Math.min(anchor.left, width - content.offsetWidth - 8)) + "px";
+          content.style.maxHeight = Math.max(32, Math.min(420, height - Math.max(8, top) - 8)) + "px";
+        }
+      }
+      viewerHeader.addEventListener("toggle", positionHeaderMenus, true);
+      window.addEventListener("resize", positionHeaderMenus);
       function syncViewerHeaderHeight() {
         const height = Math.ceil(viewerHeader.getBoundingClientRect().height);
         document.documentElement.style.setProperty("--viewer-header-height", height + "px");
+        positionHeaderMenus();
       }
       syncViewerHeaderHeight();
       new ResizeObserver(syncViewerHeaderHeight).observe(viewerHeader);
