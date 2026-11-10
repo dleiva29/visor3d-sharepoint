@@ -425,3 +425,11 @@ Zoom admite arrastre vertical con ratón o un dedo, además de rueda; conserva l
 Los cambios se limitan a la navegación MPR; los controles 3D se mantienen. El gesto táctil nuevo es arrastre con un dedo en Zoom, no una pinza de dos dedos.
 
 Validación: 90 pruebas y ESLint sin errores. Chromium con NRRD sintético y GLB 10 verifica desplazamiento y Esc, zoom táctil emulado con cancelación, límites de rueda, recuperación de configuración y conservación al maximizar. Pendiente prueba del usuario en dispositivo físico.
+
+## v2.29.0 — Cancelación de movimientos en Modo US
+
+Los arrastres de sonda, entrada y orientación conservan una copia del estado inicial. Esc, pointercancel y pérdida de captura recuperan ese estado; pointerup confirma el movimiento. Esc durante un arrastre se consume dentro del diálogo antes de cerrar US o restaurar una previsualización ampliada. Cerrar el diálogo con un arrastre pendiente también lo cancela.
+
+La recuperación de entrada incluye el punto de sonda, coordenadas normalizadas y última entrada US. La orientación recupera sus tres vectores y la sonda sus valores de rotación y desplazamiento. El cálculo y la colocación del objetivo no se modifican.
+
+Validación: 90 pruebas y ESLint sin errores. Chromium con NRRD sintético y GLB 10 abre US desde una trayectoria; verifica arrastres reales de sonda y orientación cancelados con Esc manteniendo el diálogo abierto, y restauración de entrada mediante el estado de arrastre instrumentado. Pendiente prueba visual y cancelación táctil en dispositivo físico.
