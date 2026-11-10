@@ -11,7 +11,7 @@ function suite(html){
  const code=moduleOf(html),ast=espree.parse(code,{ecmaVersion:'latest',sourceType:'module',range:true});
  const funcs=new Map(ast.body.filter(n=>n.type==='FunctionDeclaration').map(n=>[n.id.name,code.slice(...n.range)]));
  function run(name, globals = {}, dependencies = []) {
-   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, savedViewTracker:null, selectedMeasurement:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
+   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, savedViewTracker:null, selectedMeasurement:null, hoveredMeasurement:null, hoveredAnnotation:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
    vm.runInContext([...dependencies, name].map((key) => funcs.get(key)).join("\n"), context);
    return {fn: context[name], context};
  }
@@ -30,6 +30,23 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   fn();assert.equal(content.style.left,'576px');assert.equal(content.style.maxHeight,'231px');
   viewport.clientWidth=390;viewport.clientHeight=844;anchor.left=18;anchor.bottom=274;
   fn();assert.equal(content.style.left,'18px');assert.equal(content.style.top,'274px');assert.equal(content.style.maxHeight,'420px');
+ });
+ await test('Selección de superposiciones: línea completa, tolerancia táctil y ocultas',()=>{
+  const m={axis:null,a:new THREE.Vector3(0,0,0),b:new THREE.Vector3(100,0,0)};
+  const globals={measurements:[m],modelAnnotations:[],annotationRoot:{visible:false},screenEndpoint:p=>({x:p.x,y:p.y})};
+  const {fn}=run('nearestOverlay',globals,['segmentDistance']);
+  assert.equal(fn({clientX:50,clientY:8},null,{}).item,m);
+  assert.equal(fn({clientX:50,clientY:18},null,{}),null);
+  assert.equal(fn({clientX:50,clientY:18,pointerType:'touch'},null,{}).item,m);
+  m.visible=false;assert.equal(fn({clientX:50,clientY:0},null,{}),null);
+ });
+ await test('Selección MPR: excluye otro corte y otra orientación',()=>{
+  const m={axis:'z',index:3,a:new THREE.Vector3(0,0,0),b:new THREE.Vector3(100,0,0)};
+  const globals={measurements:[m],slices:{z:{}},$:()=>({value:3}),slicePixelBasis:()=>({u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0),origin:new THREE.Vector3()}),screenEndpoint:p=>({x:p.x,y:p.y})};
+  const {fn}=run('nearestOverlay',globals,['segmentDistance']);
+  assert.equal(fn({clientX:50,clientY:0},'z',{}).item,m);
+  m.index=2;assert.equal(fn({clientX:50,clientY:0},'z',{}),null);
+  m.index=3;m.a.z=2;assert.equal(fn({clientX:50,clientY:0},'z',{}),null);
  });
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
  function workHarness(storage = new Map()) {

@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.22.0 · Menús de exploración</title>
+    /><title>MPR · v2.23.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.22.0</strong
+        ><strong>Visor MPR · v2.23.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4212,6 +4212,8 @@
         },
         viewAppliers = {};
       let selectedMeasurement = null;
+      let hoveredMeasurement = null;
+      let hoveredAnnotation = null;
       let savedMprPosition = null;
       let localWorkState = null;
       let savedViewTracker = null;
@@ -6105,7 +6107,7 @@
             Math.abs(plane.distanceToPoint(m.b)) > 0.1
           )
             continue;
-          ctx.strokeStyle = ctx.fillStyle = m === selectedMeasurement ? "#ffd36e" : "#40ffff";
+          ctx.strokeStyle = ctx.fillStyle = m === selectedMeasurement ? "#ffd36e" : m === hoveredMeasurement ? "#ffffff" : "#40ffff";
           const a = worldToPixel(axis, m.a, b, dest),
             p = worldToPixel(axis, m.b, b, dest);
           ctx.beginPath();
@@ -6141,7 +6143,7 @@
           o.material?.dispose();
         }
         for (const m of measurements.filter((m) => m.axis === null && m.visible !== false)) {
-          const color = m === selectedMeasurement ? "#ffd36e" : "#40ffff";
+          const color = m === selectedMeasurement ? "#ffd36e" : m === hoveredMeasurement ? "#ffffff" : "#40ffff";
           const line = new THREE.Line(
             new THREE.BufferGeometry().setFromPoints([m.a, m.b]),
             new THREE.LineBasicMaterial({ color, depthTest: false })
@@ -9096,7 +9098,7 @@
         };
         for (const item of modelAnnotations) {
           if (item.visible === false) continue;
-          const color = item === selectedAnnotation ? "#ffd36e" : item.color;
+          const color = item === selectedAnnotation ? "#ffd36e" : item === hoveredAnnotation ? "#ffffff" : item.color;
           const firstChild = annotationRoot.children.length;
           const a = new THREE.Vector3(...item.a);
           if (item.kind === "label") ball(a, color);
@@ -9767,6 +9769,48 @@
         );
         return raycaster.ray.intersectPlane(plane, new THREE.Vector3());
       }
+      document.addEventListener("mpr-tool-change", () => setOverlayHover(null));
+      function nearestOverlay(event, axis, canvas) {
+        if (axis && !slices[axis]) return null;
+        let best = null, distance = event.pointerType === "touch" ? 22 : 10;
+        const basis = axis ? slicePixelBasis(axis) : null;
+        const plane = basis ? new THREE.Plane().setFromNormalAndCoplanarPoint(
+          basis.u.clone().cross(basis.v).normalize(), basis.origin
+        ) : null;
+        const consider = (item, kind, a, b) => {
+          const start = screenEndpoint(a, canvas, axis), end = screenEndpoint(b, canvas, axis);
+          if (!start || !end) return;
+          const d = segmentDistance({x: event.clientX, y: event.clientY}, start, end);
+          if (d < distance) { distance = d; best = {item, kind}; }
+        };
+        for (const m of measurements) {
+          if (m.visible === false || m.axis !== axis) continue;
+          if (axis && (m.index !== Number($("r" + axis).value) ||
+            [m.a, m.b].some(p => Math.abs(plane.distanceToPoint(p)) > 0.1))) continue;
+          consider(m, "measurement", m.a, m.b);
+        }
+        if (!axis && annotationRoot.visible) {
+          for (const item of modelAnnotations) {
+            if (item.visible === false) continue;
+            consider(item, "annotation", new THREE.Vector3(...item.a), new THREE.Vector3(...(item.b || item.a)));
+          }
+        }
+        return best;
+      }
+      function setOverlayHover(hit) {
+        const measurement = hit?.kind === "measurement" ? hit.item : null;
+        const annotation = hit?.kind === "annotation" ? hit.item : null;
+        if (measurement === hoveredMeasurement && annotation === hoveredAnnotation) return;
+        const previous = hoveredMeasurement;
+        const annotationChanged = annotation !== hoveredAnnotation;
+        hoveredMeasurement = measurement;
+        hoveredAnnotation = annotation;
+        for (const axis of new Set([previous?.axis, measurement?.axis])) {
+          if (axis) paint(axis);
+          else if (axis === null) renderMeasure3D();
+        }
+        if (annotationChanged) renderAnnotations({refreshList: false});
+      }
       function nearestMeasurementEnd(event, axis, canvas) {
         let best = null,
           distance = 14;
@@ -9844,6 +9888,41 @@
       ]) {
         const isPreview = canvas === trajectoryPreviewCanvas;
         let suppressTrajectoryClick = false;
+        if (!isPreview) {
+          let start = null;
+          canvas.addEventListener("pointerdown", event => {
+            start = event.button === 0 ? {x: event.clientX, y: event.clientY, type: event.pointerType} : null;
+          }, true);
+          canvas.addEventListener("pointermove", event => {
+            if (event.buttons || !["navigate", "select"].includes(activeTool)) { setOverlayHover(null); return; }
+            const hit = nearestOverlay(event, axis, canvas);
+            setOverlayHover(hit);
+            if (hit) canvas.style.cursor = "pointer";
+            else updateToolCursor();
+          });
+          canvas.addEventListener("pointerleave", () => { setOverlayHover(null); updateToolCursor(); });
+          canvas.addEventListener("pointerup", event => {
+            if (!start || !["navigate", "select"].includes(activeTool) ||
+              Math.hypot(event.clientX - start.x, event.clientY - start.y) > 5) return;
+            const hit = nearestOverlay({clientX: event.clientX, clientY: event.clientY, pointerType: start.type}, axis, canvas);
+            start = null;
+            if (!hit) return;
+            suppressTrajectoryClick = true;
+            down3D = null;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (hit.kind === "measurement") {
+              selectedMeasurement = hit.item;
+              updateMeasurementList();
+              redrawEditedMeasurement(axis);
+              openSidebarSection("menu-measurements");
+            } else {
+              selectedAnnotation = hit.item;
+              renderAnnotations();
+              openSidebarSection("menu-annotations");
+            }
+          }, true);
+        }
         canvas.addEventListener(
           "click",
           (event) => {
