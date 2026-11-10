@@ -11,7 +11,7 @@ function suite(html){
  const code=moduleOf(html),ast=espree.parse(code,{ecmaVersion:'latest',sourceType:'module',range:true});
  const funcs=new Map(ast.body.filter(n=>n.type==='FunctionDeclaration').map(n=>[n.id.name,code.slice(...n.range)]));
  function run(name, globals = {}, dependencies = []) {
-   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, ...globals});
+   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, selectedMeasurement:null, ...globals});
    vm.runInContext([...dependencies, name].map((key) => funcs.get(key)).join("\n"), context);
    return {fn: context[name], context};
  }
@@ -58,6 +58,23 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   h.blocked=false;h.auto.checked=false;h.auto.onchange();assert.equal(h.writes,2);h.state={slice:9};h.event();h.flush();assert.equal(h.writes,2);
   h.auto.checked=true;h.auto.onchange();h.state={slice:10};h.dom.window.dispatchEvent(new h.dom.window.Event('pagehide'));assert.equal(JSON.parse([...h.storage.values()][0]).state.slice,10);
   h.buttons.delete.click();assert.equal(h.storage.size,0);assert.equal(h.buttons.restore.disabled,true);assert.equal(h.state.slice,10);h.event();h.flush();assert.equal(h.storage.size,0);h.dom.window.close();
+ });
+ await test('Mediciones: filas accesibles, selección y eliminación por identidad',()=>{
+  const dom=new JSDOM('<p id="measurementEmpty"></p><p id="measurementHint"></p><ol id="measurementList"></ol>');
+  const m={axis:null,index:null,a:new THREE.Vector3(),b:new THREE.Vector3(3,4,0)},n={...m};
+  const measurements=[m,n];let located=null;
+  const {fn,context}=run('updateMeasurementList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),measurements,selectedMeasurement:m,updateMeasurementHint:()=>{},locateMeasurement:(v,edit)=>{located=[v,edit];},renderMeasure3D:()=>{},repaintAll:()=>{}},['setTreeIcon']);
+  fn();const rows=dom.window.document.querySelectorAll('li');assert.match(rows[0].textContent,/5.0 mm.*3D/);assert.ok(rows[0].classList.contains('selected'));
+  rows[0].querySelector('button').click();assert.equal(located[0],m);assert.equal(rows[0].querySelector('button').getAttribute('aria-pressed'),'true');
+  rows[0].querySelectorAll('button')[1].click();assert.equal(located[1],true);
+  rows[0].querySelectorAll('button')[2].click();assert.equal(measurements.length,1);assert.equal(measurements[0],n);assert.equal(context.selectedMeasurement,null);dom.window.close();
+ });
+ await test('Mediciones: localizar centra cámara y rechaza planos incompatibles',()=>{
+  const dom=new JSDOM('<div class="pane" data-view-pane="3d"></div><input id="rx" value="2"><p id="measurementHint"></p>');
+  const m={axis:null,a:new THREE.Vector3(2,2,2),b:new THREE.Vector3(4,4,4)};const camera={position:new THREE.Vector3(10,10,10)},controls={target:new THREE.Vector3(),update:()=>{}};
+  let tool=null;const {fn,context}=run('locateMeasurement',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),measurements:[m],camera,controls,setTool:v=>tool=v,updateMeasurementList:()=>{},renderMeasure3D:()=>{},repaintAll:()=>{},paint:()=>{},slicePixelBasis:()=>({u:new THREE.Vector3(0,1,0),v:new THREE.Vector3(0,0,1),origin:new THREE.Vector3()}),viewStates:{},viewAppliers:{}});
+  fn(m,true);assert.equal(tool,'editMeasure');assert.deepEqual(controls.target.toArray(),[3,3,3]);assert.deepEqual(camera.position.toArray(),[13,13,13]);assert.equal(context.selectedMeasurement,m);
+  m.axis='x';m.index=5;fn(m);assert.equal(dom.window.document.getElementById('rx').value,'2');assert.match(dom.window.document.getElementById('measurementHint').textContent,/otra orientación/);dom.window.close();
  });
  await test('Ficha 3D: selección activa, múltiple, vacía y volumen no disponible',()=>{
   const elements=Object.fromEntries(['selectionCard','selectionCardCenter','selectionCardClear','selectionCardName','selectionCardDetail'].map(id=>[id,{}]));

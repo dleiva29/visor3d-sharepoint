@@ -278,3 +278,12 @@ El estado se almacena en localStorage, bajo `mpr-work-state-v1:` y la identidad 
 El límite de cada estado local es de 2.500.000 caracteres. Los errores de lectura, validación, permisos o cuota se comunican en el apartado; el trabajo abierto permanece disponible y se recomienda exportarlo si no se puede guardar. Después de un fallo de escritura se pausa el guardado automático hasta volver a guardar o recuperar.
 
 Verificación: 74 pruebas correctas y ESLint limpio. Incluye recuperación tras recrear el controlador, protección del estado pendiente, aislamiento entre casos, guardado antes de sustituir archivos, datos inválidos, cuota agotada, exclusión de presentación, casilla automática, eliminación y guardado al salir. Prueba integral adicional en Chromium con un GLB y un NRRD sintéticos: guardar → recargar página → cargar los mismos archivos → recuperar reproduce exactamente el estado completo, incluidas selección activa, árbol, vistas, mediciones, anotaciones y cámara. Un cambio posterior del deslizador se guarda automáticamente y se recupera tras otra recarga; no se observan errores JavaScript. Pendiente validación visual del usuario en Codespaces.
+
+
+## Lista y localización de mediciones (v2.14.0)
+
+Cada fila muestra longitud en mm, vista y corte, con botones accesibles Localizar, Editar y Eliminar. Localizar resalta la fila y la medida en amarillo. En MPR recupera el índice y restablece zoom/desplazamiento de esa vista; en 3D traslada cámara y objetivo al punto medio conservando su separación. Si otra vista está maximizada, maximiza la correspondiente. Editar realiza la misma localización y activa la edición por extremos. Eliminar conserva las demás mediciones y permite recuperar el estado mediante Deshacer del caso.
+
+Las mediciones existentes no incluyen la orientación oblicua original. Antes de localizar una medida MPR se comprueba que sus extremos pertenecen al plano del corte solicitado. Si no coinciden, se vuelve al corte anterior y se indica que debe recuperarse la vista guardada original. No se modifica el formato de las mediciones ni sus coordenadas. El resaltado es transitorio y se elimina cuando la medición deja de existir.
+
+Verificación: 76 pruebas y ESLint correctos. Pruebas de filas accesibles, selección, eliminación por identidad, centrado 3D y rechazo de planos incompatibles. Chromium carga el módulo completo y verifica Localizar, Editar y Eliminar con una medida 3D sintética, sin errores JavaScript. Pendiente prueba visual del usuario con un caso real, incluidas mediciones MPR.

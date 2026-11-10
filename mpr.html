@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.13.2 · Menús de exploración</title>
+    /><title>MPR · v2.14.1 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -310,6 +310,9 @@
         padding-left: 20px;
         font-size: 12px;
       }
+      #measurementList li { margin: 6px 0; padding: 7px; border: 1px solid #31566e; border-radius: 6px; background: #102534; }
+      #measurementList li.selected { border-color: #ffd36e; background: #28352e; }
+      #measurementList .measurement-title { display: block; margin-bottom: 5px; }
       #measurementList button {
         padding: 2px 6px;
         margin-left: 6px;
@@ -3141,7 +3144,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.13.2</strong
+        ><strong>Visor MPR · v2.14.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3617,8 +3620,7 @@
                 ><p class="note"
                   >Para conservar estas mediciones, guarda una vista nueva o pulsa «Actualizar» en
                   una vista existente. Se incluyen al exportar la lista de vistas.</p
-                ><ol id="measurementList"></ol
-                ><button id="clearMeasures" type="button">Borrar mediciones</button></div
+                ><ol id="measurementList"></ol></div
               ></details
             ><details class="sidebar-subgroup" id="menu-annotations"
               ><summary>Textos y flechas 3D</summary
@@ -4169,6 +4171,7 @@
           z: { zoom: 1, x: 0, y: 0 },
         },
         viewAppliers = {};
+      let selectedMeasurement = null;
       let savedMprPosition = null;
       let localWorkState = null;
       let sceneRenderDirty = true;
@@ -6051,6 +6054,7 @@
             Math.abs(plane.distanceToPoint(m.b)) > 0.1
           )
             continue;
+          ctx.strokeStyle = ctx.fillStyle = m === selectedMeasurement ? "#ffd36e" : "#40ffff";
           const a = worldToPixel(axis, m.a, b, dest),
             p = worldToPixel(axis, m.b, b, dest);
           ctx.beginPath();
@@ -6086,9 +6090,10 @@
           o.material?.dispose();
         }
         for (const m of measurements.filter((m) => m.axis === null)) {
+          const color = m === selectedMeasurement ? "#ffd36e" : "#40ffff";
           const line = new THREE.Line(
             new THREE.BufferGeometry().setFromPoints([m.a, m.b]),
-            new THREE.LineBasicMaterial({ color: 0x40ffff, depthTest: false })
+            new THREE.LineBasicMaterial({ color, depthTest: false })
           );
           line.renderOrder = 100;
           measurementRoot.add(line);
@@ -6096,7 +6101,7 @@
           measurementRoot.add(
             annotationSprite(
               m.a.distanceTo(m.b).toFixed(1) + " mm",
-              "#40ffff",
+              color,
               midpoint,
               measurementRoot
             )
@@ -6104,7 +6109,7 @@
           for (const p of [m.a, m.b]) {
             const ball = new THREE.Mesh(
               new THREE.SphereGeometry(1, 12, 8),
-              new THREE.MeshBasicMaterial({ color: 0x40ffff, depthTest: false, depthWrite: false })
+              new THREE.MeshBasicMaterial({ color, depthTest: false, depthWrite: false })
             );
             ball.position.copy(p);
             ball.userData.pixelRadius = 4;
@@ -6141,42 +6146,76 @@
               ? "Medición 2D activa: pulsa dos puntos en el mismo corte."
               : "Medición 3D activa: pulsa dos puntos sobre superficies visibles del modelo.";
       }
+      function locateMeasurement(m, edit = false) {
+        if (!measurements.includes(m)) return;
+        if (m.axis) {
+          const slider = $("r" + m.axis), previous = slider.value;
+          slider.value = String(m.index);
+          paint(m.axis);
+          const basis = slicePixelBasis(m.axis);
+          const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(basis.u.clone().cross(basis.v).normalize(), basis.origin);
+          if ([m.a, m.b].some(p => Math.abs(plane.distanceToPoint(p)) > 0.1)) {
+            slider.value = previous;
+            paint(m.axis);
+            $("measurementHint").textContent = "Esta medida pertenece a otra orientación. Recupera la vista guardada donde la creaste para localizarla.";
+            return;
+          }
+        }
+        selectedMeasurement = m;
+        pendingMeasure = null;
+        setTool(edit ? "editMeasure" : "navigate");
+        const paneName = m.axis ? {x: "sagittal", y: "coronal", z: "axial"}[m.axis] : "3d";
+        const maximized = document.querySelector(".pane.maximized");
+        if (maximized && maximized.dataset.viewPane !== paneName) {
+          maximized.classList.remove("maximized");
+          document.querySelector('[data-view-pane="' + paneName + '"]').classList.add("maximized");
+          resize3D();
+        }
+        if (!m.axis) {
+          const midpoint = m.a.clone().add(m.b).multiplyScalar(0.5);
+          camera.position.add(midpoint.clone().sub(controls.target));
+          controls.target.copy(midpoint);
+          controls.update();
+        } else {
+          viewStates[m.axis].x = viewStates[m.axis].y = 0;
+          viewStates[m.axis].zoom = 1;
+          viewAppliers[m.axis]();
+        }
+        updateMeasurementList(); renderMeasure3D(); repaintAll();
+        $("measurementHint").textContent = edit ? "Medida resaltada. Arrastra uno de sus extremos; Esc cancela la edición." : "Medida resaltada en " + (m.axis ? {x: "sagital", y: "coronal", z: "axial"}[m.axis] : "3D") + ".";
+        document.dispatchEvent(new Event("case-state-change"));
+      }
       function updateMeasurementList() {
+        if (!measurements.includes(selectedMeasurement)) selectedMeasurement = null;
         $("measurementEmpty").hidden = measurements.length > 0;
         updateMeasurementHint();
         $("measurementList").replaceChildren();
         measurements.forEach((m, i) => {
           const li = document.createElement("li");
-          li.textContent =
-            (m.axis
-              ? { z: "Axial", y: "Coronal", x: "Sagital" }[m.axis] + " · corte " + m.index
-              : "3D") +
-            ": " +
-            m.a.distanceTo(m.b).toFixed(1) +
-            " mm";
-          const del = document.createElement("button");
-          del.textContent = "×";
-          del.title = "Eliminar medición";
-          del.onclick = () => {
-            measurements.splice(i, 1);
-            updateMeasurementList();
-            renderMeasure3D();
-            repaintAll();
-          };
-          const edit = document.createElement("button");
-          edit.type = "button";
-          edit.textContent = "Editar";
-          edit.onclick = () => {
-            setTool("editMeasure");
-            if (m.axis) {
-              $("r" + m.axis).value = String(m.index);
-              paint(m.axis);
-            }
-            $("measurementHint").textContent =
-              "Arrastra un extremo de esta medición" +
-              (m.axis ? " en el corte " + m.index + "." : " en la vista 3D.");
-          };
-          li.append(edit, del);
+          li.classList.toggle("selected", m === selectedMeasurement);
+          const title = document.createElement("strong");
+          title.className = "measurement-title";
+          title.textContent = m.a.distanceTo(m.b).toFixed(1) + " mm · " + (m.axis ? {z:"Axial",y:"Coronal",x:"Sagital"}[m.axis] + " · corte " + m.index : "3D");
+          li.append(title);
+          for (const [label, icon, action] of [
+            ["Localizar", "target", () => locateMeasurement(m)],
+            ["Editar", "edit", () => locateMeasurement(m, true)],
+            ["Eliminar", "delete", () => {
+              const index = measurements.indexOf(m);
+              if (index < 0) return;
+              measurements.splice(index, 1);
+              updateMeasurementList(); renderMeasure3D(); repaintAll();
+              $("measurementHint").textContent = "Medición eliminada. Puedes recuperarla con Deshacer.";
+              document.dispatchEvent(new Event("case-state-change"));
+            }],
+          ]) {
+            const control = document.createElement("button");
+            control.type = "button";
+            setTreeIcon(control, icon, label + " medición " + (i + 1));
+            control.onclick = action;
+            if (label === "Localizar") control.setAttribute("aria-pressed", String(m === selectedMeasurement));
+            li.append(control);
+          }
           $("measurementList").append(li);
         });
       }
@@ -6186,10 +6225,6 @@
         updateMeasurementList();
         renderMeasure3D();
       }
-      $("clearMeasures").onclick = () => {
-        clearMeasurements();
-        repaintAll();
-      };
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
           pendingMeasure = null;
@@ -10565,6 +10600,7 @@
       }
       function setTreeIcon(control, icon, label) {
         const paths = {
+          delete: "M3 5h12 M6 5V2h6v3 M4 5l1 11h8l1-11 M7 8v5 M11 8v5",
           settings: "M3 2v14 M9 2v14 M15 2v14 M1 6h4 M7 12h4 M13 7h4",
           text: "M3 4h12 M9 4v11 M6 15h6",
           arrow: "M3 15L15 3 M6 3h9v9",
