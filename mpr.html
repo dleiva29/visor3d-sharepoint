@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.15.0 · Menús de exploración</title>
+    /><title>MPR · v2.16.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -312,6 +312,7 @@
       }
       #measurementList li { margin: 6px 0; padding: 7px; border: 1px solid #31566e; border-radius: 6px; background: #102534; }
       #measurementList li.selected { border-color: #ffd36e; background: #28352e; }
+      #measurementList .measurement-name { box-sizing: border-box; width: 100%; min-width: 0; margin: 0 0 6px; padding: 5px 7px; color: #e2eff9; background: #081724; border: 1px solid #31566e; border-radius: 5px; font: inherit; }
       #measurementList .measurement-title { display: block; margin-bottom: 5px; }
       #measurementList button {
         padding: 2px 6px;
@@ -3144,7 +3145,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.15.0</strong
+        ><strong>Visor MPR · v2.16.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -6072,7 +6073,7 @@
           ctx.stroke();
           dot(a);
           dot(p);
-          const text = m.a.distanceTo(m.b).toFixed(1) + " mm";
+          const text = (m.name ? m.name + ": " : "") + m.a.distanceTo(m.b).toFixed(1) + " mm";
           ctx.strokeStyle = "#000";
           ctx.lineWidth = 4;
           const tx = Math.max(
@@ -6109,7 +6110,7 @@
           const midpoint = m.a.clone().add(m.b).multiplyScalar(0.5);
           measurementRoot.add(
             annotationSprite(
-              m.a.distanceTo(m.b).toFixed(1) + " mm",
+              (m.name ? m.name + ": " : "") + m.a.distanceTo(m.b).toFixed(1) + " mm",
               color,
               midpoint,
               measurementRoot
@@ -6208,7 +6209,21 @@
           const title = document.createElement("strong");
           title.className = "measurement-title";
           title.textContent = m.a.distanceTo(m.b).toFixed(1) + " mm · " + (m.axis ? {z:"Axial",y:"Coronal",x:"Sagital"}[m.axis] + " · corte " + m.index : "3D");
-          li.append(title);
+          const name = document.createElement("input");
+          name.type = "text";
+          name.className = "measurement-name";
+          name.maxLength = 60;
+          name.value = m.name || "";
+          name.placeholder = "Nombre de la medición (opcional)";
+          name.setAttribute("aria-label", "Nombre de la medición " + (i + 1));
+          name.oninput = () => {
+            const value = name.value.trim().slice(0, 60);
+            if (value) m.name = value;
+            else delete m.name;
+            renderMeasure3D(); repaintAll();
+            document.dispatchEvent(new Event("case-state-change"));
+          };
+          li.append(name, title);
           for (const [label, icon, action] of [
             ["Localizar", "target", () => locateMeasurement(m)],
             ["Editar", "edit", () => locateMeasurement(m, true)],
@@ -7276,6 +7291,7 @@
           index: m.index,
           a: m.a.toArray(),
           b: m.b.toArray(),
+          ...(m.name !== undefined ? { name: m.name } : {}),
           ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
         }));
       }
@@ -7290,6 +7306,8 @@
         for (const m of items) {
           if (!m || ![null, "x", "y", "z"].includes(m.axis) || !vec(m.a) || !vec(m.b))
             throw new Error("Coordenadas de medición inválidas.");
+          if (m.name !== undefined && (typeof m.name !== "string" || m.name.length > 60 || /[\r\n\t]/.test(m.name)))
+            throw new Error("Nombre de medición inválido (máximo 60 caracteres, una línea).");
           if (m.plane !== undefined) {
             const p = m.plane;
             if (m.axis === null || (p !== null && (!p || !vec(p.pivot) || !vec(p.shift) || !Array.isArray(p.rotation) || p.rotation.length !== 4 || p.rotation.some(n => typeof n !== "number" || !Number.isFinite(n)) || Math.abs(Math.hypot(...p.rotation) - 1) > 0.001)))
@@ -7314,6 +7332,7 @@
             index: m.index,
             a: new THREE.Vector3(...m.a),
             b: new THREE.Vector3(...m.b),
+            ...(m.name !== undefined ? { name: m.name } : {}),
             ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
           }))
         );

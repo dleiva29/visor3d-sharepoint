@@ -64,7 +64,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   const m={axis:null,index:null,a:new THREE.Vector3(),b:new THREE.Vector3(3,4,0)},n={...m};
   const measurements=[m,n];let located=null;
   const {fn,context}=run('updateMeasurementList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),measurements,selectedMeasurement:m,updateMeasurementHint:()=>{},locateMeasurement:(v,edit)=>{located=[v,edit];},renderMeasure3D:()=>{},repaintAll:()=>{}},['setTreeIcon']);
-  fn();const rows=dom.window.document.querySelectorAll('li');assert.match(rows[0].textContent,/5.0 mm.*3D/);assert.ok(rows[0].classList.contains('selected'));
+  fn();const rows=dom.window.document.querySelectorAll('li');const name=rows[0].querySelector('input');name.value='Diámetro de lesión';name.dispatchEvent(new dom.window.Event('input'));assert.equal(m.name,'Diámetro de lesión');name.value=' ';name.dispatchEvent(new dom.window.Event('input'));assert.equal(m.name,undefined);assert.match(rows[0].textContent,/5.0 mm.*3D/);assert.ok(rows[0].classList.contains('selected'));
   rows[0].querySelector('button').click();assert.equal(located[0],m);assert.equal(rows[0].querySelector('button').getAttribute('aria-pressed'),'true');
   rows[0].querySelectorAll('button')[1].click();assert.equal(located[1],true);
   rows[0].querySelectorAll('button')[2].click();assert.equal(measurements.length,1);assert.equal(measurements[0],n);assert.equal(context.selectedMeasurement,null);dom.window.close();
@@ -78,8 +78,8 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
  });
  await test('Mediciones: plano oblicuo se serializa, valida y recupera; compatibilidad anterior',()=>{
   const plane={pivot:[1,2,3],rotation:new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.4).toArray(),shift:[4,5,6]};
-  const items=[{axis:'z',index:3,a:[0,0,0],b:[1,2,3],plane}];
-  const validate=run('validateMeasurements',{$:()=>({max:20})}).fn;validate(items);validate([{...items[0],plane:undefined}]);validate([{...items[0],plane:null}]);
+  const items=[{axis:'z',index:3,a:[0,0,0],b:[1,2,3],plane,name:'Distancia al vaso'}];
+  const validate=run('validateMeasurements',{$:()=>({max:20})}).fn;validate(items);assert.throws(()=>validate([{...items[0],name:'a'.repeat(61)}]),/Nombre/);assert.throws(()=>validate([{...items[0],name:42}]),/Nombre/);validate([{...items[0],name:undefined,plane:undefined}]);validate([{...items[0],plane:null}]);
   assert.throws(()=>validate([{...items[0],plane:{...plane,rotation:[0,0,0,0]}}]),/Orientación/);
   assert.throws(()=>validate([{...items[0],axis:null,index:null}]),/Orientación/);
   const measurements=[];const {fn,context}=run('restoreMeasurements',{measurements,updateMeasurementList:()=>{},renderMeasure3D:()=>{}},['measurementData']);fn(items);

@@ -296,3 +296,10 @@ Las nuevas mediciones MPR incluyen el campo opcional `plane`: null para orientac
 El plano se conserva en vistas guardadas, exportación/importación, historial y estado de trabajo. Los archivos anteriores, sin `plane`, siguen siendo válidos y conservan el aviso de orientación incompatible. Cambiar de orientación entre el primer y segundo punto inicia una medida nueva para no mezclar planos. Se validan vectores finitos y cuaterniones normalizados antes de importar.
 
 Verificación: 77 pruebas correctas y ESLint limpio; validación y recorrido de serialización/restauración con planos nuevos y datos antiguos. Chromium carga un volumen sintético, crea una medida oblicua, cambia a ortogonal y recupera la orientación y selección originales mediante Localizar, sin errores JavaScript. Pendiente prueba visual en Codespaces.
+
+
+## Nombres de mediciones (v2.16.0)
+
+La lista permite escribir un nombre opcional de hasta 60 caracteres para cada medición. El nombre aparece junto a la distancia en MPR y 3D, se actualiza al escribir y se elimina dejando el campo vacío. Se representa como texto, sin interpretar HTML. El campo opcional `name` se conserva en vistas, historial, configuración exportada y estado de trabajo; las medidas anteriores sin nombre siguen siendo válidas. La importación rechaza tipos distintos de texto, nombres demasiado largos y saltos de línea o tabulaciones.
+
+Verificación: 77 pruebas y ESLint correctos, ampliando los casos de edición de filas, serialización y validación de mediciones. Chromium verifica escribir un nombre con acentos, serializarlo, recuperar la medida y borrar el nombre sin errores JavaScript. Pendiente validación visual del usuario en Codespaces.
