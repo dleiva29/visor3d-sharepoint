@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.14.0 · Menús de exploración</title>
+    /><title>MPR · v2.14.1 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3144,7 +3144,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.14.0</strong
+        ><strong>Visor MPR · v2.14.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3620,8 +3620,7 @@
                 ><p class="note"
                   >Para conservar estas mediciones, guarda una vista nueva o pulsa «Actualizar» en
                   una vista existente. Se incluyen al exportar la lista de vistas.</p
-                ><ol id="measurementList"></ol
-                ><button id="clearMeasures" type="button">Borrar mediciones</button></div
+                ><ol id="measurementList"></ol></div
               ></details
             ><details class="sidebar-subgroup" id="menu-annotations"
               ><summary>Textos y flechas 3D</summary
@@ -6226,10 +6225,6 @@
         updateMeasurementList();
         renderMeasure3D();
       }
-      $("clearMeasures").onclick = () => {
-        clearMeasurements();
-        repaintAll();
-      };
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
           pendingMeasure = null;
