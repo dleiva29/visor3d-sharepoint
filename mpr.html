@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.26.0 · Menús de exploración</title>
+    /><title>MPR · v2.27.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.26.0</strong
+        ><strong>Visor MPR · v2.27.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3542,6 +3542,8 @@
                   ><option value="-600,1500">Pulmón · −600 / 1500</option
                   ><option value="400,1800">Hueso · 400 / 1800</option></select
                 >
+                <button id="resetWindow" type="button" disabled title="Restablecer ventana y nivel iniciales del volumen">Restablecer ventana inicial</button>
+                <p class="note">Con Ventana activa, arrastra horizontalmente para cambiar la anchura y verticalmente para cambiar el nivel. Esc cancela el ajuste.</p>
                 <h4>Relleno de segmentaciones</h4
                 ><label
                   ><input id="fillSegments" type="checkbox" /> Rellenar los contornos 2D
@@ -5374,6 +5376,9 @@
         planesRoot.position.copy(physicalCenter);
         volume.windowLow = Number($("wl").value) - Number($("ww").value) / 2;
         volume.windowHigh = Number($("wl").value) + Number($("ww").value) / 2;
+        initialWindow = [Number($("wl").value), Number($("ww").value)];
+        $("resetWindow").disabled = false;
+        syncWindowPreset();
         initSlices();
         volumeContentHash = hash;
         updateClip();
@@ -5403,9 +5408,7 @@
           status.textContent = "Ventana no válida";
           return;
         }
-        volume.windowLow = l - w / 2;
-        volume.windowHigh = l + w / 2;
-        repaintAll();
+        setWindow(l, w);
       };
       function updatePlaneVisibility() {
         planesRoot.visible = $("planes").checked;
@@ -5825,6 +5828,7 @@
             x: event.clientX,
             y: event.clientY,
             mode: event.button === 0 ? activeTool : "pan",
+            window: [Number($("wl").value), Number($("ww").value)],
           };
           stage.setPointerCapture(event.pointerId);
           canvas.style.cursor = "grabbing";
@@ -5849,7 +5853,20 @@
           updateToolCursor();
         };
         stage.addEventListener("pointerup", stop);
-        stage.addEventListener("pointercancel", stop);
+        const cancelWindow = () => {
+          if (drag?.mode === "window") setWindow(...drag.window);
+          stop();
+        };
+        stage.addEventListener("pointercancel", cancelWindow);
+        stage.addEventListener("lostpointercapture", cancelWindow);
+        document.addEventListener("keydown", event => {
+          if (event.key !== "Escape" || drag?.mode !== "window") return;
+          event.preventDefault();
+          event.stopPropagation();
+          const pointerId = drag.id;
+          cancelWindow();
+          if (stage.hasPointerCapture(pointerId)) stage.releasePointerCapture(pointerId);
+        }, true);
       }
       // =============================================================================
       // 08 · Ventanas, herramientas y navegación
@@ -5931,13 +5948,23 @@
         controls.querySelector("[data-trajectory-finish]").onclick = () => setTool("navigate");
       }
       renderer.localClippingEnabled = true;
+      let initialWindow = [70, 350];
+      function syncWindowPreset() {
+        const preset = $("windowPreset");
+        const level = Number($("wl").value), width = Number($("ww").value);
+        preset.value = [...preset.options].find(option => {
+          const values = option.value.split(",").map(Number);
+          return values.length === 2 && values[0] === level && values[1] === width;
+        })?.value || "custom";
+      }
+      $("resetWindow").onclick = () => { if (volume) setWindow(...initialWindow); };
       function setWindow(level, width) {
         level = Number(level);
         width = Math.max(1, Number(width));
         if (!Number.isFinite(level) || !Number.isFinite(width)) return;
-        $("wl").value = Math.round(level);
-        $("ww").value = Math.round(width);
-        $("windowPreset").value = "custom";
+        $("wl").value = level;
+        $("ww").value = width;
+        syncWindowPreset();
         if (volume) {
           volume.windowLow = level - width / 2;
           volume.windowHigh = level + width / 2;
