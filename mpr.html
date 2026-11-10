@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.13.2 · Menús de exploración</title>
+    /><title>MPR · v2.20.1 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -310,6 +310,10 @@
         padding-left: 20px;
         font-size: 12px;
       }
+      #measurementList li { margin: 6px 0; padding: 7px; border: 1px solid #31566e; border-radius: 6px; background: #102534; }
+      #measurementList li.selected { border-color: #ffd36e; background: #28352e; }
+      #measurementList .measurement-name { box-sizing: border-box; width: 100%; min-width: 0; margin: 0 0 6px; padding: 5px 7px; color: #e2eff9; background: #081724; border: 1px solid #31566e; border-radius: 5px; font: inherit; }
+      #measurementList .measurement-title { display: block; margin-bottom: 5px; }
       #measurementList button {
         padding: 2px 6px;
         margin-left: 6px;
@@ -454,13 +458,25 @@
         padding: 8px 0;
         margin-top: 8px;
       }
+      .annotation-editor { position: fixed; margin: 0; box-sizing: border-box; width: min(300px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); overflow: auto; padding: 12px; background: #102534; color: #e2eff9; border: 1px solid #65ddeb; border-radius: 8px; box-shadow: 0 8px 30px #0008; }
+      .annotation-editor::backdrop { background: #0002; }
+      .annotation-editor textarea { box-sizing: border-box; width: 100%; margin: 6px 0; }
+      .annotation-editor input[type="color"] { width: 28px; height: 28px; padding: 2px; vertical-align: middle; }
+      .annotation-editor .tree-icon { width: 28px; height: 28px; padding: 4px; vertical-align: middle; }
+      .annotation-card.selected { outline: 1px solid #ffd36e; }
       .annotation-card strong {
         display: block;
         margin-bottom: 5px;
       }
       .annotation-card input[type="color"] {
         height: 28px;
-        width: 45px;
+        width: 28px;
+        padding: 2px;
+        box-sizing: border-box;
+        vertical-align: middle;
+      }
+      #section-toolbox .annotation-card button.tree-icon {
+        width: 28px; height: 28px; min-height: 28px; padding: 4px; vertical-align: middle;
       }
       .annotation-tools h3 {
         margin-top: 0;
@@ -1832,6 +1848,7 @@
         padding: 4px 8px;
         font-size: 12px;
       }
+      #activeSavedViewState button.tree-icon { flex: 0 0 28px; width: 28px; height: 28px; min-height: 28px; padding: 4px; margin: 0; }
       #viewerTools[hidden], #mprNavigation[hidden] { display: none; }
       #viewerTools .toolbar-placeholder { font-size: 12px; padding: 4px 7px; border: 1px solid #456078; border-radius: 5px; min-height: 28px; box-sizing: border-box; }
       #viewerStartupStatus { margin-left: auto; font-size: 11px; color: #a6c9dd; }
@@ -3141,7 +3158,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.13.2</strong
+        ><strong>Visor MPR · v2.20.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3617,21 +3634,12 @@
                 ><p class="note"
                   >Para conservar estas mediciones, guarda una vista nueva o pulsa «Actualizar» en
                   una vista existente. Se incluyen al exportar la lista de vistas.</p
-                ><ol id="measurementList"></ol
-                ><button id="clearMeasures" type="button">Borrar mediciones</button></div
+                ><ol id="measurementList"></ol></div
               ></details
             ><details class="sidebar-subgroup" id="menu-annotations"
               ><summary>Textos y flechas 3D</summary
               ><div class="sidebar-body"
-                ><label for="annotationText">Texto (opcional para flechas)</label
-                ><textarea
-                  id="annotationText"
-                  maxlength="180"
-                  placeholder="Ej.: Bifurcación portal"
-                  rows="2"
-                ></textarea
-                ><label for="annotationColor">Color</label
-                ><input id="annotationColor" type="color" value="#ffdf40" /><button
+                ><p class="note">Texto: pulsa un punto del modelo. Flecha: marca la punta en el modelo y después el inicio, incluso fuera de él. Después escribe y guarda. Pulsa una anotación en 3D o Editar en la lista para modificarla.</p><button
                   id="addModelLabel"
                   type="button"
                   >Añadir etiqueta de texto</button
@@ -3717,7 +3725,7 @@
           ><summary>▧ Mis vistas</summary
           ><div class="sidebar-body"
             ><div class="sidebar-body"
-              ><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div
+              ><div class="case-session" id="activeSavedViewState"><p id="activeSavedViewStatus" role="status">Sin vista activa.</p><div class="case-session-actions"><button id="updateActiveSavedView" class="tree-icon" type="button" disabled title="Actualizar vista" aria-label="Actualizar vista"><svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M3 9l4 4 8-9"/></svg></button><button id="saveAsNewView" class="tree-icon" type="button" disabled title="Guardar como nueva" aria-label="Guardar como nueva"><svg viewBox="0 0 18 18" aria-hidden="true" focusable="false"><path d="M3 2h9v14l-4.5-3L3 16z M14 3v6 M11 6h6"/></svg></button></div></div><p class="note" id="namedViewEmpty"></p><div id="namedViewList"></div
               ><div id="activeViewNote" hidden
                 ><label for="activeViewNoteText">Anotación de la vista seleccionada</label
                 ><textarea
@@ -4154,6 +4162,9 @@
       const structureLabelSettleMs = 140;
       const selectedStructures = new Set();
       const modelAnnotations = [];
+      let selectedAnnotation = null;
+      let arrowPlacementPlane = null, arrowPlacementPreview = null;
+      let annotationEditor = null, annotationEditorColor = "#ffdf40";
       let annotationRoot = null,
         pendingArrow = null;
       let batchRestore = false;
@@ -4169,8 +4180,10 @@
           z: { zoom: 1, x: 0, y: 0 },
         },
         viewAppliers = {};
+      let selectedMeasurement = null;
       let savedMprPosition = null;
       let localWorkState = null;
+      let savedViewTracker = null;
       let sceneRenderDirty = true;
       const resampleBuffers = new WeakMap(), meshVertexBuffers = new WeakMap();
       let pendingSliceFrame = null, pendingSliceTarget = null;
@@ -5912,7 +5925,7 @@
         editMeasure:
           "Arrastra un extremo de una medición. En 2D permanece en su corte; en 3D se desplaza sobre superficies visibles del GLB. Esc cancela.",
         annotation: "Etiqueta 3D: pulsa una superficie del modelo.",
-        arrow: "Pulsa el origen y después la punta de la flecha sobre el modelo.",
+        arrow: "Pulsa la punta en el modelo y después coloca el inicio en el espacio.",
         navigate: "Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.",
         pan: "Arrastra con el botón izquierdo para desplazar el volumen.",
         zoom: "Rueda sobre el volumen para aumentar o reducir. Ctrl + rueda funciona en cualquier modo.",
@@ -6009,14 +6022,23 @@
           y: ((event.clientY - r.top) * c.height) / r.height,
         };
       }
+      function measurementPlaneState() {
+        return obliqueActive() ? { pivot: obliquePivot.toArray(), rotation: obliqueRotation.toArray(), shift: obliqueShift.toArray() } : null;
+      }
+      function applyMeasurementPlane(state) {
+        obliquePivot = state ? new THREE.Vector3(...state.pivot) : null;
+        obliqueRotation = state ? new THREE.Quaternion(...state.rotation) : new THREE.Quaternion();
+        obliqueShift = state ? new THREE.Vector3(...state.shift) : new THREE.Vector3();
+      }
       function addMeasurement(point, axis = null) {
         if (measurements.length >= 1000) {
           status.textContent = "Máximo de 1000 mediciones. Elimina alguna antes de añadir otra.";
           return;
         }
         const index = axis ? Number($("r" + axis).value) : null;
-        if (!pendingMeasure || pendingMeasure.axis !== axis || pendingMeasure.index !== index) {
-          pendingMeasure = { a: point.clone(), axis, index };
+        const plane = axis ? measurementPlaneState() : undefined;
+        if (!pendingMeasure || pendingMeasure.axis !== axis || pendingMeasure.index !== index || JSON.stringify(pendingMeasure.plane) !== JSON.stringify(plane)) {
+          pendingMeasure = { a: point.clone(), axis, index, ...(axis ? { plane } : {}) };
           $("toolHint").textContent = "Primer punto seleccionado. Pulsa el segundo punto.";
         } else {
           measurements.push({ ...pendingMeasure, b: point.clone() });
@@ -6041,6 +6063,7 @@
           ctx.fill();
         };
         for (const m of measurements) {
+          if (m.visible === false) continue;
           if (m.axis !== axis || m.index !== idx) continue;
           const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(
             b.u.clone().cross(b.v).normalize(),
@@ -6051,6 +6074,7 @@
             Math.abs(plane.distanceToPoint(m.b)) > 0.1
           )
             continue;
+          ctx.strokeStyle = ctx.fillStyle = m === selectedMeasurement ? "#ffd36e" : "#40ffff";
           const a = worldToPixel(axis, m.a, b, dest),
             p = worldToPixel(axis, m.b, b, dest);
           ctx.beginPath();
@@ -6059,7 +6083,7 @@
           ctx.stroke();
           dot(a);
           dot(p);
-          const text = m.a.distanceTo(m.b).toFixed(1) + " mm";
+          const text = (m.name ? m.name + ": " : "") + m.a.distanceTo(m.b).toFixed(1) + " mm";
           ctx.strokeStyle = "#000";
           ctx.lineWidth = 4;
           const tx = Math.max(
@@ -6085,18 +6109,19 @@
           o.material?.map?.dispose();
           o.material?.dispose();
         }
-        for (const m of measurements.filter((m) => m.axis === null)) {
+        for (const m of measurements.filter((m) => m.axis === null && m.visible !== false)) {
+          const color = m === selectedMeasurement ? "#ffd36e" : "#40ffff";
           const line = new THREE.Line(
             new THREE.BufferGeometry().setFromPoints([m.a, m.b]),
-            new THREE.LineBasicMaterial({ color: 0x40ffff, depthTest: false })
+            new THREE.LineBasicMaterial({ color, depthTest: false })
           );
           line.renderOrder = 100;
           measurementRoot.add(line);
           const midpoint = m.a.clone().add(m.b).multiplyScalar(0.5);
           measurementRoot.add(
             annotationSprite(
-              m.a.distanceTo(m.b).toFixed(1) + " mm",
-              "#40ffff",
+              (m.name ? m.name + ": " : "") + m.a.distanceTo(m.b).toFixed(1) + " mm",
+              color,
               midpoint,
               measurementRoot
             )
@@ -6104,7 +6129,7 @@
           for (const p of [m.a, m.b]) {
             const ball = new THREE.Mesh(
               new THREE.SphereGeometry(1, 12, 8),
-              new THREE.MeshBasicMaterial({ color: 0x40ffff, depthTest: false, depthWrite: false })
+              new THREE.MeshBasicMaterial({ color, depthTest: false, depthWrite: false })
             );
             ball.position.copy(p);
             ball.userData.pixelRadius = 4;
@@ -6141,42 +6166,105 @@
               ? "Medición 2D activa: pulsa dos puntos en el mismo corte."
               : "Medición 3D activa: pulsa dos puntos sobre superficies visibles del modelo.";
       }
+      function locateMeasurement(m, edit = false) {
+        if (!measurements.includes(m)) return;
+        if (m.axis) {
+          const slider = $("r" + m.axis), previous = slider.value;
+          const previousPlane = m.plane !== undefined ? measurementPlaneState() : undefined;
+          if (m.plane !== undefined) applyMeasurementPlane(m.plane);
+          slider.value = String(m.index);
+          paint(m.axis);
+          const basis = slicePixelBasis(m.axis);
+          const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(basis.u.clone().cross(basis.v).normalize(), basis.origin);
+          if ([m.a, m.b].some(p => Math.abs(plane.distanceToPoint(p)) > 0.1)) {
+            slider.value = previous;
+            if (previousPlane !== undefined) applyMeasurementPlane(previousPlane);
+            repaintAll();
+            $("measurementHint").textContent = "Esta medida pertenece a otra orientación. Recupera la vista guardada donde la creaste para localizarla.";
+            return;
+          }
+        }
+        m.visible = true;
+        selectedMeasurement = m;
+        pendingMeasure = null;
+        setTool(edit ? "editMeasure" : "navigate");
+        const paneName = m.axis ? {x: "sagittal", y: "coronal", z: "axial"}[m.axis] : "3d";
+        const maximized = document.querySelector(".pane.maximized");
+        if (maximized && maximized.dataset.viewPane !== paneName) {
+          maximized.classList.remove("maximized");
+          document.querySelector('[data-view-pane="' + paneName + '"]').classList.add("maximized");
+          resize3D();
+        }
+        if (!m.axis) {
+          const midpoint = m.a.clone().add(m.b).multiplyScalar(0.5);
+          camera.position.add(midpoint.clone().sub(controls.target));
+          controls.target.copy(midpoint);
+          controls.update();
+        } else {
+          viewStates[m.axis].x = viewStates[m.axis].y = 0;
+          viewStates[m.axis].zoom = 1;
+          viewAppliers[m.axis]();
+        }
+        updateMeasurementList(); renderMeasure3D(); repaintAll();
+        $("measurementHint").textContent = edit ? "Medida resaltada. Arrastra uno de sus extremos; Esc cancela la edición." : "Medida resaltada en " + (m.axis ? {x: "sagital", y: "coronal", z: "axial"}[m.axis] : "3D") + ".";
+        document.dispatchEvent(new Event("case-state-change"));
+      }
       function updateMeasurementList() {
+        if (!measurements.includes(selectedMeasurement)) selectedMeasurement = null;
         $("measurementEmpty").hidden = measurements.length > 0;
         updateMeasurementHint();
         $("measurementList").replaceChildren();
         measurements.forEach((m, i) => {
           const li = document.createElement("li");
-          li.textContent =
-            (m.axis
-              ? { z: "Axial", y: "Coronal", x: "Sagital" }[m.axis] + " · corte " + m.index
-              : "3D") +
-            ": " +
-            m.a.distanceTo(m.b).toFixed(1) +
-            " mm";
-          const del = document.createElement("button");
-          del.textContent = "×";
-          del.title = "Eliminar medición";
-          del.onclick = () => {
-            measurements.splice(i, 1);
-            updateMeasurementList();
-            renderMeasure3D();
-            repaintAll();
+          li.classList.toggle("selected", m === selectedMeasurement);
+          const title = document.createElement("strong");
+          title.className = "measurement-title";
+          title.textContent = m.a.distanceTo(m.b).toFixed(1) + " mm · " + (m.axis ? {z:"Axial",y:"Coronal",x:"Sagital"}[m.axis] + " · corte " + m.index : "3D");
+          const name = document.createElement("input");
+          name.type = "text";
+          name.className = "measurement-name";
+          name.maxLength = 60;
+          name.value = m.name || "";
+          name.placeholder = "Nombre de la medición (opcional)";
+          name.setAttribute("aria-label", "Nombre de la medición " + (i + 1));
+          name.oninput = () => {
+            const value = name.value.trim().slice(0, 60);
+            if (value) m.name = value;
+            else delete m.name;
+            renderMeasure3D(); repaintAll();
+            document.dispatchEvent(new Event("case-state-change"));
           };
-          const edit = document.createElement("button");
-          edit.type = "button";
-          edit.textContent = "Editar";
-          edit.onclick = () => {
-            setTool("editMeasure");
-            if (m.axis) {
-              $("r" + m.axis).value = String(m.index);
-              paint(m.axis);
-            }
-            $("measurementHint").textContent =
-              "Arrastra un extremo de esta medición" +
-              (m.axis ? " en el corte " + m.index + "." : " en la vista 3D.");
+          const visibility = document.createElement("label");
+          const toggle = document.createElement("input");
+          toggle.type = "checkbox";
+          toggle.checked = m.visible !== false;
+          toggle.setAttribute("aria-label", "Mostrar medición " + (i + 1));
+          toggle.onchange = () => {
+            m.visible = toggle.checked;
+            renderMeasure3D(); repaintAll();
+            document.dispatchEvent(new Event("case-state-change"));
           };
-          li.append(edit, del);
+          visibility.append(toggle, document.createTextNode(" Mostrar medida"));
+          li.append(name, title, visibility);
+          for (const [label, icon, action] of [
+            ["Localizar", "target", () => locateMeasurement(m)],
+            ["Editar", "edit", () => locateMeasurement(m, true)],
+            ["Eliminar", "delete", () => {
+              const index = measurements.indexOf(m);
+              if (index < 0) return;
+              measurements.splice(index, 1);
+              updateMeasurementList(); renderMeasure3D(); repaintAll();
+              $("measurementHint").textContent = "Medición eliminada. Puedes recuperarla con Deshacer.";
+              document.dispatchEvent(new Event("case-state-change"));
+            }],
+          ]) {
+            const control = document.createElement("button");
+            control.type = "button";
+            setTreeIcon(control, icon, label + " medición " + (i + 1));
+            control.onclick = action;
+            if (label === "Localizar") control.setAttribute("aria-pressed", String(m === selectedMeasurement));
+            li.append(control);
+          }
           $("measurementList").append(li);
         });
       }
@@ -6186,10 +6274,6 @@
         updateMeasurementList();
         renderMeasure3D();
       }
-      $("clearMeasures").onclick = () => {
-        clearMeasurements();
-        repaintAll();
-      };
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
           pendingMeasure = null;
@@ -6313,6 +6397,7 @@
             let closest = null,
               distance = 14;
             for (const m of measurements) {
+          if (m.visible === false) continue;
               if (m.axis !== axis || m.index !== Number($("r" + axis).value)) continue;
               const a = screenEndpoint(m.a, canvas, axis),
                 b = screenEndpoint(m.b, canvas, axis);
@@ -6366,6 +6451,7 @@
         down3D = null;
         if (
           ![
+            "navigate",
             "measure3d",
             "threePoints",
             "select",
@@ -6387,6 +6473,16 @@
           ),
           camera
         );
+        if (["navigate", "select"].includes(activeTool) && annotationRoot.visible) {
+          const annotation = raycaster.intersectObjects(annotationRoot.children, false).find(h => h.object.userData.annotationItem)?.object.userData.annotationItem;
+          if (annotation) { openAnnotationEditor(annotation, annotation); return; }
+        }
+        if (activeTool === "navigate") return;
+        if (activeTool === "arrow" && pendingArrow && arrowPlacementPlane) {
+          const start = raycaster.ray.intersectPlane(arrowPlacementPlane, new THREE.Vector3());
+          if (start) pickAnnotation(start);
+          return;
+        }
         if ((activeTool === "us" || activeTool === "usTarget") && trajectory) {
           const point = new THREE.Vector3();
           raycaster.ray.distanceSqToSegment(trajectory.a, trajectory.b, undefined, point);
@@ -7229,6 +7325,9 @@
           index: m.index,
           a: m.a.toArray(),
           b: m.b.toArray(),
+          ...(m.visible !== undefined ? { visible: m.visible } : {}),
+          ...(m.name !== undefined ? { name: m.name } : {}),
+          ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
         }));
       }
       function validateMeasurements(items) {
@@ -7242,6 +7341,15 @@
         for (const m of items) {
           if (!m || ![null, "x", "y", "z"].includes(m.axis) || !vec(m.a) || !vec(m.b))
             throw new Error("Coordenadas de medición inválidas.");
+          if (m.visible !== undefined && typeof m.visible !== "boolean")
+            throw new Error("Visibilidad de medición inválida.");
+          if (m.name !== undefined && (typeof m.name !== "string" || m.name.length > 60 || /[\r\n\t]/.test(m.name)))
+            throw new Error("Nombre de medición inválido (máximo 60 caracteres, una línea).");
+          if (m.plane !== undefined) {
+            const p = m.plane;
+            if (m.axis === null || (p !== null && (!p || !vec(p.pivot) || !vec(p.shift) || !Array.isArray(p.rotation) || p.rotation.length !== 4 || p.rotation.some(n => typeof n !== "number" || !Number.isFinite(n)) || Math.abs(Math.hypot(...p.rotation) - 1) > 0.001)))
+              throw new Error("Orientación del plano de medición inválida.");
+          }
           if (m.axis === null) {
             if (m.index !== null) throw new Error("Índice de medición 3D inválido.");
           } else if (
@@ -7261,6 +7369,9 @@
             index: m.index,
             a: new THREE.Vector3(...m.a),
             b: new THREE.Vector3(...m.b),
+            ...(m.visible !== undefined ? { visible: m.visible } : {}),
+          ...(m.name !== undefined ? { name: m.name } : {}),
+            ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
           }))
         );
         pendingMeasure = null;
@@ -7432,6 +7543,7 @@
                 !["label", "arrow"].includes(a.kind) ||
                 typeof a.text !== "string" ||
                 a.text.length > 180 ||
+                (a.visible !== undefined && typeof a.visible !== "boolean") ||
                 !/^#[0-9a-f]{6}$/i.test(a.color) ||
                 !vec(a.a) ||
                 (a.kind === "arrow" &&
@@ -7772,6 +7884,7 @@
         restoreConfig(structuredClone(view.config));
         if (view.config.usProbe) usMode.restorePosition(view);
         activeNamedView = view;
+        savedViewTracker?.accept(view);
         $("newNamedView").open = false;
         updateActiveViewNote();
         for (const row of $("namedViewList").querySelectorAll(".named-view-open")) {
@@ -7836,6 +7949,7 @@
                 const config = structuredClone(configData());
                 if (view.config.usProbe) config.usProbe = view.config.usProbe;
                 Object.assign(view, { name, notes: note.value, config });
+                savedViewTracker?.accept(view);
                 persistNamedViews();
                 $("namedViewMessage").textContent = "Vista actualizada: " + view.name;
               },
@@ -7991,13 +8105,9 @@
         }
       }
       $("newNamedView").addEventListener("toggle", () => {
-        if (!$("newNamedView").open || !activeNamedView) return;
-        activeNamedView = null;
-        updateActiveViewNote();
-        for (const label of $("namedViewList").querySelectorAll(".named-view-open"))
-          label.setAttribute("aria-current", "false");
-        $("namedViewName").value = "";
-        $("namedViewNotes").value = "";
+        if (!$("newNamedView").open) return;
+        if (!$("namedViewName").value || $("namedViewName").value === activeNamedView?.name)
+          $("namedViewName").value = uniqueViewName(activeNamedView ? activeNamedView.name + " · copia" : "Vista");
       });
       $("addNamedView").onclick = () => {
         try {
@@ -8006,11 +8116,10 @@
           const name = viewName();
           if (namedViews.some((v) => v.name === name))
             throw new Error("Ya existe ese nombre. Usa «Actualizar» o elige otro.");
-          namedViews.push({
-            name,
-            notes: $("namedViewNotes").value.slice(0, 3000),
-            config: structuredClone(configData()),
-          });
+          const view = { name, notes: $("namedViewNotes").value.slice(0, 3000), config: structuredClone(configData()) };
+          namedViews.push(view);
+          activeNamedView = view;
+          savedViewTracker?.accept(view);
           persistNamedViews();
           $("newNamedView").open = false;
         } catch (e) {
@@ -8898,8 +9007,36 @@
         sprite.userData.leader = leader;
         return sprite;
       }
-      function renderAnnotations() {
+      function locateAnnotation(item) {
+        if (!modelAnnotations.includes(item)) return;
+        selectedAnnotation = item;
+        item.visible = true;
+        $("showAnnotations").checked = true;
+        setTool("navigate");
+        const target = new THREE.Vector3(...item.a);
+        if (item.kind === "arrow") target.add(new THREE.Vector3(...item.b)).multiplyScalar(0.5);
+        camera.position.add(target.clone().sub(controls.target));
+        controls.target.copy(target);
+        controls.update();
+        const maximized = document.querySelector(".pane.maximized");
+        if (maximized && maximized.dataset.viewPane !== "3d") {
+          maximized.classList.remove("maximized");
+          document.querySelector('[data-view-pane="3d"]').classList.add("maximized");
+          resize3D();
+        }
+        renderAnnotations({ refreshList: false });
+        for (const card of $("modelAnnotationList").children)
+          card.classList.toggle("selected", card.dataset.annotationIndex === String(modelAnnotations.indexOf(item)));
+        $("annotationHint").textContent = "Anotación resaltada en 3D. Pulsa Editar en la lista o la anotación en 3D para modificarla.";
+        document.dispatchEvent(new Event("case-state-change"));
+      }
+      function renderAnnotations({ refreshList = true } = {}) {
         requestSceneRender();
+        if (!pendingArrow) {
+          arrowPlacementPlane = null;
+          if (arrowPlacementPreview) arrowPlacementPreview.visible = false;
+        }
+        if (!modelAnnotations.includes(selectedAnnotation)) selectedAnnotation = null;
         if (!annotationRoot) return;
         while (annotationRoot.children.length) {
           const o = annotationRoot.children[0];
@@ -8925,9 +9062,11 @@
           annotationRoot.add(m);
         };
         for (const item of modelAnnotations) {
+          if (item.visible === false) continue;
+          const color = item === selectedAnnotation ? "#ffd36e" : item.color;
           const firstChild = annotationRoot.children.length;
           const a = new THREE.Vector3(...item.a);
-          if (item.kind === "label") ball(a, item.color);
+          if (item.kind === "label") ball(a, color);
           else {
             const b = new THREE.Vector3(...item.b),
               dir = b.clone().sub(a),
@@ -8938,7 +9077,7 @@
             const line = new THREE.Line(
               new THREE.BufferGeometry().setFromPoints([a, b.clone().addScaledVector(dir, -head)]),
               new THREE.LineBasicMaterial({
-                color: item.color,
+                color,
                 depthTest: false,
                 depthWrite: false,
               })
@@ -8948,7 +9087,7 @@
             const cone = new THREE.Mesh(
               new THREE.ConeGeometry(head * 0.3, head, 12),
               new THREE.MeshBasicMaterial({
-                color: item.color,
+                color,
                 depthTest: false,
                 depthWrite: false,
               })
@@ -8958,97 +9097,153 @@
             cone.renderOrder = 211;
             annotationRoot.add(cone);
           }
-          if (item.text) annotationRoot.add(annotationSprite(item.text, item.color, a));
+          if (item.text) annotationRoot.add(annotationSprite(item.text, color, a));
           for (const object of annotationRoot.children.slice(firstChild))
             object.userData.annotationItem = item;
         }
         if (pendingArrow) ball(pendingArrow, "#ffff00", 5);
         updateAnnotationScale();
-        renderAnnotationList();
+        if (refreshList) renderAnnotationList();
+      }
+      function openAnnotationEditor(draft, original = null) {
+        annotationEditor?.close();
+        const sourceModel = model;
+        const dialog = document.createElement("dialog");
+        dialog.className = "annotation-editor";
+        dialog.setAttribute("aria-label", original ? "Editar anotación" : "Nueva anotación");
+        const heading = document.createElement("strong");
+        heading.textContent = original ? "Editar anotación" : draft.kind === "arrow" ? "Nueva flecha" : "Nuevo texto";
+        const label = document.createElement("label");
+        label.textContent = draft.kind === "arrow" ? "Texto (opcional)" : "Texto";
+        const text = document.createElement("textarea");
+        text.rows = 3; text.maxLength = 180; text.value = draft.text || "";
+        text.setAttribute("aria-label", label.textContent);
+        label.append(text);
+        const color = document.createElement("input");
+        color.type = "color"; color.value = draft.color;
+        color.setAttribute("aria-label", "Color de anotación");
+        const message = document.createElement("p");
+        message.setAttribute("role", "status");
+        const save = document.createElement("button"), cancel = document.createElement("button");
+        save.type = cancel.type = "button";
+        setTreeIcon(save, "done", "Guardar anotación");
+        setTreeIcon(cancel, "close", "Cancelar edición");
+        cancel.onclick = () => dialog.close();
+        save.onclick = () => {
+          if (draft.kind === "label" && !text.value.trim()) { message.textContent = "Escribe un texto para la etiqueta."; text.focus(); return; }
+          if (sourceModel !== model || (original && !modelAnnotations.includes(original))) { dialog.close(); return; }
+          if (!original && modelAnnotations.length >= 100) { message.textContent = "Máximo de 100 anotaciones."; return; }
+          const saved = { ...structuredClone(draft), text: text.value.trim().slice(0, 180), color: color.value };
+          if (original) Object.assign(original, saved);
+          else modelAnnotations.push(saved);
+          selectedAnnotation = original || saved;
+          annotationEditorColor = color.value;
+          $("showAnnotations").checked = true;
+          dialog.close("saved");
+          renderAnnotations();
+          document.dispatchEvent(new Event("case-state-change"));
+          $("annotationHint").textContent = "Anotación guardada. Actualiza la vista guardada para conservar este cambio en ella.";
+        };
+        dialog.append(heading, label, color, save, cancel, message);
+        dialog.addEventListener("close", () => {
+          if (annotationEditor === dialog) annotationEditor = null;
+          dialog.remove();
+          if (dialog.returnValue !== "saved") $("annotationHint").textContent = "Edición cancelada; no se han guardado cambios.";
+        });
+        document.body.append(dialog);
+        annotationEditor = dialog;
+        pendingArrow = null;
+        setTool("navigate");
+        renderAnnotations();
+        dialog.showModal();
+        const anchor = screenEndpoint(new THREE.Vector3(...draft.a), renderer.domElement);
+        dialog.style.left = Math.max(8, Math.min(innerWidth - dialog.offsetWidth - 8, (anchor?.x ?? innerWidth / 2) + 12)) + "px";
+        dialog.style.top = Math.max(8, Math.min(innerHeight - dialog.offsetHeight - 8, (anchor?.y ?? innerHeight / 2) + 12)) + "px";
+        text.focus();
       }
       function renderAnnotationList() {
         $("modelAnnotationList").replaceChildren();
-        $("modelAnnotationEmpty").textContent = modelAnnotations.length
-          ? ""
-          : "Todavía no hay anotaciones en el modelo.";
+        $("modelAnnotationEmpty").textContent = modelAnnotations.length ? "" : "Todavía no hay anotaciones en el modelo.";
         modelAnnotations.forEach((item, index) => {
           const card = document.createElement("div");
           card.className = "annotation-card";
+          card.dataset.annotationIndex = String(index);
+          card.classList.toggle("selected", item === selectedAnnotation);
           const title = document.createElement("strong");
-          title.textContent = (item.kind === "arrow" ? "Flecha " : "Etiqueta ") + (index + 1);
-          const text = document.createElement("textarea");
-          text.rows = 2;
-          text.maxLength = 180;
-          text.value = item.text;
-          text.setAttribute("aria-label", "Texto de " + title.textContent);
-          const color = document.createElement("input");
-          color.type = "color";
-          color.value = item.color;
-          color.setAttribute("aria-label", "Color de " + title.textContent);
-          const save = document.createElement("button");
-          save.textContent = "Actualizar anotación";
-          save.onclick = () => {
-            if (item.kind === "label" && !text.value.trim()) {
-              $("annotationHint").textContent = "La etiqueta necesita un texto.";
-              return;
-            }
-            item.text = text.value.slice(0, 180);
-            item.color = color.value;
-            renderAnnotations();
-            $("annotationHint").textContent =
-              "Anotación actualizada. Actualiza la vista guardada para conservar el cambio.";
+          const name = (item.kind === "arrow" ? "Flecha " : "Etiqueta ") + (index + 1);
+          title.textContent = item.text || name + " (sin texto)";
+          title.style.overflowWrap = "anywhere";
+          const visibility = document.createElement("label"), toggle = document.createElement("input");
+          toggle.type = "checkbox"; toggle.checked = item.visible !== false;
+          toggle.setAttribute("aria-label", "Mostrar " + name);
+          toggle.onchange = () => {
+            item.visible = toggle.checked;
+            renderAnnotations({ refreshList: false });
+            document.dispatchEvent(new Event("case-state-change"));
           };
-          const del = document.createElement("button");
-          del.textContent = "Eliminar";
-          del.onclick = () => {
-            modelAnnotations.splice(index, 1);
-            renderAnnotations();
-          };
-          card.append(title, text, color, save, del);
+          visibility.append(toggle, document.createTextNode(" Mostrar"));
+          card.append(title, visibility);
+          for (const [label, icon, action] of [
+            ["Localizar", "target", () => { locateAnnotation(item); toggle.checked = true; }],
+            ["Editar", "edit", () => openAnnotationEditor(item, item)],
+            ["Eliminar", "delete", () => {
+              const position = modelAnnotations.indexOf(item);
+              if (position < 0) return;
+              modelAnnotations.splice(position, 1); renderAnnotations();
+              document.dispatchEvent(new Event("case-state-change"));
+            }],
+          ]) {
+            const control = document.createElement("button"); control.type = "button";
+            setTreeIcon(control, icon, label + " " + name); control.onclick = action; card.append(control);
+          }
           $("modelAnnotationList").append(card);
         });
       }
+      function updateArrowPlacementPreview(point) {
+        if (!pendingArrow || !point || activeTool !== "arrow") {
+          if (arrowPlacementPreview) arrowPlacementPreview.visible = false;
+          requestSceneRender(); return;
+        }
+        const direction = pendingArrow.clone().sub(point), length = direction.length();
+        if (length < 0.01) {
+          if (arrowPlacementPreview) arrowPlacementPreview.visible = false;
+          requestSceneRender(); return;
+        }
+        if (!arrowPlacementPreview) {
+          arrowPlacementPreview = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(), 1, 0xffd36e);
+          arrowPlacementPreview.traverse(o => {
+            if (o.material) { o.material.depthTest = false; o.material.depthWrite = false; }
+            o.renderOrder = 220;
+          });
+          scene.add(arrowPlacementPreview);
+        }
+        arrowPlacementPreview.position.copy(point);
+        arrowPlacementPreview.setDirection(direction.normalize());
+        arrowPlacementPreview.setLength(length, Math.min(5, length * 0.25), Math.min(1.5, length * 0.075));
+        arrowPlacementPreview.visible = true;
+        requestSceneRender();
+      }
+      renderer.domElement.addEventListener("pointermove", event => {
+        if (activeTool !== "arrow" || !pendingArrow || !arrowPlacementPlane || event.buttons) return;
+        updateArrowPlacementPreview(pointOnTrajectoryDragPlane(event, renderer.domElement, arrowPlacementPlane));
+      });
+      renderer.domElement.addEventListener("pointerleave", () => {
+        if (arrowPlacementPreview?.visible) updateArrowPlacementPreview(null);
+      });
       function pickAnnotation(point) {
-        if (modelAnnotations.length >= 100) {
-          $("annotationHint").textContent = "Máximo de 100 anotaciones por vista.";
+        if (modelAnnotations.length >= 100) { $("annotationHint").textContent = "Máximo de 100 anotaciones por vista."; return; }
+        if (activeTool === "annotation") {
+          openAnnotationEditor({ kind: "label", text: "", color: annotationEditorColor, a: point.toArray() });
           return;
         }
-        const text = $("annotationText").value.trim().slice(0, 180),
-          color = $("annotationColor").value;
-        if (activeTool === "annotation") {
-          if (!text) {
-            $("annotationHint").textContent = "Escribe el texto antes de marcar el punto.";
-            return;
-          }
-          modelAnnotations.push({ kind: "label", text, color, a: point.toArray() });
-          setTool("navigate");
-          $("annotationHint").textContent =
-            "Etiqueta añadida. Guarda o actualiza la vista para conservarla.";
-        } else {
-          if (!pendingArrow) {
-            pendingArrow = point.clone();
-            $("annotationHint").textContent =
-              "Ahora pulsa el punto donde debe terminar la punta de la flecha.";
-            renderAnnotations();
-            return;
-          }
-          if (pendingArrow.distanceTo(point) < 0.01) {
-            $("annotationHint").textContent = "Elige un segundo punto diferente.";
-            return;
-          }
-          modelAnnotations.push({
-            kind: "arrow",
-            text,
-            color,
-            a: pendingArrow.toArray(),
-            b: point.toArray(),
-          });
-          pendingArrow = null;
-          setTool("navigate");
-          $("annotationHint").textContent =
-            "Flecha añadida. Guarda o actualiza la vista para conservarla.";
+        if (!pendingArrow) {
+          pendingArrow = point.clone();
+          arrowPlacementPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(camera.getWorldDirection(new THREE.Vector3()), pendingArrow);
+          $("annotationHint").textContent = "Punta fijada. Mueve el ratón y pulsa para colocar el inicio, incluso fuera del modelo. Esc cancela.";
+          renderAnnotations(); return;
         }
-        renderAnnotations();
+        if (pendingArrow.distanceTo(point) < 0.01) { $("annotationHint").textContent = "Elige un segundo punto diferente."; return; }
+        openAnnotationEditor({ kind: "arrow", text: "", color: annotationEditorColor, a: point.toArray(), b: pendingArrow.toArray() });
       }
       function clearModelAnnotations() {
         modelAnnotations.length = 0;
@@ -9063,7 +9258,7 @@
       $("addModelArrow").onclick = () => {
         setTool("arrow");
         $("annotationHint").textContent =
-          "Pulsa el origen y después la punta de la flecha sobre superficies del modelo 3D.";
+          "Pulsa la estructura que quieres señalar; después coloca el inicio de la flecha, también fuera del modelo.";
       };
       $("showAnnotations").onchange = () => (annotationRoot.visible = $("showAnnotations").checked);
       $("clearModelAnnotations").onclick = clearModelAnnotations;
@@ -9543,6 +9738,7 @@
         let best = null,
           distance = 14;
         for (const m of measurements) {
+          if (m.visible === false) continue;
           if (m.axis !== axis || (axis && m.index !== Number($("r" + axis).value))) continue;
           for (const end of ["a", "b"]) {
             const p = screenEndpoint(m[end], canvas, axis);
@@ -9652,6 +9848,7 @@
                 if (!annotation) {
                   let distance = 14;
                   for (const item of modelAnnotations) {
+                    if (item.visible === false) continue;
                     const a = screenEndpoint(new THREE.Vector3(...item.a), canvas);
                     const b = item.b ? screenEndpoint(new THREE.Vector3(...item.b), canvas) : a;
                     if (!a || !b) continue;
@@ -9673,6 +9870,7 @@
               let closest = null,
                 distance = 14;
               for (const m of measurements) {
+          if (m.visible === false) continue;
                 if (m.axis !== null) continue;
                 const a = screenEndpoint(m.a, canvas),
                   b = screenEndpoint(m.b, canvas);
@@ -10565,6 +10763,8 @@
       }
       function setTreeIcon(control, icon, label) {
         const paths = {
+          close: "M4 4l10 10 M14 4L4 14",
+          delete: "M3 5h12 M6 5V2h6v3 M4 5l1 11h8l1-11 M7 8v5 M11 8v5",
           settings: "M3 2v14 M9 2v14 M15 2v14 M1 6h4 M7 12h4 M13 7h4",
           text: "M3 4h12 M9 4v11 M6 15h6",
           arrow: "M3 15L15 3 M6 3h9v9",
@@ -11901,7 +12101,7 @@
           } finally { busy = false; refresh(); }
         }
         function schedule(event) {
-          if (busy || (event?.target && box.contains(event.target))) return;
+          if (busy || (event?.target?.nodeType && box.contains(event.target))) return;
           sync();
           clearTimeout(timer);
           if (armed && auto.checked && !adapter.blocked()) timer = setTimeout(() => save(), 1000);
@@ -11935,6 +12135,57 @@
         document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") save(); });
         sync(); refresh();
         return { sync, pause, save, restore };
+      }
+
+      function savedViewSignature(config) {
+        return JSON.stringify(config, (_key, value) => {
+          if (typeof value === "number") return Math.round(value * 1e6) / 1e6;
+          if (value && typeof value === "object" && !Array.isArray(value))
+            return Object.fromEntries(Object.keys(value).sort().map(key => [key, value[key]]));
+          return value;
+        });
+      }
+      function installSavedViewTracker() {
+        const baselines = new WeakMap();
+        let timer = null;
+        const blocked = () => presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open;
+        function refresh() {
+          const view = activeNamedView && namedViews.includes(activeNamedView) ? activeNamedView : null;
+          const unsupported = !!view?.config.usProbe, paused = blocked();
+          const dirty = view && !unsupported && !paused && savedViewSignature(configData()) !== (baselines.get(view) || savedViewSignature(view.config));
+          $("activeSavedViewStatus").textContent = !namedCaseKey ? "Carga el caso para guardar vistas." : !view ? "Sin vista activa. Puedes guardar la configuración actual como nueva vista." : "Vista activa: " + view.name + (unsupported ? " · vista US (edición desde sus ajustes)." : paused ? " · Comparación en pausa durante presentación o US." : dirty ? " · Cambios sin guardar en esta vista." : " · Sin cambios pendientes.");
+          $("activeSavedViewState").style.borderColor = dirty ? "#ffd36e" : "";
+          $("updateActiveSavedView").disabled = !view || unsupported || !dirty || blocked();
+          $("saveAsNewView").disabled = !namedCaseKey || blocked();
+        }
+        function schedule() {
+          clearTimeout(timer);
+          timer = setTimeout(refresh, 250);
+        }
+        function accept(view) {
+          baselines.set(view, savedViewSignature(view === activeNamedView ? configData() : view.config));
+          schedule();
+        }
+        $("updateActiveSavedView").onclick = () => {
+          if (!activeNamedView || !namedViews.includes(activeNamedView) || activeNamedView.config.usProbe || blocked()) return;
+          activeNamedView.config = structuredClone(configData());
+          accept(activeNamedView);
+          persistNamedViews();
+          refresh();
+        };
+        $("saveAsNewView").onclick = () => {
+          if (!namedCaseKey || blocked()) return;
+          $("newNamedView").open = true;
+          $("namedViewName").value = uniqueViewName(activeNamedView ? activeNamedView.name + " · copia" : "Vista");
+          $("namedViewNotes").value = activeNamedView?.notes || "";
+          $("namedViewName").focus();
+          $("namedViewName").select();
+        };
+        for (const event of ["click", "input", "change", "pointerup", "wheel", "case-state-change"])
+          document.addEventListener(event, schedule);
+        controls.addEventListener("change", schedule);
+        refresh();
+        return { accept, refresh };
       }
 
       function caseSessionState() {
@@ -12002,6 +12253,7 @@
         onChange: fn => controls.addEventListener("end", fn),
         blocked: () => batchRestore || presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open,
       }, $("caseSessionControls"));
+      savedViewTracker = installSavedViewTracker();
       // =============================================================================
       // 20 · Capturas y presentación
       // =============================================================================

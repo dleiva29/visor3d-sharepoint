@@ -278,3 +278,73 @@ El estado se almacena en localStorage, bajo `mpr-work-state-v1:` y la identidad 
 El límite de cada estado local es de 2.500.000 caracteres. Los errores de lectura, validación, permisos o cuota se comunican en el apartado; el trabajo abierto permanece disponible y se recomienda exportarlo si no se puede guardar. Después de un fallo de escritura se pausa el guardado automático hasta volver a guardar o recuperar.
 
 Verificación: 74 pruebas correctas y ESLint limpio. Incluye recuperación tras recrear el controlador, protección del estado pendiente, aislamiento entre casos, guardado antes de sustituir archivos, datos inválidos, cuota agotada, exclusión de presentación, casilla automática, eliminación y guardado al salir. Prueba integral adicional en Chromium con un GLB y un NRRD sintéticos: guardar → recargar página → cargar los mismos archivos → recuperar reproduce exactamente el estado completo, incluidas selección activa, árbol, vistas, mediciones, anotaciones y cámara. Un cambio posterior del deslizador se guarda automáticamente y se recupera tras otra recarga; no se observan errores JavaScript. Pendiente validación visual del usuario en Codespaces.
+
+
+## Lista y localización de mediciones (v2.14.0)
+
+Cada fila muestra longitud en mm, vista y corte, con botones accesibles Localizar, Editar y Eliminar. Localizar resalta la fila y la medida en amarillo. En MPR recupera el índice y restablece zoom/desplazamiento de esa vista; en 3D traslada cámara y objetivo al punto medio conservando su separación. Si otra vista está maximizada, maximiza la correspondiente. Editar realiza la misma localización y activa la edición por extremos. Eliminar conserva las demás mediciones y permite recuperar el estado mediante Deshacer del caso.
+
+Las mediciones existentes no incluyen la orientación oblicua original. Antes de localizar una medida MPR se comprueba que sus extremos pertenecen al plano del corte solicitado. Si no coinciden, se vuelve al corte anterior y se indica que debe recuperarse la vista guardada original. No se modifica el formato de las mediciones ni sus coordenadas. El resaltado es transitorio y se elimina cuando la medición deja de existir.
+
+Verificación: 76 pruebas y ESLint correctos. Pruebas de filas accesibles, selección, eliminación por identidad, centrado 3D y rechazo de planos incompatibles. Chromium carga el módulo completo y verifica Localizar, Editar y Eliminar con una medida 3D sintética, sin errores JavaScript. Pendiente prueba visual del usuario con un caso real, incluidas mediciones MPR.
+
+
+## Recuperación del plano de medición (v2.15.0)
+
+Las nuevas mediciones MPR incluyen el campo opcional `plane`: null para orientación ortogonal, o pivot/rotation/shift para orientación oblicua. Localizar y Editar recuperan ese plano antes de mostrar el corte; si los extremos no pertenecen al plano, se restaura la orientación y el corte anteriores. La orientación MPR es compartida por las tres vistas, por lo que recuperar un plano oblicuo actualiza las tres reconstrucciones. Las mediciones 3D no incluyen este campo.
+
+El plano se conserva en vistas guardadas, exportación/importación, historial y estado de trabajo. Los archivos anteriores, sin `plane`, siguen siendo válidos y conservan el aviso de orientación incompatible. Cambiar de orientación entre el primer y segundo punto inicia una medida nueva para no mezclar planos. Se validan vectores finitos y cuaterniones normalizados antes de importar.
+
+Verificación: 77 pruebas correctas y ESLint limpio; validación y recorrido de serialización/restauración con planos nuevos y datos antiguos. Chromium carga un volumen sintético, crea una medida oblicua, cambia a ortogonal y recupera la orientación y selección originales mediante Localizar, sin errores JavaScript. Pendiente prueba visual en Codespaces.
+
+
+## Nombres de mediciones (v2.16.0)
+
+La lista permite escribir un nombre opcional de hasta 60 caracteres para cada medición. El nombre aparece junto a la distancia en MPR y 3D, se actualiza al escribir y se elimina dejando el campo vacío. Se representa como texto, sin interpretar HTML. El campo opcional `name` se conserva en vistas, historial, configuración exportada y estado de trabajo; las medidas anteriores sin nombre siguen siendo válidas. La importación rechaza tipos distintos de texto, nombres demasiado largos y saltos de línea o tabulaciones.
+
+Verificación: 77 pruebas y ESLint correctos, ampliando los casos de edición de filas, serialización y validación de mediciones. Chromium verifica escribir un nombre con acentos, serializarlo, recuperar la medida y borrar el nombre sin errores JavaScript. Pendiente validación visual del usuario en Codespaces.
+
+
+### Visibilidad por medición (v2.16.1)
+
+Cada fila incluye «Mostrar medida». Oculta línea, extremos y etiqueta en MPR o 3D sin eliminarla de la lista. Las medidas ocultas no participan en la selección de extremos ni en el borrado desde la imagen. Localizar o Editar desde la lista vuelven a mostrarlas. El campo opcional booleano `visible` se conserva en vistas, historial y configuración; las medidas anteriores se muestran por defecto.
+
+Verificación: 77 pruebas y ESLint correctos, con casos ampliados de casilla, validación y serialización. Chromium verifica que ocultar retira los objetos 3D y que Localizar los recupera y marca la casilla.
+
+
+## Gestión de anotaciones (v2.17.0)
+
+Cada etiqueta o flecha incluye Mostrar anotación, Localizar, edición de texto/color con Actualizar y eliminación individual. Localizar vuelve a mostrarla, activa la visibilidad general de anotaciones y centra la cámara en el punto de la etiqueta o el centro de la flecha conservando su distancia. Si hay una vista MPR maximizada, pasa a 3D. La anotación y su fila se resaltan en amarillo sin modificar el color guardado. Ocultar o localizar no descarta el borrador de texto de la lista.
+
+El campo opcional booleano `visible` se conserva mediante la configuración existente en vistas, historial y estado de trabajo; las anotaciones antiguas son visibles por defecto. Las ocultas no participan en el borrado por proximidad desde la imagen. La selección resaltada es transitoria. Texto y color se confirman con Actualizar; para conservar esos cambios en una vista existente se debe actualizar también esa vista.
+
+Verificación: 79 pruebas y ESLint correctos. Pruebas de conservación del borrador, visibilidad y centrado de flechas. Chromium verifica ocultar, localizar, editar y eliminar una etiqueta, y comprueba texto y visibilidad en la configuración del caso sin errores JavaScript. Pendiente validación visual del usuario con el caso real.
+
+
+## Colocar, escribir y guardar anotaciones (v2.18.0)
+
+Texto abre el editor después de pulsar una superficie; Flecha lo abre después de marcar dos puntos distintos. El editor modal se sitúa junto al punto y limita su posición al área visible. Incluye texto, color y botones accesibles Guardar/Cancelar. La etiqueta exige texto; la flecha lo permite vacío. Hasta Guardar no se incorpora ni modifica ninguna anotación; Cancelar o Esc descartan el borrador y se vuelve a navegar.
+
+La lista lateral es compacta: texto, visibilidad y acciones Localizar, Editar y Eliminar. Editar abre el mismo editor. En Navegar o Seleccionar, pulsar una anotación visible en 3D también lo abre. Al guardar se conserva el formato existente, incluidos color y visibilidad; para actualizar una vista ya guardada debe actualizarse esa vista. Se retiran los campos de texto y color previos a la colocación.
+
+Se corrige también el filtrado de eventos del guardado automático: los eventos de TrackballControls no tienen un nodo DOM como target y no deben pasarse a contains().
+
+Verificación: 80 pruebas y ESLint correctos. Chromium comprueba creación y guardado de texto, rechazo de etiqueta vacía, flecha sin texto, Cancelar/Esc y edición desde la lista y mediante clic en 3D, sin errores JavaScript. Pendiente prueba visual del usuario.
+
+
+## Flechas con inicio libre (v2.19.0)
+
+La colocación de flechas comienza por la punta, que se selecciona sobre una superficie visible del modelo. El segundo punto define el inicio y puede estar en el espacio vacío. Se obtiene intersectando el rayo del cursor con un plano paralelo a la pantalla en el momento de fijar la punta y que pasa por ella. Una flecha provisional sigue el ratón antes del segundo clic. Después se abre el editor de texto/color; el texto se ancla al inicio libre. La flecha conserva sus coordenadas 3D al girar la cámara.
+
+Esc, cambiar de herramienta o terminar la colocación retiran la previsualización. Esta no forma parte del estado exportado. El formato existente conserva a como inicio y b como punta; las flechas anteriores no cambian.
+
+Verificación: 80 pruebas y ESLint correctos. Chromium verifica previsualización, segundo clic sobre espacio vacío, guardado con punta fija y punto inicial en el plano esperado, y cancelación con Esc sin errores JavaScript.
+
+
+## Estado de las vistas guardadas (v2.20.0)
+
+Mis vistas muestra el nombre de la vista activa y si existen cambios pendientes respecto de su estado recuperado o actualizado. Se comparan cortes, cámara, apariencia, estructuras, medidas y anotaciones con una espera de 250 ms tras la interacción; no se añade un bucle en reposo. El orden de propiedades y diferencias numéricas inferiores a la precisión de seis decimales no generan avisos.
+
+Actualizar vista guarda la configuración actual conservando nombre y notas. Guardar como nueva abre el formulario con un nombre sugerido y conserva la vista original; la nueva vista pasa a ser activa al guardarse. Abrir el formulario ya no borra la selección de la vista activa. La comparación y actualización rápida se pausan durante presentaciones o US. Las vistas US conservan su edición específica desde los ajustes existentes. El aviso se refiere a la vista nombrada; es independiente del guardado automático del estado de trabajo.
+
+Verificación: 82 pruebas y ESLint correctos, incluidos comparación, actualización y conservación de la original. Chromium con GLB del caso 10 y volumen sintético verifica crear una vista, detectar una medida nueva, guardar copia, recuperar la original y actualizarla. Pendiente prueba visual del usuario.
