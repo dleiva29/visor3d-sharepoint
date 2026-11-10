@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.28.0 · Menús de exploración</title>
+    /><title>MPR · v2.29.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.28.0</strong
+        ><strong>Visor MPR · v2.29.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -13726,9 +13726,14 @@
           });
         }
 
-        function stopProbeDrag() {
+        function stopProbeDrag(cancel = false) {
           if (!probeDrag) return;
-          const { pointerId } = probeDrag;
+          const { pointerId, angle, shift } = probeDrag;
+          if (cancel) {
+            rotation.value = String(angle);
+            offset.value = String(shift);
+            scheduleCut();
+          }
           probeDrag = null;
           probeDragButton.classList.remove("is-dragging");
           document.documentElement.classList.remove("us-probe-dragging");
@@ -13767,7 +13772,7 @@
         });
         for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
           probeDragButton.addEventListener(type, (event) => {
-            if (event.pointerId === probeDrag?.pointerId) stopProbeDrag();
+            if (event.pointerId === probeDrag?.pointerId) stopProbeDrag(type !== "pointerup");
           });
         }
 
@@ -14017,7 +14022,8 @@
           )
             return;
           entryCanvas.setPointerCapture(event.pointerId);
-          entryDrag = { id: event.pointerId, clientX: event.clientX, clientY: event.clientY, x, y };
+          entryDrag = { id: event.pointerId, clientX: event.clientX, clientY: event.clientY, x, y,
+            probe: session.probe.clone(), lastEntry: lastUsEntryPoint?.clone() || null };
         });
         entryCanvas.addEventListener("pointermove", (event) => {
           if (!session || pickingFocus || entryDrag?.id !== event.pointerId) return;
@@ -14029,7 +14035,7 @@
         });
         for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
           entryCanvas.addEventListener(type, (event) => {
-            if (entryDrag?.id === event.pointerId) entryDrag = null;
+            if (entryDrag?.id === event.pointerId) stopEntryDrag(type !== "pointerup");
           });
         }
         entryCanvas.addEventListener("keydown", (event) => {
@@ -14081,7 +14087,8 @@
         orientationCanvas.addEventListener("pointerdown", (event) => {
           if (!session || orientationDrag || event.button !== 0) return;
           orientationCanvas.setPointerCapture(event.pointerId);
-          orientationDrag = { id: event.pointerId, x: event.clientX, y: event.clientY };
+          orientationDrag = { id: event.pointerId, x: event.clientX, y: event.clientY,
+            right: orientationRight.clone(), up: orientationUp.clone(), normal: orientationNormal.clone() };
         });
         orientationCanvas.addEventListener("pointermove", (event) => {
           if (orientationDrag?.id !== event.pointerId) return;
@@ -14094,9 +14101,42 @@
         });
         for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) {
           orientationCanvas.addEventListener(type, (event) => {
-            if (orientationDrag?.id === event.pointerId) orientationDrag = null;
+            if (orientationDrag?.id === event.pointerId) stopOrientationDrag(type !== "pointerup");
           });
         }
+        function stopEntryDrag(cancel = false) {
+          const drag = entryDrag;
+          if (!drag) return;
+          entryDrag = null;
+          if (cancel && session) {
+            session.entry.x = drag.x;
+            session.entry.y = drag.y;
+            session.probe.copy(drag.probe);
+            lastUsEntryPoint = drag.lastEntry;
+            scheduleCut();
+          }
+          if (entryCanvas.hasPointerCapture(drag.id)) entryCanvas.releasePointerCapture(drag.id);
+        }
+        function stopOrientationDrag(cancel = false) {
+          const drag = orientationDrag;
+          if (!drag) return;
+          orientationDrag = null;
+          if (cancel) {
+            orientationRight.copy(drag.right);
+            orientationUp.copy(drag.up);
+            orientationNormal.copy(drag.normal);
+            scheduleOrientation();
+          }
+          if (orientationCanvas.hasPointerCapture(drag.id)) orientationCanvas.releasePointerCapture(drag.id);
+        }
+        dialog.addEventListener("keydown", event => {
+          if (event.key !== "Escape" || !(probeDrag || entryDrag || orientationDrag)) return;
+          event.preventDefault();
+          event.stopPropagation();
+          stopProbeDrag(true);
+          stopEntryDrag(true);
+          stopOrientationDrag(true);
+        }, true);
         function toggleUsPreview(canvas) {
           const figure = canvas.closest("figure");
           const current = dialog.querySelector(".us-preview-maximized");
@@ -14140,12 +14180,12 @@
         function releaseSection() {
           setFocusPicking(false);
           dialog.querySelector(".us-preview-maximized")?.classList.remove("us-preview-maximized");
-          orientationDrag = null;
+          stopOrientationDrag(true);
           cancelAnimationFrame(orientationFrame);
           orientationFrame = 0;
           resetOrientation();
-          entryDrag = null;
-          stopProbeDrag();
+          stopEntryDrag(true);
+          stopProbeDrag(true);
           cancelAnimationFrame(pendingFrame);
           pendingFrame = 0;
           if (!session) return;
