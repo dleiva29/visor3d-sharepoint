@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.14.1 · Menús de exploración</title>
+    /><title>MPR · v2.15.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3144,7 +3144,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.14.1</strong
+        ><strong>Visor MPR · v2.15.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -6012,14 +6012,23 @@
           y: ((event.clientY - r.top) * c.height) / r.height,
         };
       }
+      function measurementPlaneState() {
+        return obliqueActive() ? { pivot: obliquePivot.toArray(), rotation: obliqueRotation.toArray(), shift: obliqueShift.toArray() } : null;
+      }
+      function applyMeasurementPlane(state) {
+        obliquePivot = state ? new THREE.Vector3(...state.pivot) : null;
+        obliqueRotation = state ? new THREE.Quaternion(...state.rotation) : new THREE.Quaternion();
+        obliqueShift = state ? new THREE.Vector3(...state.shift) : new THREE.Vector3();
+      }
       function addMeasurement(point, axis = null) {
         if (measurements.length >= 1000) {
           status.textContent = "Máximo de 1000 mediciones. Elimina alguna antes de añadir otra.";
           return;
         }
         const index = axis ? Number($("r" + axis).value) : null;
-        if (!pendingMeasure || pendingMeasure.axis !== axis || pendingMeasure.index !== index) {
-          pendingMeasure = { a: point.clone(), axis, index };
+        const plane = axis ? measurementPlaneState() : undefined;
+        if (!pendingMeasure || pendingMeasure.axis !== axis || pendingMeasure.index !== index || JSON.stringify(pendingMeasure.plane) !== JSON.stringify(plane)) {
+          pendingMeasure = { a: point.clone(), axis, index, ...(axis ? { plane } : {}) };
           $("toolHint").textContent = "Primer punto seleccionado. Pulsa el segundo punto.";
         } else {
           measurements.push({ ...pendingMeasure, b: point.clone() });
@@ -6150,13 +6159,16 @@
         if (!measurements.includes(m)) return;
         if (m.axis) {
           const slider = $("r" + m.axis), previous = slider.value;
+          const previousPlane = m.plane !== undefined ? measurementPlaneState() : undefined;
+          if (m.plane !== undefined) applyMeasurementPlane(m.plane);
           slider.value = String(m.index);
           paint(m.axis);
           const basis = slicePixelBasis(m.axis);
           const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(basis.u.clone().cross(basis.v).normalize(), basis.origin);
           if ([m.a, m.b].some(p => Math.abs(plane.distanceToPoint(p)) > 0.1)) {
             slider.value = previous;
-            paint(m.axis);
+            if (previousPlane !== undefined) applyMeasurementPlane(previousPlane);
+            repaintAll();
             $("measurementHint").textContent = "Esta medida pertenece a otra orientación. Recupera la vista guardada donde la creaste para localizarla.";
             return;
           }
@@ -7264,6 +7276,7 @@
           index: m.index,
           a: m.a.toArray(),
           b: m.b.toArray(),
+          ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
         }));
       }
       function validateMeasurements(items) {
@@ -7277,6 +7290,11 @@
         for (const m of items) {
           if (!m || ![null, "x", "y", "z"].includes(m.axis) || !vec(m.a) || !vec(m.b))
             throw new Error("Coordenadas de medición inválidas.");
+          if (m.plane !== undefined) {
+            const p = m.plane;
+            if (m.axis === null || (p !== null && (!p || !vec(p.pivot) || !vec(p.shift) || !Array.isArray(p.rotation) || p.rotation.length !== 4 || p.rotation.some(n => typeof n !== "number" || !Number.isFinite(n)) || Math.abs(Math.hypot(...p.rotation) - 1) > 0.001)))
+              throw new Error("Orientación del plano de medición inválida.");
+          }
           if (m.axis === null) {
             if (m.index !== null) throw new Error("Índice de medición 3D inválido.");
           } else if (
@@ -7296,6 +7314,7 @@
             index: m.index,
             a: new THREE.Vector3(...m.a),
             b: new THREE.Vector3(...m.b),
+            ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
           }))
         );
         pendingMeasure = null;

@@ -76,6 +76,18 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   fn(m,true);assert.equal(tool,'editMeasure');assert.deepEqual(controls.target.toArray(),[3,3,3]);assert.deepEqual(camera.position.toArray(),[13,13,13]);assert.equal(context.selectedMeasurement,m);
   m.axis='x';m.index=5;fn(m);assert.equal(dom.window.document.getElementById('rx').value,'2');assert.match(dom.window.document.getElementById('measurementHint').textContent,/otra orientación/);dom.window.close();
  });
+ await test('Mediciones: plano oblicuo se serializa, valida y recupera; compatibilidad anterior',()=>{
+  const plane={pivot:[1,2,3],rotation:new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),.4).toArray(),shift:[4,5,6]};
+  const items=[{axis:'z',index:3,a:[0,0,0],b:[1,2,3],plane}];
+  const validate=run('validateMeasurements',{$:()=>({max:20})}).fn;validate(items);validate([{...items[0],plane:undefined}]);validate([{...items[0],plane:null}]);
+  assert.throws(()=>validate([{...items[0],plane:{...plane,rotation:[0,0,0,0]}}]),/Orientación/);
+  assert.throws(()=>validate([{...items[0],axis:null,index:null}]),/Orientación/);
+  const measurements=[];const {fn,context}=run('restoreMeasurements',{measurements,updateMeasurementList:()=>{},renderMeasure3D:()=>{}},['measurementData']);fn(items);
+  assert.deepEqual(JSON.parse(JSON.stringify(context.measurementData())),items);assert.notEqual(measurements[0].plane,plane);
+  const restored=run('applyMeasurementPlane',{obliquePivot:null,obliqueRotation:new THREE.Quaternion(),obliqueShift:new THREE.Vector3(),obliqueActive:()=>true},['measurementPlaneState']);
+  restored.fn(plane);assert.deepEqual(JSON.parse(JSON.stringify(restored.context.measurementPlaneState())),plane);
+  restored.fn(null);assert.equal(restored.context.obliquePivot,null);assert.equal(restored.context.obliqueRotation.w,1);assert.deepEqual(restored.context.obliqueShift.toArray(),[0,0,0]);
+ });
  await test('Ficha 3D: selección activa, múltiple, vacía y volumen no disponible',()=>{
   const elements=Object.fromEntries(['selectionCard','selectionCardCenter','selectionCardClear','selectionCardName','selectionCardDetail'].map(id=>[id,{}]));
   const selected=new Set(['A']);
