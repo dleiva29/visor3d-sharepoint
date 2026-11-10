@@ -433,3 +433,11 @@ Los arrastres de sonda, entrada y orientación conservan una copia del estado in
 La recuperación de entrada incluye el punto de sonda, coordenadas normalizadas y última entrada US. La orientación recupera sus tres vectores y la sonda sus valores de rotación y desplazamiento. El cálculo y la colocación del objetivo no se modifican.
 
 Validación: 90 pruebas y ESLint sin errores. Chromium con NRRD sintético y GLB 10 abre US desde una trayectoria; verifica arrastres reales de sonda y orientación cancelados con Esc manteniendo el diálogo abierto, y restauración de entrada mediante el estado de arrastre instrumentado. Pendiente prueba visual y cancelación táctil en dispositivo físico.
+
+## v2.30.0 — Recuperar el trabajo al salir de presentación
+
+La presentación conserva una copia de la configuración de trabajo y selección antes de abrir la primera diapositiva. Al salir cancela la transición en curso y recupera cortes, cámara, zoom, mediciones, anotaciones, selección y aislamiento, además del estado previo del panel. Solo restaura si sigue abierto el mismo caso. Los botones de salida explican este comportamiento en su descripción accesible.
+
+La lista de diapositivas sigue siendo una copia ordenada de las vistas incluidas; presentar no modifica las vistas guardadas. Las vistas US continúan excluidas de esta presentación.
+
+Validación: 90 pruebas y ESLint sin errores. Chromium en 1400×1000 y móvil emulado 390×1000 con NRRD sintético y GLB 10 comprueba el orden de dos diapositivas, salida con Esc durante una transición y coincidencia de la configuración completa antes/después. Pendiente revisión visual del usuario.
