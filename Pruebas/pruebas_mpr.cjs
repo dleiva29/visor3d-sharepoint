@@ -79,6 +79,15 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   assert.equal(fn({clientX:20,clientY:0,pointerType:'touch'},null,{}).end,'a');
   assert.equal(fn({clientX:90,clientY:0,pointerType:'touch'},null,{}).end,'b');
  });
+ await test('Ventana: preajustes, valores decimales coherentes y restauración',()=>{
+  const preset={options:[{value:'custom'},{value:'70,350'},{value:'-600,1500'},{value:'400,1800'}]};
+  const elements={wl:{value:70},ww:{value:350},windowPreset:preset},volume={};let paints=0;
+  const {fn}=run('setWindow',{$:id=>elements[id],volume,repaintAll:()=>paints++},['syncWindowPreset']);
+  fn(-600,1500);assert.equal(preset.value,'-600,1500');assert.equal(volume.windowLow,-1350);
+  fn(70.25,350.5);assert.equal(preset.value,'custom');assert.equal(elements.wl.value,70.25);assert.equal(volume.windowHigh-volume.windowLow,350.5);
+  fn(70,350);assert.equal(preset.value,'70,350');assert.equal(paints,3);
+  fn(NaN,350);assert.equal(paints,3);
+ });
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
  function workHarness(storage = new Map()) {
   const dom = new JSDOM('<div id="host"></div>', {url:'https://viewer.test/mpr.html'});

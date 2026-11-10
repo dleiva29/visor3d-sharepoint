@@ -409,3 +409,11 @@ La captura de una vista detecta si muestra la reconstrucción de trayectoria y e
 La generación de informes mantiene el orden de las vistas y sus títulos y comentarios, insertados mediante textContent. No se ha cambiado el formato del informe.
 
 Validación: 89 pruebas y ESLint sin errores. Chromium comprueba por píxeles que capturePane elige el lienzo de reconstrucción visible y vuelve al lienzo normal cuando se oculta. Pendiente exportación integral con el caso del usuario, mediciones y anotaciones reales.
+
+## v2.27.0 — Ventana y nivel del TC
+
+Las rutas de aplicación manual, arrastre y recuperación de configuración usan el mismo ajuste. El selector identifica Abdomen, Pulmón o Hueso cuando los valores coinciden, y Personalizado en otro caso. Los decimales mostrados coinciden con los aplicados al volumen.
+
+Restablecer ventana inicial recupera exclusivamente el nivel y anchura presentes al cargar el volumen, sin cambiar cortes, cámara ni zoom. Este punto inicial pertenece a la sesión del volumen, no se sustituye al recuperar una vista. Esc, cancelación táctil y pérdida de captura durante un ajuste recuperan los valores previos al arrastre. Se añaden indicaciones del gesto horizontal/vertical.
+
+Validación: 90 pruebas y ESLint sin errores. Chromium con NRRD sintético y GLB 10 verifica restablecimiento, arrastre real con ratón y Esc, gesto táctil emulado y touchCancel, además de guardar/recuperar configuración con el preajuste Pulmón. Pendiente valoración visual del usuario y gestos en dispositivo físico.
