@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.23.1 · Menús de exploración</title>
+    /><title>MPR · v2.24.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.23.1</strong
+        ><strong>Visor MPR · v2.24.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3586,6 +3586,7 @@
                   >Selecciona la orientación de la cámara. Los planos axial, coronal y sagital se
                   activan en «Vista 3D».</p
                 ><h4 id="modelClipHeading">Recorte del modelo</h4
+                ><p class="note" id="clipStatus" role="status">Recorte desactivado</p
                 ><label for="clipPosition">Posición de recorte</label
                 ><input
                   id="clipPosition"
@@ -3619,8 +3620,7 @@
                   >Arrastra para inclinar el plano. Mayús permite ajuste fino. Puedes limitar el
                   giro a un eje o usar los botones de 1°. Esc cancela el arrastre.</p
                 ><label
-                  ><input id="clipReverse" type="checkbox" checked /> Invertir lado
-                  conservado</label
+                  ><input id="clipReverse" type="checkbox" checked /> Cambiar lado conservado</label
                 ><p class="note"
                   >Recorte visual sin tapa; las imágenes y contornos MPR no se recortan.</p
                 ></div
@@ -6560,6 +6560,7 @@
       });
       let clipPlane = null,
         clipRotation = new THREE.Quaternion();
+      let clipManualOffset = 0;
       const clipGuide = new THREE.Mesh(
         new THREE.PlaneGeometry(1, 1),
         new THREE.MeshBasicMaterial({
@@ -6602,6 +6603,11 @@
         $("clipSyncTc").disabled = !volume || !volumeInfo || !model;
         for (const id of ["clipPosition", "rotateClip", "clipRotationConstraint", "clipLeft", "clipRight", "clipUp", "clipDown", "alignClip", "resetClipRotation"])
           $(id).disabled = sync;
+        const status = $("clipStatus");
+        if (status) status.textContent = !model || !$("clipEnabled").checked
+          ? "Recorte desactivado"
+          : sync ? "Sincronizado con TC · " + ({x: "Sagital", y: "Coronal", z: "Axial"}[$("clipAxis").value]) + " · margen 5 mm"
+            : "Recorte manual";
         const previousClip = clipPlane;
         clipPlane = null;
         clipGuide.visible = false;
@@ -6625,7 +6631,7 @@
               Number($("clipPosition").value) / 100
             );
             point = box.getCenter(new THREE.Vector3());
-            point.addScaledVector(normal, level - normal.dot(point));
+            point.addScaledVector(normal, level + clipManualOffset - normal.dot(point));
           }
           if ($("clipReverse").checked) normal.negate();
           // Amplía el lado conservado 5 mm para dejar una franja visible junto al TC.
@@ -6652,7 +6658,9 @@
       }
       for (const id of ["clipEnabled", "clipAxis", "clipPosition", "clipReverse", "clipSyncTc"])
         $(id).oninput = updateClip;
+      $("clipPosition").oninput = () => { clipManualOffset = 0; updateClip(); };
       $("clipSyncTc").oninput = () => {
+        if (!$("clipSyncTc").checked && clipPlane && model) preserveClipAsManual();
         if ($("clipSyncTc").checked) $("clipEnabled").checked = true;
         updateClip();
         syncPaneToggles();
@@ -6675,6 +6683,14 @@
         clipRotation.copy(obliqueRotation);
         updateClip();
       };
+      function preserveClipAsManual() {
+        const normal = clipPlane.normal.clone();
+        if ($("clipReverse").checked) normal.negate();
+        const axis = new THREE.Vector3();
+        axis[$("clipAxis").value] = 1;
+        const point = clipPlane.coplanarPoint(new THREE.Vector3());
+        orientClip(new THREE.Quaternion().setFromUnitVectors(axis, normal), point);
+      }
       function orientClip(rotation, pivot) {
         clipRotation.copy(rotation).normalize();
         const normal = new THREE.Vector3();
@@ -6695,6 +6711,8 @@
             100
           )
         );
+        // Conserva también planos fuera de la caja y el redondeo del deslizador.
+        clipManualOffset = normal.dot(pivot) - THREE.MathUtils.lerp(min, max, Number($("clipPosition").value) / 100);
         updateClip();
       }
       for (const [id, axis, sign] of [
@@ -6732,6 +6750,7 @@
             y: event.clientY,
             rotation: clipRotation.clone(),
             position: $("clipPosition").value,
+            manualOffset: clipManualOffset,
             pivot: clipGuide.position.clone(),
             enabled: controls.enabled,
             up: new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion),
@@ -6776,6 +6795,7 @@
           endClipDrag();
           clipRotation.copy(drag.rotation);
           $("clipPosition").value = drag.position;
+          clipManualOffset = drag.manualOffset;
           updateClip();
           event.preventDefault();
         }
@@ -7469,6 +7489,7 @@
           clipRotation: clipRotation.toArray(),
           clipAxis: $("clipAxis").value,
           clipPosition: Number($("clipPosition").value),
+          clipManualOffset,
           clipSyncTc: $("clipSyncTc").checked,
           layers: [...layerControls].map(([key, l]) => ({
             key,
@@ -7538,6 +7559,7 @@
           flagIds.some((id) => typeof data.flags?.[id] !== "boolean") ||
           !finite(data.fillOpacity, 0, 70) ||
           !finite(data.clipPosition, 0, 100) ||
+          (data.clipManualOffset !== undefined && (typeof data.clipManualOffset !== "number" || !Number.isFinite(data.clipManualOffset))) ||
           !["x", "y", "z"].includes(data.clipAxis) ||
           !Array.isArray(data.layers)
         )
@@ -7711,6 +7733,7 @@
           for (const id of flagIds) $(id).checked = data.flags[id];
           $("fillOpacity").value = data.fillOpacity;
           $("clipPosition").value = data.clipPosition;
+          clipManualOffset = data.clipManualOffset ?? 0;
           $("clipAxis").value = data.clipAxis;
           $("clipSyncTc").checked = data.clipSyncTc ?? false;
           for (const l of data.layers) {

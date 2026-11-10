@@ -377,3 +377,11 @@ Validación: 85 pruebas y ESLint sin errores. Nuevas pruebas de selección sobre
 Seleccionar una medición o el anclaje/trazado de una anotación desde la vista abre su sección, despliega el panel si estaba oculto y desplaza únicamente el panel hasta la ficha seleccionada. Se aplica el resaltado existente durante cuatro segundos; no se cambia el foco del teclado ni se desplaza la página. Los accesos generales a secciones conservan su comportamiento.
 
 Validación: 85 pruebas y ESLint sin errores. Chromium en escritorio y móvil emulado con una lista de 30 mediciones: la ficha 25 queda visible al desplegar el panel, la página conserva su desplazamiento y el resaltado desaparece a los cuatro segundos.
+
+## v2.24.0 — Estado del recorte y transición a manual
+
+El panel indica Recorte desactivado, Recorte manual o Sincronizado con TC con eje y margen de 5 mm. La casilla de inversión se denomina Cambiar lado conservado.
+
+Al desactivar la sincronización se convierten la normal y la posición del plano actual a los controles manuales. Un desplazamiento residual conserva posiciones exteriores a la caja del modelo y evita saltos por redondeo del deslizador. Se serializa como `clipManualOffset`, opcional y cero para configuraciones anteriores; mover el deslizador vuelve al recorrido normal de la caja. Cancelar un giro restaura también este desplazamiento.
+
+Validación: 86 pruebas y ESLint sin errores. La nueva prueba cubre planos oblicuos, ambos lados y posiciones interiores/exteriores. Chromium comprueba el evento de desactivar sincronización, el estado manual y la conservación numérica del plano con un modelo sintético. Pendiente prueba visual del usuario con su caso.
