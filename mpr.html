@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.16.0 · Menús de exploración</title>
+    /><title>MPR · v2.16.1 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3145,7 +3145,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.16.0</strong
+        ><strong>Visor MPR · v2.16.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -6054,6 +6054,7 @@
           ctx.fill();
         };
         for (const m of measurements) {
+          if (m.visible === false) continue;
           if (m.axis !== axis || m.index !== idx) continue;
           const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(
             b.u.clone().cross(b.v).normalize(),
@@ -6099,7 +6100,7 @@
           o.material?.map?.dispose();
           o.material?.dispose();
         }
-        for (const m of measurements.filter((m) => m.axis === null)) {
+        for (const m of measurements.filter((m) => m.axis === null && m.visible !== false)) {
           const color = m === selectedMeasurement ? "#ffd36e" : "#40ffff";
           const line = new THREE.Line(
             new THREE.BufferGeometry().setFromPoints([m.a, m.b]),
@@ -6174,6 +6175,7 @@
             return;
           }
         }
+        m.visible = true;
         selectedMeasurement = m;
         pendingMeasure = null;
         setTool(edit ? "editMeasure" : "navigate");
@@ -6223,7 +6225,18 @@
             renderMeasure3D(); repaintAll();
             document.dispatchEvent(new Event("case-state-change"));
           };
-          li.append(name, title);
+          const visibility = document.createElement("label");
+          const toggle = document.createElement("input");
+          toggle.type = "checkbox";
+          toggle.checked = m.visible !== false;
+          toggle.setAttribute("aria-label", "Mostrar medición " + (i + 1));
+          toggle.onchange = () => {
+            m.visible = toggle.checked;
+            renderMeasure3D(); repaintAll();
+            document.dispatchEvent(new Event("case-state-change"));
+          };
+          visibility.append(toggle, document.createTextNode(" Mostrar medida"));
+          li.append(name, title, visibility);
           for (const [label, icon, action] of [
             ["Localizar", "target", () => locateMeasurement(m)],
             ["Editar", "edit", () => locateMeasurement(m, true)],
@@ -6375,6 +6388,7 @@
             let closest = null,
               distance = 14;
             for (const m of measurements) {
+          if (m.visible === false) continue;
               if (m.axis !== axis || m.index !== Number($("r" + axis).value)) continue;
               const a = screenEndpoint(m.a, canvas, axis),
                 b = screenEndpoint(m.b, canvas, axis);
@@ -7291,6 +7305,7 @@
           index: m.index,
           a: m.a.toArray(),
           b: m.b.toArray(),
+          ...(m.visible !== undefined ? { visible: m.visible } : {}),
           ...(m.name !== undefined ? { name: m.name } : {}),
           ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
         }));
@@ -7306,6 +7321,8 @@
         for (const m of items) {
           if (!m || ![null, "x", "y", "z"].includes(m.axis) || !vec(m.a) || !vec(m.b))
             throw new Error("Coordenadas de medición inválidas.");
+          if (m.visible !== undefined && typeof m.visible !== "boolean")
+            throw new Error("Visibilidad de medición inválida.");
           if (m.name !== undefined && (typeof m.name !== "string" || m.name.length > 60 || /[\r\n\t]/.test(m.name)))
             throw new Error("Nombre de medición inválido (máximo 60 caracteres, una línea).");
           if (m.plane !== undefined) {
@@ -7332,7 +7349,8 @@
             index: m.index,
             a: new THREE.Vector3(...m.a),
             b: new THREE.Vector3(...m.b),
-            ...(m.name !== undefined ? { name: m.name } : {}),
+            ...(m.visible !== undefined ? { visible: m.visible } : {}),
+          ...(m.name !== undefined ? { name: m.name } : {}),
             ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
           }))
         );
@@ -9616,6 +9634,7 @@
         let best = null,
           distance = 14;
         for (const m of measurements) {
+          if (m.visible === false) continue;
           if (m.axis !== axis || (axis && m.index !== Number($("r" + axis).value))) continue;
           for (const end of ["a", "b"]) {
             const p = screenEndpoint(m[end], canvas, axis);
@@ -9746,6 +9765,7 @@
               let closest = null,
                 distance = 14;
               for (const m of measurements) {
+          if (m.visible === false) continue;
                 if (m.axis !== null) continue;
                 const a = screenEndpoint(m.a, canvas),
                   b = screenEndpoint(m.b, canvas);

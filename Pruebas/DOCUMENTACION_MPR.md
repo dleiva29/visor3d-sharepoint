@@ -303,3 +303,10 @@ Verificación: 77 pruebas correctas y ESLint limpio; validación y recorrido de 
 La lista permite escribir un nombre opcional de hasta 60 caracteres para cada medición. El nombre aparece junto a la distancia en MPR y 3D, se actualiza al escribir y se elimina dejando el campo vacío. Se representa como texto, sin interpretar HTML. El campo opcional `name` se conserva en vistas, historial, configuración exportada y estado de trabajo; las medidas anteriores sin nombre siguen siendo válidas. La importación rechaza tipos distintos de texto, nombres demasiado largos y saltos de línea o tabulaciones.
 
 Verificación: 77 pruebas y ESLint correctos, ampliando los casos de edición de filas, serialización y validación de mediciones. Chromium verifica escribir un nombre con acentos, serializarlo, recuperar la medida y borrar el nombre sin errores JavaScript. Pendiente validación visual del usuario en Codespaces.
+
+
+### Visibilidad por medición (v2.16.1)
+
+Cada fila incluye «Mostrar medida». Oculta línea, extremos y etiqueta en MPR o 3D sin eliminarla de la lista. Las medidas ocultas no participan en la selección de extremos ni en el borrado desde la imagen. Localizar o Editar desde la lista vuelven a mostrarlas. El campo opcional booleano `visible` se conserva en vistas, historial y configuración; las medidas anteriores se muestran por defecto.
+
+Verificación: 77 pruebas y ESLint correctos, con casos ampliados de casilla, validación y serialización. Chromium verifica que ocultar retira los objetos 3D y que Localizar los recupera y marca la casilla.
