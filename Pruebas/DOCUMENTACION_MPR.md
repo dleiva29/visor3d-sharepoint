@@ -371,3 +371,9 @@ En Navegar y Seleccionar se detecta la línea completa de las mediciones MPR/3D 
 La tolerancia es de 10 píxeles CSS con ratón y 22 con puntero táctil. Se excluyen elementos ocultos y medidas de otro corte u orientación. Un desplazamiento mayor de 5 píxeles se considera arrastre y no selección. El resaltado se limpia al salir de la vista o cambiar de herramienta y solo se repinta cuando cambia el elemento señalado.
 
 Validación: 85 pruebas y ESLint sin errores. Nuevas pruebas de selección sobre el segmento, tolerancia táctil, visibilidad y plano MPR. Chromium verifica el resaltado y selección de una medición 3D sobre su punto medio. Pendiente revisión visual con casos reales y dispositivo táctil.
+
+## v2.23.1 — Localizar la ficha del elemento seleccionado
+
+Seleccionar una medición o el anclaje/trazado de una anotación desde la vista abre su sección, despliega el panel si estaba oculto y desplaza únicamente el panel hasta la ficha seleccionada. Se aplica el resaltado existente durante cuatro segundos; no se cambia el foco del teclado ni se desplaza la página. Los accesos generales a secciones conservan su comportamiento.
+
+Validación: 85 pruebas y ESLint sin errores. Chromium en escritorio y móvil emulado con una lista de 30 mediciones: la ficha 25 queda visible al desplegar el panel, la página conserva su desplazamiento y el resaltado desaparece a los cuatro segundos.
