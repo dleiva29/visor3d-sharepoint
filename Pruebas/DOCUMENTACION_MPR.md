@@ -363,3 +363,11 @@ Se convierten en iconos guardar/cancelar relaciones y grupos, centrar la selecci
 Los botones nuevos incluyen `aria-label` y `title`, SVG decorativo y tamaño de 28 px en escritorio o 44 px con puntero táctil. Se conserva texto en las herramientas específicas, el estado de trabajo local y las acciones de borrado global para evitar ambigüedades.
 
 Validación: 83 pruebas y ESLint sin errores; Chromium verifica los 12 controles estáticos, sus nombres accesibles y dimensiones en 1400×1000 y 390×844. Pendiente la revisión visual del usuario.
+
+## v2.23.0 — Selección directa de mediciones y anotaciones
+
+En Navegar y Seleccionar se detecta la línea completa de las mediciones MPR/3D y las flechas 3D, además del punto de anclaje de las etiquetas. El resaltado previo es blanco y la selección amarilla. Pulsar abre la sección de mediciones o anotaciones con sus acciones existentes, sin recentrar la cámara. Los textos 3D conservan la edición directa existente al pulsar fuera de su anclaje.
+
+La tolerancia es de 10 píxeles CSS con ratón y 22 con puntero táctil. Se excluyen elementos ocultos y medidas de otro corte u orientación. Un desplazamiento mayor de 5 píxeles se considera arrastre y no selección. El resaltado se limpia al salir de la vista o cambiar de herramienta y solo se repinta cuando cambia el elemento señalado.
+
+Validación: 85 pruebas y ESLint sin errores. Nuevas pruebas de selección sobre el segmento, tolerancia táctil, visibilidad y plano MPR. Chromium verifica el resaltado y selección de una medición 3D sobre su punto medio. Pendiente revisión visual con casos reales y dispositivo táctil.
