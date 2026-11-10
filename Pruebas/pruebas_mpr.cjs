@@ -93,7 +93,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   const {fn}=run('renderAnnotationList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),modelAnnotations,renderAnnotations:opts=>assert.equal(opts.refreshList,false),locateAnnotation:v=>located=v},['setTreeIcon']);fn();
   const card=dom.window.document.querySelector('.annotation-card'),text=card.querySelector('textarea'),toggle=card.querySelector('[type=checkbox]');text.value='Texto nuevo';toggle.click();assert.equal(item.visible,false);assert.equal(text.value,'Texto nuevo');
   card.querySelector('[aria-label="Localizar Etiqueta 1"]').click();assert.equal(located,item);assert.equal(toggle.checked,true);assert.equal(text.value,'Texto nuevo');
-  [...card.querySelectorAll('button')].find(b=>b.textContent==='Actualizar').click();assert.equal(item.text,'Texto nuevo');dom.window.close();
+  card.querySelector('[aria-label="Actualizar Etiqueta 1"]').click();assert.equal(item.text,'Texto nuevo');dom.window.close();
  });
  await test('Anotaciones: localizar muestra y centra la flecha conservando la distancia de cámara',()=>{
   const dom=new JSDOM('<input id="showAnnotations" type="checkbox"><div id="modelAnnotationList"></div><p id="annotationHint"></p>');const item={kind:'arrow',a:[0,0,0],b:[4,6,8],visible:false};const camera={position:new THREE.Vector3(10,10,10)},controls={target:new THREE.Vector3(),update:()=>{}};
