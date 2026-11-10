@@ -287,3 +287,12 @@ Cada fila muestra longitud en mm, vista y corte, con botones accesibles Localiza
 Las mediciones existentes no incluyen la orientación oblicua original. Antes de localizar una medida MPR se comprueba que sus extremos pertenecen al plano del corte solicitado. Si no coinciden, se vuelve al corte anterior y se indica que debe recuperarse la vista guardada original. No se modifica el formato de las mediciones ni sus coordenadas. El resaltado es transitorio y se elimina cuando la medición deja de existir.
 
 Verificación: 76 pruebas y ESLint correctos. Pruebas de filas accesibles, selección, eliminación por identidad, centrado 3D y rechazo de planos incompatibles. Chromium carga el módulo completo y verifica Localizar, Editar y Eliminar con una medida 3D sintética, sin errores JavaScript. Pendiente prueba visual del usuario con un caso real, incluidas mediciones MPR.
+
+
+## Recuperación del plano de medición (v2.15.0)
+
+Las nuevas mediciones MPR incluyen el campo opcional `plane`: null para orientación ortogonal, o pivot/rotation/shift para orientación oblicua. Localizar y Editar recuperan ese plano antes de mostrar el corte; si los extremos no pertenecen al plano, se restaura la orientación y el corte anteriores. La orientación MPR es compartida por las tres vistas, por lo que recuperar un plano oblicuo actualiza las tres reconstrucciones. Las mediciones 3D no incluyen este campo.
+
+El plano se conserva en vistas guardadas, exportación/importación, historial y estado de trabajo. Los archivos anteriores, sin `plane`, siguen siendo válidos y conservan el aviso de orientación incompatible. Cambiar de orientación entre el primer y segundo punto inicia una medida nueva para no mezclar planos. Se validan vectores finitos y cuaterniones normalizados antes de importar.
+
+Verificación: 77 pruebas correctas y ESLint limpio; validación y recorrido de serialización/restauración con planos nuevos y datos antiguos. Chromium carga un volumen sintético, crea una medida oblicua, cambia a ortogonal y recupera la orientación y selección originales mediante Localizar, sin errores JavaScript. Pendiente prueba visual en Codespaces.
