@@ -393,3 +393,11 @@ Validación: 86 pruebas y ESLint sin errores. La nueva prueba cubre planos oblic
 - Completar los tres puntos desactiva la sincronización del recorte para que este pase exactamente por ellos, sin el margen de 5 mm. La indicación inicial avisa del paso a manual.
 
 Validación: 87 pruebas y ESLint sin errores. Nueva regresión para la desactivación de sincronización antes de orientar. Chromium con geometría sintética verifica cancelación con vista maximizada, distancia nula de los tres puntos al plano y botón de vuelta a ortogonales. Pendiente prueba visual con el caso del usuario.
+
+## v2.25.1 — Edición de trayectoria y cancelación
+
+Esc durante el arrastre de un extremo recupera su posición anterior y restaura los controles sin salir de la vista maximizada. Sin arrastre, Esc termina la edición conservando la trayectoria o cancela la creación pendiente. La gestión se realiza en captura para evitar que el manejador general restaure primero la ventana.
+
+El panel confirma la cancelación o recuerda actualizar la vista guardada tras un movimiento. Las indicaciones usan entrada (verde) y objetivo (rosa). El margen de selección de extremos aumenta de 14 a 24 píxeles CSS con puntero táctil, tanto en las vistas como en la reconstrucción de trayectoria. La serialización existente de los extremos no cambia.
+
+Validación: 89 pruebas y ESLint sin errores. Nuevas pruebas de cancelación, recuperación de controles, ausencia de guardado al cancelar y tolerancia táctil. Chromium con trayectoria sintética comprueba la posición recuperada, conservación de la maximización y salida posterior de edición. Pendiente revisión visual del usuario con su caso.

@@ -65,6 +65,20 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   [new THREE.Vector3(0,0,1),new THREE.Vector3(1,0,2),new THREE.Vector3(0,1,3)].forEach(fn);
   assert(oriented);assert.equal(elements.clipEnabled.checked,true);
  });
+ await test('Trayectoria: Esc restaura extremo y controles sin emitir guardado',()=>{
+  const path={a:new THREE.Vector3(5,6,7),b:new THREE.Vector3(20,0,0)},original=new THREE.Vector3(1,2,3),controls={enabled:false};let emitted=0,released=0;
+  const hint={};const canvas={style:{cursor:'grabbing'},hasPointerCapture:()=>true,releasePointerCapture:()=>released++};
+  const {fn,context}=run('cancelTrajectoryInteraction',{measurementDrag:{m:path,end:'a',original,canvas,pointerId:1,orbitEnabled:true,cursor:'grab',isTrajectory:true},controls,down3D:{},$:()=>hint,renderTrajectory:()=>{},repaintAll:()=>{},document:{dispatchEvent:()=>emitted++}},['endMeasurementDrag']);
+  const event={key:'Escape',preventDefault(){this.defaultPrevented=true},stopPropagation(){this.stopped=true}};fn(event);
+  assert(path.a.equals(original));assert.equal(context.measurementDrag,null);assert(controls.enabled);assert(event.stopped);assert.equal(released,1);assert.equal(emitted,0);assert.match(hint.textContent,/cancelado/);
+ });
+ await test('Trayectoria: extremos con margen táctil y elección del más cercano',()=>{
+  const path={a:new THREE.Vector3(0,0,0),b:new THREE.Vector3(100,0,0)};
+  const {fn}=run('nearestTrajectoryEnd',{trajectory:path,screenEndpoint:p=>({x:p.x,y:p.y})});
+  assert.equal(fn({clientX:20,clientY:0},null,{}),null);
+  assert.equal(fn({clientX:20,clientY:0,pointerType:'touch'},null,{}).end,'a');
+  assert.equal(fn({clientX:90,clientY:0,pointerType:'touch'},null,{}).end,'b');
+ });
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
  function workHarness(storage = new Map()) {
   const dom = new JSDOM('<div id="host"></div>', {url:'https://viewer.test/mpr.html'});
