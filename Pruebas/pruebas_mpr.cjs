@@ -23,15 +23,15 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
  function workHarness(storage = new Map()) {
   const dom = new JSDOM('<div id="host"></div>', {url:'https://viewer.test/mpr.html'});
-  const timers = new Map(); let timerId=0, key='volume-A:model-A', state={slice:4,camera:[1,2,3]}, blocked=false, writes=0;
-  const adapter={key:()=>key,capture:()=>structuredClone(state),validate:value=>{if(!value||!Number.isInteger(value.slice))throw Error('Estado inválido');},restore:value=>{state=structuredClone(value);},blocked:()=>blocked,onChange:()=>{}};
+  const timers = new Map(); let timerId=0, key='volume-A:model-A', state={slice:4,camera:[1,2,3]}, blocked=false, writes=0, controlEnd=()=>{};
+  const adapter={key:()=>key,capture:()=>structuredClone(state),validate:value=>{if(!value||!Number.isInteger(value.slice))throw Error('Estado inválido');},restore:value=>{state=structuredClone(value);},blocked:()=>blocked,onChange:fn=>controlEnd=fn};
   const localStorage={getItem:k=>storage.get(k)||null,setItem:(k,v)=>{writes++;storage.set(k,v);},removeItem:k=>storage.delete(k)};
   const controller=run('installLocalWorkState',{document:dom.window.document,window:dom.window,localStorage,setTimeout:f=>{timers.set(++timerId,f);return timerId;},clearTimeout:id=>timers.delete(id)}).fn(adapter,dom.window.document.getElementById('host'));
   const document=dom.window.document;
-  return {dom,document,controller,storage,localStorage,get state(){return state;},set state(v){state=v;},set key(v){key=v;},set blocked(v){blocked=v;},get writes(){return writes;},buttons:Object.fromEntries([...document.querySelectorAll('[data-work]')].map(b=>[b.dataset.work,b])),auto:document.querySelector('input'),message:document.querySelector('[aria-live]'),event:()=>document.dispatchEvent(new dom.window.Event('case-state-change')),flush:()=>{const callbacks=[...timers.values()];timers.clear();callbacks.forEach(f=>f());}};
+  return {dom,document,controller,storage,localStorage,controlEnd:()=>controlEnd({target:{}}),get state(){return state;},set state(v){state=v;},set key(v){key=v;},set blocked(v){blocked=v;},get writes(){return writes;},buttons:Object.fromEntries([...document.querySelectorAll('[data-work]')].map(b=>[b.dataset.work,b])),auto:document.querySelector('input'),message:document.querySelector('[aria-live]'),event:()=>document.dispatchEvent(new dom.window.Event('case-state-change')),flush:()=>{const callbacks=[...timers.values()];timers.clear();callbacks.forEach(f=>f());}};
  }
  await test('Trabajo local: guardado, recuperación tras recarga y protección frente a sobrescritura automática',()=>{
-  const a=workHarness();a.controller.save(true);assert.equal(a.writes,1);
+  const a=workHarness();a.controller.save(true);a.controlEnd();a.flush();assert.equal(a.writes,1);
   const b=workHarness(a.storage);assert.equal(b.buttons.restore.disabled,false);assert.match(b.message.textContent,/disponible/);
   b.state={slice:9,camera:[9,9,9]};b.event();b.flush();assert.equal(b.writes,0);
   b.controller.restore();assert.equal(b.state.slice,4);
@@ -88,12 +88,17 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   restored.fn(plane);assert.deepEqual(JSON.parse(JSON.stringify(restored.context.measurementPlaneState())),plane);
   restored.fn(null);assert.equal(restored.context.obliquePivot,null);assert.equal(restored.context.obliqueRotation.w,1);assert.deepEqual(restored.context.obliqueShift.toArray(),[0,0,0]);
  });
- await test('Anotaciones: visibilidad, localizar y actualizar conservan borradores de texto',()=>{
-  const dom=new JSDOM('<div id="modelAnnotationList"></div><p id="modelAnnotationEmpty"></p><p id="annotationHint"></p>');const item={kind:'label',text:'Original',color:'#ff0000',a:[1,2,3]},modelAnnotations=[item];let located=null;
-  const {fn}=run('renderAnnotationList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),modelAnnotations,renderAnnotations:opts=>assert.equal(opts.refreshList,false),locateAnnotation:v=>located=v},['setTreeIcon']);fn();
-  const card=dom.window.document.querySelector('.annotation-card'),text=card.querySelector('textarea'),toggle=card.querySelector('[type=checkbox]');text.value='Texto nuevo';toggle.click();assert.equal(item.visible,false);assert.equal(text.value,'Texto nuevo');
-  card.querySelector('[aria-label="Localizar Etiqueta 1"]').click();assert.equal(located,item);assert.equal(toggle.checked,true);assert.equal(text.value,'Texto nuevo');
-  card.querySelector('[aria-label="Actualizar Etiqueta 1"]').click();assert.equal(item.text,'Texto nuevo');dom.window.close();
+ await test('Anotaciones: lista compacta delega edición sin modificar texto',()=>{
+  const dom=new JSDOM('<div id="modelAnnotationList"></div><p id="modelAnnotationEmpty"></p><p id="annotationHint"></p>');const item={kind:'label',text:'Original',color:'#ff0000',a:[1,2,3]},modelAnnotations=[item];let located=null,edited=null;
+  const {fn}=run('renderAnnotationList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),modelAnnotations,renderAnnotations:()=>{},locateAnnotation:v=>located=v,openAnnotationEditor:(draft,original)=>edited=original},['setTreeIcon']);fn();
+  const card=dom.window.document.querySelector('.annotation-card');assert.equal(card.querySelector('textarea'),null);assert.equal(card.querySelector('strong').textContent,'Original');const toggle=card.querySelector('[type=checkbox]');toggle.click();assert.equal(item.visible,false);
+  card.querySelector('[aria-label="Localizar Etiqueta 1"]').click();assert.equal(located,item);assert.equal(toggle.checked,true);
+  card.querySelector('[aria-label="Editar Etiqueta 1"]').click();assert.equal(edited,item);assert.equal(item.text,'Original');dom.window.close();
+ });
+ await test('Anotaciones: colocar abre borrador; flecha necesita dos puntos diferentes',()=>{
+  const modelAnnotations=[],message={};let draft=null;const {fn,context}=run('pickAnnotation',{modelAnnotations,$:()=>message,activeTool:'annotation',annotationEditorColor:'#ff0000',pendingArrow:null,renderAnnotations:()=>{},openAnnotationEditor:d=>draft=d});
+  fn(new THREE.Vector3(1,2,3));assert.equal(draft.kind,'label');assert.equal(draft.text,'');assert.equal(modelAnnotations.length,0);
+  context.activeTool='arrow';draft=null;fn(new THREE.Vector3());assert.equal(draft,null);fn(new THREE.Vector3());assert.equal(draft,null);fn(new THREE.Vector3(1,0,0));assert.equal(draft.kind,'arrow');assert.equal(modelAnnotations.length,0);
  });
  await test('Anotaciones: localizar muestra y centra la flecha conservando la distancia de cámara',()=>{
   const dom=new JSDOM('<input id="showAnnotations" type="checkbox"><div id="modelAnnotationList"></div><p id="annotationHint"></p>');const item={kind:'arrow',a:[0,0,0],b:[4,6,8],visible:false};const camera={position:new THREE.Vector3(10,10,10)},controls={target:new THREE.Vector3(),update:()=>{}};

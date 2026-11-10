@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.17.1 · Menús de exploración</title>
+    /><title>MPR · v2.18.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -458,6 +458,11 @@
         padding: 8px 0;
         margin-top: 8px;
       }
+      .annotation-editor { position: fixed; margin: 0; box-sizing: border-box; width: min(300px, calc(100vw - 16px)); max-height: calc(100dvh - 16px); overflow: auto; padding: 12px; background: #102534; color: #e2eff9; border: 1px solid #65ddeb; border-radius: 8px; box-shadow: 0 8px 30px #0008; }
+      .annotation-editor::backdrop { background: #0002; }
+      .annotation-editor textarea { box-sizing: border-box; width: 100%; margin: 6px 0; }
+      .annotation-editor input[type="color"] { width: 28px; height: 28px; padding: 2px; vertical-align: middle; }
+      .annotation-editor .tree-icon { width: 28px; height: 28px; padding: 4px; vertical-align: middle; }
       .annotation-card.selected { outline: 1px solid #ffd36e; }
       .annotation-card strong {
         display: block;
@@ -3152,7 +3157,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.17.1</strong
+        ><strong>Visor MPR · v2.18.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3633,15 +3638,7 @@
             ><details class="sidebar-subgroup" id="menu-annotations"
               ><summary>Textos y flechas 3D</summary
               ><div class="sidebar-body"
-                ><label for="annotationText">Texto (opcional para flechas)</label
-                ><textarea
-                  id="annotationText"
-                  maxlength="180"
-                  placeholder="Ej.: Bifurcación portal"
-                  rows="2"
-                ></textarea
-                ><label for="annotationColor">Color</label
-                ><input id="annotationColor" type="color" value="#ffdf40" /><button
+                ><p class="note">Texto: pulsa un punto del modelo. Flecha: marca origen y destino. Después escribe y guarda. Pulsa una anotación en 3D o Editar en la lista para modificarla.</p><button
                   id="addModelLabel"
                   type="button"
                   >Añadir etiqueta de texto</button
@@ -4165,6 +4162,7 @@
       const selectedStructures = new Set();
       const modelAnnotations = [];
       let selectedAnnotation = null;
+      let annotationEditor = null, annotationEditorColor = "#ffdf40";
       let annotationRoot = null,
         pendingArrow = null;
       let batchRestore = false;
@@ -6450,6 +6448,7 @@
         down3D = null;
         if (
           ![
+            "navigate",
             "measure3d",
             "threePoints",
             "select",
@@ -6471,6 +6470,11 @@
           ),
           camera
         );
+        if (["navigate", "select"].includes(activeTool) && annotationRoot.visible) {
+          const annotation = raycaster.intersectObjects(annotationRoot.children, false).find(h => h.object.userData.annotationItem)?.object.userData.annotationItem;
+          if (annotation) { openAnnotationEditor(annotation, annotation); return; }
+        }
+        if (activeTool === "navigate") return;
         if ((activeTool === "us" || activeTool === "usTarget") && trajectory) {
           const point = new THREE.Vector3();
           raycaster.ray.distanceSqToSegment(trajectory.a, trajectory.b, undefined, point);
@@ -9018,7 +9022,7 @@
         renderAnnotations({ refreshList: false });
         for (const card of $("modelAnnotationList").children)
           card.classList.toggle("selected", card.dataset.annotationIndex === String(modelAnnotations.indexOf(item)));
-        $("annotationHint").textContent = "Anotación resaltada en 3D. Edita su texto o color y pulsa Actualizar para conservar los cambios.";
+        $("annotationHint").textContent = "Anotación resaltada en 3D. Pulsa Editar en la lista o la anotación en 3D para modificarla.";
         document.dispatchEvent(new Event("case-state-change"));
       }
       function renderAnnotations({ refreshList = true } = {}) {
@@ -9092,112 +9096,113 @@
         updateAnnotationScale();
         if (refreshList) renderAnnotationList();
       }
+      function openAnnotationEditor(draft, original = null) {
+        annotationEditor?.close();
+        const sourceModel = model;
+        const dialog = document.createElement("dialog");
+        dialog.className = "annotation-editor";
+        dialog.setAttribute("aria-label", original ? "Editar anotación" : "Nueva anotación");
+        const heading = document.createElement("strong");
+        heading.textContent = original ? "Editar anotación" : draft.kind === "arrow" ? "Nueva flecha" : "Nuevo texto";
+        const label = document.createElement("label");
+        label.textContent = draft.kind === "arrow" ? "Texto (opcional)" : "Texto";
+        const text = document.createElement("textarea");
+        text.rows = 3; text.maxLength = 180; text.value = draft.text || "";
+        text.setAttribute("aria-label", label.textContent);
+        label.append(text);
+        const color = document.createElement("input");
+        color.type = "color"; color.value = draft.color;
+        color.setAttribute("aria-label", "Color de anotación");
+        const message = document.createElement("p");
+        message.setAttribute("role", "status");
+        const save = document.createElement("button"), cancel = document.createElement("button");
+        save.type = cancel.type = "button";
+        setTreeIcon(save, "done", "Guardar anotación");
+        setTreeIcon(cancel, "close", "Cancelar edición");
+        cancel.onclick = () => dialog.close();
+        save.onclick = () => {
+          if (draft.kind === "label" && !text.value.trim()) { message.textContent = "Escribe un texto para la etiqueta."; text.focus(); return; }
+          if (sourceModel !== model || (original && !modelAnnotations.includes(original))) { dialog.close(); return; }
+          if (!original && modelAnnotations.length >= 100) { message.textContent = "Máximo de 100 anotaciones."; return; }
+          const saved = { ...structuredClone(draft), text: text.value.trim().slice(0, 180), color: color.value };
+          if (original) Object.assign(original, saved);
+          else modelAnnotations.push(saved);
+          selectedAnnotation = original || saved;
+          annotationEditorColor = color.value;
+          $("showAnnotations").checked = true;
+          dialog.close("saved");
+          renderAnnotations();
+          document.dispatchEvent(new Event("case-state-change"));
+          $("annotationHint").textContent = "Anotación guardada. Actualiza la vista guardada para conservar este cambio en ella.";
+        };
+        dialog.append(heading, label, color, save, cancel, message);
+        dialog.addEventListener("close", () => {
+          if (annotationEditor === dialog) annotationEditor = null;
+          dialog.remove();
+          if (dialog.returnValue !== "saved") $("annotationHint").textContent = "Edición cancelada; no se han guardado cambios.";
+        });
+        document.body.append(dialog);
+        annotationEditor = dialog;
+        pendingArrow = null;
+        setTool("navigate");
+        renderAnnotations();
+        dialog.showModal();
+        const anchor = screenEndpoint(new THREE.Vector3(...draft.a), renderer.domElement);
+        dialog.style.left = Math.max(8, Math.min(innerWidth - dialog.offsetWidth - 8, (anchor?.x ?? innerWidth / 2) + 12)) + "px";
+        dialog.style.top = Math.max(8, Math.min(innerHeight - dialog.offsetHeight - 8, (anchor?.y ?? innerHeight / 2) + 12)) + "px";
+        text.focus();
+      }
       function renderAnnotationList() {
         $("modelAnnotationList").replaceChildren();
-        $("modelAnnotationEmpty").textContent = modelAnnotations.length
-          ? ""
-          : "Todavía no hay anotaciones en el modelo.";
+        $("modelAnnotationEmpty").textContent = modelAnnotations.length ? "" : "Todavía no hay anotaciones en el modelo.";
         modelAnnotations.forEach((item, index) => {
           const card = document.createElement("div");
           card.className = "annotation-card";
           card.dataset.annotationIndex = String(index);
           card.classList.toggle("selected", item === selectedAnnotation);
           const title = document.createElement("strong");
-          title.textContent = (item.kind === "arrow" ? "Flecha " : "Etiqueta ") + (index + 1);
-          const text = document.createElement("textarea");
-          text.rows = 2;
-          text.maxLength = 180;
-          text.value = item.text;
-          text.setAttribute("aria-label", "Texto de " + title.textContent);
-          const color = document.createElement("input");
-          color.type = "color";
-          color.value = item.color;
-          color.setAttribute("aria-label", "Color de " + title.textContent);
-          const visibility = document.createElement("label");
-          const toggle = document.createElement("input");
-          toggle.type = "checkbox";
-          toggle.checked = item.visible !== false;
-          toggle.setAttribute("aria-label", "Mostrar " + title.textContent);
+          const name = (item.kind === "arrow" ? "Flecha " : "Etiqueta ") + (index + 1);
+          title.textContent = item.text || name + " (sin texto)";
+          title.style.overflowWrap = "anywhere";
+          const visibility = document.createElement("label"), toggle = document.createElement("input");
+          toggle.type = "checkbox"; toggle.checked = item.visible !== false;
+          toggle.setAttribute("aria-label", "Mostrar " + name);
           toggle.onchange = () => {
             item.visible = toggle.checked;
             renderAnnotations({ refreshList: false });
             document.dispatchEvent(new Event("case-state-change"));
           };
-          visibility.append(toggle, document.createTextNode(" Mostrar anotación"));
-          const locate = document.createElement("button");
-          locate.type = "button";
-          setTreeIcon(locate, "target", "Localizar " + title.textContent);
-          locate.onclick = () => { locateAnnotation(item); toggle.checked = true; };
-          const save = document.createElement("button");
-          save.type = "button";
-          setTreeIcon(save, "done", "Actualizar " + title.textContent);
-          save.onclick = () => {
-            if (item.kind === "label" && !text.value.trim()) {
-              $("annotationHint").textContent = "La etiqueta necesita un texto.";
-              return;
-            }
-            item.text = text.value.slice(0, 180);
-            item.color = color.value;
-            renderAnnotations({ refreshList: false });
-            document.dispatchEvent(new Event("case-state-change"));
-            $("annotationHint").textContent =
-              "Anotación actualizada. Actualiza la vista guardada para conservar el cambio.";
-          };
-          const del = document.createElement("button");
-          del.type = "button";
-          setTreeIcon(del, "delete", "Eliminar " + title.textContent);
-          del.onclick = () => {
-            const position = modelAnnotations.indexOf(item);
-            if (position < 0) return;
-            modelAnnotations.splice(position, 1);
-            renderAnnotations();
-            document.dispatchEvent(new Event("case-state-change"));
-          };
-          card.append(title, visibility, text, color, locate, save, del);
+          visibility.append(toggle, document.createTextNode(" Mostrar"));
+          card.append(title, visibility);
+          for (const [label, icon, action] of [
+            ["Localizar", "target", () => { locateAnnotation(item); toggle.checked = true; }],
+            ["Editar", "edit", () => openAnnotationEditor(item, item)],
+            ["Eliminar", "delete", () => {
+              const position = modelAnnotations.indexOf(item);
+              if (position < 0) return;
+              modelAnnotations.splice(position, 1); renderAnnotations();
+              document.dispatchEvent(new Event("case-state-change"));
+            }],
+          ]) {
+            const control = document.createElement("button"); control.type = "button";
+            setTreeIcon(control, icon, label + " " + name); control.onclick = action; card.append(control);
+          }
           $("modelAnnotationList").append(card);
         });
       }
       function pickAnnotation(point) {
-        if (modelAnnotations.length >= 100) {
-          $("annotationHint").textContent = "Máximo de 100 anotaciones por vista.";
+        if (modelAnnotations.length >= 100) { $("annotationHint").textContent = "Máximo de 100 anotaciones por vista."; return; }
+        if (activeTool === "annotation") {
+          openAnnotationEditor({ kind: "label", text: "", color: annotationEditorColor, a: point.toArray() });
           return;
         }
-        const text = $("annotationText").value.trim().slice(0, 180),
-          color = $("annotationColor").value;
-        if (activeTool === "annotation") {
-          if (!text) {
-            $("annotationHint").textContent = "Escribe el texto antes de marcar el punto.";
-            return;
-          }
-          modelAnnotations.push({ kind: "label", text, color, a: point.toArray() });
-          setTool("navigate");
-          $("annotationHint").textContent =
-            "Etiqueta añadida. Guarda o actualiza la vista para conservarla.";
-        } else {
-          if (!pendingArrow) {
-            pendingArrow = point.clone();
-            $("annotationHint").textContent =
-              "Ahora pulsa el punto donde debe terminar la punta de la flecha.";
-            renderAnnotations();
-            return;
-          }
-          if (pendingArrow.distanceTo(point) < 0.01) {
-            $("annotationHint").textContent = "Elige un segundo punto diferente.";
-            return;
-          }
-          modelAnnotations.push({
-            kind: "arrow",
-            text,
-            color,
-            a: pendingArrow.toArray(),
-            b: point.toArray(),
-          });
-          pendingArrow = null;
-          setTool("navigate");
-          $("annotationHint").textContent =
-            "Flecha añadida. Guarda o actualiza la vista para conservarla.";
+        if (!pendingArrow) {
+          pendingArrow = point.clone();
+          $("annotationHint").textContent = "Pulsa el destino de la flecha; Esc cancela.";
+          renderAnnotations(); return;
         }
-        renderAnnotations();
+        if (pendingArrow.distanceTo(point) < 0.01) { $("annotationHint").textContent = "Elige un segundo punto diferente."; return; }
+        openAnnotationEditor({ kind: "arrow", text: "", color: annotationEditorColor, a: pendingArrow.toArray(), b: point.toArray() });
       }
       function clearModelAnnotations() {
         modelAnnotations.length = 0;
@@ -10717,6 +10722,7 @@
       }
       function setTreeIcon(control, icon, label) {
         const paths = {
+          close: "M4 4l10 10 M14 4L4 14",
           delete: "M3 5h12 M6 5V2h6v3 M4 5l1 11h8l1-11 M7 8v5 M11 8v5",
           settings: "M3 2v14 M9 2v14 M15 2v14 M1 6h4 M7 12h4 M13 7h4",
           text: "M3 4h12 M9 4v11 M6 15h6",
@@ -12054,7 +12060,7 @@
           } finally { busy = false; refresh(); }
         }
         function schedule(event) {
-          if (busy || (event?.target && box.contains(event.target))) return;
+          if (busy || (event?.target?.nodeType && box.contains(event.target))) return;
           sync();
           clearTimeout(timer);
           if (armed && auto.checked && !adapter.blocked()) timer = setTimeout(() => save(), 1000);

@@ -319,3 +319,14 @@ Cada etiqueta o flecha incluye Mostrar anotación, Localizar, edición de texto/
 El campo opcional booleano `visible` se conserva mediante la configuración existente en vistas, historial y estado de trabajo; las anotaciones antiguas son visibles por defecto. Las ocultas no participan en el borrado por proximidad desde la imagen. La selección resaltada es transitoria. Texto y color se confirman con Actualizar; para conservar esos cambios en una vista existente se debe actualizar también esa vista.
 
 Verificación: 79 pruebas y ESLint correctos. Pruebas de conservación del borrador, visibilidad y centrado de flechas. Chromium verifica ocultar, localizar, editar y eliminar una etiqueta, y comprueba texto y visibilidad en la configuración del caso sin errores JavaScript. Pendiente validación visual del usuario con el caso real.
+
+
+## Colocar, escribir y guardar anotaciones (v2.18.0)
+
+Texto abre el editor después de pulsar una superficie; Flecha lo abre después de marcar dos puntos distintos. El editor modal se sitúa junto al punto y limita su posición al área visible. Incluye texto, color y botones accesibles Guardar/Cancelar. La etiqueta exige texto; la flecha lo permite vacío. Hasta Guardar no se incorpora ni modifica ninguna anotación; Cancelar o Esc descartan el borrador y se vuelve a navegar.
+
+La lista lateral es compacta: texto, visibilidad y acciones Localizar, Editar y Eliminar. Editar abre el mismo editor. En Navegar o Seleccionar, pulsar una anotación visible en 3D también lo abre. Al guardar se conserva el formato existente, incluidos color y visibilidad; para actualizar una vista ya guardada debe actualizarse esa vista. Se retiran los campos de texto y color previos a la colocación.
+
+Se corrige también el filtrado de eventos del guardado automático: los eventos de TrackballControls no tienen un nodo DOM como target y no deben pasarse a contains().
+
+Verificación: 80 pruebas y ESLint correctos. Chromium comprueba creación y guardado de texto, rechazo de etiqueta vacía, flecha sin texto, Cancelar/Esc y edición desde la lista y mediante clic en 3D, sin errores JavaScript. Pendiente prueba visual del usuario.
