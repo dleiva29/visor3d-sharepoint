@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.25.0 · Menús de exploración</title>
+    /><title>MPR · v2.25.1 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.25.0</strong
+        ><strong>Visor MPR · v2.25.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -7312,7 +7312,7 @@
 
       function updateTrajectoryPanel() {
         const hint = trajectory
-          ? "Pulsa «Editar extremos» para empezar o terminar. Arrastra el punto verde (entrada) o el rosa (destino). Un círculo hueco indica que el extremo está proyectado sobre el corte más cercano."
+          ? "Pulsa «Editar extremos» para empezar o terminar. Arrastra el punto verde (entrada) o el rosa (objetivo). Esc cancela el movimiento y recupera la posición anterior. Un círculo hueco indica que el extremo está proyectado sobre el corte más cercano."
           : pendingTrajectoryTarget
             ? "Objetivo marcado. Pulsa el punto de entrada."
             : "Marca primero el objetivo y después la entrada, en los cortes o en el modelo 3D.";
@@ -9759,7 +9759,7 @@
           y = rect.top + (rect.height - height * scale) / 2;
         const da = Math.hypot(event.clientX - x, event.clientY - (y + entryY * scale));
         const db = Math.hypot(event.clientX - x, event.clientY - (y + destinationY * scale));
-        if (Math.min(da, db) > 14) return null;
+        if (Math.min(da, db) > (event.pointerType === "touch" ? 24 : 14)) return null;
         // Conservar el plano y la escala de partida mientras la reconstrucción se actualiza.
         const previewDrag = {
           x: event.clientX,
@@ -9773,7 +9773,7 @@
         if (!trajectory) return null;
         const slice = axis ? trajectoryPlane(axis) : null;
         let hit = null,
-          distance = 14;
+          distance = event.pointerType === "touch" ? 24 : 14;
         for (const end of ["a", "b"]) {
           const point = trajectory[end];
           if (slice && !trajectoryEndOnSlice(axis, point)) continue;
@@ -9905,6 +9905,9 @@
         if (d.isTrajectory) {
           renderTrajectory();
           repaintAll();
+          $("trajectoryHint").textContent = cancel
+            ? "Movimiento cancelado. El extremo ha vuelto a su posición anterior."
+            : "Trayectoria actualizada. Actualiza la vista guardada para conservar el cambio.";
           if (!cancel) document.dispatchEvent(new Event("case-state-change"));
           return;
         }
@@ -10172,13 +10175,24 @@
           if (measurementDrag?.canvas === canvas) endMeasurementDrag(true);
         });
       }
-      document.addEventListener("keydown", (e) => {
-        if (e.key !== "Escape") return;
+      function cancelTrajectoryInteraction(event) {
+        if (event.key !== "Escape" || event.defaultPrevented) return;
         if (measurementDrag) {
-          e.preventDefault();
+          event.preventDefault();
+          event.stopPropagation();
+          down3D = null;
           endMeasurementDrag(true);
-        } else if (activeTool === "trajectory" && !trajectory) setTool("navigate");
-      });
+        } else if (activeTool === "trajectory") {
+          event.preventDefault();
+          event.stopPropagation();
+          const pending = !!pendingTrajectoryTarget;
+          setTool("navigate");
+          $("trajectoryHint").textContent = pending
+            ? "Creación de trayectoria cancelada."
+            : "Edición de extremos terminada. Se conserva la trayectoria.";
+        }
+      }
+      document.addEventListener("keydown", cancelTrajectoryInteraction, true);
       document.addEventListener(
         "wheel",
         (e) => {
