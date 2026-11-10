@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.24.0 · Menús de exploración</title>
+    /><title>MPR · v2.25.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.24.0</strong
+        ><strong>Visor MPR · v2.25.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4596,6 +4596,8 @@
           $("showCross").checked = true;
         }
         $("clipAxis").value = "z";
+        // Este plano debe pasar exactamente por los puntos, sin margen de sincronización.
+        $("clipSyncTc").checked = false;
         clipRotation.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
         $("clipEnabled").checked = true;
         orientClip(clipRotation.clone(), center);
@@ -5884,6 +5886,13 @@
         });
       }
       document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && activeTool === "threePoints") {
+          event.preventDefault();
+          planePoints = [];
+          setTool("navigate");
+          $("toolHint").textContent = "Plano por tres puntos cancelado. Se conserva la orientación anterior.";
+          return;
+        }
         if (event.key === "Escape" && !event.defaultPrevented)
           document
             .querySelectorAll(".pane.maximized")
@@ -5948,7 +5957,7 @@
         usTarget:
           "Marca el objetivo sobre la trayectoria, en un corte o en una superficie visible del modelo 3D. Esc cancela.",
         us: "Modo US: pulsa la trayectoria 3D o elige una entrada manual en un corte axial, coronal o sagital.",
-        threePoints: "Marca tres puntos en 2D o sobre superficies 3D. Esc cancela.",
+        threePoints: "Marca tres puntos en 2D o sobre superficies 3D. Esc cancela sin cambiar la orientación. Al completar, el recorte pasa a manual.",
         rotateClip:
           "Arrastra en 3D para orientar el plano de recorte. Pulsa Navegar para volver a girar el modelo.",
         oblique:
@@ -11399,6 +11408,10 @@
         family("Planos y orientación", [
           labelButton(takeTool("threePoints"), "Plano por tres puntos"),
           labelButton(takeTool("oblique"), "Cortes oblicuos"),
+          button("Volver a cortes ortogonales", () => {
+            resetOblique();
+            $("toolHint").textContent = "Cortes axial, coronal y sagital restaurados. El recorte manual se conserva.";
+          }),
         ]);
         const info = menus.find((item) => item.sceneView)?.toolbar.querySelector('[aria-controls="modelInfoPanel"]');
         if (info) info.removeAttribute("style");
@@ -11424,7 +11437,7 @@
           button("Capturas e informe", () => openSidebarSection("menu-captures")),
         ]);
         const menuIcons = {
-          "Lista y ajustes de mediciones": "settings", "Añadir etiqueta de texto": "text", "Añadir flecha": "arrow",
+          "Volver a cortes ortogonales": "reset", "Lista y ajustes de mediciones": "settings", "Añadir etiqueta de texto": "text", "Añadir flecha": "arrow",
           "Textos y ajustes": "settings", "Centrar todo": "target",
           "Ajustes de imagen MPR": "image", "Ajustes de la vista 3D": "cube", "Capturas e informe": "report",
         };
@@ -11949,12 +11962,6 @@
         canvas.addEventListener("pointerdown", hideStructureHover);
       }
       document.addEventListener("pointerdown", hideStructureHover, true);
-      document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape" && activeTool === "threePoints") {
-          planePoints = [];
-          setTool("navigate");
-        }
-      });
       for (const [id, icon, label, action] of [
         ["saveMprPosition", "bookmark", "Guardar posición MPR (sesión actual)", saveMprPosition],
         ["restoreMprPosition", "undo", "Volver a la posición MPR guardada", restoreMprPosition],

@@ -58,6 +58,13 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
    fn();assert.ok(context.clipPlane.normal.distanceTo(before.normal)<1e-10);assert.ok(Math.abs(context.clipPlane.constant-before.constant)<1e-10);assert.equal(elements.clipStatus.textContent,'Recorte manual');
   }
  });
+ await test('Plano por tres puntos: desactiva sincronización antes de orientar el recorte',()=>{
+  const elements={toolHint:{},clipAxis:{value:'x'},clipSyncTc:{checked:true},clipEnabled:{checked:false}};
+  let oriented=false;
+  const {fn}=run('addPlanePoint',{$:id=>elements[id],planePoints:[],planePointRoot:new THREE.Group(),volumeInfo:null,clipRotation:new THREE.Quaternion(),orientClip:(rotation,center)=>{assert.equal(elements.clipSyncTc.checked,false);assert.equal(elements.clipAxis.value,'z');assert.ok(center.distanceTo(new THREE.Vector3(1/3,1/3,2))<1e-10);oriented=true;},setTool:()=>{},syncPaneToggles:()=>{},repaintAll:()=>{}});
+  [new THREE.Vector3(0,0,1),new THREE.Vector3(1,0,2),new THREE.Vector3(0,1,3)].forEach(fn);
+  assert(oriented);assert.equal(elements.clipEnabled.checked,true);
+ });
  const buffer=(lines)=>new TextEncoder().encode('NRRD0005\ndimension: 3\nspace: right-anterior-superior\nsizes: 2 3 4\nspace origin: (10,20,30)\nspace directions: (1,0,0) (0,2,0) (0,0,3)\n'+lines+'\n\n').buffer;
  function workHarness(storage = new Map()) {
   const dom = new JSDOM('<div id="host"></div>', {url:'https://viewer.test/mpr.html'});

@@ -385,3 +385,11 @@ El panel indica Recorte desactivado, Recorte manual o Sincronizado con TC con ej
 Al desactivar la sincronización se convierten la normal y la posición del plano actual a los controles manuales. Un desplazamiento residual conserva posiciones exteriores a la caja del modelo y evita saltos por redondeo del deslizador. Se serializa como `clipManualOffset`, opcional y cero para configuraciones anteriores; mover el deslizador vuelve al recorrido normal de la caja. Cancelar un giro restaura también este desplazamiento.
 
 Validación: 86 pruebas y ESLint sin errores. La nueva prueba cubre planos oblicuos, ambos lados y posiciones interiores/exteriores. Chromium comprueba el evento de desactivar sincronización, el estado manual y la conservación numérica del plano con un modelo sintético. Pendiente prueba visual del usuario con su caso.
+
+## v2.25.0 — Planos oblicuos y plano por tres puntos
+
+- Más / Planos y orientación incluye Volver a cortes ortogonales, con icono y texto. Restaura la orientación del TC sin restablecer cámara, zoom ni recorte manual; el recorte sincronizado sigue los cortes restaurados.
+- Esc durante la selección de tres puntos cancela y retira los marcadores sin salir de la vista maximizada ni cambiar la orientación anterior.
+- Completar los tres puntos desactiva la sincronización del recorte para que este pase exactamente por ellos, sin el margen de 5 mm. La indicación inicial avisa del paso a manual.
+
+Validación: 87 pruebas y ESLint sin errores. Nueva regresión para la desactivación de sincronización antes de orientar. Chromium con geometría sintética verifica cancelación con vista maximizada, distancia nula de los tres puntos al plano y botón de vuelta a ortogonales. Pendiente prueba visual con el caso del usuario.
