@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.18.0 · Menús de exploración</title>
+    /><title>MPR · v2.19.0 · Menús de exploración</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3157,7 +3157,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.18.0</strong
+        ><strong>Visor MPR · v2.19.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -3638,7 +3638,7 @@
             ><details class="sidebar-subgroup" id="menu-annotations"
               ><summary>Textos y flechas 3D</summary
               ><div class="sidebar-body"
-                ><p class="note">Texto: pulsa un punto del modelo. Flecha: marca origen y destino. Después escribe y guarda. Pulsa una anotación en 3D o Editar en la lista para modificarla.</p><button
+                ><p class="note">Texto: pulsa un punto del modelo. Flecha: marca la punta en el modelo y después el inicio, incluso fuera de él. Después escribe y guarda. Pulsa una anotación en 3D o Editar en la lista para modificarla.</p><button
                   id="addModelLabel"
                   type="button"
                   >Añadir etiqueta de texto</button
@@ -4162,6 +4162,7 @@
       const selectedStructures = new Set();
       const modelAnnotations = [];
       let selectedAnnotation = null;
+      let arrowPlacementPlane = null, arrowPlacementPreview = null;
       let annotationEditor = null, annotationEditorColor = "#ffdf40";
       let annotationRoot = null,
         pendingArrow = null;
@@ -5922,7 +5923,7 @@
         editMeasure:
           "Arrastra un extremo de una medición. En 2D permanece en su corte; en 3D se desplaza sobre superficies visibles del GLB. Esc cancela.",
         annotation: "Etiqueta 3D: pulsa una superficie del modelo.",
-        arrow: "Pulsa el origen y después la punta de la flecha sobre el modelo.",
+        arrow: "Pulsa la punta en el modelo y después coloca el inicio en el espacio.",
         navigate: "Clic: sincronizar cortes. Rueda: cortes. Ctrl + rueda: zoom.",
         pan: "Arrastra con el botón izquierdo para desplazar el volumen.",
         zoom: "Rueda sobre el volumen para aumentar o reducir. Ctrl + rueda funciona en cualquier modo.",
@@ -6475,6 +6476,11 @@
           if (annotation) { openAnnotationEditor(annotation, annotation); return; }
         }
         if (activeTool === "navigate") return;
+        if (activeTool === "arrow" && pendingArrow && arrowPlacementPlane) {
+          const start = raycaster.ray.intersectPlane(arrowPlacementPlane, new THREE.Vector3());
+          if (start) pickAnnotation(start);
+          return;
+        }
         if ((activeTool === "us" || activeTool === "usTarget") && trajectory) {
           const point = new THREE.Vector3();
           raycaster.ray.distanceSqToSegment(trajectory.a, trajectory.b, undefined, point);
@@ -9027,6 +9033,10 @@
       }
       function renderAnnotations({ refreshList = true } = {}) {
         requestSceneRender();
+        if (!pendingArrow) {
+          arrowPlacementPlane = null;
+          if (arrowPlacementPreview) arrowPlacementPreview.visible = false;
+        }
         if (!modelAnnotations.includes(selectedAnnotation)) selectedAnnotation = null;
         if (!annotationRoot) return;
         while (annotationRoot.children.length) {
@@ -9190,6 +9200,37 @@
           $("modelAnnotationList").append(card);
         });
       }
+      function updateArrowPlacementPreview(point) {
+        if (!pendingArrow || !point || activeTool !== "arrow") {
+          if (arrowPlacementPreview) arrowPlacementPreview.visible = false;
+          requestSceneRender(); return;
+        }
+        const direction = pendingArrow.clone().sub(point), length = direction.length();
+        if (length < 0.01) {
+          if (arrowPlacementPreview) arrowPlacementPreview.visible = false;
+          requestSceneRender(); return;
+        }
+        if (!arrowPlacementPreview) {
+          arrowPlacementPreview = new THREE.ArrowHelper(new THREE.Vector3(0, 1, 0), new THREE.Vector3(), 1, 0xffd36e);
+          arrowPlacementPreview.traverse(o => {
+            if (o.material) { o.material.depthTest = false; o.material.depthWrite = false; }
+            o.renderOrder = 220;
+          });
+          scene.add(arrowPlacementPreview);
+        }
+        arrowPlacementPreview.position.copy(point);
+        arrowPlacementPreview.setDirection(direction.normalize());
+        arrowPlacementPreview.setLength(length, Math.min(5, length * 0.25), Math.min(1.5, length * 0.075));
+        arrowPlacementPreview.visible = true;
+        requestSceneRender();
+      }
+      renderer.domElement.addEventListener("pointermove", event => {
+        if (activeTool !== "arrow" || !pendingArrow || !arrowPlacementPlane || event.buttons) return;
+        updateArrowPlacementPreview(pointOnTrajectoryDragPlane(event, renderer.domElement, arrowPlacementPlane));
+      });
+      renderer.domElement.addEventListener("pointerleave", () => {
+        if (arrowPlacementPreview?.visible) updateArrowPlacementPreview(null);
+      });
       function pickAnnotation(point) {
         if (modelAnnotations.length >= 100) { $("annotationHint").textContent = "Máximo de 100 anotaciones por vista."; return; }
         if (activeTool === "annotation") {
@@ -9198,11 +9239,12 @@
         }
         if (!pendingArrow) {
           pendingArrow = point.clone();
-          $("annotationHint").textContent = "Pulsa el destino de la flecha; Esc cancela.";
+          arrowPlacementPlane = new THREE.Plane().setFromNormalAndCoplanarPoint(camera.getWorldDirection(new THREE.Vector3()), pendingArrow);
+          $("annotationHint").textContent = "Punta fijada. Mueve el ratón y pulsa para colocar el inicio, incluso fuera del modelo. Esc cancela.";
           renderAnnotations(); return;
         }
         if (pendingArrow.distanceTo(point) < 0.01) { $("annotationHint").textContent = "Elige un segundo punto diferente."; return; }
-        openAnnotationEditor({ kind: "arrow", text: "", color: annotationEditorColor, a: pendingArrow.toArray(), b: point.toArray() });
+        openAnnotationEditor({ kind: "arrow", text: "", color: annotationEditorColor, a: point.toArray(), b: pendingArrow.toArray() });
       }
       function clearModelAnnotations() {
         modelAnnotations.length = 0;
@@ -9217,7 +9259,7 @@
       $("addModelArrow").onclick = () => {
         setTool("arrow");
         $("annotationHint").textContent =
-          "Pulsa el origen y después la punta de la flecha sobre superficies del modelo 3D.";
+          "Pulsa la estructura que quieres señalar; después coloca el inicio de la flecha, también fuera del modelo.";
       };
       $("showAnnotations").onchange = () => (annotationRoot.visible = $("showAnnotations").checked);
       $("clearModelAnnotations").onclick = clearModelAnnotations;

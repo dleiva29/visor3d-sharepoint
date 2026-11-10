@@ -11,7 +11,7 @@ function suite(html){
  const code=moduleOf(html),ast=espree.parse(code,{ecmaVersion:'latest',sourceType:'module',range:true});
  const funcs=new Map(ast.body.filter(n=>n.type==='FunctionDeclaration').map(n=>[n.id.name,code.slice(...n.range)]));
  function run(name, globals = {}, dependencies = []) {
-   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, selectedMeasurement:null, selectedAnnotation:null, ...globals});
+   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, selectedMeasurement:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
    vm.runInContext([...dependencies, name].map((key) => funcs.get(key)).join("\n"), context);
    return {fn: context[name], context};
  }
@@ -96,9 +96,9 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   card.querySelector('[aria-label="Editar Etiqueta 1"]').click();assert.equal(edited,item);assert.equal(item.text,'Original');dom.window.close();
  });
  await test('Anotaciones: colocar abre borrador; flecha necesita dos puntos diferentes',()=>{
-  const modelAnnotations=[],message={};let draft=null;const {fn,context}=run('pickAnnotation',{modelAnnotations,$:()=>message,activeTool:'annotation',annotationEditorColor:'#ff0000',pendingArrow:null,renderAnnotations:()=>{},openAnnotationEditor:d=>draft=d});
+  const modelAnnotations=[],message={};let draft=null;const {fn,context}=run('pickAnnotation',{modelAnnotations,$:()=>message,camera:{getWorldDirection:v=>v.set(0,0,-1)},activeTool:'annotation',annotationEditorColor:'#ff0000',pendingArrow:null,renderAnnotations:()=>{},openAnnotationEditor:d=>draft=d});
   fn(new THREE.Vector3(1,2,3));assert.equal(draft.kind,'label');assert.equal(draft.text,'');assert.equal(modelAnnotations.length,0);
-  context.activeTool='arrow';draft=null;fn(new THREE.Vector3());assert.equal(draft,null);fn(new THREE.Vector3());assert.equal(draft,null);fn(new THREE.Vector3(1,0,0));assert.equal(draft.kind,'arrow');assert.equal(modelAnnotations.length,0);
+  context.activeTool='arrow';draft=null;fn(new THREE.Vector3());assert.equal(draft,null);fn(new THREE.Vector3());assert.equal(draft,null);fn(new THREE.Vector3(1,0,0));assert.equal(draft.kind,'arrow');assert.deepEqual(Array.from(draft.a),[1,0,0]);assert.deepEqual(Array.from(draft.b),[0,0,0]);assert.equal(context.arrowPlacementPlane.distanceToPoint(new THREE.Vector3(5,8,0)),0);assert.equal(modelAnnotations.length,0);
  });
  await test('Anotaciones: localizar muestra y centra la flecha conservando la distancia de cámara',()=>{
   const dom=new JSDOM('<input id="showAnnotations" type="checkbox"><div id="modelAnnotationList"></div><p id="annotationHint"></p>');const item={kind:'arrow',a:[0,0,0],b:[4,6,8],visible:false};const camera={position:new THREE.Vector3(10,10,10)},controls={target:new THREE.Vector3(),update:()=>{}};

@@ -330,3 +330,12 @@ La lista lateral es compacta: texto, visibilidad y acciones Localizar, Editar y 
 Se corrige también el filtrado de eventos del guardado automático: los eventos de TrackballControls no tienen un nodo DOM como target y no deben pasarse a contains().
 
 Verificación: 80 pruebas y ESLint correctos. Chromium comprueba creación y guardado de texto, rechazo de etiqueta vacía, flecha sin texto, Cancelar/Esc y edición desde la lista y mediante clic en 3D, sin errores JavaScript. Pendiente prueba visual del usuario.
+
+
+## Flechas con inicio libre (v2.19.0)
+
+La colocación de flechas comienza por la punta, que se selecciona sobre una superficie visible del modelo. El segundo punto define el inicio y puede estar en el espacio vacío. Se obtiene intersectando el rayo del cursor con un plano paralelo a la pantalla en el momento de fijar la punta y que pasa por ella. Una flecha provisional sigue el ratón antes del segundo clic. Después se abre el editor de texto/color; el texto se ancla al inicio libre. La flecha conserva sus coordenadas 3D al girar la cámara.
+
+Esc, cambiar de herramienta o terminar la colocación retiran la previsualización. Esta no forma parte del estado exportado. El formato existente conserva a como inicio y b como punta; las flechas anteriores no cambian.
+
+Verificación: 80 pruebas y ESLint correctos. Chromium verifica previsualización, segundo clic sobre espacio vacío, guardado con punta fija y punto inicial en el plano esperado, y cancelación con Esc sin errores JavaScript.
