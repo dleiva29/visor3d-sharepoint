@@ -1,14 +1,43 @@
 export const viewIds = ['axial', 'coronal', 'sagittal', '3d'];
 export function normaliseViewLayout(value) {
-  const visible = viewIds.filter(id => Array.isArray(value?.visible) && value.visible.includes(id));
+  const order = [...new Set([...(Array.isArray(value?.order) ? value.order.filter(id => viewIds.includes(id)) : []), ...viewIds])];
+  const visible = order.filter(id => Array.isArray(value?.visible) && value.visible.includes(id));
   const ratio = n => typeof n === 'number' && Number.isFinite(n) ? Math.min(0.75, Math.max(0.25, n)) : 0.5;
-  return { visible: visible.length ? visible : [...viewIds], x: ratio(value?.x), y: ratio(value?.y) };
+  return { order, visible: visible.length ? visible : [...order], x: ratio(value?.x), y: ratio(value?.y) };
 }
 export function installViewLayout({ document, refresh, blocked }) {
   const win = document.defaultView, grid = document.querySelector('.views');
   const menu = document.getElementById('viewLayoutMenu'), controls = menu.querySelector('div');
   const panes = viewIds.map(id => grid.querySelector(`[data-view-pane="${id}"]`));
-  let state = normaliseViewLayout(), frame = 0, drag = null;
+  let state = normaliseViewLayout(), frame = 0, drag = null, moving = null, suppressClickUntil = 0;
+  const announcement = document.createElement('span');
+  announcement.className = 'workspace-message'; announcement.setAttribute('role', 'status');
+  document.body.append(announcement);
+  const canReorder = () => !blocked() && !grid.querySelector('.maximized') && state.visible.length > 1;
+  function swap(source, target) {
+    if (!canReorder() || source === target || !state.visible.includes(source) || !state.visible.includes(target)) return;
+    const a = state.order.indexOf(source), b = state.order.indexOf(target);
+    [state.order[a], state.order[b]] = [state.order[b], state.order[a]];
+    state = normaliseViewLayout(state); render();
+    announcement.textContent = 'Posiciones intercambiadas. Guarda o actualiza el espacio para conservar el orden.';
+  }
+  function finishMove(cancel) {
+    if (!moving) return;
+    const old = moving; moving = null;
+    panes.forEach(pane => pane.classList.remove('view-drag-source', 'view-drop-target'));
+    if (old.header.hasPointerCapture(old.id)) old.header.releasePointerCapture(old.id);
+    if (old.started) {
+      suppressClickUntil = Date.now() + 400;
+      if (!cancel && old.target) swap(old.source, old.target);
+      else announcement.textContent = 'Movimiento cancelado. Se conserva el orden anterior.';
+      old.header.focus({ preventScroll: true });
+    }
+  }
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && moving) { event.preventDefault(); event.stopImmediatePropagation(); finishMove(true); }
+  }, true);
+  win.addEventListener('blur', () => finishMove(true));
+  win.addEventListener('resize', () => finishMove(true));
   const labels = ['Axial', 'Coronal', 'Sagital', '3D'];
   const checks = [], closes = [];
   const schedule = () => { if (!frame) frame = win.requestAnimationFrame(() => { frame = 0; refresh(); }); };
@@ -17,7 +46,7 @@ export function installViewLayout({ document, refresh, blocked }) {
     const ids = new Set(state.visible);
     if (visible) ids.add(id); else ids.delete(id);
     if (!ids.size) return;
-    state.visible = viewIds.filter(value => ids.has(value));
+    state.visible = state.order.filter(value => ids.has(value));
     const pane = panes[viewIds.indexOf(id)];
     if (!visible) {
       pane.classList.remove('maximized');
@@ -26,6 +55,39 @@ export function installViewLayout({ document, refresh, blocked }) {
     render();
   }
   panes.forEach((pane, i) => {
+    const header = pane.querySelector('h2');
+    if (header) {
+      header.tabIndex = 0; header.classList.add('view-drag-header');
+      header.title = 'Arrastra sobre otra vista para intercambiar posiciones. Teclado: Alt + flechas. Doble clic: maximizar.';
+      header.setAttribute('aria-keyshortcuts', 'Alt+ArrowLeft Alt+ArrowRight Alt+ArrowUp Alt+ArrowDown');
+      header.addEventListener('pointerdown', event => {
+        if (event.button !== 0 || !canReorder() || drag || moving || event.target.closest('button,input,select')) return;
+        event.preventDefault(); header.focus({ preventScroll: true }); header.setPointerCapture(event.pointerId);
+        moving = { id: event.pointerId, source: viewIds[i], header, x: event.clientX, y: event.clientY, started: false, target: null };
+      });
+      header.addEventListener('pointermove', event => {
+        if (!moving || moving.id !== event.pointerId) return;
+        if (!canReorder()) { finishMove(true); return; }
+        if (!moving.started && Math.hypot(event.clientX-moving.x, event.clientY-moving.y) < 6) return;
+        moving.started = true; pane.classList.add('view-drag-source');
+        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.pane[data-view-pane]');
+        moving.target = target && target !== pane && grid.contains(target) && state.visible.includes(target.dataset.viewPane) ? target.dataset.viewPane : null;
+        panes.forEach(item => item.classList.toggle('view-drop-target', item.dataset.viewPane === moving.target));
+      });
+      header.addEventListener('pointerup', event => { if (moving?.id === event.pointerId) finishMove(false); });
+      header.addEventListener('pointercancel', () => finishMove(true));
+      header.addEventListener('lostpointercapture', () => finishMove(true));
+      for (const type of ['click', 'dblclick']) header.addEventListener(type, event => {
+        if (Date.now() < suppressClickUntil) { event.preventDefault(); event.stopPropagation(); }
+      });
+      header.addEventListener('keydown', event => {
+        if (!event.altKey || !['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key) || !canReorder()) return;
+        event.preventDefault(); event.stopPropagation();
+        const delta = ['ArrowLeft','ArrowUp'].includes(event.key) ? -1 : 1;
+        const target = state.visible[state.visible.indexOf(viewIds[i]) + delta];
+        if (target) { swap(viewIds[i], target); header.focus({ preventScroll: true }); }
+      });
+    }
     const label = document.createElement('label'), check = document.createElement('input');
     check.type = 'checkbox';
     check.addEventListener('change', () => setVisible(viewIds[i], check.checked));
@@ -75,6 +137,10 @@ export function installViewLayout({ document, refresh, blocked }) {
     grid.append(handle); return handle;
   });
   function render() {
+    const currentOrder = [...grid.querySelectorAll(':scope > .pane')].map(pane => pane.dataset.viewPane);
+    if (currentOrder.some((id, i) => id !== state.order[i])) {
+      for (const id of state.order) grid.append(panes[viewIds.indexOf(id)]);
+    }
     const count = state.visible.length;
     grid.dataset.viewCount = String(count);
     grid.style.setProperty('--view-cols', count === 1 ? 'minmax(0, 1fr)' : `minmax(0, ${state.x}fr) minmax(0, ${1-state.x}fr)`);
@@ -114,6 +180,7 @@ export function installViewLayout({ document, refresh, blocked }) {
   menu.addEventListener('keydown', event => { if (event.key === 'Escape') { menu.open = false; menu.querySelector('summary').focus(); } });
   render();
   return { capture: () => normaliseViewLayout(state), apply: value => {
+    finishMove(true);
     state = normaliseViewLayout(value);
     panes.forEach((pane, i) => { if (!state.visible.includes(viewIds[i])) pane.classList.remove('maximized'); });
     render();

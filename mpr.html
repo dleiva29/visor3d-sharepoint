@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.37.0 · Espacios de trabajo</title>
+    /><title>MPR · v2.38.0 · Espacios de trabajo</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3248,6 +3248,13 @@
       .ct-plane-handle.is-dragging { cursor: grabbing; background: #245169; }
       .ct-plane-handle:focus-visible { outline: 2px solid white; outline-offset: 2px; }
       #dragCtPlanes[aria-pressed="true"] { background: #087e90; border-color: #91efdc; }
+      .pane > .view-drag-header { cursor: grab; user-select: none; touch-action: none; }
+      .pane > .view-drag-header::before { content: "⠿"; margin-right: 6px; color: #88b9c9; }
+      .pane.view-drag-source > .view-drag-header { cursor: grabbing; background: #245169; }
+      .pane.view-drop-target { outline: 3px solid #91efdc; outline-offset: -3px; }
+      .pane.view-drop-target > h2 { background: #21645e; }
+      .pane > .view-drag-header:focus-visible { outline: 2px solid #91efdc; outline-offset: -3px; }
+      .pane.maximized > .view-drag-header, body.mobile-presentation .view-drag-header { cursor: default; }
     </style></head
   ><body>
 <script>
@@ -3264,7 +3271,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.37.0</strong>
+        ><strong>Visor MPR · v2.38.0</strong>
         <button
           type="button"
           id="toggleGeneralPanel"
