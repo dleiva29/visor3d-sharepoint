@@ -1,5 +1,5 @@
 // Los espacios solo organizan la interfaz: no reciben ni modifican el estado del caso.
-export function installWorkspacePresets({ document, setPanelFolded, toggleTools, refresh, blocked, storage = () => document.defaultView.localStorage,
+export function installWorkspacePresets({ document, setPanelFolded, toggleTools, refresh, blocked, viewLayout, storage = () => document.defaultView.localStorage,
   ask = text => document.defaultView.prompt(text), confirm = text => document.defaultView.confirm(text),
   alert = text => document.defaultView.alert(text) }) {
   const get = id => document.getElementById(id);
@@ -70,8 +70,10 @@ export function installWorkspacePresets({ document, setPanelFolded, toggleTools,
     scroll: panel.scrollTop,
     preset: select.dataset.applied || '',
     presentationActions: !get('workspacePresentationActions').hidden,
+    ...(viewLayout ? { viewLayout: viewLayout.capture() } : {}),
   });
   function apply(state) {
+    viewLayout?.apply(state.viewLayout);
     setPanelFolded(state.folded);
     if (get('viewerTools').hidden !== state.toolsHidden) toggleTools();
     for (const { node, open, hidden } of state.sections) { node.open = open; node.hidden = hidden; }
@@ -116,6 +118,7 @@ export function installWorkspacePresets({ document, setPanelFolded, toggleTools,
   function serialise(id, name) {
     const state = capture();
     return { id, name, folded: state.folded, toolsHidden: state.toolsHidden,
+      ...(viewLayout ? { viewLayout: state.viewLayout } : {}),
       presentationActions: state.presentationActions, scroll: Math.max(0, state.scroll),
       sections: state.sections.filter(({ node }) => knownIds.has(node.id)).map(({ node, open }) => ({ id: node.id, open })) };
   }
