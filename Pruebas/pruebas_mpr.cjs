@@ -11,7 +11,7 @@ function suite(html){
  const code=moduleOf(html),ast=espree.parse(code,{ecmaVersion:'latest',sourceType:'module',range:true});
  const funcs=new Map(ast.body.filter(n=>n.type==='FunctionDeclaration').map(n=>[n.id.name,code.slice(...n.range)]));
  function run(name, globals = {}, dependencies = []) {
-   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, clipManualOffset:0, savedViewTracker:null, selectedMeasurement:null, hoveredMeasurement:null, hoveredAnnotation:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
+   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, clipManualOffset:0, savedViewTracker:null, selectedMeasurement:null, hoveredMeasurement:null, hoveredAnnotation:null, selectedAnnotation:null, ctPlaneDrag:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
    vm.runInContext([...dependencies, name].map((key) => funcs.get(key)).join("\n"), context);
    return {fn: context[name], context};
  }
@@ -360,9 +360,9 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   const dom=new JSDOM('<input type="range" id="rx" min="0" max="10" value="3"><input type="range" id="ry" min="0" max="20" value="4"><input type="range" id="rz" min="0" max="30" value="5"><input type="checkbox" id="planes" checked><input type="checkbox" id="planeX" checked><input type="checkbox" id="planeY" checked><input type="checkbox" id="planeZ" checked>');
   const document=dom.window.document,$=id=>document.getElementById(id);let inputs=0;
   $('rz').oninput=()=>inputs++;
-  const {fn,context}=run('create3DSliceControls',{document,$,MutationObserver:dom.window.MutationObserver,Event:dom.window.Event},['sync3DSliceControl','syncPaneToggles']);
+  const {fn,context}=run('create3DSliceControls',{document,$,installCtPlaneDrag:()=>({update:()=>{}}),MutationObserver:dom.window.MutationObserver,Event:dom.window.Event},['sync3DSliceControl','syncPaneToggles']);
   document.body.append(fn());
-  const axial=document.querySelector('.scene-slice-controls button[data-pane-toggle="planeZ"]');assert.equal(axial.textContent,'Axial');assert.equal(axial.getAttribute('aria-pressed'),'true');axial.click();assert.equal($('planeZ').checked,false);assert.equal(axial.getAttribute('aria-pressed'),'false');axial.click();assert.equal($('planeZ').checked,true);assert.equal(document.querySelectorAll('.scene-slice-controls button').length,3);
+  const axial=document.querySelector('.scene-slice-controls button[data-pane-toggle="planeZ"]');assert.equal(axial.textContent,'Axial');assert.equal(axial.getAttribute('aria-pressed'),'true');axial.click();assert.equal($('planeZ').checked,false);assert.equal(axial.getAttribute('aria-pressed'),'false');axial.click();assert.equal($('planeZ').checked,true);assert.equal(document.querySelectorAll('.scene-slice-controls button[data-pane-toggle]').length,3);
   assert.equal($('sceneSlicez').max,'30');assert.equal($('sceneSlicez').value,'5');
   $('sceneSlicez').value='12';$('sceneSlicez').dispatchEvent(new dom.window.Event('input'));assert.equal($('rz').value,'12');assert.equal(inputs,1);assert.equal($('sceneSliceValuez').textContent,'12');
   $('rz').value='8';context.sync3DSliceControl('z');assert.equal($('sceneSlicez').value,'8');
