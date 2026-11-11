@@ -441,3 +441,40 @@ La presentación conserva una copia de la configuración de trabajo y selección
 La lista de diapositivas sigue siendo una copia ordenada de las vistas incluidas; presentar no modifica las vistas guardadas. Las vistas US continúan excluidas de esta presentación.
 
 Validación: 90 pruebas y ESLint sin errores. Chromium en 1400×1000 y móvil emulado 390×1000 con NRRD sintético y GLB 10 comprueba el orden de dos diapositivas, salida con Esc durante una transición y coincidencia de la configuración completa antes/después. Pendiente revisión visual del usuario.
+
+## Caso portátil · v2.31.0 (11 de noviembre de 2026)
+
+En **Abrir → Caso portátil · ZIP**, Guardar incluye los bytes originales del GLB
+ y del NRRD (reunidos si se cargaron por fragmentos), más el estado que ya exporta
+ la configuración del caso: árbol, apariencia, cortes, cámara, selección,
+ mediciones, anotaciones, trayectoria y vistas guardadas. Abrir recupera los tres
+ componentes sin seleccionar los archivos por separado. Si hay un caso abierto,
+ pide confirmar su sustitución. Es una descarga local; el ZIP no incluye el
+ programa del visor y debe abrirse desde él.
+
+Formato `mpr-portable-case`, versión 1: `manifest.json`, `case.json`, `model.glb`
+ y `volume.nrrd`. El manifiesto registra los tamaños y SHA-256. La importación
+ rechaza archivos ausentes, alterados, rutas inesperadas y estados de otro caso.
+ Valida geometría y configuración antes de reemplazar las vistas, usando un
+ contexto temporal síncrono que se restaura en `finally`. Si falla la instalación
+ y había un caso completo, recarga sus fuentes y restaura su estado.
+
+Límite: 512 MiB de GLB+NRRD, más un máximo de 25 MB de configuración. El ZIP usa
+ almacenamiento sin recompresión para evitar trabajo innecesario sobre NRRD ya
+ comprimidos. Se necesita memoria adicional al leer y preparar el paquete. Los
+ GLB con recursos externos deben convertirse antes a un GLB autocontenido.
+ Las operaciones se bloquean durante la carga automática, presentación o US.
+
+Se conserva una copia Blob de cada fuente cargada. La funcionalidad ZIP carga
+ dinámicamente `tools/portable-case.js` y `tools/vendor/fflate.module.js`; estos
+ archivos deben acompañar al HTML al desplegarlo. fflate 0.8.3 se distribuye bajo
+ MIT: copia de `fflate@0.8.3/esm/browser.js`, con licencia adjunta. No requiere
+ instalar dependencias para usar el visor.
+
+Validación: 90 pruebas del visor + 5 del paquete portátil y ESLint. Chromium:
+ exportación e importación en una sesión sin almacenamiento previo; igualdad
+ exacta del estado con un GLB real (`modelos/10.glb`, 17 MB) y un NRRD sintético;
+ medidas, anotaciones, selección y vistas; rechazo de bytes alterados y cortes
+ fuera de rango sin modificar el caso abierto; cancelación; sin errores de JS
+ ni desbordamiento horizontal a 390 px. Pendiente validar el paquete completo
+ con el volumen y las segmentaciones reales del usuario.
