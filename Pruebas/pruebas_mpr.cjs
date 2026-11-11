@@ -11,7 +11,7 @@ function suite(html){
  const code=moduleOf(html),ast=espree.parse(code,{ecmaVersion:'latest',sourceType:'module',range:true});
  const funcs=new Map(ast.body.filter(n=>n.type==='FunctionDeclaration').map(n=>[n.id.name,code.slice(...n.range)]));
  function run(name, globals = {}, dependencies = []) {
-   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, clipManualOffset:0, savedViewTracker:null, selectedMeasurement:null, hoveredMeasurement:null, hoveredAnnotation:null, selectedAnnotation:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
+   const context = vm.createContext({THREE, TextDecoder, Uint8Array, ArrayBuffer, Set, Map, Number, Math, structuredClone, requestSceneRender:()=>{}, clipManualOffset:0, savedViewTracker:null, selectedMeasurement:null, hoveredMeasurement:null, hoveredAnnotation:null, selectedAnnotation:null, ctPlaneDrag:null, arrowPlacementPreview:null, arrowPlacementPlane:null, ...globals});
    vm.runInContext([...dependencies, name].map((key) => funcs.get(key)).join("\n"), context);
    return {fn: context[name], context};
  }
@@ -20,6 +20,24 @@ function suite(html){
  return {run,test,errors,code,ast};
 }
 async function check(html, additionalTests = false){const s=suite(html);const {run,test}=s;
+ await test('Entrada US 3D: conserva el punto, centra miniatura externa y mantiene eje de trayectoria',()=>{
+  let declaration;
+  function walk(node){if(!node||typeof node!=='object')return;if(node.type==='FunctionDeclaration'&&node.id.name==='openSurface')declaration=node;for(const value of Object.values(node)){if(Array.isArray(value))value.forEach(walk);else if(value&&typeof value==='object')walk(value);}}
+  walk(s.ast);assert.ok(declaration);
+  let opened;
+  const context=vm.createContext({THREE,volume:{},model:{},slices:{z:{}},$:()=>({width:100,height:100}),
+   slicePixelBasis:()=>({u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)}),
+   pixelToWorld:(_axis,x,y)=>new THREE.Vector3(x,y,0),worldToPixel:(_axis,p)=>({x:p.x,y:p.y}),
+   openSection:(...args)=>{opened=args;}});
+  vm.runInContext(s.code.slice(...declaration.range),context);
+  const p=new THREE.Vector3(20,30,17);context.openSurface(p);
+  assert.ok(opened[1].equals(p));assert.notEqual(opened[1],p);assert.equal(opened[4],null);
+  const reconstruct=e=>e.origin.clone().addScaledVector(e.u,e.x).addScaledVector(e.v,e.y);
+  assert.ok(reconstruct(opened[0]).distanceTo(p)<1e-9);
+  const outside=new THREE.Vector3(180,220,-4),end=new THREE.Vector3(0,0,50);context.openSurface(outside,end);
+  assert.equal(opened[0].x,0.5);assert.equal(opened[0].y,0.5);assert.ok(reconstruct(opened[0]).equals(outside));assert.ok(opened[4].equals(end));assert.notEqual(opened[4],end);
+  context.volume=null;assert.throws(()=>context.openSurface(p),/Carga un volumen/);
+ });
  await test('Menús de cabecera: caben en horizontal y se recolocan al girar la pantalla',()=>{
   const content={style:{},offsetWidth:260};
   const anchor={left:760,bottom:151};
@@ -127,15 +145,22 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   h.auto.checked=true;h.auto.onchange();h.state={slice:10};h.dom.window.dispatchEvent(new h.dom.window.Event('pagehide'));assert.equal(JSON.parse([...h.storage.values()][0]).state.slice,10);
   h.buttons.delete.click();assert.equal(h.storage.size,0);assert.equal(h.buttons.restore.disabled,true);assert.equal(h.state.slice,10);h.event();h.flush();assert.equal(h.storage.size,0);h.dom.window.close();
  });
- await test('Mediciones: filas accesibles, selección y eliminación por identidad',()=>{
+ await test('Mediciones: tarjetas plegadas, controles independientes, foco y ajustes persistentes',()=>{
   const dom=new JSDOM('<p id="measurementEmpty"></p><p id="measurementHint"></p><ol id="measurementList"></ol>');
-  const m={axis:null,index:null,a:new THREE.Vector3(),b:new THREE.Vector3(3,4,0)},n={...m};
+  const m={axis:null,index:null,a:new THREE.Vector3(),b:new THREE.Vector3(3,4,0),precision:3},n={...m};
   const measurements=[m,n];let located=null;
-  const {fn,context}=run('updateMeasurementList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),measurements,selectedMeasurement:m,updateMeasurementHint:()=>{},locateMeasurement:(v,edit)=>{located=[v,edit];},renderMeasure3D:()=>{},repaintAll:()=>{}},['setTreeIcon']);
-  fn();const rows=dom.window.document.querySelectorAll('li');const name=rows[0].querySelector('input');name.value='Diámetro de lesión';name.dispatchEvent(new dom.window.Event('input'));assert.equal(m.name,'Diámetro de lesión');name.value=' ';name.dispatchEvent(new dom.window.Event('input'));assert.equal(m.name,undefined);assert.match(rows[0].textContent,/5.0 mm.*3D/);assert.ok(rows[0].classList.contains('selected'));const toggle=rows[0].querySelector('input[type=checkbox]');assert.equal(toggle.checked,true);toggle.click();assert.equal(m.visible,false);toggle.click();assert.equal(m.visible,true);
-  rows[0].querySelector('button').click();assert.equal(located[0],m);assert.equal(rows[0].querySelector('button').getAttribute('aria-pressed'),'true');
-  rows[0].querySelectorAll('button')[1].click();assert.equal(located[1],true);
-  rows[0].querySelectorAll('button')[2].click();assert.equal(measurements.length,1);assert.equal(measurements[0],n);assert.equal(context.selectedMeasurement,null);dom.window.close();
+  const {fn,context}=run('updateMeasurementList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),measurements,expandedMeasurementSettings:new WeakSet(),selectedMeasurement:m,updateMeasurementHint:()=>{},locateMeasurement:(v,edit)=>{located=[v,edit];},renderMeasure3D:()=>{},repaintAll:()=>{}},['setTreeIcon','formatMeasurementDistance']);
+  fn();let row=dom.window.document.querySelector('li');
+  assert.equal(row.querySelector('.measurement-settings').hidden,true);
+  assert.equal(row.querySelector('.measurement-settings-toggle').getAttribute('aria-expanded'),'false');
+  assert.match(row.querySelector('.measurement-locate').textContent,/Medida 1.*5.000 mm.*3D/);
+  const toggle=row.querySelector('input[type=checkbox]');toggle.click();assert.equal(m.visible,false);assert.equal(located,null);toggle.click();assert.equal(m.visible,true);
+  row.querySelector('.measurement-settings-toggle').click();assert.equal(located,null);assert.equal(row.querySelector('.measurement-settings').hidden,false);
+  const name=row.querySelector('input[type=text]');name.value='Diámetro de lesión';name.dispatchEvent(new dom.window.Event('input'));assert.equal(m.name,'Diámetro de lesión');assert.equal(row.querySelector('.measurement-display-name').textContent,m.name);
+  row.querySelector('.measurement-locate').click();assert.equal(located[0],m);assert.equal(located[1],undefined);assert.equal(row.querySelector('.measurement-locate').getAttribute('aria-pressed'),'true');
+  name.focus();name.setSelectionRange(2,5);fn();row=dom.window.document.querySelector('li');assert.equal(row.querySelector('.measurement-settings').hidden,false);assert.equal(dom.window.document.activeElement,row.querySelector('input[type=text]'));assert.equal(dom.window.document.activeElement.selectionStart,2);
+  row.querySelector('[data-measurement-action=edit]').click();assert.equal(located[0],m);assert.equal(located[1],true);
+  row.querySelector('[data-measurement-action=delete]').click();assert.equal(measurements.length,1);assert.equal(measurements[0],n);assert.equal(context.selectedMeasurement,null);assert.equal(dom.window.document.querySelector('.measurement-settings').hidden,true);dom.window.close();
  });
  await test('Mediciones: localizar centra cámara y rechaza planos incompatibles',()=>{
   const dom=new JSDOM('<div class="pane" data-view-pane="3d"></div><input id="rx" value="2"><p id="measurementHint"></p>');
@@ -158,7 +183,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
  });
  await test('Anotaciones: lista compacta delega edición sin modificar texto',()=>{
   const dom=new JSDOM('<div id="modelAnnotationList"></div><p id="modelAnnotationEmpty"></p><p id="annotationHint"></p>');const item={kind:'label',text:'Original',color:'#ff0000',a:[1,2,3]},modelAnnotations=[item];let located=null,edited=null;
-  const {fn}=run('renderAnnotationList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),modelAnnotations,renderAnnotations:()=>{},locateAnnotation:v=>located=v,openAnnotationEditor:(draft,original)=>edited=original},['setTreeIcon']);fn();
+  const {fn}=run('renderAnnotationList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),modelAnnotations,renderAnnotations:()=>{},locateAnnotation:v=>located=v,openAnnotationEditor:(draft,original)=>edited=original},['setTreeIcon','formatMeasurementDistance']);fn();
   const card=dom.window.document.querySelector('.annotation-card');assert.equal(card.querySelector('textarea'),null);assert.equal(card.querySelector('strong').textContent,'Original');const toggle=card.querySelector('[type=checkbox]');toggle.click();assert.equal(item.visible,false);
   card.querySelector('[aria-label="Localizar Etiqueta 1"]').click();assert.equal(located,item);assert.equal(toggle.checked,true);
   card.querySelector('[aria-label="Editar Etiqueta 1"]').click();assert.equal(edited,item);assert.equal(item.text,'Original');dom.window.close();
@@ -335,9 +360,9 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   const dom=new JSDOM('<input type="range" id="rx" min="0" max="10" value="3"><input type="range" id="ry" min="0" max="20" value="4"><input type="range" id="rz" min="0" max="30" value="5"><input type="checkbox" id="planes" checked><input type="checkbox" id="planeX" checked><input type="checkbox" id="planeY" checked><input type="checkbox" id="planeZ" checked>');
   const document=dom.window.document,$=id=>document.getElementById(id);let inputs=0;
   $('rz').oninput=()=>inputs++;
-  const {fn,context}=run('create3DSliceControls',{document,$,MutationObserver:dom.window.MutationObserver,Event:dom.window.Event},['sync3DSliceControl','syncPaneToggles']);
+  const {fn,context}=run('create3DSliceControls',{document,$,installCtPlaneDrag:()=>({update:()=>{}}),MutationObserver:dom.window.MutationObserver,Event:dom.window.Event},['sync3DSliceControl','syncPaneToggles']);
   document.body.append(fn());
-  const axial=document.querySelector('.scene-slice-controls button[data-pane-toggle="planeZ"]');assert.equal(axial.textContent,'Axial');assert.equal(axial.getAttribute('aria-pressed'),'true');axial.click();assert.equal($('planeZ').checked,false);assert.equal(axial.getAttribute('aria-pressed'),'false');axial.click();assert.equal($('planeZ').checked,true);assert.equal(document.querySelectorAll('.scene-slice-controls button').length,3);
+  const axial=document.querySelector('.scene-slice-controls button[data-pane-toggle="planeZ"]');assert.equal(axial.textContent,'Axial');assert.equal(axial.getAttribute('aria-pressed'),'true');axial.click();assert.equal($('planeZ').checked,false);assert.equal(axial.getAttribute('aria-pressed'),'false');axial.click();assert.equal($('planeZ').checked,true);assert.equal(document.querySelectorAll('.scene-slice-controls button[data-pane-toggle]').length,3);
   assert.equal($('sceneSlicez').max,'30');assert.equal($('sceneSlicez').value,'5');
   $('sceneSlicez').value='12';$('sceneSlicez').dispatchEvent(new dom.window.Event('input'));assert.equal($('rz').value,'12');assert.equal(inputs,1);assert.equal($('sceneSliceValuez').textContent,'12');
   $('rz').value='8';context.sync3DSliceControl('z');assert.equal($('sceneSlicez').value,'8');
@@ -399,7 +424,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
  for(const [field,value] of [['sizes','2 3'],['sizes','2 0 4'],['sizes','2 3 NaN'],['space origin','(0,NaN,1)'],['space directions','(1,0,0) (0,2,0)'],['dimension','4']]){
   await test('Rechaza cabecera inválida: '+field+'='+value,()=>{let text=new TextDecoder().decode(buffer('')).replace(new RegExp('^'+field+':.*$','m'),field+': '+value);assert.throws(()=>run('parseNrrdGeometry').fn(new TextEncoder().encode(text).buffer));});
  }
- await test('NRRD inválido no borra el trabajo actual',async()=>{let changes=0;const {fn}=run('loadNrrdData',{contentHash:async()=> 'new',volumeContentHash:'old',lastUsEntryPoint:{},usTargetPoint:{},resetTrajectory:()=>{changes++},clearModelAnnotations:()=>{changes++},clearMeasurements:()=>{changes++},navMarker:{visible:true},$:()=>({textContent:''}),parseNrrdGeometry:()=>{throw Error('Geometría inválida')},NRRDLoader:class {}});await assert.rejects(fn(new ArrayBuffer(0),'broken'));assert.equal(changes,0);});
+ await test('NRRD inválido no borra el trabajo actual',async()=>{let changes=0;const {fn}=run('loadNrrdData',{activeDataLoads:0,Blob,contentHash:async()=> 'new',volumeContentHash:'old',lastUsEntryPoint:{},usTargetPoint:{},resetTrajectory:()=>{changes++},clearModelAnnotations:()=>{changes++},clearMeasurements:()=>{changes++},navMarker:{visible:true},$:()=>({textContent:''}),parseNrrdGeometry:()=>{throw Error('Geometría inválida')},NRRDLoader:class {}},['parsePortableVolume']);await assert.rejects(fn(new ArrayBuffer(0),'broken'),/Geometría inválida/);assert.equal(changes,0);});
  await test('Recursos gráficos anidados y compartidos liberados una sola vez',()=>{const root=new THREE.Group(),nested=new THREE.Group();root.add(nested);const geo=new THREE.BoxGeometry(),tex=new THREE.Texture(),mat=new THREE.MeshBasicMaterial({map:tex});nested.add(new THREE.Mesh(geo,mat),new THREE.Mesh(geo,mat));let a=0,b=0,c=0;geo.addEventListener('dispose',()=>a++);mat.addEventListener('dispose',()=>b++);tex.addEventListener('dispose',()=>c++);run('clearRoot').fn(root);assert.equal(root.children.length,0);assert.deepEqual([a,b,c],[1,1,1]);});
  await test('La selección de rama sólo cuenta descendientes visibles', () => {
    const row = (id, parent, keys, key) => ({node: {id, parent, key}, keys: () => keys, selection: {}, visibility: {}});

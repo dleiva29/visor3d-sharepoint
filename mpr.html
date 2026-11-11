@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.30.0 · Menús de exploración</title>
+    /><title>MPR · v2.37.0 · Espacios de trabajo</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -306,18 +306,20 @@
       .model-layer.selected {
         outline: 2px solid #ffff00;
       }
-      #measurementList {
-        padding-left: 20px;
-        font-size: 12px;
-      }
-      #measurementList li { margin: 6px 0; padding: 7px; border: 1px solid #31566e; border-radius: 6px; background: #102534; }
-      #measurementList li.selected { border-color: #ffd36e; background: #28352e; }
+      #measurementList { padding: 0; list-style: none; font-size: 12px; }
+      #measurementList li { margin: 4px 0; padding: 0; border: 1px solid #294356; border-radius: 6px; background: #0d1e2d; }
+      #measurementList li.selected { outline: 1px solid var(--accent); background: #12374b; }
+      #measurementList .measurement-header { display: flex; align-items: center; gap: 8px; padding: 10px 8px; }
+      #measurementList .measurement-locate { flex: 1; min-width: 0; padding: 0; border: 0; background: transparent; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+      #measurementList .measurement-display-name { display: block; overflow-wrap: anywhere; font-weight: 600; }
+      #measurementList .measurement-title { display: block; margin-top: 3px; color: #9dbbce; font-size: 10px; font-variant-numeric: tabular-nums; }
+      #measurementList .measurement-visibility { display: flex; align-items: center; flex-shrink: 0; margin: 0; }
+      #measurementList .measurement-settings-toggle { flex-shrink: 0; border: 0; background: transparent; font-size: 12px; padding: 5px; color: #78bdd6; }
+      #measurementList .measurement-settings { padding: 10px 8px; border-top: 1px solid #294356; }
+      #measurementList .measurement-settings[hidden] { display: none; }
       #measurementList .measurement-name { box-sizing: border-box; width: 100%; min-width: 0; margin: 0 0 6px; padding: 5px 7px; color: #e2eff9; background: #081724; border: 1px solid #31566e; border-radius: 5px; font: inherit; }
-      #measurementList .measurement-title { display: block; margin-bottom: 5px; }
-      #measurementList button {
-        padding: 2px 6px;
-        margin-left: 6px;
-      }
+      #measurementList .measurement-settings button { margin-right: 6px; }
+      #measurementList button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       #toolHint,
       #selectionInfo {
         font-size: 12px;
@@ -3104,6 +3106,24 @@
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout > aside { grid-column: 2; border-left: 1px solid var(--edge); border-right: 0; }
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .pane.maximized { left: 6px; right: 346px; }
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded):has(.pane.maximized) aside { left: auto; right: 0; width: 340px; }
+      .workspace-selector { margin: 0; padding: 0; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+      .workspace-selector select {
+        width: auto; max-width: 150px; height: 30px; margin: 0; padding: 0 8px;
+        background: #19394d; border: 1px solid #42778b; border-radius: 5px;
+        color: #e5faff; font: inherit; cursor: pointer;
+      }
+      .workspace-selector select:hover { background: #245169; }
+      .workspace-selector select:focus-visible { outline: 2px solid #91efdc; outline-offset: 2px; }
+      #restoreWorkspace, #workspacePresentationActions button, #customWorkspaceActions button {
+        display: inline-grid; place-items: center; width: 34px; height: 30px;
+        margin: 0; padding: 0; background: #19394d; border: 1px solid #42778b;
+        border-radius: 5px; color: #e5faff;
+      }
+      #workspacePresentationActions, #customWorkspaceActions { display: inline-flex; gap: 6px; }
+      header .viewer-header-main > #toggleGeneralPanel,
+      header .viewer-header-main > #togglePaneHeaders { margin: 0; }
+      .workspace-message { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      #workspacePresentationActions[hidden] { display: none; }
       header .viewer-header-main { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; padding-right: 90px; }
       #headerCaseActions { margin-left: auto; }
       #headerCaseActions .header-file-menu { position: relative; margin: 0; padding: 0; border: 0; }
@@ -3173,6 +3193,61 @@
         .pane:has(#view3d) > h2 { padding-right: 102px; }
         .pane-menu { top: 50px; max-height: calc(100% - 56px); }
       }
+
+      #viewLayoutMenu { position: relative; margin: 0; padding: 0; border: 0; background: none; }
+      #viewLayoutMenu > summary { margin: 0; padding: 0; display: grid; place-items: center; width: 34px; height: 30px; box-sizing: border-box; list-style: none; cursor: pointer; background: #19394d; border: 1px solid #42778b; border-radius: 5px; }
+      #viewLayoutMenu > summary::-webkit-details-marker { display: none; }
+      #viewLayoutMenu > div { position: fixed; max-height: calc(100dvh - 16px); overflow-y: auto; z-index: 100; top: 36px; left: 0; width: 210px; padding: 10px; background: #102534; border: 1px solid #42778b; border-radius: 6px; box-shadow: 0 4px 15px #0008; }
+      #viewLayoutMenu label { display: flex; align-items: center; gap: 8px; padding: 6px; }
+      #viewLayoutMenu input { width: auto; }
+      #viewLayoutMenu button { width: 100%; margin-top: 8px; }
+      body:not(.mobile-presentation) .views { position: relative; gap: 10px; padding: 6px; grid-template-columns: var(--view-cols); grid-template-rows: var(--view-rows); }
+      body:not(.mobile-presentation) .views > .pane { grid-area: var(--view-area); }
+      body:not(.mobile-presentation) .views > .pane[data-layout-hidden="true"] { display: none; }
+      .pane > .pane-hide { position: absolute; right: 5px; top: 2px; z-index: 13; width: 25px; height: 25px; padding: 0; font-size: 20px; }
+      .pane > .pane-maximize, .pane:has(#view3d) > .pane-maximize { right: 35px; }
+      .pane:has(#view3d) > .pane-menu-trigger { right: 65px; }
+      .pane h2 { padding-right: 72px; }
+      .pane:has(#view3d) h2 { padding-right: 102px; }
+      .view-divider { position: absolute; z-index: 15; border-radius: 4px; touch-action: none; background: #42778b55; }
+      .view-divider:hover, .view-divider:focus-visible { background: #56d8eb; outline: 2px solid #91efdc; }
+      .divider-x { width: 10px; top: 6px; cursor: col-resize; }
+      .divider-y { height: 10px; left: 6px; width: calc(100% - 12px); cursor: row-resize; }
+      .view-divider[hidden], body:has(.pane.maximized) .view-divider,
+      body.mobile-presentation .view-divider, body.mobile-presentation .pane-hide { display: none; }
+      body[data-viewer-layout="phone"]:not(.mobile-presentation) .views { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+      body[data-viewer-layout="phone"]:not(.mobile-presentation) .views > .pane { grid-area: auto; }
+      body:is([data-viewer-layout="phone"], [data-viewer-layout="tablet"]) .view-divider { display: none; }
+      body[data-viewer-layout="tablet"]:not(.mobile-presentation) .views { grid-template-rows: none; }
+      @media (pointer: coarse) {
+        .pane > .pane-hide { width: 44px; height: 44px; }
+        .pane > .pane-maximize, .pane:has(#view3d) > .pane-maximize { right: 53px; }
+        .pane:has(#view3d) > .pane-menu-trigger { right: 101px; }
+        .pane h2 { padding-right: 100px; }
+        .pane:has(#view3d) h2 { padding-right: 148px; }
+      }
+      .pane > :is(.pane-hide, .pane-maximize, .pane-menu-trigger) {
+        display: grid; place-items: center; box-sizing: border-box;
+        top: 6px; width: 26px; height: 26px; min-height: 0;
+        margin: 0; padding: 0; line-height: 1;
+      }
+      .pane > .pane-maximize, .pane:has(#view3d) > .pane-maximize { right: 37px; }
+      .pane:has(#view3d) > .pane-menu-trigger { right: 69px; }
+      @media (pointer: coarse) {
+        .pane > :is(.pane-hide, .pane-maximize, .pane-menu-trigger) { top: 2px; width: 44px; height: 44px; }
+        .pane > .pane-maximize, .pane:has(#view3d) > .pane-maximize { right: 53px; }
+        .pane:has(#view3d) > .pane-menu-trigger { right: 101px; }
+      }
+      #view3d { position: relative; }
+      .ct-plane-handle { position: absolute; z-index: 14; transform: translate(-50%, -50%); touch-action: none; cursor: grab;
+        padding: 5px 8px; margin: 0; border: 2px solid var(--plane-color); border-radius: 12px; background: #102534e8; color: white; font-size: 11px; }
+      .ct-plane-handle[data-axis="z"] { --plane-color: #ffcc55; }
+      .ct-plane-handle[data-axis="y"] { --plane-color: #66dfac; }
+      .ct-plane-handle[data-axis="x"] { --plane-color: #67bfff; }
+      .ct-plane-handle[hidden] { display: none; }
+      .ct-plane-handle.is-dragging { cursor: grabbing; background: #245169; }
+      .ct-plane-handle:focus-visible { outline: 2px solid white; outline-offset: 2px; }
+      #dragCtPlanes[aria-pressed="true"] { background: #087e90; border-color: #91efdc; }
     </style></head
   ><body>
 <script>
@@ -3189,8 +3264,8 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.30.0</strong
-        ><button
+        ><strong>Visor MPR · v2.37.0</strong>
+        <button
           type="button"
           id="toggleGeneralPanel"
           aria-controls="generalPanel"
@@ -3212,6 +3287,26 @@
             <rect x="2" y="3" width="16" height="14" rx="2" />
             <path d="M2 8h16m-11 5 3-2 3 2" /></svg
         ></button>
+        <label class="workspace-selector">Espacio
+          <select id="workspacePreset" aria-label="Espacio de trabajo">
+            <option value="" disabled selected>Personalizado</option>
+            <option value="exploration">Exploración</option>
+            <option value="measurement">Medición</option>
+            <option value="presentation">Presentación</option>
+          </select>
+        </label>
+        <button id="restoreWorkspace" type="button" disabled title="Recuperar distribución anterior" aria-label="Recuperar distribución anterior">↶</button>
+        <details id="viewLayoutMenu"><summary title="Mostrar u ocultar vistas" aria-label="Mostrar u ocultar vistas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18M3 12h18"/></svg></summary><div role="group" aria-label="Vistas visibles"></div></details>
+        <span id="customWorkspaceActions" role="group" aria-label="Gestionar espacios personalizados">
+          <button id="saveWorkspace" type="button" title="Guardar espacio como…" aria-label="Guardar espacio como…"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 3h13l4 4v14H3V3z M7 3v6h10V3 M7 21v-8h10v8"/></svg></button>
+          <button id="updateWorkspace" type="button" disabled title="Actualizar espacio" aria-label="Actualizar espacio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 7a9 9 0 1 0 1 9 M20 2v6h-6"/></svg></button>
+          <button id="deleteWorkspace" type="button" disabled title="Eliminar espacio" aria-label="Eliminar espacio"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 6h18 M9 6V3h6v3 M5 6l1 15h12l1-15 M10 10v7 M14 10v7"/></svg></button>
+        </span>
+        <span id="workspacePresentationActions" hidden>
+          <button id="workspaceSaved" type="button" title="Vistas guardadas" aria-label="Vistas guardadas"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m3 16 5-5 4 4 4-6 5 7"/></svg></button>
+          <button id="workspaceCapture" type="button" title="Capturar distribución actual" aria-label="Capturar distribución actual"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 7h5l2-3h4l2 3h5v14H3z"/><circle cx="12" cy="13" r="4"/></svg></button>
+        </span>
+        <span id="workspaceMessage" class="workspace-message" role="status"></span>
         <span id="headerUsTools" role="group" aria-label="Herramientas del Modo US"
           ><button
             type="button"
@@ -4025,6 +4120,9 @@
       // =============================================================================
       // 01 · Dependencias (versión fijada en importmap)
       // =============================================================================
+      import { installCtPlaneDrag } from "./tools/ct-plane-drag.js";
+      import { installViewLayout } from "./tools/view-layout.js";
+      import { installWorkspacePresets } from "./tools/workspace-presets.js";
       import * as THREE from "three";
       import { TrackballControls } from "three/addons/controls/TrackballControls.js";
       import { NRRDLoader } from "three/addons/loaders/NRRDLoader.js";
@@ -4207,12 +4305,16 @@
       let volumeContentHash = null,
         modelContentHash = null,
         loadedModelName = "modelo";
+      let portableModelSource = null, portableVolumeSource = null;
+      let activeDataLoads = 0, automaticCaseLoading = false;
       const viewStates = {
           x: { zoom: 1, x: 0, y: 0 },
           y: { zoom: 1, x: 0, y: 0 },
           z: { zoom: 1, x: 0, y: 0 },
         },
         viewAppliers = {};
+      let minimumDistancePreview = null, minimumDistanceController = null;
+      const expandedMeasurementSettings = new WeakSet();
       let selectedMeasurement = null;
       let hoveredMeasurement = null;
       let hoveredAnnotation = null;
@@ -4351,14 +4453,16 @@
       const ro = new ResizeObserver(resize3D);
       ro.observe($("view3d"));
       let presentationCameraFlight = null;
+      let ctPlaneDrag = null;
       function requestSceneRender() {
         sceneRenderDirty = true;
       }
       function renderSceneFrame() {
-        if (!presentationCameraFlight) controls.update();
+        if (!presentationCameraFlight && !ctPlaneDrag?.dragging) controls.update();
         const labelsPending = $("showStructureNames").checked && modelRoot.visible && structureLabelView.layoutDirty;
         if (!sceneRenderDirty && !presentationCameraFlight && !labelsPending) return false;
         sceneRenderDirty = false;
+        ctPlaneDrag?.update();
         updateStructureNames();
         updateAnnotationScale();
         renderer.render(scene, camera);
@@ -5322,6 +5426,7 @@
       }
 
       function initSlices() {
+        ctPlaneDrag?.disable();
         obliquePivot = null;
         obliqueRotation.identity();
         obliqueShift.set(0, 0, 0);
@@ -5348,8 +5453,7 @@
         fit();
       }
       /** Analiza y valida antes de sustituir el volumen o borrar el trabajo actual. */
-      async function loadNrrdData(data, label) {
-        const hash = await contentHash(data);
+      function parsePortableVolume(data) {
         const nextInfo = parseNrrdGeometry(data);
         const nextVolume = new NRRDLoader().parse(data);
         const voxelCount = nextInfo.sizes.reduce((product, n) => product * n, 1);
@@ -5359,6 +5463,14 @@
         if (!Number.isFinite(nextVolume.windowLow) || !Number.isFinite(nextVolume.windowHigh)) {
           throw new Error("Ventana no disponible");
         }
+        return { nextInfo, nextVolume };
+      }
+      async function loadNrrdData(data, label, prepared = null) {
+        activeDataLoads++;
+        try {
+        const original = new Blob([data]);
+        const hash = await contentHash(data);
+        const { nextInfo, nextVolume } = prepared || parsePortableVolume(data);
         localWorkState?.pause();
         if (volumeContentHash !== hash) {
           lastUsEntryPoint = null;
@@ -5385,7 +5497,9 @@
         syncMprNavigation();
         syncNamedViews();
         localWorkState?.sync();
+        portableVolumeSource = { blob: original, name: label };
         status.textContent = `Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;
+        } finally { activeDataLoads--; }
       }
       bindLocalFile(
         $("nrrd"),
@@ -5423,6 +5537,7 @@
       $("showmodel").onchange = () => (modelRoot.visible = $("showmodel").checked);
       $("fit").onclick = fit;
       function updateModelTransform() {
+        minimumDistanceController?.invalidate();
         if (!model) return;
         const units = Number($("unit").value);
         const lps = $("space").value === "LPS";
@@ -5710,6 +5825,8 @@
         return count;
       }
       async function loadGlbFromUrl(url, label) {
+        activeDataLoads++;
+        try {
         showProgress("Descargando modelo " + label, 0, "Preparando descarga…");
         const bytes = await downloadWithProgress(url, (received, total) =>
           showProgress(
@@ -5725,11 +5842,13 @@
           null,
           "Descarga 100 % · preparando estructuras…"
         );
+        await loadPortableGlbData(buffer, label, url.startsWith("blob:") ? new URL("./", location.href).href : new URL("./", url).href);
+        } finally { activeDataLoads--; }
+      }
+      async function loadPortableGlbData(buffer, label, basePath = "", parsed = null) {
+        const original = new Blob([buffer]);
         const hash = await contentHash(buffer);
-        const result = await new GLTFLoader().parseAsync(
-          buffer,
-          url.startsWith("blob:") ? new URL("./", location.href).href : new URL("./", url).href
-        );
+        const result = parsed || await new GLTFLoader().parseAsync(buffer, basePath);
         localWorkState?.pause();
         clearRoot(modelRoot);
         model = result.scene;
@@ -5756,6 +5875,7 @@
         syncNamedViews();
         if (volume) ["x", "y", "z"].forEach(paint);
         localWorkState?.sync();
+        portableModelSource = { blob: original, name: label };
         status.textContent = `GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
       }
       bindLocalFile(
@@ -5994,7 +6114,7 @@
           "Marca primero el objetivo y después la entrada, en los cortes o en el modelo 3D.",
         usTarget:
           "Marca el objetivo sobre la trayectoria, en un corte o en una superficie visible del modelo 3D. Esc cancela.",
-        us: "Modo US: pulsa la trayectoria 3D o elige una entrada manual en un corte axial, coronal o sagital.",
+        us: "Modo US: pulsa una superficie del modelo 3D, la trayectoria o un corte para colocar la entrada de la sonda.",
         threePoints: "Marca tres puntos en 2D o sobre superficies 3D. Esc cancela sin cambiar la orientación. Al completar, el recorte pasa a manual.",
         rotateClip:
           "Arrastra en 3D para orientar el plano de recorte. Pulsa Navegar para volver a girar el modelo.",
@@ -6163,7 +6283,7 @@
           ctx.stroke();
           dot(a);
           dot(p);
-          const text = (m.name ? m.name + ": " : "") + m.a.distanceTo(m.b).toFixed(1) + " mm";
+          const text = (m.name ? m.name + ": " : "") + formatMeasurementDistance(m) + " mm";
           ctx.strokeStyle = "#000";
           ctx.lineWidth = 4;
           const tx = Math.max(
@@ -6189,7 +6309,7 @@
           o.material?.map?.dispose();
           o.material?.dispose();
         }
-        for (const m of measurements.filter((m) => m.axis === null && m.visible !== false)) {
+        for (const m of [...measurements, ...(minimumDistancePreview ? [minimumDistancePreview] : [])].filter((m) => m.axis === null && m.visible !== false)) {
           const color = m === selectedMeasurement ? "#ffd36e" : m === hoveredMeasurement ? "#ffffff" : "#40ffff";
           const line = new THREE.Line(
             new THREE.BufferGeometry().setFromPoints([m.a, m.b]),
@@ -6200,7 +6320,7 @@
           const midpoint = m.a.clone().add(m.b).multiplyScalar(0.5);
           measurementRoot.add(
             annotationSprite(
-              (m.name ? m.name + ": " : "") + m.a.distanceTo(m.b).toFixed(1) + " mm",
+              (m.name ? m.name + ": " : "") + formatMeasurementDistance(m) + " mm",
               color,
               midpoint,
               measurementRoot
@@ -6290,18 +6410,44 @@
         document.dispatchEvent(new Event("case-state-change"));
       }
       function updateMeasurementList() {
+        const active = document.activeElement;
+        const focusedRow = active?.closest?.("#measurementList li");
+        const focusedMeasurement = focusedRow?._measurement;
+        const focusedAction = active?.dataset?.measurementAction;
+        const caret = focusedAction === "name" ? [active.selectionStart, active.selectionEnd] : null;
         if (!measurements.includes(selectedMeasurement)) selectedMeasurement = null;
         $("measurementEmpty").hidden = measurements.length > 0;
         updateMeasurementHint();
         $("measurementList").replaceChildren();
         measurements.forEach((m, i) => {
           const li = document.createElement("li");
+          li._measurement = m;
+          const header = document.createElement("div");header.className = "measurement-header";
+          const locate = document.createElement("button");locate.type = "button";locate.className = "measurement-locate";locate.dataset.measurementAction = "locate";
+          locate.setAttribute("aria-pressed", String(m === selectedMeasurement));
+          locate.onclick = () => locateMeasurement(m);
+          const displayName = document.createElement("span");displayName.className = "measurement-display-name";
+          const settings = document.createElement("div");settings.className = "measurement-settings";settings.id = "measurement-settings-" + i;settings.hidden = !expandedMeasurementSettings.has(m);
+          const settingsToggle = document.createElement("button");settingsToggle.type = "button";settingsToggle.className = "measurement-settings-toggle";settingsToggle.dataset.measurementAction = "settings";
+          settingsToggle.setAttribute("aria-controls", settings.id);
+          const syncHeader = () => {
+            displayName.textContent = m.name || "Medida " + (i + 1);
+            locate.setAttribute("aria-label", "Localizar " + displayName.textContent + ": " + title.textContent);
+            settingsToggle.textContent = settings.hidden ? "Ajustes ▸" : "Ajustes ▾";
+            settingsToggle.setAttribute("aria-expanded", String(!settings.hidden));
+            settingsToggle.setAttribute("aria-label", "Ajustes de " + displayName.textContent);
+          };
+          settingsToggle.onclick = () => {
+            settings.hidden = !settings.hidden;
+            if (settings.hidden) expandedMeasurementSettings.delete(m); else expandedMeasurementSettings.add(m);
+            syncHeader();
+          };
           li.classList.toggle("selected", m === selectedMeasurement);
           const title = document.createElement("strong");
           title.className = "measurement-title";
-          title.textContent = m.a.distanceTo(m.b).toFixed(1) + " mm · " + (m.axis ? {z:"Axial",y:"Coronal",x:"Sagital"}[m.axis] + " · corte " + m.index : "3D");
+          title.textContent = formatMeasurementDistance(m) + " mm · " + (m.axis ? {z:"Axial",y:"Coronal",x:"Sagital"}[m.axis] + " · corte " + m.index : "3D");
           const name = document.createElement("input");
-          name.type = "text";
+          name.type = "text";name.dataset.measurementAction = "name";
           name.className = "measurement-name";
           name.maxLength = 60;
           name.value = m.name || "";
@@ -6311,12 +6457,13 @@
             const value = name.value.trim().slice(0, 60);
             if (value) m.name = value;
             else delete m.name;
+            syncHeader();
             renderMeasure3D(); repaintAll();
             document.dispatchEvent(new Event("case-state-change"));
           };
-          const visibility = document.createElement("label");
+          const visibility = document.createElement("label");visibility.className = "measurement-visibility";visibility.title = "Mostrar u ocultar medida";
           const toggle = document.createElement("input");
-          toggle.type = "checkbox";
+          toggle.type = "checkbox";toggle.dataset.measurementAction = "visibility";
           toggle.checked = m.visible !== false;
           toggle.setAttribute("aria-label", "Mostrar medición " + (i + 1));
           toggle.onchange = () => {
@@ -6324,10 +6471,10 @@
             renderMeasure3D(); repaintAll();
             document.dispatchEvent(new Event("case-state-change"));
           };
-          visibility.append(toggle, document.createTextNode(" Mostrar medida"));
-          li.append(name, title, visibility);
+          visibility.append(toggle);
+          locate.append(displayName, title);header.append(visibility, locate, settingsToggle);
+          settings.append(name);li.append(header, settings);syncHeader();
           for (const [label, icon, action] of [
-            ["Localizar", "target", () => locateMeasurement(m)],
             ["Editar", "edit", () => locateMeasurement(m, true)],
             ["Eliminar", "delete", () => {
               const index = measurements.indexOf(m);
@@ -6341,14 +6488,20 @@
             const control = document.createElement("button");
             control.type = "button";
             setTreeIcon(control, icon, label + " medición " + (i + 1));
+            control.dataset.measurementAction = label === "Editar" ? "edit" : "delete";
             control.onclick = action;
-            if (label === "Localizar") control.setAttribute("aria-pressed", String(m === selectedMeasurement));
-            li.append(control);
+            settings.append(control);
           }
           $("measurementList").append(li);
+          if (m === focusedMeasurement && focusedAction) {
+            const next = li.querySelector('[data-measurement-action="' + focusedAction + '"]');
+            next?.focus({ preventScroll: true });
+            if (caret && next) next.setSelectionRange(...caret);
+          }
         });
       }
       function clearMeasurements() {
+        minimumDistanceController?.invalidate();
         measurements.length = 0;
         pendingMeasure = null;
         updateMeasurementList();
@@ -6573,7 +6726,11 @@
             return;
           }
         }
-        if (activeTool === "us" || !model || !modelRoot.visible) return;
+        if (activeTool === "us" && (!volume || !model)) {
+          $("toolHint").textContent = "Carga un volumen de TAC o RM y un modelo GLB para usar el Modo US.";
+          return;
+        }
+        if (!model || !modelRoot.visible) return;
         model.updateWorldMatrix(true, true);
         const visible = (o) => {
           for (let p = o; p; p = p.parent) if (!p.visible) return false;
@@ -6593,7 +6750,11 @@
           $("toolHint").textContent = "No se ha seleccionado ninguna superficie visible.";
           return;
         }
-        if (activeTool === "trajectory") addTrajectoryPoint(hit.point);
+        if (activeTool === "us") {
+          try { usMode.openSurface(hit.point); }
+          catch (error) { $("toolHint").textContent = error.message; }
+        }
+        else if (activeTool === "trajectory") addTrajectoryPoint(hit.point);
         else if (activeTool === "usTarget") selectUsTarget(hit.point);
         else if (activeTool === "threePoints") addPlanePoint(hit.point);
         else if (["annotation", "arrow"].includes(activeTool)) pickAnnotation(hit.point);
@@ -7433,6 +7594,10 @@
       // =============================================================================
       // 10 · Serialización y validación de configuraciones
       // =============================================================================
+      function formatMeasurementDistance(m) {
+        const distance = m.a.distanceTo(m.b);
+        return m.precision === 3 && distance > 0 && distance < 0.001 ? "<0.001" : distance.toFixed(m.precision === 3 ? 3 : 1);
+      }
       function measurementData() {
         return measurements.map((m) => ({
           axis: m.axis,
@@ -7441,6 +7606,7 @@
           b: m.b.toArray(),
           ...(m.visible !== undefined ? { visible: m.visible } : {}),
           ...(m.name !== undefined ? { name: m.name } : {}),
+          ...(m.precision !== undefined ? { precision: m.precision } : {}),
           ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
         }));
       }
@@ -7459,6 +7625,7 @@
             throw new Error("Visibilidad de medición inválida.");
           if (m.name !== undefined && (typeof m.name !== "string" || m.name.length > 60 || /[\r\n\t]/.test(m.name)))
             throw new Error("Nombre de medición inválido (máximo 60 caracteres, una línea).");
+          if (m.precision !== undefined && m.precision !== 3) throw new Error("Precisión de medición inválida.");
           if (m.plane !== undefined) {
             const p = m.plane;
             if (m.axis === null || (p !== null && (!p || !vec(p.pivot) || !vec(p.shift) || !Array.isArray(p.rotation) || p.rotation.length !== 4 || p.rotation.some(n => typeof n !== "number" || !Number.isFinite(n)) || Math.abs(Math.hypot(...p.rotation) - 1) > 0.001)))
@@ -7485,6 +7652,7 @@
             b: new THREE.Vector3(...m.b),
             ...(m.visible !== undefined ? { visible: m.visible } : {}),
           ...(m.name !== undefined ? { name: m.name } : {}),
+          ...(m.precision !== undefined ? { precision: m.precision } : {}),
             ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
           }))
         );
@@ -7563,7 +7731,7 @@
         };
       }
       /** Valida sin modificar estado. Los JSON anteriores conservan sus campos opcionales. */
-      function validateConfig(data) {
+      function validateConfig(data, portableSignature = null) {
         if (!data || typeof data !== "object" || Array.isArray(data))
           throw new Error("Configuración inválida.");
         if (data.clipSyncTc !== undefined && typeof data.clipSyncTc !== "boolean") throw new Error("Sincronización de recorte inválida.");
@@ -7579,7 +7747,7 @@
           throw new Error(
             "Carga el volumen y el modelo GLB antes de recuperar una configuración válida."
           );
-        if (JSON.stringify(data.caseSignature) !== JSON.stringify(configData().caseSignature))
+        if (JSON.stringify(data.caseSignature) !== JSON.stringify(portableSignature || configData().caseSignature))
           throw new Error("La configuración pertenece a otro volumen o conjunto de estructuras.");
         if (
           !Array.isArray(data.window) ||
@@ -10264,6 +10432,7 @@
         const params = new URLSearchParams(location.search);
         const requested = params.get("modelo");
         if (!requested) return;
+        automaticCaseLoading = true;
         try {
           const root = new URL("./", location.href);
           const glbURL = new URL(requested, root);
@@ -10330,7 +10499,7 @@
             err.message +
             ". Puedes seleccionar el NRRD manualmente.";
           finishProgress(false, err.message);
-        }
+        } finally { automaticCaseLoading = false; }
       }
       autoLoadCase();
 
@@ -10973,6 +11142,7 @@
       }
       function setTreeIcon(control, icon, label) {
         const paths = {
+          measure: "M2 12L12 2l4 4L6 16z M5 9l2 2 M8 6l2 2 M11 3l2 2",
           close: "M4 4l10 10 M14 4L4 14",
           delete: "M3 5h12 M6 5V2h6v3 M4 5l1 11h8l1-11 M7 8v5 M11 8v5",
           settings: "M3 2v14 M9 2v14 M15 2v14 M1 6h4 M7 12h4 M13 7h4",
@@ -11353,6 +11523,48 @@
         const heading = document.createElement("h3");
         heading.textContent = "Desplazar planos del TC";
         group.append(heading);
+        const dragToggle = document.createElement("button");
+        dragToggle.type = "button";
+        dragToggle.id = "dragCtPlanes";
+        dragToggle.textContent = "↔ Arrastrar planos en 3D";
+        dragToggle.setAttribute("aria-pressed", "false");
+        group.append(dragToggle);
+        ctPlaneDrag = installCtPlaneDrag({ document, host: $("view3d"), toggle: dragToggle,
+          activate: () => setTool("navigate"),
+          orbit: { get: () => controls.enabled, set: value => { controls.enabled = value; } },
+          hint: text => { $("toolHint").textContent = text; },
+          setIndex: (axis, index) => {
+            const input = $("r" + axis);
+            if (input.disabled || Number(input.value) === index) return;
+            input.value = String(index);
+            input.dispatchEvent(new Event("input", { bubbles: true }));
+          },
+          frame: axis => {
+            const host = $("view3d"), slice = slices[axis], input = $("r" + axis);
+            if (!volumeInfo || !slice || input.disabled || !planesRoot.visible || !slice.mesh.visible ||
+                obliqueActive() || presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open ||
+                !host.clientWidth || !host.clientHeight) return null;
+            const mesh = slice.mesh;
+            mesh.updateWorldMatrix(true, false);
+            if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
+            const box = mesh.geometry.boundingBox;
+            const point = box.getCenter(new THREE.Vector3());
+            point.x += (box.max.x-box.min.x)*0.32;
+            point.y += (box.max.y-box.min.y)*0.32;
+            mesh.localToWorld(point);
+            const max = Number(input.max);
+            if (max < 1) return null;
+            const step = (physicalCoordinateAt(axis, max)-physicalCoordinateAt(axis, 0))/max;
+            const next = point.clone(); next[axis] += step;
+            point.project(camera); next.project(camera);
+            const width = host.clientWidth, height = host.clientHeight;
+            return { visible: point.z >= -1 && point.z <= 1 && Math.abs(point.x) < 1 && Math.abs(point.y) < 1,
+              x: Math.max(45, Math.min(width-45, (point.x+1)*width/2)),
+              y: Math.max(18, Math.min(height-18, (1-point.y)*height/2)),
+              vector: { x: (next.x-point.x)*width/2, y: -(next.y-point.y)*height/2 },
+              index: Number(input.value), min: Number(input.min), max };
+          },
+        });
         for (const [axis, name] of [["z", "Axial"], ["y", "Coronal"], ["x", "Sagital"]]) {
           const row = document.createElement("div"), label = document.createElement("button");
           label.type = "button";
@@ -11451,6 +11663,7 @@
         dropdown("Medir", [
           labelButton(takeTool("measure2d"), "Medir en MPR"), labelButton(takeTool("measure3d"), "Medir en 3D"),
           labelButton(takeTool("editMeasure"), "Editar medidas"), labelButton(takeTool("deleteMeasure"), "Borrar medida o anotación"),
+          button("Distancia mínima entre estructuras", () => minimumDistanceController?.open()),
           button("Lista y ajustes de mediciones", () => openSidebarSection("menu-measurements")),
         ]);
         dropdown("Anotar", [$("addModelLabel"), $("addModelArrow"), button("Textos y ajustes", () => openSidebarSection("menu-annotations"))]);
@@ -12428,10 +12641,10 @@
           primary: selectedStructure,
         });
       }
-      function validateCaseSession(state) {
+      function validateCaseSession(state, portableSignature = null) {
         if (!state || !Array.isArray(state.views) || state.views.length > 100)
           throw new Error("Lista de vistas inválida.");
-        validateConfig(state.config);
+        validateConfig(state.config, portableSignature);
         const names = new Set();
         for (const v of state.views) {
           if (
@@ -12445,12 +12658,164 @@
           )
             throw new Error("Vista inválida.");
           names.add(v.name);
-          validateConfig(v.config);
+          validateConfig(v.config, portableSignature);
         }
         if (!Array.isArray(state.selected) || state.selected.some((k) => !layerControls.has(k)))
           throw new Error("Selección inválida.");
         if (state.primary != null && !state.selected.includes(state.primary))
           throw new Error("Estructura activa inválida.");
+      }
+      // Validar contra el caso entrante sin reconstruir ni modificar las vistas actuales.
+      // El contexto temporal es síncrono y se restituye incluso si la validación falla.
+      function validatePortableSession(state, parsedModel, parsedVolume) {
+        const previous = { volume, volumeInfo, model, layers: new Map(layerControls),
+          sliders: ["x", "y", "z"].map(a => [$("r" + a).max, $("r" + a).value]) };
+        try {
+          volume = parsedVolume.nextVolume; volumeInfo = parsedVolume.nextInfo; model = parsedModel.scene;
+          layerControls.clear(); let unnamed = 0;
+          model.traverse(object => { if (object.isMesh) {
+            const name = object.name?.trim() || object.parent?.name?.trim() || `Estructura ${++unnamed}`;
+            layerControls.set(name, null);
+          } });
+          if (!layerControls.size) throw new Error("El modelo no contiene superficies.");
+          ["x", "y", "z"].forEach((a, i) => { $("r" + a).max = String(Math.max(1, volume.RASDimensions[i]) - 1); });
+          validateCaseSession(state, { sizes: volumeInfo.sizes, origin: volumeInfo.originRAS, structures: [...layerControls.keys()] });
+        } finally {
+          volume = previous.volume; volumeInfo = previous.volumeInfo; model = previous.model;
+          layerControls.clear(); for (const [key, value] of previous.layers) layerControls.set(key, value);
+          ["x", "y", "z"].forEach((a, i) => { $("r" + a).max = previous.sliders[i][0]; $("r" + a).value = previous.sliders[i][1]; });
+        }
+      }
+      function installMinimumDistance() {
+        const box = document.createElement("section");box.className = "case-session";box.id = "minimumDistancePanel";
+        box.innerHTML = '<strong>Distancia mínima entre superficies</strong><label>Estructura A<select id="distanceStructureA" aria-label="Primera estructura"></select></label><label>Estructura B<select id="distanceStructureB" aria-label="Segunda estructura"></select></label><div class="case-session-actions"><button type="button" id="calculateMinimumDistance">Calcular</button><button type="button" id="cancelMinimumDistance" disabled>Cancelar</button><button type="button" id="saveMinimumDistance" disabled>Guardar como medida</button><button type="button" id="clearMinimumDistance">Quitar vista previa</button></div><p id="minimumDistanceStatus" class="note" role="status">Selecciona dos estructuras distintas.</p><p class="note hint">Usa las superficies completas, aunque estén ocultas o recortadas. Distancia en mm según las unidades del modelo; comprueba su alineación con el TC. Cero indica contacto o cruce de superficies, no cualquier solapamiento de volúmenes. La medida guardada es fija: recalcula si cambias el modelo o su escala.</p>';
+        $("measurementList").before(box);
+        for (const [id, icon, label] of [["calculateMinimumDistance", "measure", "Calcular distancia mínima"], ["cancelMinimumDistance", "close", "Cancelar cálculo"], ["saveMinimumDistance", "done", "Guardar distancia mínima como medida"], ["clearMinimumDistance", "delete", "Quitar vista previa de distancia mínima"]]) setTreeIcon($(id), icon, label);
+        let generation = 0, worker = null, result = null, resultKey = null, loadedHash = null;
+        const message = $("minimumDistanceStatus"), first = $("distanceStructureA"), second = $("distanceStructureB");
+        const key = () => JSON.stringify([modelContentHash, $("unit").value, $("space").value, first.value, second.value]);
+        function invalidate(text = "Selecciona dos estructuras y calcula su distancia.") {
+          generation++;worker?.terminate();worker = null;result = null;resultKey = null;minimumDistancePreview = null;
+          $("calculateMinimumDistance").disabled = false;$("cancelMinimumDistance").disabled = true;$("saveMinimumDistance").disabled = true;
+          message.textContent = text;renderMeasure3D();
+        }
+        function sync() {
+          if (loadedHash === modelContentHash && first.options.length === layerControls.size) return;
+          loadedHash = modelContentHash;invalidate();first.replaceChildren();second.replaceChildren();
+          for (const name of layerControls.keys()) for (const select of [first, second]) { const option = document.createElement("option");option.value = name;option.textContent = name;select.append(option); }
+          if (second.options.length > 1) second.selectedIndex = 1;
+        }
+        function open() {
+          sync();const selected = [...selectedStructures];
+          if (selected.length === 2 && (first.value !== selected[0] || second.value !== selected[1])) { invalidate();first.value = selected[0];second.value = selected[1]; }
+          openSidebarSection("menu-measurements", box);first.focus();
+        }
+        for (const select of [first, second]) select.onchange = () => invalidate();
+        $("cancelMinimumDistance").onclick = () => invalidate("Cálculo cancelado.");
+        $("clearMinimumDistance").onclick = () => invalidate("Vista previa retirada. Las medidas guardadas se conservan.");
+        document.addEventListener("keydown", event => { if (event.key === "Escape" && !$("cancelMinimumDistance").disabled) invalidate("Cálculo cancelado."); });
+        new MutationObserver(sync).observe($("modelLayers"), { childList: true });
+        $("calculateMinimumDistance").onclick = async () => {
+          sync();invalidate();
+          if (!model || !first.value || !second.value || first.value === second.value) { message.textContent = "Selecciona dos estructuras distintas con superficies.";return; }
+          const task = generation, sourceKey = key(), names = [first.value, second.value];
+          $("calculateMinimumDistance").disabled = true;$("cancelMinimumDistance").disabled = false;
+          message.textContent = "Preparando superficies completas…";
+          try {
+            const { structureSurface } = await import("./tools/structure-surface.js");
+            const positions = [];
+            for (const name of names) positions.push(await structureSurface(layerControls.get(name).items, { cancelled: () => task !== generation }));
+            if (task !== generation || sourceKey !== key()) return;
+            message.textContent = "Calculando distancia mínima en segundo plano…";
+            worker = new Worker(new URL("./tools/minimum-distance-worker.js", location.href), { type: "module" });
+            worker.onmessage = ({ data }) => {
+              if (task !== generation || sourceKey !== key()) return;
+              worker?.terminate();worker = null;$("calculateMinimumDistance").disabled = false;$("cancelMinimumDistance").disabled = true;
+              if (data.error) { message.textContent = "No se pudo calcular: " + data.error;return; }
+              result = { ...data.result, names };resultKey = sourceKey;
+              minimumDistancePreview = { axis: null, index: null, a: new THREE.Vector3(...result.a), b: new THREE.Vector3(...result.b), name: "Distancia mínima · vista previa", precision: 3, visible: true };
+              renderMeasure3D();$("saveMinimumDistance").disabled = false;
+              message.textContent = result.distance === 0 ? "0 mm · Las superficies se tocan o se cruzan." : "Distancia mínima: " + formatMeasurementDistance(minimumDistancePreview) + " mm. Los extremos se muestran en 3D.";
+            };
+            worker.onerror = () => { if (task === generation) invalidate("No se pudo ejecutar el cálculo en segundo plano. Inténtalo de nuevo."); };
+            worker.postMessage({ first: positions[0].buffer, second: positions[1].buffer }, positions.map(p => p.buffer));
+          } catch (error) { if (task === generation) invalidate("No se pudo calcular: " + error.message); }
+        };
+        $("saveMinimumDistance").onclick = () => {
+          if (!result || resultKey !== key()) { invalidate("El modelo o la selección han cambiado. Calcula la distancia de nuevo.");return; }
+          if (measurements.length >= 1000) { message.textContent = "Máximo de 1000 medidas. Elimina alguna antes de guardar.";return; }
+          const measurement = { ...minimumDistancePreview, a: minimumDistancePreview.a.clone(), b: minimumDistancePreview.b.clone(), name: ("Mín.: " + result.names.join(" ↔ ")).replace(/[\r\n\t]/g, " ").slice(0, 60) };
+          measurements.push(measurement);minimumDistancePreview = null;selectedMeasurement = measurement;
+          result = null;$("saveMinimumDistance").disabled = true;updateMeasurementList();renderMeasure3D();repaintAll();
+          document.dispatchEvent(new Event("case-state-change"));message.textContent = "Medida guardada. Se incluye en vistas, configuración y caso portátil.";
+        };
+        sync();return { open, invalidate };
+      }
+      function installPortableCase() {
+        const box = document.createElement("section"); box.className = "case-session";
+        box.innerHTML = '<strong>Caso portátil · ZIP</strong><div class="case-session-actions"><button type="button" id="openPortableCase">Abrir caso portátil</button><button type="button" id="savePortableCase">Guardar caso portátil</button></div><input id="portableCaseFile" type="file" accept=".zip,application/zip" hidden><p class="note hint">Incluye GLB, NRRD, árbol, medidas, anotaciones y vistas. Máximo 512 MB de datos. Se guarda localmente; no se publica en GitHub.</p><p id="portableCaseStatus" class="note" role="status"></p>';
+        $("caseSessionControls").prepend(box);
+        setTreeIcon($("openPortableCase"), "import", "Abrir caso portátil ZIP (modelo, volumen y estado)");
+        setTreeIcon($("savePortableCase"), "export", "Guardar caso portátil ZIP (modelo, volumen y estado)");
+        const dialog = document.createElement("dialog");
+        dialog.innerHTML = '<p role="status">Procesando caso portátil…</p>';document.body.append(dialog);
+        dialog.addEventListener("cancel", e => e.preventDefault());
+        let busy = false;
+        async function run(action) {
+          if (busy) return;
+          const message = $("portableCaseStatus");
+          if (activeDataLoads || automaticCaseLoading) { message.textContent = "Espera a que termine la carga del caso."; return; }
+          if (presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open) { message.textContent = "Sal de la presentación o del modo US antes de continuar."; return; }
+          busy = true;dialog.showModal();
+          try { await action(message); }
+          catch (error) { message.textContent = "No se pudo completar: " + error.message; }
+          finally { busy = false; dialog.close(); }
+        }
+        $("savePortableCase").onclick = () => run(async message => {
+          if (!currentViewCase() || !portableModelSource || !portableVolumeSource) throw new Error("Carga el modelo GLB y el volumen NRRD completos.");
+          const session = { format: "mpr-complete-case", version: 1, caseKey: currentViewCase(), model: loadedModelName, savedAt: new Date().toISOString(), state: caseSessionState() };
+          validateCaseSession(session.state);
+          const { createPortableCase, MAX_PORTABLE_BYTES } = await import("./tools/portable-case.js");
+          if (portableModelSource.blob.size + portableVolumeSource.blob.size > MAX_PORTABLE_BYTES) throw new Error("El caso supera el límite de 512 MB.");
+          const bytes = await createPortableCase({ model: new Uint8Array(await portableModelSource.blob.arrayBuffer()), volume: new Uint8Array(await portableVolumeSource.blob.arrayBuffer()), session, modelName: portableModelSource.name, volumeName: portableVolumeSource.name });
+          const url = URL.createObjectURL(new Blob([bytes], { type: "application/zip" }));
+          const link = document.createElement("a");link.href = url;link.download = (loadedModelName || "caso").replace(/[^a-zA-Z0-9_-]/g, "_") + "_portatil.zip";link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+          message.textContent = "Caso portátil guardado: " + link.download + " · " + formatMB(bytes.length);
+        });
+        $("openPortableCase").onclick = () => $("portableCaseFile").click();
+        bindLocalFile($("portableCaseFile"), file => run(async message => {
+          const { readPortableCase, MAX_PORTABLE_BYTES } = await import("./tools/portable-case.js");
+          if (file.size > MAX_PORTABLE_BYTES + 26000000) throw new Error("El ZIP supera el tamaño admitido.");
+          const data = await readPortableCase(new Uint8Array(await file.arrayBuffer()));
+          const volumeBuffer = data.volume.buffer.slice(data.volume.byteOffset, data.volume.byteOffset + data.volume.byteLength);
+          const modelBuffer = data.model.buffer.slice(data.model.byteOffset, data.model.byteOffset + data.model.byteLength);
+          const parsedVolume = parsePortableVolume(volumeBuffer);
+          const parsedModel = await new GLTFLoader().parseAsync(modelBuffer, "");
+          let installed = false;
+          try {
+            validatePortableSession(data.session.state, parsedModel, parsedVolume);
+            if ((model || volume) && !confirm("Abrir este caso portátil sustituirá el trabajo actual. ¿Continuar?")) { message.textContent = "Apertura cancelada. El caso actual se conserva."; return; }
+            const old = { model: portableModelSource, volume: portableVolumeSource, state: currentViewCase() ? caseSessionState() : null };
+            try {
+              await loadNrrdData(volumeBuffer, data.manifest.volumeName, parsedVolume);
+              await loadPortableGlbData(modelBuffer, data.manifest.modelName, "", parsedModel);installed = true;
+              restoreCaseSession(data.session.state);
+              document.dispatchEvent(new Event("case-state-change"));
+              finishProgress(true, "Caso portátil recuperado");
+              message.textContent = "Caso portátil recuperado: modelo, volumen y estado de trabajo.";
+            } catch (error) {
+              if (old.model && old.volume && old.state) {
+                await loadNrrdData(await old.volume.blob.arrayBuffer(), old.volume.name);
+                await loadPortableGlbData(await old.model.blob.arrayBuffer(), old.model.name);
+                restoreCaseSession(old.state);
+              }
+              throw error;
+            }
+          } finally {
+            if (!installed) parsedModel.scene.traverse(o => { o.geometry?.dispose(); if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => m.dispose()); });
+          }
+        }), error => { $("portableCaseStatus").textContent = error; });
       }
       function restoreCaseSession(state) {
         validateCaseSession(state);
@@ -12485,6 +12850,8 @@
         blocked: () => batchRestore || presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open,
       }, $("caseSessionControls"));
       savedViewTracker = installSavedViewTracker();
+      installPortableCase();
+      minimumDistanceController = installMinimumDistance();
       // =============================================================================
       // 20 · Capturas y presentación
       // =============================================================================
@@ -12903,6 +13270,17 @@
         resize3D();
         repaintAll();
       };
+      const viewLayout = installViewLayout({ document,
+        refresh: () => { resize3D(); repaintAll(); },
+        blocked: () => presentationCameraFlight || !$('casePresentation').hidden || $('usDialog').open,
+      });
+      installWorkspacePresets({ viewLayout,
+        document, setPanelFolded: setGeneralPanelFolded, toggleTools: toggleViewerTools,
+        refresh: () => { resize3D(); repaintAll(); },
+        blocked: () => presentationCameraFlight || !$('casePresentation').hidden || $('usDialog').open,
+      });
+      $('workspaceSaved').onclick = () => openSidebarSection('section-saved');
+      $('workspaceCapture').onclick = captureCurrentLayout;
       // =============================================================================
       // 21 · Geometría del modo US y copia temporal del modelo
       // =============================================================================
@@ -14253,8 +14631,14 @@
         }
 
         function openTrajectory(path) {
-          const probe = path.a.clone(),
-            axis = "z";
+          openSurface(path.a, path.b);
+        }
+
+        function openSurface(point, axisEnd = null) {
+          if (!volume || !model || !slices.z) {
+            throw new Error("Carga un volumen de TAC o RM y un modelo GLB para usar el Modo US.");
+          }
+          const probe = point.clone(), axis = "z";
           const canvas = $("ct" + axis),
             basis = slicePixelBasis(axis);
           const normal = basis.u.clone().cross(basis.v).normalize();
@@ -14276,7 +14660,7 @@
             x: inPreview ? pixel.x / canvas.width : 0.5,
             y: inPreview ? pixel.y / canvas.height : 0.5,
           };
-          openSection(entry, probe, probe.clone(), undefined, path.b.clone());
+          openSection(entry, probe, probe.clone(), undefined, axisEnd?.clone() ?? null);
         }
 
         function syncUsAxisControls() {
@@ -14473,7 +14857,7 @@
           dialog.close();
           setTool("us");
           $("toolHint").textContent =
-            "Para elegir una entrada manual, pulsa un corte fuera de la trayectoria.";
+            "Para elegir otra entrada, pulsa una superficie del modelo 3D o un corte fuera de la trayectoria.";
         };
         dialog.addEventListener("close", () => {
           if (!dialog.open) releaseSection();
@@ -14482,7 +14866,7 @@
           if (event.key === "Escape" && ["us", "usTarget"].includes(activeTool))
             setTool("navigate");
         });
-        return { restorePosition, openTrajectory };
+        return { restorePosition, openTrajectory, openSurface };
       }
       const usMode = installUsMode();
       document.querySelectorAll('input[type="range"]').forEach(addRangeStepper);
