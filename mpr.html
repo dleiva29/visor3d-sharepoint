@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.32.0 · Distancia mínima</title>
+    /><title>MPR · v2.32.1 · Lista de medidas</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -306,18 +306,20 @@
       .model-layer.selected {
         outline: 2px solid #ffff00;
       }
-      #measurementList {
-        padding-left: 20px;
-        font-size: 12px;
-      }
-      #measurementList li { margin: 6px 0; padding: 7px; border: 1px solid #31566e; border-radius: 6px; background: #102534; }
-      #measurementList li.selected { border-color: #ffd36e; background: #28352e; }
+      #measurementList { padding: 0; list-style: none; font-size: 12px; }
+      #measurementList li { margin: 4px 0; padding: 0; border: 1px solid #294356; border-radius: 6px; background: #0d1e2d; }
+      #measurementList li.selected { outline: 1px solid var(--accent); background: #12374b; }
+      #measurementList .measurement-header { display: flex; align-items: center; gap: 8px; padding: 10px 8px; }
+      #measurementList .measurement-locate { flex: 1; min-width: 0; padding: 0; border: 0; background: transparent; text-align: left; color: inherit; font: inherit; cursor: pointer; }
+      #measurementList .measurement-display-name { display: block; overflow-wrap: anywhere; font-weight: 600; }
+      #measurementList .measurement-title { display: block; margin-top: 3px; color: #9dbbce; font-size: 10px; font-variant-numeric: tabular-nums; }
+      #measurementList .measurement-visibility { display: flex; align-items: center; flex-shrink: 0; margin: 0; }
+      #measurementList .measurement-settings-toggle { flex-shrink: 0; border: 0; background: transparent; font-size: 12px; padding: 5px; color: #78bdd6; }
+      #measurementList .measurement-settings { padding: 10px 8px; border-top: 1px solid #294356; }
+      #measurementList .measurement-settings[hidden] { display: none; }
       #measurementList .measurement-name { box-sizing: border-box; width: 100%; min-width: 0; margin: 0 0 6px; padding: 5px 7px; color: #e2eff9; background: #081724; border: 1px solid #31566e; border-radius: 5px; font: inherit; }
-      #measurementList .measurement-title { display: block; margin-bottom: 5px; }
-      #measurementList button {
-        padding: 2px 6px;
-        margin-left: 6px;
-      }
+      #measurementList .measurement-settings button { margin-right: 6px; }
+      #measurementList button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
       #toolHint,
       #selectionInfo {
         font-size: 12px;
@@ -3189,7 +3191,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.32.0</strong
+        ><strong>Visor MPR · v2.32.1</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4216,6 +4218,7 @@
         },
         viewAppliers = {};
       let minimumDistancePreview = null, minimumDistanceController = null;
+      const expandedMeasurementSettings = new WeakSet();
       let selectedMeasurement = null;
       let hoveredMeasurement = null;
       let hoveredAnnotation = null;
@@ -6308,18 +6311,44 @@
         document.dispatchEvent(new Event("case-state-change"));
       }
       function updateMeasurementList() {
+        const active = document.activeElement;
+        const focusedRow = active?.closest?.("#measurementList li");
+        const focusedMeasurement = focusedRow?._measurement;
+        const focusedAction = active?.dataset?.measurementAction;
+        const caret = focusedAction === "name" ? [active.selectionStart, active.selectionEnd] : null;
         if (!measurements.includes(selectedMeasurement)) selectedMeasurement = null;
         $("measurementEmpty").hidden = measurements.length > 0;
         updateMeasurementHint();
         $("measurementList").replaceChildren();
         measurements.forEach((m, i) => {
           const li = document.createElement("li");
+          li._measurement = m;
+          const header = document.createElement("div");header.className = "measurement-header";
+          const locate = document.createElement("button");locate.type = "button";locate.className = "measurement-locate";locate.dataset.measurementAction = "locate";
+          locate.setAttribute("aria-pressed", String(m === selectedMeasurement));
+          locate.onclick = () => locateMeasurement(m);
+          const displayName = document.createElement("span");displayName.className = "measurement-display-name";
+          const settings = document.createElement("div");settings.className = "measurement-settings";settings.id = "measurement-settings-" + i;settings.hidden = !expandedMeasurementSettings.has(m);
+          const settingsToggle = document.createElement("button");settingsToggle.type = "button";settingsToggle.className = "measurement-settings-toggle";settingsToggle.dataset.measurementAction = "settings";
+          settingsToggle.setAttribute("aria-controls", settings.id);
+          const syncHeader = () => {
+            displayName.textContent = m.name || "Medida " + (i + 1);
+            locate.setAttribute("aria-label", "Localizar " + displayName.textContent + ": " + title.textContent);
+            settingsToggle.textContent = settings.hidden ? "Ajustes ▸" : "Ajustes ▾";
+            settingsToggle.setAttribute("aria-expanded", String(!settings.hidden));
+            settingsToggle.setAttribute("aria-label", "Ajustes de " + displayName.textContent);
+          };
+          settingsToggle.onclick = () => {
+            settings.hidden = !settings.hidden;
+            if (settings.hidden) expandedMeasurementSettings.delete(m); else expandedMeasurementSettings.add(m);
+            syncHeader();
+          };
           li.classList.toggle("selected", m === selectedMeasurement);
           const title = document.createElement("strong");
           title.className = "measurement-title";
           title.textContent = formatMeasurementDistance(m) + " mm · " + (m.axis ? {z:"Axial",y:"Coronal",x:"Sagital"}[m.axis] + " · corte " + m.index : "3D");
           const name = document.createElement("input");
-          name.type = "text";
+          name.type = "text";name.dataset.measurementAction = "name";
           name.className = "measurement-name";
           name.maxLength = 60;
           name.value = m.name || "";
@@ -6329,12 +6358,13 @@
             const value = name.value.trim().slice(0, 60);
             if (value) m.name = value;
             else delete m.name;
+            syncHeader();
             renderMeasure3D(); repaintAll();
             document.dispatchEvent(new Event("case-state-change"));
           };
-          const visibility = document.createElement("label");
+          const visibility = document.createElement("label");visibility.className = "measurement-visibility";visibility.title = "Mostrar u ocultar medida";
           const toggle = document.createElement("input");
-          toggle.type = "checkbox";
+          toggle.type = "checkbox";toggle.dataset.measurementAction = "visibility";
           toggle.checked = m.visible !== false;
           toggle.setAttribute("aria-label", "Mostrar medición " + (i + 1));
           toggle.onchange = () => {
@@ -6342,10 +6372,10 @@
             renderMeasure3D(); repaintAll();
             document.dispatchEvent(new Event("case-state-change"));
           };
-          visibility.append(toggle, document.createTextNode(" Mostrar medida"));
-          li.append(name, title, visibility);
+          visibility.append(toggle);
+          locate.append(displayName, title);header.append(visibility, locate, settingsToggle);
+          settings.append(name);li.append(header, settings);syncHeader();
           for (const [label, icon, action] of [
-            ["Localizar", "target", () => locateMeasurement(m)],
             ["Editar", "edit", () => locateMeasurement(m, true)],
             ["Eliminar", "delete", () => {
               const index = measurements.indexOf(m);
@@ -6359,11 +6389,16 @@
             const control = document.createElement("button");
             control.type = "button";
             setTreeIcon(control, icon, label + " medición " + (i + 1));
+            control.dataset.measurementAction = label === "Editar" ? "edit" : "delete";
             control.onclick = action;
-            if (label === "Localizar") control.setAttribute("aria-pressed", String(m === selectedMeasurement));
-            li.append(control);
+            settings.append(control);
           }
           $("measurementList").append(li);
+          if (m === focusedMeasurement && focusedAction) {
+            const next = li.querySelector('[data-measurement-action="' + focusedAction + '"]');
+            next?.focus({ preventScroll: true });
+            if (caret && next) next.setSelectionRange(...caret);
+          }
         });
       }
       function clearMeasurements() {
