@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.36.0 · Espacios de trabajo</title>
+    /><title>MPR · v2.36.1 · Espacios de trabajo</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3106,7 +3106,7 @@
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .layout > aside { grid-column: 2; border-left: 1px solid var(--edge); border-right: 0; }
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded) .pane.maximized { left: 6px; right: 346px; }
       body[data-viewer-layout="desktop"]:not(.mobile-presentation):not(.panel-folded):has(.pane.maximized) aside { left: auto; right: 0; width: 340px; }
-      .workspace-selector { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+      .workspace-selector { margin: 0; padding: 0; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
       .workspace-selector select {
         width: auto; max-width: 150px; height: 30px; margin: 0; padding: 0 8px;
         background: #19394d; border: 1px solid #42778b; border-radius: 5px;
@@ -3226,6 +3226,18 @@
         .pane h2 { padding-right: 100px; }
         .pane:has(#view3d) h2 { padding-right: 148px; }
       }
+      .pane > :is(.pane-hide, .pane-maximize, .pane-menu-trigger) {
+        display: grid; place-items: center; box-sizing: border-box;
+        top: 6px; width: 26px; height: 26px; min-height: 0;
+        margin: 0; padding: 0; line-height: 1;
+      }
+      .pane > .pane-maximize, .pane:has(#view3d) > .pane-maximize { right: 37px; }
+      .pane:has(#view3d) > .pane-menu-trigger { right: 69px; }
+      @media (pointer: coarse) {
+        .pane > :is(.pane-hide, .pane-maximize, .pane-menu-trigger) { top: 2px; width: 44px; height: 44px; }
+        .pane > .pane-maximize, .pane:has(#view3d) > .pane-maximize { right: 53px; }
+        .pane:has(#view3d) > .pane-menu-trigger { right: 101px; }
+      }
     </style></head
   ><body>
 <script>
@@ -3242,7 +3254,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.36.0</strong>
+        ><strong>Visor MPR · v2.36.1</strong>
         <button
           type="button"
           id="toggleGeneralPanel"
