@@ -20,6 +20,24 @@ function suite(html){
  return {run,test,errors,code,ast};
 }
 async function check(html, additionalTests = false){const s=suite(html);const {run,test}=s;
+ await test('Entrada US 3D: conserva el punto, centra miniatura externa y mantiene eje de trayectoria',()=>{
+  let declaration;
+  function walk(node){if(!node||typeof node!=='object')return;if(node.type==='FunctionDeclaration'&&node.id.name==='openSurface')declaration=node;for(const value of Object.values(node)){if(Array.isArray(value))value.forEach(walk);else if(value&&typeof value==='object')walk(value);}}
+  walk(s.ast);assert.ok(declaration);
+  let opened;
+  const context=vm.createContext({THREE,volume:{},model:{},slices:{z:{}},$:()=>({width:100,height:100}),
+   slicePixelBasis:()=>({u:new THREE.Vector3(1,0,0),v:new THREE.Vector3(0,1,0)}),
+   pixelToWorld:(_axis,x,y)=>new THREE.Vector3(x,y,0),worldToPixel:(_axis,p)=>({x:p.x,y:p.y}),
+   openSection:(...args)=>{opened=args;}});
+  vm.runInContext(s.code.slice(...declaration.range),context);
+  const p=new THREE.Vector3(20,30,17);context.openSurface(p);
+  assert.ok(opened[1].equals(p));assert.notEqual(opened[1],p);assert.equal(opened[4],null);
+  const reconstruct=e=>e.origin.clone().addScaledVector(e.u,e.x).addScaledVector(e.v,e.y);
+  assert.ok(reconstruct(opened[0]).distanceTo(p)<1e-9);
+  const outside=new THREE.Vector3(180,220,-4),end=new THREE.Vector3(0,0,50);context.openSurface(outside,end);
+  assert.equal(opened[0].x,0.5);assert.equal(opened[0].y,0.5);assert.ok(reconstruct(opened[0]).equals(outside));assert.ok(opened[4].equals(end));assert.notEqual(opened[4],end);
+  context.volume=null;assert.throws(()=>context.openSurface(p),/Carga un volumen/);
+ });
  await test('Menús de cabecera: caben en horizontal y se recolocan al girar la pantalla',()=>{
   const content={style:{},offsetWidth:260};
   const anchor={left:760,bottom:151};
