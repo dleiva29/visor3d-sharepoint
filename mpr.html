@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.34.0 · Espacios de trabajo</title>
+    /><title>MPR · v2.35.0 · Espacios de trabajo</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3209,7 +3209,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.34.0</strong>
+        ><strong>Visor MPR · v2.35.0</strong>
         <button
           type="button"
           id="toggleGeneralPanel"
@@ -6053,7 +6053,7 @@
           "Marca primero el objetivo y después la entrada, en los cortes o en el modelo 3D.",
         usTarget:
           "Marca el objetivo sobre la trayectoria, en un corte o en una superficie visible del modelo 3D. Esc cancela.",
-        us: "Modo US: pulsa la trayectoria 3D o elige una entrada manual en un corte axial, coronal o sagital.",
+        us: "Modo US: pulsa una superficie del modelo 3D, la trayectoria o un corte para colocar la entrada de la sonda.",
         threePoints: "Marca tres puntos en 2D o sobre superficies 3D. Esc cancela sin cambiar la orientación. Al completar, el recorte pasa a manual.",
         rotateClip:
           "Arrastra en 3D para orientar el plano de recorte. Pulsa Navegar para volver a girar el modelo.",
@@ -6665,7 +6665,11 @@
             return;
           }
         }
-        if (activeTool === "us" || !model || !modelRoot.visible) return;
+        if (activeTool === "us" && (!volume || !model)) {
+          $("toolHint").textContent = "Carga un volumen de TAC o RM y un modelo GLB para usar el Modo US.";
+          return;
+        }
+        if (!model || !modelRoot.visible) return;
         model.updateWorldMatrix(true, true);
         const visible = (o) => {
           for (let p = o; p; p = p.parent) if (!p.visible) return false;
@@ -6685,7 +6689,11 @@
           $("toolHint").textContent = "No se ha seleccionado ninguna superficie visible.";
           return;
         }
-        if (activeTool === "trajectory") addTrajectoryPoint(hit.point);
+        if (activeTool === "us") {
+          try { usMode.openSurface(hit.point); }
+          catch (error) { $("toolHint").textContent = error.message; }
+        }
+        else if (activeTool === "trajectory") addTrajectoryPoint(hit.point);
         else if (activeTool === "usTarget") selectUsTarget(hit.point);
         else if (activeTool === "threePoints") addPlanePoint(hit.point);
         else if (["annotation", "arrow"].includes(activeTool)) pickAnnotation(hit.point);
@@ -14516,8 +14524,14 @@
         }
 
         function openTrajectory(path) {
-          const probe = path.a.clone(),
-            axis = "z";
+          openSurface(path.a, path.b);
+        }
+
+        function openSurface(point, axisEnd = null) {
+          if (!volume || !model || !slices.z) {
+            throw new Error("Carga un volumen de TAC o RM y un modelo GLB para usar el Modo US.");
+          }
+          const probe = point.clone(), axis = "z";
           const canvas = $("ct" + axis),
             basis = slicePixelBasis(axis);
           const normal = basis.u.clone().cross(basis.v).normalize();
@@ -14539,7 +14553,7 @@
             x: inPreview ? pixel.x / canvas.width : 0.5,
             y: inPreview ? pixel.y / canvas.height : 0.5,
           };
-          openSection(entry, probe, probe.clone(), undefined, path.b.clone());
+          openSection(entry, probe, probe.clone(), undefined, axisEnd?.clone() ?? null);
         }
 
         function syncUsAxisControls() {
@@ -14736,7 +14750,7 @@
           dialog.close();
           setTool("us");
           $("toolHint").textContent =
-            "Para elegir una entrada manual, pulsa un corte fuera de la trayectoria.";
+            "Para elegir otra entrada, pulsa una superficie del modelo 3D o un corte fuera de la trayectoria.";
         };
         dialog.addEventListener("close", () => {
           if (!dialog.open) releaseSection();
@@ -14745,7 +14759,7 @@
           if (event.key === "Escape" && ["us", "usTarget"].includes(activeTool))
             setTool("navigate");
         });
-        return { restorePosition, openTrajectory };
+        return { restorePosition, openTrajectory, openSurface };
       }
       const usMode = installUsMode();
       document.querySelectorAll('input[type="range"]').forEach(addRangeStepper);
