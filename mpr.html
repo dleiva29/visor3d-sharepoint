@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.31.0 · Caso portátil</title>
+    /><title>MPR · v2.32.0 · Distancia mínima</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.31.0</strong
+        ><strong>Visor MPR · v2.32.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4215,6 +4215,7 @@
           z: { zoom: 1, x: 0, y: 0 },
         },
         viewAppliers = {};
+      let minimumDistancePreview = null, minimumDistanceController = null;
       let selectedMeasurement = null;
       let hoveredMeasurement = null;
       let hoveredAnnotation = null;
@@ -5434,6 +5435,7 @@
       $("showmodel").onchange = () => (modelRoot.visible = $("showmodel").checked);
       $("fit").onclick = fit;
       function updateModelTransform() {
+        minimumDistanceController?.invalidate();
         if (!model) return;
         const units = Number($("unit").value);
         const lps = $("space").value === "LPS";
@@ -6179,7 +6181,7 @@
           ctx.stroke();
           dot(a);
           dot(p);
-          const text = (m.name ? m.name + ": " : "") + m.a.distanceTo(m.b).toFixed(1) + " mm";
+          const text = (m.name ? m.name + ": " : "") + formatMeasurementDistance(m) + " mm";
           ctx.strokeStyle = "#000";
           ctx.lineWidth = 4;
           const tx = Math.max(
@@ -6205,7 +6207,7 @@
           o.material?.map?.dispose();
           o.material?.dispose();
         }
-        for (const m of measurements.filter((m) => m.axis === null && m.visible !== false)) {
+        for (const m of [...measurements, ...(minimumDistancePreview ? [minimumDistancePreview] : [])].filter((m) => m.axis === null && m.visible !== false)) {
           const color = m === selectedMeasurement ? "#ffd36e" : m === hoveredMeasurement ? "#ffffff" : "#40ffff";
           const line = new THREE.Line(
             new THREE.BufferGeometry().setFromPoints([m.a, m.b]),
@@ -6216,7 +6218,7 @@
           const midpoint = m.a.clone().add(m.b).multiplyScalar(0.5);
           measurementRoot.add(
             annotationSprite(
-              (m.name ? m.name + ": " : "") + m.a.distanceTo(m.b).toFixed(1) + " mm",
+              (m.name ? m.name + ": " : "") + formatMeasurementDistance(m) + " mm",
               color,
               midpoint,
               measurementRoot
@@ -6315,7 +6317,7 @@
           li.classList.toggle("selected", m === selectedMeasurement);
           const title = document.createElement("strong");
           title.className = "measurement-title";
-          title.textContent = m.a.distanceTo(m.b).toFixed(1) + " mm · " + (m.axis ? {z:"Axial",y:"Coronal",x:"Sagital"}[m.axis] + " · corte " + m.index : "3D");
+          title.textContent = formatMeasurementDistance(m) + " mm · " + (m.axis ? {z:"Axial",y:"Coronal",x:"Sagital"}[m.axis] + " · corte " + m.index : "3D");
           const name = document.createElement("input");
           name.type = "text";
           name.className = "measurement-name";
@@ -6365,6 +6367,7 @@
         });
       }
       function clearMeasurements() {
+        minimumDistanceController?.invalidate();
         measurements.length = 0;
         pendingMeasure = null;
         updateMeasurementList();
@@ -7449,6 +7452,10 @@
       // =============================================================================
       // 10 · Serialización y validación de configuraciones
       // =============================================================================
+      function formatMeasurementDistance(m) {
+        const distance = m.a.distanceTo(m.b);
+        return m.precision === 3 && distance > 0 && distance < 0.001 ? "<0.001" : distance.toFixed(m.precision === 3 ? 3 : 1);
+      }
       function measurementData() {
         return measurements.map((m) => ({
           axis: m.axis,
@@ -7457,6 +7464,7 @@
           b: m.b.toArray(),
           ...(m.visible !== undefined ? { visible: m.visible } : {}),
           ...(m.name !== undefined ? { name: m.name } : {}),
+          ...(m.precision !== undefined ? { precision: m.precision } : {}),
           ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
         }));
       }
@@ -7475,6 +7483,7 @@
             throw new Error("Visibilidad de medición inválida.");
           if (m.name !== undefined && (typeof m.name !== "string" || m.name.length > 60 || /[\r\n\t]/.test(m.name)))
             throw new Error("Nombre de medición inválido (máximo 60 caracteres, una línea).");
+          if (m.precision !== undefined && m.precision !== 3) throw new Error("Precisión de medición inválida.");
           if (m.plane !== undefined) {
             const p = m.plane;
             if (m.axis === null || (p !== null && (!p || !vec(p.pivot) || !vec(p.shift) || !Array.isArray(p.rotation) || p.rotation.length !== 4 || p.rotation.some(n => typeof n !== "number" || !Number.isFinite(n)) || Math.abs(Math.hypot(...p.rotation) - 1) > 0.001)))
@@ -7501,6 +7510,7 @@
             b: new THREE.Vector3(...m.b),
             ...(m.visible !== undefined ? { visible: m.visible } : {}),
           ...(m.name !== undefined ? { name: m.name } : {}),
+          ...(m.precision !== undefined ? { precision: m.precision } : {}),
             ...(m.plane !== undefined ? { plane: structuredClone(m.plane) } : {}),
           }))
         );
@@ -10990,6 +11000,7 @@
       }
       function setTreeIcon(control, icon, label) {
         const paths = {
+          measure: "M2 12L12 2l4 4L6 16z M5 9l2 2 M8 6l2 2 M11 3l2 2",
           close: "M4 4l10 10 M14 4L4 14",
           delete: "M3 5h12 M6 5V2h6v3 M4 5l1 11h8l1-11 M7 8v5 M11 8v5",
           settings: "M3 2v14 M9 2v14 M15 2v14 M1 6h4 M7 12h4 M13 7h4",
@@ -11468,6 +11479,7 @@
         dropdown("Medir", [
           labelButton(takeTool("measure2d"), "Medir en MPR"), labelButton(takeTool("measure3d"), "Medir en 3D"),
           labelButton(takeTool("editMeasure"), "Editar medidas"), labelButton(takeTool("deleteMeasure"), "Borrar medida o anotación"),
+          button("Distancia mínima entre estructuras", () => minimumDistanceController?.open()),
           button("Lista y ajustes de mediciones", () => openSidebarSection("menu-measurements")),
         ]);
         dropdown("Anotar", [$("addModelLabel"), $("addModelArrow"), button("Textos y ajustes", () => openSidebarSection("menu-annotations"))]);
@@ -12490,6 +12502,71 @@
           ["x", "y", "z"].forEach((a, i) => { $("r" + a).max = previous.sliders[i][0]; $("r" + a).value = previous.sliders[i][1]; });
         }
       }
+      function installMinimumDistance() {
+        const box = document.createElement("section");box.className = "case-session";box.id = "minimumDistancePanel";
+        box.innerHTML = '<strong>Distancia mínima entre superficies</strong><label>Estructura A<select id="distanceStructureA" aria-label="Primera estructura"></select></label><label>Estructura B<select id="distanceStructureB" aria-label="Segunda estructura"></select></label><div class="case-session-actions"><button type="button" id="calculateMinimumDistance">Calcular</button><button type="button" id="cancelMinimumDistance" disabled>Cancelar</button><button type="button" id="saveMinimumDistance" disabled>Guardar como medida</button><button type="button" id="clearMinimumDistance">Quitar vista previa</button></div><p id="minimumDistanceStatus" class="note" role="status">Selecciona dos estructuras distintas.</p><p class="note hint">Usa las superficies completas, aunque estén ocultas o recortadas. Distancia en mm según las unidades del modelo; comprueba su alineación con el TC. Cero indica contacto o cruce de superficies, no cualquier solapamiento de volúmenes. La medida guardada es fija: recalcula si cambias el modelo o su escala.</p>';
+        $("measurementList").before(box);
+        for (const [id, icon, label] of [["calculateMinimumDistance", "measure", "Calcular distancia mínima"], ["cancelMinimumDistance", "close", "Cancelar cálculo"], ["saveMinimumDistance", "done", "Guardar distancia mínima como medida"], ["clearMinimumDistance", "delete", "Quitar vista previa de distancia mínima"]]) setTreeIcon($(id), icon, label);
+        let generation = 0, worker = null, result = null, resultKey = null, loadedHash = null;
+        const message = $("minimumDistanceStatus"), first = $("distanceStructureA"), second = $("distanceStructureB");
+        const key = () => JSON.stringify([modelContentHash, $("unit").value, $("space").value, first.value, second.value]);
+        function invalidate(text = "Selecciona dos estructuras y calcula su distancia.") {
+          generation++;worker?.terminate();worker = null;result = null;resultKey = null;minimumDistancePreview = null;
+          $("calculateMinimumDistance").disabled = false;$("cancelMinimumDistance").disabled = true;$("saveMinimumDistance").disabled = true;
+          message.textContent = text;renderMeasure3D();
+        }
+        function sync() {
+          if (loadedHash === modelContentHash && first.options.length === layerControls.size) return;
+          loadedHash = modelContentHash;invalidate();first.replaceChildren();second.replaceChildren();
+          for (const name of layerControls.keys()) for (const select of [first, second]) { const option = document.createElement("option");option.value = name;option.textContent = name;select.append(option); }
+          if (second.options.length > 1) second.selectedIndex = 1;
+        }
+        function open() {
+          sync();const selected = [...selectedStructures];
+          if (selected.length === 2 && (first.value !== selected[0] || second.value !== selected[1])) { invalidate();first.value = selected[0];second.value = selected[1]; }
+          openSidebarSection("menu-measurements", box);first.focus();
+        }
+        for (const select of [first, second]) select.onchange = () => invalidate();
+        $("cancelMinimumDistance").onclick = () => invalidate("Cálculo cancelado.");
+        $("clearMinimumDistance").onclick = () => invalidate("Vista previa retirada. Las medidas guardadas se conservan.");
+        document.addEventListener("keydown", event => { if (event.key === "Escape" && !$("cancelMinimumDistance").disabled) invalidate("Cálculo cancelado."); });
+        new MutationObserver(sync).observe($("modelLayers"), { childList: true });
+        $("calculateMinimumDistance").onclick = async () => {
+          sync();invalidate();
+          if (!model || !first.value || !second.value || first.value === second.value) { message.textContent = "Selecciona dos estructuras distintas con superficies.";return; }
+          const task = generation, sourceKey = key(), names = [first.value, second.value];
+          $("calculateMinimumDistance").disabled = true;$("cancelMinimumDistance").disabled = false;
+          message.textContent = "Preparando superficies completas…";
+          try {
+            const { structureSurface } = await import("./tools/structure-surface.js");
+            const positions = [];
+            for (const name of names) positions.push(await structureSurface(layerControls.get(name).items, { cancelled: () => task !== generation }));
+            if (task !== generation || sourceKey !== key()) return;
+            message.textContent = "Calculando distancia mínima en segundo plano…";
+            worker = new Worker(new URL("./tools/minimum-distance-worker.js", location.href), { type: "module" });
+            worker.onmessage = ({ data }) => {
+              if (task !== generation || sourceKey !== key()) return;
+              worker?.terminate();worker = null;$("calculateMinimumDistance").disabled = false;$("cancelMinimumDistance").disabled = true;
+              if (data.error) { message.textContent = "No se pudo calcular: " + data.error;return; }
+              result = { ...data.result, names };resultKey = sourceKey;
+              minimumDistancePreview = { axis: null, index: null, a: new THREE.Vector3(...result.a), b: new THREE.Vector3(...result.b), name: "Distancia mínima · vista previa", precision: 3, visible: true };
+              renderMeasure3D();$("saveMinimumDistance").disabled = false;
+              message.textContent = result.distance === 0 ? "0 mm · Las superficies se tocan o se cruzan." : "Distancia mínima: " + formatMeasurementDistance(minimumDistancePreview) + " mm. Los extremos se muestran en 3D.";
+            };
+            worker.onerror = () => { if (task === generation) invalidate("No se pudo ejecutar el cálculo en segundo plano. Inténtalo de nuevo."); };
+            worker.postMessage({ first: positions[0].buffer, second: positions[1].buffer }, positions.map(p => p.buffer));
+          } catch (error) { if (task === generation) invalidate("No se pudo calcular: " + error.message); }
+        };
+        $("saveMinimumDistance").onclick = () => {
+          if (!result || resultKey !== key()) { invalidate("El modelo o la selección han cambiado. Calcula la distancia de nuevo.");return; }
+          if (measurements.length >= 1000) { message.textContent = "Máximo de 1000 medidas. Elimina alguna antes de guardar.";return; }
+          const measurement = { ...minimumDistancePreview, a: minimumDistancePreview.a.clone(), b: minimumDistancePreview.b.clone(), name: ("Mín.: " + result.names.join(" ↔ ")).replace(/[\r\n\t]/g, " ").slice(0, 60) };
+          measurements.push(measurement);minimumDistancePreview = null;selectedMeasurement = measurement;
+          result = null;$("saveMinimumDistance").disabled = true;updateMeasurementList();renderMeasure3D();repaintAll();
+          document.dispatchEvent(new Event("case-state-change"));message.textContent = "Medida guardada. Se incluye en vistas, configuración y caso portátil.";
+        };
+        sync();return { open, invalidate };
+      }
       function installPortableCase() {
         const box = document.createElement("section"); box.className = "case-session";
         box.innerHTML = '<strong>Caso portátil · ZIP</strong><div class="case-session-actions"><button type="button" id="openPortableCase">Abrir caso portátil</button><button type="button" id="savePortableCase">Guardar caso portátil</button></div><input id="portableCaseFile" type="file" accept=".zip,application/zip" hidden><p class="note hint">Incluye GLB, NRRD, árbol, medidas, anotaciones y vistas. Máximo 512 MB de datos. Se guarda localmente; no se publica en GitHub.</p><p id="portableCaseStatus" class="note" role="status"></p>';
@@ -12590,6 +12667,7 @@
       }, $("caseSessionControls"));
       savedViewTracker = installSavedViewTracker();
       installPortableCase();
+      minimumDistanceController = installMinimumDistance();
       // =============================================================================
       // 20 · Capturas y presentación
       // =============================================================================
