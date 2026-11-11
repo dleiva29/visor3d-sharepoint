@@ -1,0 +1,25 @@
+{
+  "format": "nrrd-parts-v1",
+  "originalName": "10489198.nrrd",
+  "totalBytes": 160111025,
+  "chunkBytes": 10000000,
+  "parts": [
+    "10489198.nrrd.part001",
+    "10489198.nrrd.part002",
+    "10489198.nrrd.part003",
+    "10489198.nrrd.part004",
+    "10489198.nrrd.part005",
+    "10489198.nrrd.part006",
+    "10489198.nrrd.part007",
+    "10489198.nrrd.part008",
+    "10489198.nrrd.part009",
+    "10489198.nrrd.part010",
+    "10489198.nrrd.part011",
+    "10489198.nrrd.part012",
+    "10489198.nrrd.part013",
+    "10489198.nrrd.part014",
+    "10489198.nrrd.part015",
+    "10489198.nrrd.part016",
+    "10489198.nrrd.part017"
+  ]
+}
