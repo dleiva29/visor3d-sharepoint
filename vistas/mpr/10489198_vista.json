@@ -1,0 +1,1134 @@
+{
+  "format": "mpr-named-views",
+  "version": 1,
+  "caseKey": "mpr-named-views-v1:72f91fcc2853a0ebd25d82bb61008f642c3ac7955b4629ac0b1283c16d5139b8:2ce1587e97fc8649cc2982097d29d1c421e190b180497a9e2fde6bd595c40ec4",
+  "views": [
+    {
+      "name": "M1 Global 3D",
+      "notes": "Vista 3D anterior ",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": "3d",
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            636
+          ],
+          "origin": [
+            203.6972,
+            206.6268,
+            1396.0000000000002
+          ],
+          "structures": [
+            "Liver_Hígado",
+            "Venas_Hepáticas",
+            "Vasos_Portales",
+            "M1_sII_1",
+            "M1_sIII_1",
+            "M1_sV_1",
+            "M1_sVIII_1"
+          ]
+        },
+        "referencePoint": [
+          -54.87650597738434,
+          73.36488723748101,
+          1835.0000000000002
+        ],
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": true,
+        "structureNodes": [
+          {
+            "id": "73c3c7d6-7b97-453d-838d-c7a731d75bac",
+            "type": "group",
+            "name": "M1",
+            "parent": null
+          },
+          {
+            "id": "e48c3844-a47f-40d3-85c8-5df9a6f39073",
+            "type": "segment",
+            "key": "M1_sII_1",
+            "name": "",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "d2047007-7daa-4745-ae6a-e132d2b8d1d4",
+            "type": "segment",
+            "key": "M1_sIII_1",
+            "name": "",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "c093ddaf-83f8-4839-9a54-c996dc97531a",
+            "type": "group",
+            "name": "Ablac",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "80879a2b-77ac-4419-b79a-a048cac6b57c",
+            "type": "segment",
+            "key": "M1_sVIII_1",
+            "name": "",
+            "parent": "c093ddaf-83f8-4839-9a54-c996dc97531a"
+          },
+          {
+            "id": "25f00634-c086-4f78-b973-deb6af9c0090",
+            "type": "segment",
+            "key": "M1_sV_1",
+            "name": "",
+            "parent": "c093ddaf-83f8-4839-9a54-c996dc97531a"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "y": {
+            "zoom": 1,
+            "x": 0,
+            "y": 0
+          },
+          "z": {
+            "zoom": 2.339646851925993,
+            "x": 0,
+            "y": 0
+          }
+        },
+        "camera": {
+          "position": [
+            195.73674168768918,
+            127.41202603629058,
+            2004.3113597480044
+          ],
+          "up": [
+            -0.15740056773802263,
+            -0.1590760439471907,
+            0.974638329596089
+          ],
+          "target": [
+            -2.746800000000036,
+            0.18279999999995766,
+            1713.5000000000002
+          ],
+          "near": 0.8641671045972534,
+          "far": 86416.71045972535
+        },
+        "slices": {
+          "x": 154,
+          "y": 280,
+          "z": 418
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": false,
+          "show3DMarker": false,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "x",
+        "clipPosition": 100,
+        "clipManualOffset": 0,
+        "clipSyncTc": false,
+        "layers": [
+          {
+            "key": "Liver_Hígado",
+            "visible": true,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 41
+          },
+          {
+            "key": "Venas_Hepáticas",
+            "visible": true,
+            "color": "#589cda",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 100
+          },
+          {
+            "key": "Vasos_Portales",
+            "visible": true,
+            "color": "#fa00cc",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sIII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sV_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sVIII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ]
+      }
+    },
+    {
+      "name": "M1 LHI 3D",
+      "notes": "Vista 3D superior LHI",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": "3d",
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            636
+          ],
+          "origin": [
+            203.6972,
+            206.6268,
+            1396.0000000000002
+          ],
+          "structures": [
+            "Liver_Hígado",
+            "Venas_Hepáticas",
+            "Vasos_Portales",
+            "M1_sII_1",
+            "M1_sIII_1",
+            "M1_sV_1",
+            "M1_sVIII_1"
+          ]
+        },
+        "referencePoint": [
+          24.937673471868038,
+          49.44376088678837,
+          1825.5500793457031
+        ],
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": true,
+        "structureNodes": [
+          {
+            "id": "73c3c7d6-7b97-453d-838d-c7a731d75bac",
+            "type": "group",
+            "name": "M1",
+            "parent": null
+          },
+          {
+            "id": "e48c3844-a47f-40d3-85c8-5df9a6f39073",
+            "type": "segment",
+            "key": "M1_sII_1",
+            "name": "",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "d2047007-7daa-4745-ae6a-e132d2b8d1d4",
+            "type": "segment",
+            "key": "M1_sIII_1",
+            "name": "",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "c093ddaf-83f8-4839-9a54-c996dc97531a",
+            "type": "group",
+            "name": "Ablac",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "80879a2b-77ac-4419-b79a-a048cac6b57c",
+            "type": "segment",
+            "key": "M1_sVIII_1",
+            "name": "",
+            "parent": "c093ddaf-83f8-4839-9a54-c996dc97531a"
+          },
+          {
+            "id": "25f00634-c086-4f78-b973-deb6af9c0090",
+            "type": "segment",
+            "key": "M1_sV_1",
+            "name": "",
+            "parent": "c093ddaf-83f8-4839-9a54-c996dc97531a"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 23.930407190827225,
+            "y": 54.522009422194174
+          },
+          "y": {
+            "zoom": 1,
+            "x": 13.448798219102628,
+            "y": 54.522009422194174
+          },
+          "z": {
+            "zoom": 2.339646851925993,
+            "x": 48.45807142813618,
+            "y": 86.22488360610828
+          }
+        },
+        "camera": {
+          "position": [
+            -88.34805855113629,
+            6.259423180959587,
+            1879.6211536985668
+          ],
+          "up": [
+            -0.1829418863345002,
+            -0.8657495041496162,
+            0.4658433881564369
+          ],
+          "target": [
+            26.39120038054255,
+            48.099628601557605,
+            1823.8881542935515
+          ],
+          "near": 0.042908058600588,
+          "far": 10000
+        },
+        "slices": {
+          "x": 234,
+          "y": 255,
+          "z": 430
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": false,
+          "show3DMarker": false,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "x",
+        "clipPosition": 100,
+        "clipManualOffset": 0,
+        "clipSyncTc": false,
+        "layers": [
+          {
+            "key": "Liver_Hígado",
+            "visible": true,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 41
+          },
+          {
+            "key": "Venas_Hepáticas",
+            "visible": true,
+            "color": "#589cda",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 100
+          },
+          {
+            "key": "Vasos_Portales",
+            "visible": true,
+            "color": "#fa00cc",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sIII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sV_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sVIII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ]
+      }
+    },
+    {
+      "name": "M1 LHD 3D",
+      "notes": "Vista 3D antero-superior LHD",
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": "3d",
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            636
+          ],
+          "origin": [
+            203.6972,
+            206.6268,
+            1396.0000000000002
+          ],
+          "structures": [
+            "Liver_Hígado",
+            "Venas_Hepáticas",
+            "Vasos_Portales",
+            "M1_sII_1",
+            "M1_sIII_1",
+            "M1_sV_1",
+            "M1_sVIII_1"
+          ]
+        },
+        "referencePoint": [
+          24.937673471868038,
+          49.44376088678837,
+          1825.5500793457031
+        ],
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": true,
+        "structureNodes": [
+          {
+            "id": "73c3c7d6-7b97-453d-838d-c7a731d75bac",
+            "type": "group",
+            "name": "M1",
+            "parent": null
+          },
+          {
+            "id": "e48c3844-a47f-40d3-85c8-5df9a6f39073",
+            "type": "segment",
+            "key": "M1_sII_1",
+            "name": "",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "d2047007-7daa-4745-ae6a-e132d2b8d1d4",
+            "type": "segment",
+            "key": "M1_sIII_1",
+            "name": "",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "c093ddaf-83f8-4839-9a54-c996dc97531a",
+            "type": "group",
+            "name": "Ablac",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "80879a2b-77ac-4419-b79a-a048cac6b57c",
+            "type": "segment",
+            "key": "M1_sVIII_1",
+            "name": "",
+            "parent": "c093ddaf-83f8-4839-9a54-c996dc97531a"
+          },
+          {
+            "id": "25f00634-c086-4f78-b973-deb6af9c0090",
+            "type": "segment",
+            "key": "M1_sV_1",
+            "name": "",
+            "parent": "c093ddaf-83f8-4839-9a54-c996dc97531a"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 23.930407190827225,
+            "y": 54.522009422194174
+          },
+          "y": {
+            "zoom": 1,
+            "x": 13.448798219102628,
+            "y": 54.522009422194174
+          },
+          "z": {
+            "zoom": 2.339646851925993,
+            "x": 48.45807142813618,
+            "y": 86.22488360610828
+          }
+        },
+        "camera": {
+          "position": [
+            254.23295545617376,
+            21.764606065938302,
+            1794.7751794254973
+          ],
+          "up": [
+            0.021551625503077668,
+            -0.6552824995206779,
+            0.7550764022667567
+          ],
+          "target": [
+            69.67062596231699,
+            11.899720877408981,
+            1791.4819121360779
+          ],
+          "near": 0.44790466508675136,
+          "far": 44790.46650867514
+        },
+        "slices": {
+          "x": 234,
+          "y": 255,
+          "z": 430
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": false,
+          "show3DMarker": false,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "x",
+        "clipPosition": 100,
+        "clipManualOffset": 0,
+        "clipSyncTc": false,
+        "layers": [
+          {
+            "key": "Liver_Hígado",
+            "visible": true,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 41
+          },
+          {
+            "key": "Venas_Hepáticas",
+            "visible": true,
+            "color": "#589cda",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 100
+          },
+          {
+            "key": "Vasos_Portales",
+            "visible": true,
+            "color": "#fa00cc",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sIII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sV_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sVIII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ]
+      }
+    },
+    {
+      "name": "M1 sV_1",
+      "notes": "",
+      "includeInPresentation": false,
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": "axial",
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            636
+          ],
+          "origin": [
+            203.6972,
+            206.6268,
+            1396.0000000000002
+          ],
+          "structures": [
+            "Liver_Hígado",
+            "Venas_Hepáticas",
+            "Vasos_Portales",
+            "M1_sII_1",
+            "M1_sIII_1",
+            "M1_sV_1",
+            "M1_sVIII_1"
+          ]
+        },
+        "referencePoint": [
+          -40.762723420057284,
+          -0.40285705222331103,
+          1797.0000000000002
+        ],
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": true,
+        "structureNodes": [
+          {
+            "id": "73c3c7d6-7b97-453d-838d-c7a731d75bac",
+            "type": "group",
+            "name": "M1",
+            "parent": null
+          },
+          {
+            "id": "e48c3844-a47f-40d3-85c8-5df9a6f39073",
+            "type": "segment",
+            "key": "M1_sII_1",
+            "name": "",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "d2047007-7daa-4745-ae6a-e132d2b8d1d4",
+            "type": "segment",
+            "key": "M1_sIII_1",
+            "name": "",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "c093ddaf-83f8-4839-9a54-c996dc97531a",
+            "type": "group",
+            "name": "Ablac",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "80879a2b-77ac-4419-b79a-a048cac6b57c",
+            "type": "segment",
+            "key": "M1_sVIII_1",
+            "name": "",
+            "parent": "c093ddaf-83f8-4839-9a54-c996dc97531a"
+          },
+          {
+            "id": "25f00634-c086-4f78-b973-deb6af9c0090",
+            "type": "segment",
+            "key": "M1_sV_1",
+            "name": "",
+            "parent": "c093ddaf-83f8-4839-9a54-c996dc97531a"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 23.930407190827225,
+            "y": 54.522009422194174
+          },
+          "y": {
+            "zoom": 1,
+            "x": 13.448798219102628,
+            "y": 54.522009422194174
+          },
+          "z": {
+            "zoom": 2.339646851925993,
+            "x": 48.45807142813618,
+            "y": 86.22488360610828
+          }
+        },
+        "camera": {
+          "position": [
+            -107.89342452121562,
+            46.93534647384122,
+            2054.2694793098885
+          ],
+          "up": [
+            0.02657171689488399,
+            -0.6837907405511502,
+            0.7291941901837724
+          ],
+          "target": [
+            26.39120038054255,
+            48.099628601557605,
+            1823.8881542935515
+          ],
+          "near": 0.042908058600588,
+          "far": 10000
+        },
+        "slices": {
+          "x": 168,
+          "y": 206,
+          "z": 401
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": false,
+          "show3DMarker": false,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "x",
+        "clipPosition": 100,
+        "clipManualOffset": 0,
+        "clipSyncTc": false,
+        "layers": [
+          {
+            "key": "Liver_Hígado",
+            "visible": true,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 41
+          },
+          {
+            "key": "Venas_Hepáticas",
+            "visible": true,
+            "color": "#589cda",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 100
+          },
+          {
+            "key": "Vasos_Portales",
+            "visible": true,
+            "color": "#fa00cc",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sIII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sV_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sVIII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ],
+        "usProbe": {
+          "originalProbe": [
+            178.55052141156284,
+            14.835679027581989,
+            1791.0000000000002
+          ],
+          "entry": {
+            "axis": "z",
+            "origin": [
+              204.1011999999962,
+              207.0308,
+              1791.0000000000002
+            ],
+            "u": [
+              -413.6959999999963,
+              0,
+              0
+            ],
+            "v": [
+              0,
+              -413.6959999999963,
+              0
+            ],
+            "width": 413,
+            "height": 413,
+            "x": 0.06176196673024061,
+            "y": 0.46458056392234814
+          },
+          "rotation": 178,
+          "tilt": 14,
+          "offset": 4,
+          "mask": true,
+          "info": true,
+          "target": null
+        }
+      }
+    },
+    {
+      "name": "M1 sVIII",
+      "notes": "",
+      "includeInPresentation": false,
+      "config": {
+        "format": "mpr-viewer",
+        "version": 1,
+        "oblique": null,
+        "maximizedPane": "axial",
+        "caseSignature": {
+          "sizes": [
+            512,
+            512,
+            636
+          ],
+          "origin": [
+            203.6972,
+            206.6268,
+            1396.0000000000002
+          ],
+          "structures": [
+            "Liver_Hígado",
+            "Venas_Hepáticas",
+            "Vasos_Portales",
+            "M1_sII_1",
+            "M1_sIII_1",
+            "M1_sV_1",
+            "M1_sVIII_1"
+          ]
+        },
+        "referencePoint": [
+          -40.762723420057284,
+          -0.40285705222331103,
+          1797.0000000000002
+        ],
+        "measurements": [],
+        "annotations": [],
+        "annotationsVisible": true,
+        "structureNamesVisible": true,
+        "structureNodes": [
+          {
+            "id": "73c3c7d6-7b97-453d-838d-c7a731d75bac",
+            "type": "group",
+            "name": "M1",
+            "parent": null
+          },
+          {
+            "id": "e48c3844-a47f-40d3-85c8-5df9a6f39073",
+            "type": "segment",
+            "key": "M1_sII_1",
+            "name": "",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "d2047007-7daa-4745-ae6a-e132d2b8d1d4",
+            "type": "segment",
+            "key": "M1_sIII_1",
+            "name": "",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "c093ddaf-83f8-4839-9a54-c996dc97531a",
+            "type": "group",
+            "name": "Ablac",
+            "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+          },
+          {
+            "id": "80879a2b-77ac-4419-b79a-a048cac6b57c",
+            "type": "segment",
+            "key": "M1_sVIII_1",
+            "name": "",
+            "parent": "c093ddaf-83f8-4839-9a54-c996dc97531a"
+          },
+          {
+            "id": "25f00634-c086-4f78-b973-deb6af9c0090",
+            "type": "segment",
+            "key": "M1_sV_1",
+            "name": "",
+            "parent": "c093ddaf-83f8-4839-9a54-c996dc97531a"
+          }
+        ],
+        "structureGroups": [],
+        "structureRelations": [],
+        "window": [
+          70,
+          350
+        ],
+        "views": {
+          "x": {
+            "zoom": 1,
+            "x": 23.930407190827225,
+            "y": 54.522009422194174
+          },
+          "y": {
+            "zoom": 1,
+            "x": 13.448798219102628,
+            "y": 54.522009422194174
+          },
+          "z": {
+            "zoom": 2.339646851925993,
+            "x": 48.45807142813618,
+            "y": 86.22488360610828
+          }
+        },
+        "camera": {
+          "position": [
+            -107.89342452121562,
+            46.93534647384122,
+            2054.2694793098885
+          ],
+          "up": [
+            0.02657171689488399,
+            -0.6837907405511502,
+            0.7291941901837724
+          ],
+          "target": [
+            26.39120038054255,
+            48.099628601557605,
+            1823.8881542935515
+          ],
+          "near": 0.042908058600588,
+          "far": 10000
+        },
+        "slices": {
+          "x": 168,
+          "y": 206,
+          "z": 395
+        },
+        "flags": {
+          "planes": true,
+          "planeX": false,
+          "planeY": false,
+          "planeZ": false,
+          "showmodel": true,
+          "syncNav": true,
+          "showCross": false,
+          "show3DMarker": false,
+          "fillSegments": false,
+          "clipEnabled": false,
+          "clipReverse": true
+        },
+        "fillOpacity": 20,
+        "clipRotation": [
+          0,
+          0,
+          0,
+          1
+        ],
+        "clipAxis": "x",
+        "clipPosition": 100,
+        "clipManualOffset": 0,
+        "clipSyncTc": false,
+        "layers": [
+          {
+            "key": "Liver_Hígado",
+            "visible": true,
+            "color": "#d7a177",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 41
+          },
+          {
+            "key": "Venas_Hepáticas",
+            "visible": true,
+            "color": "#589cda",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 100
+          },
+          {
+            "key": "Vasos_Portales",
+            "visible": true,
+            "color": "#fa00cc",
+            "contour": true,
+            "nameVisible": false,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sIII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sV_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          },
+          {
+            "key": "M1_sVIII_1",
+            "visible": true,
+            "color": "#fbff00",
+            "contour": true,
+            "nameVisible": true,
+            "opacity": 100
+          }
+        ],
+        "usProbe": {
+          "originalProbe": [
+            178.55052141156284,
+            14.835679027581989,
+            1791.0000000000002
+          ],
+          "entry": {
+            "axis": "z",
+            "origin": [
+              204.1011999999962,
+              207.0308,
+              1791.0000000000002
+            ],
+            "u": [
+              -413.6959999999963,
+              0,
+              0
+            ],
+            "v": [
+              0,
+              -413.6959999999963,
+              0
+            ],
+            "width": 413,
+            "height": 413,
+            "x": 0.06176196673024061,
+            "y": 0.46458056392234814
+          },
+          "rotation": 178,
+          "tilt": 14,
+          "offset": 4,
+          "mask": true,
+          "info": true,
+          "target": null
+        }
+      }
+    }
+  ]
+}
