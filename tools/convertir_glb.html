@@ -1,23 +1,27 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Conversor STL y OBJ a GLB</title><style>*{box-sizing:border-box}body{margin:0;background:#eef3f8;color:#203044;font:15px system-ui,sans-serif}main{max-width:850px;margin:35px auto;padding:0 20px 35px}header{margin-bottom:22px}h1{font-size:27px;margin:15px 0 8px}p{line-height:1.6}.card{background:white;border:1px solid #d5e0eb;border-radius:12px;padding:24px;box-shadow:0 5px 20px #1c365510}.row{display:flex;align-items:center;gap:12px;margin:18px 0;flex-wrap:wrap}.row input[type=file],select{width:100%;font:inherit;padding:9px;background:#f8fafc;border:1px solid #c3d0df;border-radius:6px}button,a.button{display:inline-block;padding:12px 18px;font:inherit;font-weight:600;border:0;border-radius:7px;background:#246888;color:white;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.hint{font-size:13px;color:#51687a;line-height:1.6}.result{white-space:pre-line;background:#edf5fa;padding:12px;border-radius:6px;overflow-wrap:anywhere}.result:empty{display:none}a{color:#246888}summary{font-size:20px;margin-bottom:18px}#convertedDownload{display:block;margin-top:14px}#convertedDownload[hidden]{display:none}@media(max-width:600px){main{margin-top:18px}.card{padding:16px}h1{font-size:24px}}#materialBindingPanel{padding:16px;margin:18px 0;background:#f1f7fb;border:1px solid #c3d0df;border-radius:8px}#materialBindingPanel[hidden]{display:none}.binding-row{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:center;margin:9px 0}.binding-row span{font-family:monospace;overflow-wrap:anywhere}h2{font-size:18px;margin-top:0}@media(max-width:600px){.binding-row{grid-template-columns:1fr;gap:4px}}</style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body><main><header><a id="backToViewer" href="index.html">← Volver al visor 3D</a><h1>Conversor STL y OBJ a GLB</h1><p>Selecciona los archivos, ajusta las unidades y descarga el modelo convertido.</p></header><section class="card" id="converter">
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Conversor STL, OBJ y VTM/VTP a GLB</title><style>*{box-sizing:border-box}body{margin:0;background:#eef3f8;color:#203044;font:15px system-ui,sans-serif}main{max-width:850px;margin:35px auto;padding:0 20px 35px}header{margin-bottom:22px}h1{font-size:27px;margin:15px 0 8px}p{line-height:1.6}.card{background:white;border:1px solid #d5e0eb;border-radius:12px;padding:24px;box-shadow:0 5px 20px #1c365510}.row{display:flex;align-items:center;gap:12px;margin:18px 0;flex-wrap:wrap}.row input[type=file],select{width:100%;font:inherit;padding:9px;background:#f8fafc;border:1px solid #c3d0df;border-radius:6px}button,a.button{display:inline-block;padding:12px 18px;font:inherit;font-weight:600;border:0;border-radius:7px;background:#246888;color:white;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.hint{font-size:13px;color:#51687a;line-height:1.6}.result{white-space:pre-line;background:#edf5fa;padding:12px;border-radius:6px;overflow-wrap:anywhere}.result:empty{display:none}a{color:#246888}summary{font-size:20px;margin-bottom:18px}#convertedDownload{display:block;margin-top:14px}#convertedDownload[hidden]{display:none}@media(max-width:600px){main{margin-top:18px}.card{padding:16px}h1{font-size:24px}}#materialBindingPanel{padding:16px;margin:18px 0;background:#f1f7fb;border:1px solid #c3d0df;border-radius:8px}#materialBindingPanel[hidden]{display:none}.binding-row{display:grid;grid-template-columns:140px 1fr;gap:12px;align-items:center;margin:9px 0}.binding-row span{font-family:monospace;overflow-wrap:anywhere}h2{font-size:18px;margin-top:0}@media(max-width:600px){.binding-row{grid-template-columns:1fr;gap:4px}}.structure-row{display:grid;grid-template-columns:55px 1fr;gap:10px;margin:14px 0;padding:12px;background:#f1f7fb;border-radius:7px}.structure-row input[type=text]{min-width:0;width:100%;font:inherit;padding:8px}.structure-row small{grid-column:1/-1;overflow-wrap:anywhere}.structure-row input[type=color]{width:44px;height:36px;padding:2px}#structureReview{margin-top:24px}#structureReview[hidden]{display:none}</style><script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"}}</script></head><body><main><header><a id="backToViewer" href="index.html">← Volver al visor 3D</a><h1>Conversor STL, OBJ y VTM/VTP a GLB</h1><p>Selecciona los archivos, ajusta las unidades y revisa el nombre y color de cada estructura antes de descargar el GLB.</p></header><section class="card" id="converter">
 <p class="hint">Conversión local optimizada en este navegador, sin reducir triángulos. Los archivos elegidos no se envían a GitHub. Esta versión admite geometría y colores; no admite texturas.</p>
-<label class="row">Formato de entrada <select id="inputMode"><option value="stl">Varios STL · una estructura por archivo</option><option value="multiobj" selected>Varios OBJ · nombres de archivo</option><option value="obj">OBJ único + MTL · nombres internos</option></select></label>
-<section id="stlPanel" hidden><label class="row">Segmentaciones STL <input id="stlFiles" type="file" accept=".stl" multiple></label><p class="hint">Selecciona todos los STL a la vez. Cada nombre de archivo, sin .stl, será el nombre de su estructura. Puedes ajustar su color antes de exportar.</p><div id="stlList"></div></section>
+<label class="row">Formato de entrada <select id="inputMode"><option value="vtm">VTM / VTP · archivos, carpeta o ZIP</option><option value="stl">Varios STL · una estructura por archivo</option><option value="multiobj" selected>Varios OBJ · nombres de archivo</option><option value="obj">OBJ único + MTL · nombres internos</option></select></label>
+<section id="vtmPanel" hidden><label class="row">Archivos VTM, VTP o ZIP <input id="vtmFiles" type="file" accept=".vtm,.vtp,.zip" multiple></label><label class="row">Carpeta con las segmentaciones <input id="vtmFolder" type="file" webkitdirectory multiple></label><p class="hint">Puedes combinar un VTM suelto con su carpeta de VTP. También puedes elegir la carpeta raíz completa o un ZIP que conserve las carpetas originales. Cada selección sustituye a la anterior en ese campo; «Limpiar selección» vacía ambos. Se conservan los grupos del VTM y se muestran sus nombres originales como referencia durante la revisión. Sin VTM, se convierten todos los VTP seleccionados.</p><p class="hint">VTP de superficies: ASCII, binario y appended, LittleEndian, sin compresión o zlib. Los polígonos se triangulan. Se asignan colores provisionales; no se importan atributos científicos, colores ni texturas VTP. Límite: 200 MB de archivos y de contenido extraído del ZIP. Comprueba las unidades y coordenadas de tu exportación.</p><button id="clearVtm" type="button">Limpiar selección</button><p id="vtmList" class="hint" aria-live="polite"></p></section>
+<section id="stlPanel" hidden><label class="row">Segmentaciones STL <input id="stlFiles" type="file" accept=".stl" multiple></label><p class="hint">Selecciona todos los STL a la vez. Cada nombre de archivo, sin .stl, será el nombre de su estructura. El nombre y el color se revisan en el siguiente paso.</p><div id="stlList"></div></section>
 <section id="multiObjPanel"><label class="row">Estructuras OBJ y sus materiales MTL (opcionales)<input id="multiObjFiles" type="file" accept=".obj,.mtl" multiple></label><p class="hint">Selecciona todos los OBJ y, si los tienes, sus MTL. Cada OBJ se exporta como una estructura con el nombre del archivo, sin .obj. Los MTL se asocian por la referencia mtllib del OBJ. Sin MTL, se asignan colores provisionales.</p><div id="multiObjList" class="hint"></div></section><section id="objPanel" hidden><label class="row">Modelo OBJ <input id="objFile" type="file" accept=".obj" style="width:100%"></label>
 <label class="row">Materiales MTL (opcional) <input id="mtlFile" type="file" accept=".mtl" style="width:100%"></label>
-<button id="reviewMaterialNames" type="button">Revisar nombres de estructuras</button><section id="materialBindingPanel" hidden><h2>Nombres de las estructuras</h2><p id="materialBindingMessage" class="hint" aria-live="polite"></p><div id="materialBindings"></div><button id="proposeMaterialOrder" type="button">Proponer por orden del MTL</button></section></section><label class="row">Unidades de los archivos <select id="objUnits"><option value="0.001">Milímetros (Slicer)</option><option value="0.01">Centímetros</option><option value="1">Metros</option></select></label>
+<button id="reviewMaterialNames" type="button">Revisar nombres de estructuras</button><section id="materialBindingPanel" hidden><h2>Nombres de las estructuras</h2><p id="materialBindingMessage" class="hint" aria-live="polite"></p><div id="materialBindings"></div><button id="proposeMaterialOrder" type="button">Proponer por orden del MTL</button></section></section><section aria-label="Detección de coordenadas"><p id="coordinateStatus" class="hint" role="status">Selecciona archivos para comprobar sus metadatos.</p><details><summary>Metadatos por archivo</summary><ul id="coordinateFiles"></ul></details><label class="row"><input id="confirmCoordinates" type="checkbox"> Confirmo que todos los archivos utilizan las coordenadas y unidades de origen seleccionadas.</label></section><label class="row">Unidades de los archivos <select id="objUnits"><option value="" selected>Selecciona las unidades de origen…</option><option value="0.001">Milímetros (Slicer)</option><option value="0.01">Centímetros</option><option value="1">Metros</option></select></label>
 <label class="row">Colores del MTL (solo OBJ) <select id="objColorSpace"><option value="linear" selected>Lineales · más luminosos</option><option value="srgb">sRGB · conversión anterior</option></select></label>
 <p class="hint">El MTL no identifica inequívocamente el espacio de color. Si la conversión anterior oscurecía el modelo, usa «Lineales». Compara con el modelo original: la iluminación de cada programa también influye.</p>
 <label class="row"><input id="objOpaque" type="checkbox" checked> Exportar superficies opacas</label>
-<p class="hint">La opción opaca evita superficies invisibles por valores Tr/d ambiguos. Podrás ajustar la opacidad en el visor. El GLB se exportará en metros, conservando los ejes y posiciones originales, sin centrar las estructuras. Para MPR, elige RAS si tus STL están en LPS; selecciona RAS en origen si ya se exportaron así desde Slicer.</p>
-<label class="row">Coordenadas de origen <select id="sourceSpace"><option value="LPS">LPS (exportación predeterminada de Slicer)</option><option value="RAS">RAS</option></select></label><label class="row">Coordenadas del GLB <select id="targetSpace"><option value="RAS">RAS · para el visor MPR</option><option value="LPS">LPS</option></select></label><p class="hint">Al cambiar entre LPS y RAS se invierten X e Y. Todos los archivos deben compartir sistema de coordenadas y unidades. Los STL no conservan los colores de Slicer.</p>
+<p class="hint">La opción opaca evita superficies invisibles por valores Tr/d ambiguos. Podrás ajustar la opacidad en el visor. El GLB se exportará en metros, conservando los ejes y posiciones originales, sin centrar las estructuras. Para MPR, mantén RAS como destino. El origen y las unidades deben corresponder a la exportación, no a la apariencia del modelo.</p>
+<label class="row">Coordenadas de origen <select id="sourceSpace"><option value="" selected>Selecciona LPS o RAS…</option><option value="LPS">LPS</option><option value="RAS">RAS</option></select></label><label class="row">Coordenadas del GLB <select id="targetSpace"><option value="RAS">RAS · para el visor MPR</option><option value="LPS">LPS</option></select></label><p class="hint">Al cambiar entre LPS y RAS se invierten X e Y. Todos los archivos deben compartir sistema de coordenadas y unidades. El GLB siempre se guarda en metros. La detección solo reconoce declaraciones explícitas: si faltan, consulta el programa de exportación y confirma la selección. Los STL no conservan los colores de Slicer.</p>
 <label class="row">Nombre del fichero de salida <input id="outputName" type="text" placeholder="segmentaciones.glb" aria-describedby="outputNameHint" style="width:100%;font:inherit;padding:9px;border:1px solid #c3d0df;border-radius:6px"></label><p id="outputNameHint" class="hint">La extensión .glb se añade automáticamente. Si lo dejas vacío, se utiliza el nombre predeterminado.</p>
-<button id="convert" type="button">Convertir y descargar GLB</button>
+<button id="convert" type="button">Revisar estructuras</button>
+<section id="structureReview" hidden><h2>Nombre y color de cada estructura</h2><p class="hint">Revisa los nombres antes de descargar. Por defecto se usa el nombre del archivo, con un número si hay varias estructuras. El color elegido se aplica a toda la estructura y sustituye sus colores originales. Cambiar los archivos, unidades o coordenadas requiere revisarlos de nuevo.</p><div id="structureRows"></div><button id="exportReviewed" type="button">Generar y descargar GLB</button></section>
 <p id="convertStatus" class="hint result" role="status" aria-live="polite"></p>
 <a id="convertedDownload" hidden>Descargar GLB convertido</a>
 </section></main><script type="module">
 import * as THREE from 'three';
 import {STLLoader} from 'three/addons/loaders/STLLoader.js';
 import {OBJLoader} from 'three/addons/loaders/OBJLoader.js';
+import {inspectCoordinateMetadata,summarizeCoordinateMetadata} from './coordinate-metadata.js';
+import {describeStructures,applyStructureChoices} from './structure-review.js';
 import {GLTFExporter} from 'three/addons/exporters/GLTFExporter.js';
 const $=id=>document.getElementById(id);
 $('backToViewer').href='index.html'+location.search;
@@ -108,13 +112,13 @@ async function conversionSources(){
  return{objText,mtlText,aliases};
 }
 
-const stlColors=new Map();
+const vtmSelection=()=>[...$('vtmFiles').files,...$('vtmFolder').files].filter(f=>/\.(vtm|vtp|zip)$/i.test(f.name));
+function showVTKSelection(){$('vtmList').textContent=vtmSelection().map(f=>f.webkitRelativePath||f.name).join(' · ');$('convertedDownload').hidden=true;}
+for(const id of ['vtmFiles','vtmFolder'])$(id).onchange=showVTKSelection;
+$('clearVtm').onclick=()=>{$('vtmFiles').value='';$('vtmFolder').value='';showVTKSelection();};
 const palette=['#d7a177','#589cda','#d65b69','#67b389','#b38bd2','#e4bd57','#70bdc6'];
-$('inputMode').onchange=()=>{$('stlPanel').hidden=$('inputMode').value!=='stl';$('objPanel').hidden=$('inputMode').value!=='obj';$('multiObjPanel').hidden=$('inputMode').value!=='multiobj';$('convertedDownload').hidden=true;};
-$('stlFiles').onchange=()=>{
- stlColors.clear();$('stlList').replaceChildren();
- [...$('stlFiles').files].forEach((file,i)=>{const row=document.createElement('label');row.className='row';const name=document.createElement('span');name.textContent=file.name.replace(/\.stl$/i,'');const color=document.createElement('input');color.type='color';color.value=palette[i%palette.length];color.setAttribute('aria-label','Color de '+name.textContent);stlColors.set(file,color);row.append(color,name);$('stlList').append(row)});
-};
+$('inputMode').onchange=()=>{$('vtmPanel').hidden=$('inputMode').value!=='vtm';$('stlPanel').hidden=$('inputMode').value!=='stl';$('objPanel').hidden=$('inputMode').value!=='obj';$('multiObjPanel').hidden=$('inputMode').value!=='multiobj';$('convertedDownload').hidden=true;};
+$('stlFiles').onchange=()=>{$('stlList').textContent=[...$('stlFiles').files].map(f=>f.name).join(' · ');};
 function applyCoordinateSpace(root,source,target){
  if(source!==target)root.traverse(o=>{if(o.isMesh)o.geometry.rotateZ(Math.PI)});
  root.userData.coordinateSystem=target;root.userData.sourceCoordinateSystem=source;root.updateMatrixWorld(true);
@@ -134,7 +138,7 @@ async function prepareSTLConversion(files,metersPerUnit){
   geometry.scale(metersPerUnit,metersPerUnit,metersPerUnit);geometry.deleteAttribute('color');geometry.computeVertexNormals();
   triangles+=(geometry.index?.count||positions.count)/3;indexGeometryExactly(geometry);
   const base=file.name.replace(/\.stl$/i,'')||'Estructura';let name=base,n=2;while(names.has(name))name=base+' ('+(n++)+')';names.add(name);
-  const material=new THREE.MeshStandardMaterial({name,color:stlColors.get(file)?.value||'#b3b3b3',metalness:0,roughness:.85,side:THREE.DoubleSide});
+  const material=new THREE.MeshStandardMaterial({name,color:palette[root.children.length%palette.length],metalness:0,roughness:.85,side:THREE.DoubleSide});
   const mesh=new THREE.Mesh(geometry,material);mesh.name=name;mesh.userData.sourceFile=file.name;root.add(mesh);
  }
  return{root,meshCount:files.length,triangles,missingColors:false};
@@ -171,13 +175,81 @@ function outputFilename(value,fallback){
  const name=(value.trim()||fallback).replace(/[<>:"/\\|?*\x00-\x1f]/g,'_').replace(/[. ]+$/g,'').replace(/(?:\.glb)+$/i,'');
  return (name||'segmentaciones')+'.glb';
 }
-let convertedURL=null;
+let convertedURL=null,pendingConversion=null,reviewRows=[],reviewInputs=[],conversionRevision=0;
+function disposeConversion(prepared){prepared?.root.traverse(o=>{o.geometry?.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());});}
+function invalidateReview(){
+ conversionRevision++;disposeConversion(pendingConversion);pendingConversion=null;reviewRows=[];reviewInputs=[];
+ $('structureReview').hidden=true;$('structureRows').replaceChildren();$('convertedDownload').hidden=true;
+ if(convertedURL){URL.revokeObjectURL(convertedURL);convertedURL=null;}
+}
+// Los cambios de origen invalidan el modelo preparado, también durante una lectura asíncrona.
+$('converter').addEventListener('input',event=>{
+ if(event.target.closest('#structureReview')){$('convertedDownload').hidden=true;return;}
+ if(event.target.id!=='outputName')invalidateReview();
+});
+$('converter').addEventListener('change',event=>{if(!event.target.closest('#structureReview')&&event.target.id!=='outputName')invalidateReview();});
+$('clearVtm').addEventListener('click',invalidateReview);
+function showStructureReview(prepared,mode,fallback){
+ reviewRows=describeStructures(prepared.root,mode,fallback);reviewInputs=[];
+ $('structureRows').replaceChildren();
+ for(const [index,row] of reviewRows.entries()){
+  const wrapper=document.createElement('div');wrapper.className='structure-row';
+  const color=document.createElement('input');color.type='color';color.value=row.color;color.setAttribute('aria-label','Color de la estructura '+(index+1));
+  const name=document.createElement('input');name.type='text';name.value=row.name;name.setAttribute('aria-label','Nombre de la estructura '+(index+1));
+  const source=document.createElement('small');source.textContent=row.source+(row.originalName?' · Nombre interno: '+row.originalName:'');
+  wrapper.append(color,name,source);$('structureRows').append(wrapper);reviewInputs.push({name,color});
+ }
+ $('structureReview').hidden=false;reviewInputs[0]?.name.focus();
+}
+let coordinateMetadata=null,metadataTask=Promise.resolve(),metadataGeneration=0;
+function selectedGeometryFiles(){
+ const mode=$('inputMode').value;
+ if(mode==='vtm')return vtmSelection();
+ if(mode==='stl')return [...$('stlFiles').files];
+ if(mode==='multiobj')return [...$('multiObjFiles').files].filter(f=>/\.obj$/i.test(f.name));
+ return [...$('objFile').files];
+}
+function startMetadataDetection(){
+ const generation=++metadataGeneration;coordinateMetadata=null;
+ $('sourceSpace').value='';$('objUnits').value='';$('confirmCoordinates').checked=false;
+ $('coordinateFiles').replaceChildren();$('coordinateStatus').textContent='Comprobando metadatos…';
+ const files=selectedGeometryFiles(),mode=$('inputMode').value;
+ metadataTask=(async()=>{
+  if(files.reduce((n,f)=>n+f.size,0)>200*1024*1024)throw new Error('Los archivos superan 200 MB.');
+  let records=[];
+  if(files.length&&mode==='vtm'){
+   const {collectVTKFiles}=await import('./vtm-loader.js');const entries=await collectVTKFiles(files);
+   for(const [name,bytes] of entries)records.push(inspectCoordinateMetadata(name,new TextDecoder().decode(bytes)));
+  }else for(const file of files)records.push(inspectCoordinateMetadata(file.name,mode==='stl'?'':await file.text()));
+  if(generation!==metadataGeneration)return;
+  coordinateMetadata=summarizeCoordinateMetadata(records);
+  const meta=coordinateMetadata;
+  if(!meta.conflict){if(meta.completeSpace)$('sourceSpace').value=meta.space;if(meta.completeScale)$('objUnits').value=String(meta.scale);}
+  $('coordinateStatus').textContent=!records.length?'Selecciona archivos para comprobar sus metadatos.':meta.conflict?'Metadatos incompatibles o no admitidos. No se puede aplicar una conversión común: revisa los archivos y conviértelos por separado.':
+   (meta.completeSpace?'Origen detectado: '+meta.space+'. ':'Origen no especificado en todos los archivos. ')+(meta.completeScale?'Unidades detectadas: '+({'.001':'mm','0.001':'mm','0.01':'cm','1':'m'}[String(meta.scale)])+'. ':'Unidades no especificadas en todos los archivos. ')+(!meta.completeSpace||!meta.completeScale?'Selecciona y confirma el origen y las unidades.':'Puedes conservar estos valores detectados; cualquier modificación requiere confirmación.');
+  for(const record of records){const li=document.createElement('li');li.textContent=record.name+' — '+(record.spaces.join(', ')||'origen no especificado')+'; '+(record.scales.map(s=>s+' metros/unidad').join(', ')||'unidades no especificadas')+(record.unsupported.length?' · No admitido: '+record.unsupported.join(', '):'');$('coordinateFiles').append(li);}
+ })().catch(error=>{if(generation===metadataGeneration){coordinateMetadata=null;$('coordinateStatus').textContent='No se pudieron comprobar los metadatos: '+error.message;}});
+}
+for(const id of ['inputMode','vtmFiles','vtmFolder','stlFiles','multiObjFiles','objFile'])$(id).addEventListener('change',startMetadataDetection);
+$('clearVtm').addEventListener('click',startMetadataDetection);
+for(const id of ['sourceSpace','objUnits'])$(id).addEventListener('change',()=>{$('confirmCoordinates').checked=false;});
+async function validateCoordinateSelection(){
+ await metadataTask;
+ if(!coordinateMetadata||!coordinateMetadata.files.length)throw new Error('Selecciona archivos y espera a la comprobación de metadatos.');
+ if(coordinateMetadata.conflict)throw new Error('Los metadatos son incompatibles o no están admitidos. Convierte los archivos por separado tras comprobar su origen.');
+ if(!$('sourceSpace').value||!$('objUnits').value)throw new Error('Selecciona las coordenadas y unidades de origen. No se pueden deducir por la geometría.');
+ const detected=coordinateMetadata.completeSpace&&coordinateMetadata.completeScale&&coordinateMetadata.space===$('sourceSpace').value&&coordinateMetadata.scale===Number($('objUnits').value);
+ if(!detected&&!$('confirmCoordinates').checked)throw new Error('Confirma que todos los archivos usan las coordenadas y unidades seleccionadas.');
+}
 $('convert').onclick=async()=>{
- const status=$('convertStatus'),link=$('convertedDownload');$('convert').disabled=true;link.hidden=true;status.textContent='Preparando conversión…';let prepared=null;
+ invalidateReview();const revision=conversionRevision;
+ const status=$('convertStatus');$('convert').disabled=true;status.textContent='Leyendo estructuras…';let prepared=null;
  try{
+  await validateCoordinateSelection();
   const mode=$('inputMode').value,obj=$('objFile').files[0];
   await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));
-  if(mode==='stl')prepared=await prepareSTLConversion([...$('stlFiles').files],Number($('objUnits').value));
+  if(mode==='vtm'){const {prepareVTMConversion}=await import('./vtm-loader.js');prepared=await prepareVTMConversion(vtmSelection(),Number($('objUnits').value));}
+  else if(mode==='stl')prepared=await prepareSTLConversion([...$('stlFiles').files],Number($('objUnits').value));
   else if(mode==='multiobj')prepared=await prepareMultipleOBJ([...$('multiObjFiles').files],Number($('objUnits').value),$('objOpaque').checked,$('objColorSpace').value);
   else{
    if(!obj)throw new Error('Selecciona un archivo OBJ.');
@@ -185,17 +257,30 @@ $('convert').onclick=async()=>{
    const {objText,mtlText,aliases}=await conversionSources();
    prepared=prepareOBJConversion(objText,mtlText,Number($('objUnits').value),$('objOpaque').checked,$('objColorSpace').value,aliases);
   }
+  if(revision!==conversionRevision)throw new Error('La selección ha cambiado. Pulsa «Revisar estructuras» de nuevo.');
   applyCoordinateSpace(prepared.root,$('sourceSpace').value,$('targetSpace').value);
-  status.textContent='Exportando '+prepared.meshCount+' estructuras…';
+  showStructureReview(prepared,mode,obj?.name||'Estructura');
+  prepared.defaultFilename=mode==='obj'?obj.name.replace(/\.obj$/i,''):'segmentaciones';
+  pendingConversion=prepared;prepared=null;
+  status.textContent=reviewRows.length+' estructuras listas. Revisa sus nombres y colores y pulsa «Generar y descargar GLB».\n'+(pendingConversion.warnings||[]).join('\n');
+ }catch(e){status.textContent='No se pudo preparar: '+e.message;}
+ finally{disposeConversion(prepared);$('convert').disabled=false;}
+};
+$('exportReviewed').onclick=async()=>{
+ const prepared=pendingConversion;if(!prepared)return;
+ const revision=conversionRevision,status=$('convertStatus'),link=$('convertedDownload');
+ const controls=[...$('converter').querySelectorAll('input,select,button')],disabled=controls.map(control=>control.disabled);
+ controls.forEach(control=>control.disabled=true);link.hidden=true;
+ try{
+  applyStructureChoices(reviewRows,reviewInputs.map(({name,color})=>({name:name.value,color:color.value})));
+  status.textContent='Generando GLB…';
   const binary=await new GLTFExporter().parseAsync(prepared.root,{binary:true,onlyVisible:false});
+  if(revision!==conversionRevision)throw new Error('La selección ha cambiado. Revisa las estructuras de nuevo.');
   if(!(binary instanceof ArrayBuffer)||new DataView(binary).getUint32(0,true)!==0x46546c67)throw new Error('No se pudo generar un GLB válido.');
   const blob=new Blob([binary],{type:'model/gltf-binary'});if(convertedURL)URL.revokeObjectURL(convertedURL);convertedURL=URL.createObjectURL(blob);
-  link.href=convertedURL;link.download=outputFilename($('outputName').value,mode==='obj'?obj.name.replace(/\.obj$/i,''):'segmentaciones');link.textContent='Descargar '+link.download;link.hidden=false;link.click();
-  status.textContent='GLB listo: '+prepared.meshCount+' estructuras · '+prepared.triangles.toLocaleString('es-ES')+' triángulos · '+(blob.size/1e6).toFixed(2)+' MB.\nEscala exportada: 1 unidad = 1000 mm.\n'+(mode==='stl'?'Nombres de archivo y colores seleccionados conservados.':prepared.missingColors?'No se aportó MTL: se han usado colores provisionales.':'Colores interpretados como '+$('objColorSpace').value+'.')+'\nCoordenadas: '+$('sourceSpace').value+' → '+$('targetSpace').value+'. Sin centrar.\nEl archivo no se ha publicado en GitHub.';
- }catch(e){status.textContent='No se pudo convertir: '+e.message;console.error(e);}
- finally{if(prepared)prepared.root.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());});$('convert').disabled=false;}
+  link.href=convertedURL;link.download=outputFilename($('outputName').value,prepared.defaultFilename);link.textContent='Descargar '+link.download;link.hidden=false;link.click();
+  status.textContent='GLB listo: '+reviewRows.length+' estructuras · '+prepared.triangles.toLocaleString('es-ES')+' triángulos · '+(blob.size/1e6).toFixed(2)+' MB.\nNombres y colores revisados aplicados. Escala: 1 unidad = 1000 mm.\nCoordenadas: '+prepared.root.userData.sourceCoordinateSystem+' → '+prepared.root.userData.coordinateSystem+'. Sin centrar.\nEl archivo no se ha publicado en GitHub.';
+ }catch(e){status.textContent='No se pudo convertir: '+e.message;}
+ finally{controls.forEach((control,i)=>control.disabled=disabled[i]);}
 };
-
-
-
 </script></body></html>
