@@ -478,3 +478,25 @@ Validación: 90 pruebas del visor + 5 del paquete portátil y ESLint. Chromium:
  fuera de rango sin modificar el caso abierto; cancelación; sin errores de JS
  ni desbordamiento horizontal a 390 px. Pendiente validar el paquete completo
  con el volumen y las segmentaciones reales del usuario.
+
+## Distancia mínima · v2.32.0 (11 de noviembre de 2026)
+
+Acceso: **Medir → Distancia mínima entre estructuras**. Seleccionar dos
+estructuras y pulsar Calcular. Si hay exactamente dos seleccionadas en el árbol,
+se proponen como pareja. La vista previa muestra los puntos más próximos y la
+línea en 3D. Guardar la incorpora a la lista de medidas con tres decimales; un
+resultado positivo inferior a 0,001 mm se identifica como tal, sin mostrar cero.
+Las superficies completas se consideran incluso ocultas o recortadas en pantalla.
+
+El cálculo corre en un worker cancelable (botón o Esc), con BVH y triángulos en
+coordenadas mundiales. No utiliza solo vértices ni reduce las mallas. Cero significa
+contacto/cruce de superficies, no cualquier solapamiento de volúmenes. Su precisión
+física depende de las segmentaciones y de las unidades del GLB. El resultado
+ guardado es una medida fija y puede editarse, ocultarse o eliminarse.
+
+Validado en Chromium con superficies sintéticas separadas 3 mm, guardado y
+recuperación exacta a través de un caso portátil, cancelación, invalidación al
+cambiar la pareja y pantalla de 390 px. Prueba adicional con el modelo real
+`modelos/10.glb` (17 MB, 12 estructuras): primera pareja calculada en aproximadamente
+1,2 segundos en este entorno. No es una garantía de tiempos para otros modelos.
+El detalle técnico y las dependencias están en `tools/distance-build/README.md`.

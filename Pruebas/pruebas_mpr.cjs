@@ -131,7 +131,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   const dom=new JSDOM('<p id="measurementEmpty"></p><p id="measurementHint"></p><ol id="measurementList"></ol>');
   const m={axis:null,index:null,a:new THREE.Vector3(),b:new THREE.Vector3(3,4,0)},n={...m};
   const measurements=[m,n];let located=null;
-  const {fn,context}=run('updateMeasurementList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),measurements,selectedMeasurement:m,updateMeasurementHint:()=>{},locateMeasurement:(v,edit)=>{located=[v,edit];},renderMeasure3D:()=>{},repaintAll:()=>{}},['setTreeIcon']);
+  const {fn,context}=run('updateMeasurementList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),measurements,selectedMeasurement:m,updateMeasurementHint:()=>{},locateMeasurement:(v,edit)=>{located=[v,edit];},renderMeasure3D:()=>{},repaintAll:()=>{}},['setTreeIcon','formatMeasurementDistance']);
   fn();const rows=dom.window.document.querySelectorAll('li');const name=rows[0].querySelector('input');name.value='Diámetro de lesión';name.dispatchEvent(new dom.window.Event('input'));assert.equal(m.name,'Diámetro de lesión');name.value=' ';name.dispatchEvent(new dom.window.Event('input'));assert.equal(m.name,undefined);assert.match(rows[0].textContent,/5.0 mm.*3D/);assert.ok(rows[0].classList.contains('selected'));const toggle=rows[0].querySelector('input[type=checkbox]');assert.equal(toggle.checked,true);toggle.click();assert.equal(m.visible,false);toggle.click();assert.equal(m.visible,true);
   rows[0].querySelector('button').click();assert.equal(located[0],m);assert.equal(rows[0].querySelector('button').getAttribute('aria-pressed'),'true');
   rows[0].querySelectorAll('button')[1].click();assert.equal(located[1],true);
@@ -158,7 +158,7 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
  });
  await test('Anotaciones: lista compacta delega edición sin modificar texto',()=>{
   const dom=new JSDOM('<div id="modelAnnotationList"></div><p id="modelAnnotationEmpty"></p><p id="annotationHint"></p>');const item={kind:'label',text:'Original',color:'#ff0000',a:[1,2,3]},modelAnnotations=[item];let located=null,edited=null;
-  const {fn}=run('renderAnnotationList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),modelAnnotations,renderAnnotations:()=>{},locateAnnotation:v=>located=v,openAnnotationEditor:(draft,original)=>edited=original},['setTreeIcon']);fn();
+  const {fn}=run('renderAnnotationList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),modelAnnotations,renderAnnotations:()=>{},locateAnnotation:v=>located=v,openAnnotationEditor:(draft,original)=>edited=original},['setTreeIcon','formatMeasurementDistance']);fn();
   const card=dom.window.document.querySelector('.annotation-card');assert.equal(card.querySelector('textarea'),null);assert.equal(card.querySelector('strong').textContent,'Original');const toggle=card.querySelector('[type=checkbox]');toggle.click();assert.equal(item.visible,false);
   card.querySelector('[aria-label="Localizar Etiqueta 1"]').click();assert.equal(located,item);assert.equal(toggle.checked,true);
   card.querySelector('[aria-label="Editar Etiqueta 1"]').click();assert.equal(edited,item);assert.equal(item.text,'Original');dom.window.close();
