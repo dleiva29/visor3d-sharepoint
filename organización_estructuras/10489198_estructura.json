@@ -1,0 +1,43 @@
+{
+  "format": "mpr-structure-tree",
+  "version": 2,
+  "modelHash": "2ce1587e97fc8649cc2982097d29d1c421e190b180497a9e2fde6bd595c40ec4",
+  "nodes": [
+    {
+      "id": "73c3c7d6-7b97-453d-838d-c7a731d75bac",
+      "type": "group",
+      "name": "M1",
+      "parent": null
+    },
+    {
+      "id": "e48c3844-a47f-40d3-85c8-5df9a6f39073",
+      "type": "segment",
+      "key": "M1_sII_1",
+      "name": "",
+      "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+    },
+    {
+      "id": "d2047007-7daa-4745-ae6a-e132d2b8d1d4",
+      "type": "segment",
+      "key": "M1_sIII_1",
+      "name": "",
+      "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+    },
+    {
+      "id": "25f00634-c086-4f78-b973-deb6af9c0090",
+      "type": "segment",
+      "key": "M1_sV_1",
+      "name": "",
+      "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+    },
+    {
+      "id": "80879a2b-77ac-4419-b79a-a048cac6b57c",
+      "type": "segment",
+      "key": "M1_sVIII_1",
+      "name": "",
+      "parent": "73c3c7d6-7b97-453d-838d-c7a731d75bac"
+    }
+  ],
+  "groups": [],
+  "relations": []
+}

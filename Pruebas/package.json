@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "description": "Pruebas de mantenimiento del visor MPR; no son dependencias del HTML publicado.",
-  "scripts": {"test": "node pruebas_mpr.cjs ../mpr.html && node --test pruebas_portable.cjs pruebas_distancia.cjs pruebas_espacios.cjs pruebas_distribucion.cjs pruebas_arrastre_tc.cjs"},
-  "engines": {"node": ">=24"},
+  "scripts": {
+    "test": "node pruebas_mpr.cjs ../mpr.html && node --test pruebas_portable.cjs pruebas_distancia.cjs pruebas_espacios.cjs pruebas_distribucion.cjs pruebas_arrastre_tc.cjs pruebas_vtm.cjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
   "devDependencies": {
     "three": "0.180.0",
     "espree": "11.2.0",
