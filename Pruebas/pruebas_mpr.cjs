@@ -127,15 +127,22 @@ async function check(html, additionalTests = false){const s=suite(html);const {r
   h.auto.checked=true;h.auto.onchange();h.state={slice:10};h.dom.window.dispatchEvent(new h.dom.window.Event('pagehide'));assert.equal(JSON.parse([...h.storage.values()][0]).state.slice,10);
   h.buttons.delete.click();assert.equal(h.storage.size,0);assert.equal(h.buttons.restore.disabled,true);assert.equal(h.state.slice,10);h.event();h.flush();assert.equal(h.storage.size,0);h.dom.window.close();
  });
- await test('Mediciones: filas accesibles, selección y eliminación por identidad',()=>{
+ await test('Mediciones: tarjetas plegadas, controles independientes, foco y ajustes persistentes',()=>{
   const dom=new JSDOM('<p id="measurementEmpty"></p><p id="measurementHint"></p><ol id="measurementList"></ol>');
-  const m={axis:null,index:null,a:new THREE.Vector3(),b:new THREE.Vector3(3,4,0)},n={...m};
+  const m={axis:null,index:null,a:new THREE.Vector3(),b:new THREE.Vector3(3,4,0),precision:3},n={...m};
   const measurements=[m,n];let located=null;
-  const {fn,context}=run('updateMeasurementList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),measurements,selectedMeasurement:m,updateMeasurementHint:()=>{},locateMeasurement:(v,edit)=>{located=[v,edit];},renderMeasure3D:()=>{},repaintAll:()=>{}},['setTreeIcon','formatMeasurementDistance']);
-  fn();const rows=dom.window.document.querySelectorAll('li');const name=rows[0].querySelector('input');name.value='Diámetro de lesión';name.dispatchEvent(new dom.window.Event('input'));assert.equal(m.name,'Diámetro de lesión');name.value=' ';name.dispatchEvent(new dom.window.Event('input'));assert.equal(m.name,undefined);assert.match(rows[0].textContent,/5.0 mm.*3D/);assert.ok(rows[0].classList.contains('selected'));const toggle=rows[0].querySelector('input[type=checkbox]');assert.equal(toggle.checked,true);toggle.click();assert.equal(m.visible,false);toggle.click();assert.equal(m.visible,true);
-  rows[0].querySelector('button').click();assert.equal(located[0],m);assert.equal(rows[0].querySelector('button').getAttribute('aria-pressed'),'true');
-  rows[0].querySelectorAll('button')[1].click();assert.equal(located[1],true);
-  rows[0].querySelectorAll('button')[2].click();assert.equal(measurements.length,1);assert.equal(measurements[0],n);assert.equal(context.selectedMeasurement,null);dom.window.close();
+  const {fn,context}=run('updateMeasurementList',{document:dom.window.document,Event:dom.window.Event,$:id=>dom.window.document.getElementById(id),measurements,expandedMeasurementSettings:new WeakSet(),selectedMeasurement:m,updateMeasurementHint:()=>{},locateMeasurement:(v,edit)=>{located=[v,edit];},renderMeasure3D:()=>{},repaintAll:()=>{}},['setTreeIcon','formatMeasurementDistance']);
+  fn();let row=dom.window.document.querySelector('li');
+  assert.equal(row.querySelector('.measurement-settings').hidden,true);
+  assert.equal(row.querySelector('.measurement-settings-toggle').getAttribute('aria-expanded'),'false');
+  assert.match(row.querySelector('.measurement-locate').textContent,/Medida 1.*5.000 mm.*3D/);
+  const toggle=row.querySelector('input[type=checkbox]');toggle.click();assert.equal(m.visible,false);assert.equal(located,null);toggle.click();assert.equal(m.visible,true);
+  row.querySelector('.measurement-settings-toggle').click();assert.equal(located,null);assert.equal(row.querySelector('.measurement-settings').hidden,false);
+  const name=row.querySelector('input[type=text]');name.value='Diámetro de lesión';name.dispatchEvent(new dom.window.Event('input'));assert.equal(m.name,'Diámetro de lesión');assert.equal(row.querySelector('.measurement-display-name').textContent,m.name);
+  row.querySelector('.measurement-locate').click();assert.equal(located[0],m);assert.equal(located[1],undefined);assert.equal(row.querySelector('.measurement-locate').getAttribute('aria-pressed'),'true');
+  name.focus();name.setSelectionRange(2,5);fn();row=dom.window.document.querySelector('li');assert.equal(row.querySelector('.measurement-settings').hidden,false);assert.equal(dom.window.document.activeElement,row.querySelector('input[type=text]'));assert.equal(dom.window.document.activeElement.selectionStart,2);
+  row.querySelector('[data-measurement-action=edit]').click();assert.equal(located[0],m);assert.equal(located[1],true);
+  row.querySelector('[data-measurement-action=delete]').click();assert.equal(measurements.length,1);assert.equal(measurements[0],n);assert.equal(context.selectedMeasurement,null);assert.equal(dom.window.document.querySelector('.measurement-settings').hidden,true);dom.window.close();
  });
  await test('Mediciones: localizar centra cámara y rechaza planos incompatibles',()=>{
   const dom=new JSDOM('<div class="pane" data-view-pane="3d"></div><input id="rx" value="2"><p id="measurementHint"></p>');

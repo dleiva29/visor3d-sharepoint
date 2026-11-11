@@ -500,3 +500,18 @@ cambiar la pareja y pantalla de 390 px. Prueba adicional con el modelo real
 `modelos/10.glb` (17 MB, 12 estructuras): primera pareja calculada en aproximadamente
 1,2 segundos en este entorno. No es una garantía de tiempos para otros modelos.
 El detalle técnico y las dependencias están en `tools/distance-build/README.md`.
+
+## Tarjetas de medidas · v2.32.1 (11 de noviembre de 2026)
+
+La lista de medidas usa cabeceras compactas con visibilidad, nombre, valor y botón
+Ajustes. Pulsar el nombre o el valor localiza la medida con la navegación existente:
+recupera corte/orientación MPR o centra la cámara 3D. Los ajustes están plegados
+inicialmente y contienen nombre, edición de extremos y eliminación. Se conserva
+su apertura por identidad de medida durante las actualizaciones de la lista y
+se restituye el foco (y selección de texto) para la navegación con teclado.
+La casilla y el desplegable no activan la localización. No cambia el formato de
+persistencia ni la precisión de medidas de distancia mínima.
+
+Validación: 105 pruebas y ESLint; Chromium con medidas MPR, 3D y distancia mínima,
+controles independientes, localización, edición, eliminación y teclado; pantalla
+390 px sin desbordamiento horizontal. Pendiente prueba visual del usuario.
