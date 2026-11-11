@@ -11,7 +11,7 @@
     ><meta charset="utf-8" /><meta
       content="width=device-width,initial-scale=1"
       name="viewport"
-    /><title>MPR · v2.30.0 · Menús de exploración</title>
+    /><title>MPR · v2.31.0 · Caso portátil</title>
     <style>
       .structure-category-icon { width: 16px; height: 16px; flex: 0 0 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: #c0d2df; }
       .tree-shared { font-size: 10px; white-space: nowrap; color: #8fd8e6; margin: 0 3px; cursor: help; }
@@ -3189,7 +3189,7 @@
         title="Abrir manual práctico"
         >ⓘ Manual</a
       ><div class="viewer-header-main"
-        ><strong>Visor MPR · v2.30.0</strong
+        ><strong>Visor MPR · v2.31.0</strong
         ><button
           type="button"
           id="toggleGeneralPanel"
@@ -4207,6 +4207,8 @@
       let volumeContentHash = null,
         modelContentHash = null,
         loadedModelName = "modelo";
+      let portableModelSource = null, portableVolumeSource = null;
+      let activeDataLoads = 0, automaticCaseLoading = false;
       const viewStates = {
           x: { zoom: 1, x: 0, y: 0 },
           y: { zoom: 1, x: 0, y: 0 },
@@ -5348,8 +5350,7 @@
         fit();
       }
       /** Analiza y valida antes de sustituir el volumen o borrar el trabajo actual. */
-      async function loadNrrdData(data, label) {
-        const hash = await contentHash(data);
+      function parsePortableVolume(data) {
         const nextInfo = parseNrrdGeometry(data);
         const nextVolume = new NRRDLoader().parse(data);
         const voxelCount = nextInfo.sizes.reduce((product, n) => product * n, 1);
@@ -5359,6 +5360,14 @@
         if (!Number.isFinite(nextVolume.windowLow) || !Number.isFinite(nextVolume.windowHigh)) {
           throw new Error("Ventana no disponible");
         }
+        return { nextInfo, nextVolume };
+      }
+      async function loadNrrdData(data, label, prepared = null) {
+        activeDataLoads++;
+        try {
+        const original = new Blob([data]);
+        const hash = await contentHash(data);
+        const { nextInfo, nextVolume } = prepared || parsePortableVolume(data);
         localWorkState?.pause();
         if (volumeContentHash !== hash) {
           lastUsEntryPoint = null;
@@ -5385,7 +5394,9 @@
         syncMprNavigation();
         syncNamedViews();
         localWorkState?.sync();
+        portableVolumeSource = { blob: original, name: label };
         status.textContent = `Volumen: ${label} · ${volume.xLength} × ${volume.yLength} × ${volume.zLength} vóxeles. Planos en RAS (${physicalCenter.x.toFixed(1)}, ${physicalCenter.y.toFixed(1)}, ${physicalCenter.z.toFixed(1)}) mm.`;
+        } finally { activeDataLoads--; }
       }
       bindLocalFile(
         $("nrrd"),
@@ -5710,6 +5721,8 @@
         return count;
       }
       async function loadGlbFromUrl(url, label) {
+        activeDataLoads++;
+        try {
         showProgress("Descargando modelo " + label, 0, "Preparando descarga…");
         const bytes = await downloadWithProgress(url, (received, total) =>
           showProgress(
@@ -5725,11 +5738,13 @@
           null,
           "Descarga 100 % · preparando estructuras…"
         );
+        await loadPortableGlbData(buffer, label, url.startsWith("blob:") ? new URL("./", location.href).href : new URL("./", url).href);
+        } finally { activeDataLoads--; }
+      }
+      async function loadPortableGlbData(buffer, label, basePath = "", parsed = null) {
+        const original = new Blob([buffer]);
         const hash = await contentHash(buffer);
-        const result = await new GLTFLoader().parseAsync(
-          buffer,
-          url.startsWith("blob:") ? new URL("./", location.href).href : new URL("./", url).href
-        );
+        const result = parsed || await new GLTFLoader().parseAsync(buffer, basePath);
         localWorkState?.pause();
         clearRoot(modelRoot);
         model = result.scene;
@@ -5756,6 +5771,7 @@
         syncNamedViews();
         if (volume) ["x", "y", "z"].forEach(paint);
         localWorkState?.sync();
+        portableModelSource = { blob: original, name: label };
         status.textContent = `GLB: ${label} · ${counts.structures} estructuras (${counts.meshes} mallas). Comprueba la alineación.`;
       }
       bindLocalFile(
@@ -7563,7 +7579,7 @@
         };
       }
       /** Valida sin modificar estado. Los JSON anteriores conservan sus campos opcionales. */
-      function validateConfig(data) {
+      function validateConfig(data, portableSignature = null) {
         if (!data || typeof data !== "object" || Array.isArray(data))
           throw new Error("Configuración inválida.");
         if (data.clipSyncTc !== undefined && typeof data.clipSyncTc !== "boolean") throw new Error("Sincronización de recorte inválida.");
@@ -7579,7 +7595,7 @@
           throw new Error(
             "Carga el volumen y el modelo GLB antes de recuperar una configuración válida."
           );
-        if (JSON.stringify(data.caseSignature) !== JSON.stringify(configData().caseSignature))
+        if (JSON.stringify(data.caseSignature) !== JSON.stringify(portableSignature || configData().caseSignature))
           throw new Error("La configuración pertenece a otro volumen o conjunto de estructuras.");
         if (
           !Array.isArray(data.window) ||
@@ -10264,6 +10280,7 @@
         const params = new URLSearchParams(location.search);
         const requested = params.get("modelo");
         if (!requested) return;
+        automaticCaseLoading = true;
         try {
           const root = new URL("./", location.href);
           const glbURL = new URL(requested, root);
@@ -10330,7 +10347,7 @@
             err.message +
             ". Puedes seleccionar el NRRD manualmente.";
           finishProgress(false, err.message);
-        }
+        } finally { automaticCaseLoading = false; }
       }
       autoLoadCase();
 
@@ -12428,10 +12445,10 @@
           primary: selectedStructure,
         });
       }
-      function validateCaseSession(state) {
+      function validateCaseSession(state, portableSignature = null) {
         if (!state || !Array.isArray(state.views) || state.views.length > 100)
           throw new Error("Lista de vistas inválida.");
-        validateConfig(state.config);
+        validateConfig(state.config, portableSignature);
         const names = new Set();
         for (const v of state.views) {
           if (
@@ -12445,12 +12462,99 @@
           )
             throw new Error("Vista inválida.");
           names.add(v.name);
-          validateConfig(v.config);
+          validateConfig(v.config, portableSignature);
         }
         if (!Array.isArray(state.selected) || state.selected.some((k) => !layerControls.has(k)))
           throw new Error("Selección inválida.");
         if (state.primary != null && !state.selected.includes(state.primary))
           throw new Error("Estructura activa inválida.");
+      }
+      // Validar contra el caso entrante sin reconstruir ni modificar las vistas actuales.
+      // El contexto temporal es síncrono y se restituye incluso si la validación falla.
+      function validatePortableSession(state, parsedModel, parsedVolume) {
+        const previous = { volume, volumeInfo, model, layers: new Map(layerControls),
+          sliders: ["x", "y", "z"].map(a => [$("r" + a).max, $("r" + a).value]) };
+        try {
+          volume = parsedVolume.nextVolume; volumeInfo = parsedVolume.nextInfo; model = parsedModel.scene;
+          layerControls.clear(); let unnamed = 0;
+          model.traverse(object => { if (object.isMesh) {
+            const name = object.name?.trim() || object.parent?.name?.trim() || `Estructura ${++unnamed}`;
+            layerControls.set(name, null);
+          } });
+          if (!layerControls.size) throw new Error("El modelo no contiene superficies.");
+          ["x", "y", "z"].forEach((a, i) => { $("r" + a).max = String(Math.max(1, volume.RASDimensions[i]) - 1); });
+          validateCaseSession(state, { sizes: volumeInfo.sizes, origin: volumeInfo.originRAS, structures: [...layerControls.keys()] });
+        } finally {
+          volume = previous.volume; volumeInfo = previous.volumeInfo; model = previous.model;
+          layerControls.clear(); for (const [key, value] of previous.layers) layerControls.set(key, value);
+          ["x", "y", "z"].forEach((a, i) => { $("r" + a).max = previous.sliders[i][0]; $("r" + a).value = previous.sliders[i][1]; });
+        }
+      }
+      function installPortableCase() {
+        const box = document.createElement("section"); box.className = "case-session";
+        box.innerHTML = '<strong>Caso portátil · ZIP</strong><div class="case-session-actions"><button type="button" id="openPortableCase">Abrir caso portátil</button><button type="button" id="savePortableCase">Guardar caso portátil</button></div><input id="portableCaseFile" type="file" accept=".zip,application/zip" hidden><p class="note hint">Incluye GLB, NRRD, árbol, medidas, anotaciones y vistas. Máximo 512 MB de datos. Se guarda localmente; no se publica en GitHub.</p><p id="portableCaseStatus" class="note" role="status"></p>';
+        $("caseSessionControls").prepend(box);
+        setTreeIcon($("openPortableCase"), "import", "Abrir caso portátil ZIP (modelo, volumen y estado)");
+        setTreeIcon($("savePortableCase"), "export", "Guardar caso portátil ZIP (modelo, volumen y estado)");
+        const dialog = document.createElement("dialog");
+        dialog.innerHTML = '<p role="status">Procesando caso portátil…</p>';document.body.append(dialog);
+        dialog.addEventListener("cancel", e => e.preventDefault());
+        let busy = false;
+        async function run(action) {
+          if (busy) return;
+          const message = $("portableCaseStatus");
+          if (activeDataLoads || automaticCaseLoading) { message.textContent = "Espera a que termine la carga del caso."; return; }
+          if (presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open) { message.textContent = "Sal de la presentación o del modo US antes de continuar."; return; }
+          busy = true;dialog.showModal();
+          try { await action(message); }
+          catch (error) { message.textContent = "No se pudo completar: " + error.message; }
+          finally { busy = false; dialog.close(); }
+        }
+        $("savePortableCase").onclick = () => run(async message => {
+          if (!currentViewCase() || !portableModelSource || !portableVolumeSource) throw new Error("Carga el modelo GLB y el volumen NRRD completos.");
+          const session = { format: "mpr-complete-case", version: 1, caseKey: currentViewCase(), model: loadedModelName, savedAt: new Date().toISOString(), state: caseSessionState() };
+          validateCaseSession(session.state);
+          const { createPortableCase, MAX_PORTABLE_BYTES } = await import("./tools/portable-case.js");
+          if (portableModelSource.blob.size + portableVolumeSource.blob.size > MAX_PORTABLE_BYTES) throw new Error("El caso supera el límite de 512 MB.");
+          const bytes = await createPortableCase({ model: new Uint8Array(await portableModelSource.blob.arrayBuffer()), volume: new Uint8Array(await portableVolumeSource.blob.arrayBuffer()), session, modelName: portableModelSource.name, volumeName: portableVolumeSource.name });
+          const url = URL.createObjectURL(new Blob([bytes], { type: "application/zip" }));
+          const link = document.createElement("a");link.href = url;link.download = (loadedModelName || "caso").replace(/[^a-zA-Z0-9_-]/g, "_") + "_portatil.zip";link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 60000);
+          message.textContent = "Caso portátil guardado: " + link.download + " · " + formatMB(bytes.length);
+        });
+        $("openPortableCase").onclick = () => $("portableCaseFile").click();
+        bindLocalFile($("portableCaseFile"), file => run(async message => {
+          const { readPortableCase, MAX_PORTABLE_BYTES } = await import("./tools/portable-case.js");
+          if (file.size > MAX_PORTABLE_BYTES + 26000000) throw new Error("El ZIP supera el tamaño admitido.");
+          const data = await readPortableCase(new Uint8Array(await file.arrayBuffer()));
+          const volumeBuffer = data.volume.buffer.slice(data.volume.byteOffset, data.volume.byteOffset + data.volume.byteLength);
+          const modelBuffer = data.model.buffer.slice(data.model.byteOffset, data.model.byteOffset + data.model.byteLength);
+          const parsedVolume = parsePortableVolume(volumeBuffer);
+          const parsedModel = await new GLTFLoader().parseAsync(modelBuffer, "");
+          let installed = false;
+          try {
+            validatePortableSession(data.session.state, parsedModel, parsedVolume);
+            if ((model || volume) && !confirm("Abrir este caso portátil sustituirá el trabajo actual. ¿Continuar?")) { message.textContent = "Apertura cancelada. El caso actual se conserva."; return; }
+            const old = { model: portableModelSource, volume: portableVolumeSource, state: currentViewCase() ? caseSessionState() : null };
+            try {
+              await loadNrrdData(volumeBuffer, data.manifest.volumeName, parsedVolume);
+              await loadPortableGlbData(modelBuffer, data.manifest.modelName, "", parsedModel);installed = true;
+              restoreCaseSession(data.session.state);
+              document.dispatchEvent(new Event("case-state-change"));
+              finishProgress(true, "Caso portátil recuperado");
+              message.textContent = "Caso portátil recuperado: modelo, volumen y estado de trabajo.";
+            } catch (error) {
+              if (old.model && old.volume && old.state) {
+                await loadNrrdData(await old.volume.blob.arrayBuffer(), old.volume.name);
+                await loadPortableGlbData(await old.model.blob.arrayBuffer(), old.model.name);
+                restoreCaseSession(old.state);
+              }
+              throw error;
+            }
+          } finally {
+            if (!installed) parsedModel.scene.traverse(o => { o.geometry?.dispose(); if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => m.dispose()); });
+          }
+        }), error => { $("portableCaseStatus").textContent = error; });
       }
       function restoreCaseSession(state) {
         validateCaseSession(state);
@@ -12485,6 +12589,7 @@
         blocked: () => batchRestore || presentationCameraFlight || !$("casePresentation").hidden || $("usDialog").open,
       }, $("caseSessionControls"));
       savedViewTracker = installSavedViewTracker();
+      installPortableCase();
       // =============================================================================
       // 20 · Capturas y presentación
       // =============================================================================
