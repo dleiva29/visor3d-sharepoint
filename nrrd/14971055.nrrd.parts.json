@@ -1,0 +1,20 @@
+{
+  "format": "nrrd-parts-v1",
+  "originalName": "14971055.nrrd",
+  "totalBytes": 115680131,
+  "chunkBytes": 10000000,
+  "parts": [
+    "14971055.nrrd.part001",
+    "14971055.nrrd.part002",
+    "14971055.nrrd.part003",
+    "14971055.nrrd.part004",
+    "14971055.nrrd.part005",
+    "14971055.nrrd.part006",
+    "14971055.nrrd.part007",
+    "14971055.nrrd.part008",
+    "14971055.nrrd.part009",
+    "14971055.nrrd.part010",
+    "14971055.nrrd.part011",
+    "14971055.nrrd.part012"
+  ]
+}
